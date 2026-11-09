@@ -1895,11 +1895,15 @@ impl Gx {
 
         while at < list.len() {
             let op = list[at];
-            if op == 0 {
+            if op == 0 || op == 0x48 {
                 at += 1;
                 continue;
             }
             if !(0x80..=0xBF).contains(&op) || at + 3 > list.len() {
+                static FAIL_LOG_COUNT: core::sync::atomic::AtomicU32 = core::sync::atomic::AtomicU32::new(0);
+                if FAIL_LOG_COUNT.fetch_add(1, core::sync::atomic::Ordering::Relaxed) < 10 {
+                    crate::log_c(&format!("[dl-plain-fail] len={} at={} op={:#04x}", list.len(), at, op));
+                }
                 plain = false;
                 break;
             }
@@ -1907,6 +1911,10 @@ impl Gx {
             vats_used |= 1 << (vat as u8);
             let need = 3 + count * self.vertex_size(vat);
             if at + need > list.len() {
+                static OVERRUN_LOG_COUNT: core::sync::atomic::AtomicU32 = core::sync::atomic::AtomicU32::new(0);
+                if OVERRUN_LOG_COUNT.fetch_add(1, core::sync::atomic::Ordering::Relaxed) < 10 {
+                    crate::log_c(&format!("[dl-overrun-fail] len={} at={} need={} count={}", list.len(), at, need, count));
+                }
                 plain = false;
                 break;
             }
@@ -1961,9 +1969,17 @@ impl Gx {
 
     fn resolve_list_inner(&mut self, addr: u32, size: usize) -> Ahead {
         if self.renderer.is_none() || size == 0 || !in_ram(addr, size) {
+            static FAIL_RAM: core::sync::atomic::AtomicU32 = core::sync::atomic::AtomicU32::new(0);
+            if FAIL_RAM.fetch_add(1, core::sync::atomic::Ordering::Relaxed) < 5 {
+                crate::log_c(&format!("[late-ram] addr={:#010x} size={} in_ram={}", addr, size, in_ram(addr, size)));
+            }
             return Ahead::Late;
         }
         if self.cp[0x50] & 0x1FF != 0 || self.cp[0x60] >> 8 != 0 {
+            static FAIL_CP: core::sync::atomic::AtomicU32 = core::sync::atomic::AtomicU32::new(0);
+            if FAIL_CP.fetch_add(1, core::sync::atomic::Ordering::Relaxed) < 5 {
+                crate::log_c(&format!("[late-cp] cp50={:#010x} cp60={:#010x}", self.cp[0x50], self.cp[0x60]));
+            }
             return Ahead::Late;
         }
         let list = unsafe { self.mem.slice(addr, size) };
@@ -2080,7 +2096,13 @@ impl Gx {
                     core::mem::replace(&mut self.list_indices, indices),
                 )
             }
-            None => Ahead::Late,
+            None => {
+                static FAIL_LATE: core::sync::atomic::AtomicU32 = core::sync::atomic::AtomicU32::new(0);
+                if FAIL_LATE.fetch_add(1, core::sync::atomic::Ordering::Relaxed) < 5 {
+                    crate::log_c(&format!("[late-none] built={} cache_full={}", built, self.cache_full));
+                }
+                Ahead::Late
+            }
         }
     }
 

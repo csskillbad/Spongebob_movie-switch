@@ -9643,8 +9643,43 @@ pub fn fn_80203738(c: &mut Ctx) {
 }
 
 // xSphereHitsBox__FRC5xVec3fRC4xBox
+#[inline(always)]
 pub fn fn_80203764(c: &mut Ctx) {
     let mem = c.mem;
+    let r3 = c.r[3];
+    let r4 = c.r[4];
+    let radius = c.f[1] as f32;
+
+    if runtime::in_ram(r3, 12) && runtime::in_ram(r4, 24) {
+        let cx = f32::from_bits(runtime::mr32(mem, r3));
+        let cy = f32::from_bits(runtime::mr32(mem, r3.wrapping_add(4)));
+        let cz = f32::from_bits(runtime::mr32(mem, r3.wrapping_add(8)));
+
+        let mut min_x = f32::from_bits(runtime::mr32(mem, r4));
+        let mut min_y = f32::from_bits(runtime::mr32(mem, r4.wrapping_add(4)));
+        let mut min_z = f32::from_bits(runtime::mr32(mem, r4.wrapping_add(8)));
+
+        let mut max_x = f32::from_bits(runtime::mr32(mem, r4.wrapping_add(12)));
+        let mut max_y = f32::from_bits(runtime::mr32(mem, r4.wrapping_add(16)));
+        let mut max_z = f32::from_bits(runtime::mr32(mem, r4.wrapping_add(20)));
+
+        if min_x > max_x { core::mem::swap(&mut min_x, &mut max_x); }
+        if min_y > max_y { core::mem::swap(&mut min_y, &mut max_y); }
+        if min_z > max_z { core::mem::swap(&mut min_z, &mut max_z); }
+
+        let cl_x = if cx < min_x { min_x } else if cx > max_x { max_x } else { cx };
+        let cl_y = if cy < min_y { min_y } else if cy > max_y { max_y } else { cy };
+        let cl_z = if cz < min_z { min_z } else if cz > max_z { max_z } else { cz };
+
+        let dx = cx - cl_x;
+        let dy = cy - cl_y;
+        let dz = cz - cl_z;
+
+        let dist_sq = dx * dx + dy * dy + dz * dz;
+        c.r[3] = if dist_sq <= radius * radius { 1 } else { 0 };
+        return;
+    }
+
     let mut r0 = c.r[0]; let mut r2 = c.r[2]; let mut r3 = c.r[3]; let mut r4 = c.r[4]; 
     let mut f0 = c.f[0]; let mut f1 = c.f[1]; let mut f2 = c.f[2]; let mut f3 = c.f[3]; let mut f4 = c.f[4]; let mut f5 = c.f[5]; let mut f6 = c.f[6]; let mut f7 = c.f[7]; let mut f8 = c.f[8]; let mut f9 = c.f[9]; let mut f10 = c.f[10]; let mut f11 = c.f[11]; 
     let mut ps0 = c.ps1[0]; let mut ps1 = c.ps1[1]; let mut ps2 = c.ps1[2]; let mut ps3 = c.ps1[3]; let mut ps4 = c.ps1[4]; let mut ps5 = c.ps1[5]; let mut ps6 = c.ps1[6]; let mut ps7 = c.ps1[7]; let mut ps8 = c.ps1[8]; let mut ps9 = c.ps1[9]; let mut ps10 = c.ps1[10]; let mut ps11 = c.ps1[11]; 

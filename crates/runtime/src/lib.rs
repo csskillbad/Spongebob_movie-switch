@@ -41,6 +41,11 @@ pub static HLE_CALL_COUNTS: [AtomicU32; MAX_HLE_FUNCS] = [const { AtomicU32::new
 pub static HLE_CALL_TICKS: [AtomicU64; MAX_HLE_FUNCS] = [const { AtomicU64::new(0) }; MAX_HLE_FUNCS];
 
 #[inline(always)]
+pub fn in_ram(a: u32, len: usize) -> bool {
+    a >= mem::RAM_BASE && a.wrapping_sub(mem::RAM_BASE) <= mem::RAM_SIZE.saturating_sub(len as u32)
+}
+
+#[inline(always)]
 pub unsafe fn mptr(mem: *mut u8, a: u32) -> *mut u8 {
     #[cfg(target_os = "none")]
     {

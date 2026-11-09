@@ -5333,8 +5333,140 @@ pub fn fn_803299D0(c: &mut Ctx) {
 }
 
 // _rwDlVtxFmtSetup
+#[inline(always)]
 pub fn fn_803299D8(c: &mut Ctx) {
     let mem = c.mem;
+    let mut fmt = c.r[3];
+    let mesh = c.r[4];
+
+    if runtime::in_ram(mesh, 12) {
+        if fmt == 0 {
+            fmt = 0x80486240;
+        }
+        let mesh_vtx = runtime::mr32(mem, mesh);
+        if runtime::in_ram(mesh_vtx, 0x18 + 8) && runtime::in_ram(fmt, 0x20) {
+            let r30 = mesh_vtx.wrapping_add(0x18);
+
+            // GXClearVtxDesc
+            fn_802EAC04(c);
+
+            // Positions (GX_VA_POS = 9)
+            let pos_desc = runtime::mr8(mem, r30.wrapping_add(0x12)) as u32;
+            c.r[3] = 9;
+            c.r[4] = pos_desc;
+            fn_802EA7B8(c);
+
+            let pos_comp_cnt = runtime::mr8(mem, fmt) as u32;
+            let pos_frac = runtime::mr8(mem, fmt.wrapping_add(0xC)) as u32;
+            c.r[3] = 0;
+            c.r[4] = 9;
+            c.r[5] = 1;
+            c.r[6] = pos_comp_cnt;
+            c.r[7] = pos_frac;
+            fn_802EAC3C(c);
+
+            let pos_arr_ptr = runtime::mr32(mem, r30.wrapping_add(0xC));
+            let pos_arr_stride = runtime::mr8(mem, r30.wrapping_add(0x11)) as u32;
+            c.r[3] = 9;
+            c.r[4] = pos_arr_ptr;
+            c.r[5] = pos_arr_stride;
+            fn_802EB1B4(c);
+
+            let flags = runtime::mr32(mem, mesh.wrapping_add(8));
+            let mut r31: u32 = 1;
+
+            // Normals
+            if (flags & 0x10) == 0 {
+                let is_nbt = runtime::mr8(mem, fmt.wrapping_add(0xD)) != 0;
+                let (attr, cnt) = if is_nbt { (0x19u32, 1u32) } else { (0xAu32, 0u32) };
+                let nrm_ptr = r30.wrapping_add(r31.wrapping_mul(8));
+                let nrm_desc = runtime::mr8(mem, nrm_ptr.wrapping_add(0x12)) as u32;
+                c.r[3] = attr;
+                c.r[4] = nrm_desc;
+                fn_802EA7B8(c);
+
+                let nrm_comp_type = runtime::mr8(mem, fmt.wrapping_add(1)) as u32;
+                c.r[3] = 0;
+                c.r[4] = attr;
+                c.r[5] = cnt;
+                c.r[6] = nrm_comp_type;
+                c.r[7] = 0;
+                fn_802EAC3C(c);
+
+                let arr_ptr = runtime::mr32(mem, nrm_ptr.wrapping_add(0xC));
+                let arr_stride = runtime::mr8(mem, nrm_ptr.wrapping_add(0x11)) as u32;
+                c.r[3] = attr;
+                c.r[4] = arr_ptr;
+                c.r[5] = arr_stride;
+                fn_802EB1B4(c);
+
+                r31 = 2;
+            }
+
+            // Colors
+            if (flags & 0x8) == 0 {
+                let clr_ptr = r30.wrapping_add(r31.wrapping_mul(8));
+                let clr_desc = runtime::mr8(mem, clr_ptr.wrapping_add(0x12)) as u32;
+                c.r[3] = 0xBu32; // GX_VA_CLR0
+                c.r[4] = clr_desc;
+                fn_802EA7B8(c);
+
+                let clr_comp_type = runtime::mr8(mem, fmt.wrapping_add(0xA)) as u32;
+                let clr_comp_cnt = ((2i32.wrapping_sub(clr_comp_type as i32)) as u32).rotate_left(1) & 1;
+                c.r[3] = 0;
+                c.r[4] = 0xBu32;
+                c.r[5] = clr_comp_cnt;
+                c.r[6] = clr_comp_type;
+                c.r[7] = 0;
+                fn_802EAC3C(c);
+
+                let arr_ptr = runtime::mr32(mem, clr_ptr.wrapping_add(0xC));
+                let arr_stride = runtime::mr8(mem, clr_ptr.wrapping_add(0x11)) as u32;
+                c.r[3] = 0xBu32;
+                c.r[4] = arr_ptr;
+                c.r[5] = arr_stride;
+                fn_802EB1B4(c);
+
+                r31 = r31.wrapping_add(1);
+            }
+
+            // Texture coordinates
+            if (flags & 0x84) == 0 {
+                let num_tex = runtime::mr32(mem, r30.wrapping_add(8));
+                let mut tex_attr = 0xDu32; // GX_VA_TEX0
+                let mut curr_ptr = r30.wrapping_add(r31.wrapping_mul(8));
+                while r31 < num_tex {
+                    let tex_desc = runtime::mr8(mem, curr_ptr.wrapping_add(0x12)) as u32;
+                    c.r[3] = tex_attr;
+                    c.r[4] = tex_desc;
+                    fn_802EA7B8(c);
+
+                    let tex_comp_cnt = runtime::mr8(mem, fmt.wrapping_add(tex_attr).wrapping_sub(11)) as u32;
+                    let tex_frac = runtime::mr8(mem, fmt.wrapping_add(tex_attr).wrapping_add(1)) as u32;
+                    c.r[3] = 0;
+                    c.r[4] = tex_attr;
+                    c.r[5] = 1;
+                    c.r[6] = tex_comp_cnt;
+                    c.r[7] = tex_frac;
+                    fn_802EAC3C(c);
+
+                    let arr_ptr = runtime::mr32(mem, curr_ptr.wrapping_add(0xC));
+                    let arr_stride = runtime::mr8(mem, curr_ptr.wrapping_add(0x11)) as u32;
+                    c.r[3] = tex_attr;
+                    c.r[4] = arr_ptr;
+                    c.r[5] = arr_stride;
+                    fn_802EB1B4(c);
+
+                    curr_ptr = curr_ptr.wrapping_add(8);
+                    r31 = r31.wrapping_add(1);
+                    tex_attr = tex_attr.wrapping_add(1);
+                }
+            }
+
+            return;
+        }
+    }
+
     let mut r0 = c.r[0]; let mut r1 = c.r[1]; let mut r3 = c.r[3]; let mut r4 = c.r[4]; let mut r5 = c.r[5]; let mut r6 = c.r[6]; let mut r7 = c.r[7]; let mut r11 = c.r[11]; let mut r27 = c.r[27]; let mut r28 = c.r[28]; let mut r29 = c.r[29]; let mut r30 = c.r[30]; let mut r31 = c.r[31]; 
     let mut cr0 = c.cr[0]; 
     let mut ca = c.ca;
