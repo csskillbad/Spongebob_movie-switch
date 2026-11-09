@@ -748,6 +748,7 @@ struct ListShape {
     index_count: u32,
     draws: u32,
     vertices: u32,
+    vats_used: u8,
 }
 
 enum Ahead {
@@ -1358,8 +1359,17 @@ impl Gx {
         let mut extents = Vec::with_capacity(jobs.len());
         unsafe { extents.set_len(jobs.len()) };
 
-        if jobs.len() >= 4 && total >= 1024 {
-            let mid = jobs.len() / 2;
+        if jobs.len() >= 2 && total >= 128 {
+            let target_mid = total / 2;
+            let mut accum = 0;
+            let mut mid = 1;
+            for (idx, j) in jobs.iter().enumerate() {
+                accum += j.count;
+                if accum >= target_mid || idx + 1 == jobs.len() {
+                    mid = (idx + 1).min(jobs.len() - 1).max(1);
+                    break;
+                }
+            }
             let worker_verts: usize = jobs[..mid].iter().map(|j| j.count).sum();
 
             let worker_slice = WorkerSlice {
@@ -1866,7 +1876,7 @@ impl Gx {
         hash
     }
 
-    fn build_list(&mut self, list: &[u8]) -> Option<([(u32, u32); 12], u32, u32)> {
+    fn build_list(&mut self, list: &[u8]) -> Option<([(u32, u32); 12], u32, u32, u8)> {
         let mut vertices = core::mem::take(&mut self.list_vertices);
         let mut indices = core::mem::take(&mut self.list_indices);
         vertices.clear();
@@ -1880,6 +1890,7 @@ impl Gx {
         });
         let mut ranges = [(u32::MAX, 0u32); 12];
         let (mut at, mut draws, mut total) = (0, 0u32, 0u32);
+        let mut vats_used = 0u8;
         let mut plain = true;
 
         while at < list.len() {
@@ -1893,6 +1904,7 @@ impl Gx {
                 break;
             }
             let (count, vat) = (be16(list, at + 1), (op & 7) as usize);
+            vats_used |= 1 << (vat as u8);
             let need = 3 + count * self.vertex_size(vat);
             if at + need > list.len() {
                 plain = false;
@@ -1936,7 +1948,7 @@ impl Gx {
         plain &= self.spans_at(&spans).is_some();
         self.list_vertices = vertices;
         self.list_indices = indices;
-        plain.then_some((spans, draws, total))
+        plain.then_some((spans, draws, total, vats_used))
     }
 
     fn resolve_list(&mut self, addr: u32, size: usize) -> Ahead {
@@ -1965,13 +1977,14 @@ impl Gx {
         } else {
             (addr as u64) ^ ((size as u64) << 32)
         };
-        let key = (list_hash, self.cp_signature());
+        let vcd_sig = (self.cp[0x50] as u64) ^ ((self.cp[0x60] as u64) << 32);
+        let key = (list_hash, vcd_sig);
         let mut built = false;
         let shape = match self.shapes.get(&key).copied() {
             Some(shape) => shape,
             None => {
                 let shape = match self.build_list(list) {
-                    Some((spans, draws, vertices)) => {
+                    Some((spans, draws, vertices, vats_used)) => {
                         built = true;
                         ListShape {
                             plain: true,
@@ -1979,6 +1992,7 @@ impl Gx {
                             index_count: self.list_indices.len() as u32,
                             draws,
                             vertices,
+                            vats_used,
                         }
                     }
                     None => ListShape {
@@ -1987,6 +2001,7 @@ impl Gx {
                         index_count: 0,
                         draws: 0,
                         vertices: 0,
+                        vats_used: 0,
                     },
                 };
                 self.shapes.insert(key, shape);
@@ -1999,15 +2014,31 @@ impl Gx {
 
         let mut place = None;
         if let (true, Some(at)) = (!self.cache_full, self.spans_at(&shape.spans)) {
-            let bases = self.array_bases().iter().fold(0u64, |hash, &base| {
-                (hash.rotate_left(9) ^ base as u64).wrapping_mul(0x9E37_79B9_7F4A_7C15)
-            });
-            let check_key = (key.0, key.1, bases);
+            let mut bases = 0u64;
+            for n in (0..12).filter(|&n| shape.spans[n].1 != 0) {
+                let base = (self.cp[0xA0 + n] & 0x03FF_FFFF) | 0x8000_0000;
+                let stride = self.cp[0xB0 + n] & 0xFF;
+                bases = (bases.rotate_left(9) ^ ((n as u64) << 32) ^ (base as u64) ^ ((stride as u64) << 48))
+                    .wrapping_mul(0x9E37_79B9_7F4A_7C15);
+            }
+            let mut vat_sig = vcd_sig;
+            for v in 0..8 {
+                if (shape.vats_used & (1 << v)) != 0 {
+                    let (va, vb, vc) = (
+                        self.cp[0x70 + v] as u64,
+                        self.cp[0x80 + v] as u64,
+                        self.cp[0x90 + v] as u64,
+                    );
+                    vat_sig = (vat_sig.rotate_left(7) ^ va ^ (vb << 21) ^ (vc << 42))
+                        .wrapping_mul(0x9E37_79B9_7F4A_7C15);
+                }
+            }
+            let check_key = (key.0, vat_sig, bases);
             if let Some(check) = self.checks.get(&check_key) {
                 place = Some(check.place);
             } else {
                 let exact = self.exact_hash(&at);
-                place = self.places.get(&(key.0, key.1, exact)).copied();
+                place = self.places.get(&(key.0, vat_sig, exact)).copied();
                 if place.is_none() && (built || self.build_list(list).is_some()) {
                     built = true;
                     let content = (
@@ -2024,7 +2055,7 @@ impl Gx {
                     match place {
                         None => self.cache_full = true,
                         Some(p) => {
-                            self.places.insert((key.0, key.1, exact), p);
+                            self.places.insert((key.0, vat_sig, exact), p);
                             if shared.is_none() {
                                 self.contents.insert(content, p);
                             }
@@ -2743,6 +2774,11 @@ impl Gx {
         self.hud_marked = 0;
         self.hud_marks.clear();
         crate::STAT_COPY_DISPLAY_COUNT.fetch_add(1, core::sync::atomic::Ordering::Relaxed);
+    }
+
+    #[inline(always)]
+    pub fn has_pending(&self, c: &Ctx) -> bool {
+        c.fifo_len != 0 || !self.pending.is_empty()
     }
 
     pub fn process(&mut self, c: &mut Ctx) {

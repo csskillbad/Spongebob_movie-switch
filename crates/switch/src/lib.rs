@@ -1187,8 +1187,16 @@ fn absorb_gx(c: &mut Ctx) {
     }
 }
 
-/// Runs `Gx::process` directly on Core 1 (`sched::me() == 0`), where the EGLContext is current.
+/// Runs `Gx::process` directly on Core 1 (`sched::me() == 0`).
 fn gx_process_core1_only(c: &mut Ctx) {
+    #[allow(static_mut_refs)]
+    unsafe {
+        if let Some(gx) = GX_STATE.as_ref() {
+            if !gx.has_pending(c) {
+                return;
+            }
+        }
+    }
     let t0 = unsafe { switch_now_ns() };
     #[allow(static_mut_refs)]
     unsafe {
