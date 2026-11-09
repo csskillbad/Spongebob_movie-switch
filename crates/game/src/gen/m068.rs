@@ -12098,6 +12098,71 @@ pub fn fn_8033AD88(c: &mut Ctx) {
 
 // RtQuatSetupSlerpCache
 pub fn fn_8033B170(c: &mut Ctx) {
+    let q1 = c.r[3];
+    let q2 = c.r[4];
+    let cache = c.r[5];
+    let mem = c.mem;
+    if (q1 >= 0x8000_0000 && q1 < 0x817F_FFF0)
+        && (q2 >= 0x8000_0000 && q2 < 0x817F_FFF0)
+        && (cache >= 0x8000_0000 && cache < 0x817F_FFD0)
+    {
+        let q1_x = f32::from_bits(runtime::mr32(mem, q1));
+        let q1_y = f32::from_bits(runtime::mr32(mem, q1 + 4));
+        let q1_z = f32::from_bits(runtime::mr32(mem, q1 + 8));
+        let q1_w = f32::from_bits(runtime::mr32(mem, q1 + 12));
+
+        let q2_x = f32::from_bits(runtime::mr32(mem, q2));
+        let q2_y = f32::from_bits(runtime::mr32(mem, q2 + 4));
+        let q2_z = f32::from_bits(runtime::mr32(mem, q2 + 8));
+        let q2_w = f32::from_bits(runtime::mr32(mem, q2 + 12));
+
+        let mut dot = q1_x * q2_x + q1_y * q2_y + q1_z * q2_z + q1_w * q2_w;
+        let (to_x, to_y, to_z, to_w) = if dot < 0.0 {
+            dot = -dot;
+            (-q2_x, -q2_y, -q2_z, -q2_w)
+        } else {
+            (q2_x, q2_y, q2_z, q2_w)
+        };
+
+        if dot > 1.0 {
+            dot = 1.0;
+        }
+
+        const EPSILON: f32 = 0.9999899864196777;
+        if dot >= EPSILON {
+            runtime::mw32(mem, cache, q1_x.to_bits());
+            runtime::mw32(mem, cache + 4, q1_y.to_bits());
+            runtime::mw32(mem, cache + 8, q1_z.to_bits());
+            runtime::mw32(mem, cache + 12, q1_w.to_bits());
+            runtime::mw32(mem, cache + 16, to_x.to_bits());
+            runtime::mw32(mem, cache + 20, to_y.to_bits());
+            runtime::mw32(mem, cache + 24, to_z.to_bits());
+            runtime::mw32(mem, cache + 28, to_w.to_bits());
+            runtime::mw32(mem, cache + 32, 0);
+            runtime::mw32(mem, cache + 36, 0);
+            return;
+        }
+
+        extern "C" {
+            fn acosf(x: f32) -> f32;
+            fn sinf(x: f32) -> f32;
+        }
+        let omega = unsafe { acosf(dot) };
+        let sin_omega = unsafe { sinf(omega) };
+        let inv_sin = 1.0f32 / sin_omega;
+
+        runtime::mw32(mem, cache, (q1_x * inv_sin).to_bits());
+        runtime::mw32(mem, cache + 4, (q1_y * inv_sin).to_bits());
+        runtime::mw32(mem, cache + 8, (q1_z * inv_sin).to_bits());
+        runtime::mw32(mem, cache + 12, (q1_w * inv_sin).to_bits());
+        runtime::mw32(mem, cache + 16, (to_x * inv_sin).to_bits());
+        runtime::mw32(mem, cache + 20, (to_y * inv_sin).to_bits());
+        runtime::mw32(mem, cache + 24, (to_z * inv_sin).to_bits());
+        runtime::mw32(mem, cache + 28, (to_w * inv_sin).to_bits());
+        runtime::mw32(mem, cache + 32, omega.to_bits());
+        runtime::mw32(mem, cache + 36, 1);
+        return;
+    }
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r1 = c.r[1]; let mut r2 = c.r[2]; let mut r3 = c.r[3]; let mut r4 = c.r[4]; let mut r5 = c.r[5]; let mut r6 = c.r[6]; let mut r31 = c.r[31]; 
     let mut f0 = c.f[0]; let mut f1 = c.f[1]; let mut f2 = c.f[2]; let mut f3 = c.f[3]; let mut f4 = c.f[4]; let mut f5 = c.f[5]; let mut f6 = c.f[6]; let mut f7 = c.f[7]; let mut f8 = c.f[8]; let mut f30 = c.f[30]; let mut f31 = c.f[31]; 
