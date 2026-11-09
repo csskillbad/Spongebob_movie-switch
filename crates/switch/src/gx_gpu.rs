@@ -748,7 +748,6 @@ struct ListShape {
     index_count: u32,
     draws: u32,
     vertices: u32,
-    vats_used: u8,
 }
 
 enum Ahead {
@@ -1359,17 +1358,8 @@ impl Gx {
         let mut extents = Vec::with_capacity(jobs.len());
         unsafe { extents.set_len(jobs.len()) };
 
-        if jobs.len() >= 2 && total >= 128 {
-            let target_mid = total / 2;
-            let mut accum = 0;
-            let mut mid = 1;
-            for (idx, j) in jobs.iter().enumerate() {
-                accum += j.count;
-                if accum >= target_mid || idx + 1 == jobs.len() {
-                    mid = (idx + 1).min(jobs.len() - 1).max(1);
-                    break;
-                }
-            }
+        if jobs.len() >= 4 && total >= 1024 {
+            let mid = jobs.len() / 2;
             let worker_verts: usize = jobs[..mid].iter().map(|j| j.count).sum();
 
             let worker_slice = WorkerSlice {
@@ -1876,7 +1866,7 @@ impl Gx {
         hash
     }
 
-    fn build_list(&mut self, list: &[u8]) -> Option<([(u32, u32); 12], u32, u32, u8)> {
+    fn build_list(&mut self, list: &[u8]) -> Option<([(u32, u32); 12], u32, u32)> {
         let mut vertices = core::mem::take(&mut self.list_vertices);
         let mut indices = core::mem::take(&mut self.list_indices);
         vertices.clear();
@@ -1890,41 +1880,21 @@ impl Gx {
         });
         let mut ranges = [(u32::MAX, 0u32); 12];
         let (mut at, mut draws, mut total) = (0, 0u32, 0u32);
-        let mut vats_used = 0u8;
         let mut plain = true;
 
         while at < list.len() {
             let op = list[at];
-            if op == 0 || op == 0x48 {
+            if op == 0 {
                 at += 1;
                 continue;
             }
             if !(0x80..=0xBF).contains(&op) || at + 3 > list.len() {
-                static FAIL_LOG_COUNT: core::sync::atomic::AtomicU32 = core::sync::atomic::AtomicU32::new(0);
-                if FAIL_LOG_COUNT.fetch_add(1, core::sync::atomic::Ordering::Relaxed) < 10 {
-                    crate::log_c(&format!("[dl-plain-fail] len={} at={} op={:#04x} vcd=({:#x},{:#x}) vat0=({:#x},{:#x},{:#x}) vsz0={} head={:02x?}",
-                        list.len(), at, op, vcd_lo, vcd_hi,
-                        self.cp[0x70], self.cp[0x80], self.cp[0x90],
-                        self.vertex_size(0),
-                        &list[..list.len().min(32)]
-                    ));
-                }
                 plain = false;
                 break;
             }
             let (count, vat) = (be16(list, at + 1), (op & 7) as usize);
-            vats_used |= 1 << (vat as u8);
             let need = 3 + count * self.vertex_size(vat);
             if at + need > list.len() {
-                static OVERRUN_LOG_COUNT: core::sync::atomic::AtomicU32 = core::sync::atomic::AtomicU32::new(0);
-                if OVERRUN_LOG_COUNT.fetch_add(1, core::sync::atomic::Ordering::Relaxed) < 10 {
-                    crate::log_c(&format!("[dl-overrun-fail] len={} at={} need={} count={} vat={} vsz={} vcd=({:#x},{:#x}) vat=({:#x},{:#x},{:#x}) head={:02x?}",
-                        list.len(), at, need, count, vat, self.vertex_size(vat),
-                        vcd_lo, vcd_hi,
-                        self.cp[0x70 + vat], self.cp[0x80 + vat], self.cp[0x90 + vat],
-                        &list[..list.len().min(32)]
-                    ));
-                }
                 plain = false;
                 break;
             }
@@ -1966,7 +1936,7 @@ impl Gx {
         plain &= self.spans_at(&spans).is_some();
         self.list_vertices = vertices;
         self.list_indices = indices;
-        plain.then_some((spans, draws, total, vats_used))
+        plain.then_some((spans, draws, total))
     }
 
     fn resolve_list(&mut self, addr: u32, size: usize) -> Ahead {
@@ -1979,17 +1949,9 @@ impl Gx {
 
     fn resolve_list_inner(&mut self, addr: u32, size: usize) -> Ahead {
         if self.renderer.is_none() || size == 0 || !in_ram(addr, size) {
-            static FAIL_RAM: core::sync::atomic::AtomicU32 = core::sync::atomic::AtomicU32::new(0);
-            if FAIL_RAM.fetch_add(1, core::sync::atomic::Ordering::Relaxed) < 5 {
-                crate::log_c(&format!("[late-ram] addr={:#010x} size={} in_ram={}", addr, size, in_ram(addr, size)));
-            }
             return Ahead::Late;
         }
         if self.cp[0x50] & 0x1FF != 0 || self.cp[0x60] >> 8 != 0 {
-            static FAIL_CP: core::sync::atomic::AtomicU32 = core::sync::atomic::AtomicU32::new(0);
-            if FAIL_CP.fetch_add(1, core::sync::atomic::Ordering::Relaxed) < 5 {
-                crate::log_c(&format!("[late-cp] cp50={:#010x} cp60={:#010x}", self.cp[0x50], self.cp[0x60]));
-            }
             return Ahead::Late;
         }
         let list = unsafe { self.mem.slice(addr, size) };
@@ -2003,48 +1965,49 @@ impl Gx {
         } else {
             (addr as u64) ^ ((size as u64) << 32)
         };
-        let cp_sig = self.cp_signature();
-        let key = (list_hash, cp_sig);
+        let key = (list_hash, self.cp_signature());
         let mut built = false;
         let shape = match self.shapes.get(&key).copied() {
             Some(shape) => shape,
             None => {
-                match self.build_list(list) {
-                    Some((spans, draws, vertices, vats_used)) => {
+                let shape = match self.build_list(list) {
+                    Some((spans, draws, vertices)) => {
                         built = true;
-                        let s = ListShape {
+                        ListShape {
                             plain: true,
                             spans,
                             index_count: self.list_indices.len() as u32,
                             draws,
                             vertices,
-                            vats_used,
-                        };
-                        self.shapes.insert(key, s);
-                        s
+                        }
                     }
-                    None => {
-                        return Ahead::Late;
-                    }
-                }
+                    None => ListShape {
+                        plain: false,
+                        spans: [(0, 0); 12],
+                        index_count: 0,
+                        draws: 0,
+                        vertices: 0,
+                    },
+                };
+                self.shapes.insert(key, shape);
+                shape
             }
         };
+        if !shape.plain {
+            return Ahead::Late;
+        }
 
         let mut place = None;
         if let (true, Some(at)) = (!self.cache_full, self.spans_at(&shape.spans)) {
-            let mut bases = 0u64;
-            for n in (0..12).filter(|&n| shape.spans[n].1 != 0) {
-                let base = (self.cp[0xA0 + n] & 0x03FF_FFFF) | 0x8000_0000;
-                let stride = self.cp[0xB0 + n] & 0xFF;
-                bases = (bases.rotate_left(9) ^ ((n as u64) << 32) ^ (base as u64) ^ ((stride as u64) << 48))
-                    .wrapping_mul(0x9E37_79B9_7F4A_7C15);
-            }
-            let check_key = (key.0, cp_sig, bases);
+            let bases = self.array_bases().iter().fold(0u64, |hash, &base| {
+                (hash.rotate_left(9) ^ base as u64).wrapping_mul(0x9E37_79B9_7F4A_7C15)
+            });
+            let check_key = (key.0, key.1, bases);
             if let Some(check) = self.checks.get(&check_key) {
                 place = Some(check.place);
             } else {
                 let exact = self.exact_hash(&at);
-                place = self.places.get(&(key.0, cp_sig, exact)).copied();
+                place = self.places.get(&(key.0, key.1, exact)).copied();
                 if place.is_none() && (built || self.build_list(list).is_some()) {
                     built = true;
                     let content = (
@@ -2061,7 +2024,7 @@ impl Gx {
                     match place {
                         None => self.cache_full = true,
                         Some(p) => {
-                            self.places.insert((key.0, cp_sig, exact), p);
+                            self.places.insert((key.0, key.1, exact), p);
                             if shared.is_none() {
                                 self.contents.insert(content, p);
                             }
@@ -2086,13 +2049,7 @@ impl Gx {
                     core::mem::replace(&mut self.list_indices, indices),
                 )
             }
-            None => {
-                static FAIL_LATE: core::sync::atomic::AtomicU32 = core::sync::atomic::AtomicU32::new(0);
-                if FAIL_LATE.fetch_add(1, core::sync::atomic::Ordering::Relaxed) < 5 {
-                    crate::log_c(&format!("[late-none] built={} cache_full={}", built, self.cache_full));
-                }
-                Ahead::Late
-            }
+            None => Ahead::Late,
         }
     }
 
@@ -2379,18 +2336,6 @@ impl Gx {
                                     t.vparams_flat = None;
                                 }
                             }
-                        } else if (0xA0..0xBC).contains(&register) && self.template.is_some() {
-                            if let Some(t) = &mut self.template {
-                                if (0xA0..0xAC).contains(&register) {
-                                    let n = register - 0xA0;
-                                    t.vstate.arrays[n].0 = (value & 0x03FF_FFFF) | 0x8000_0000;
-                                } else if (0xB0..0xBC).contains(&register) {
-                                    let n = register - 0xB0;
-                                    t.vstate.arrays[n].1 = value & 0xFF;
-                                }
-                                t.vparams = None;
-                                t.vparams_flat = None;
-                            }
                         } else {
                             self.template = None;
                         }
@@ -2429,48 +2374,6 @@ impl Gx {
                                         Matrices::All(*all)
                                     }
                                 };
-                                t.vparams = None;
-                                t.vparams_flat = None;
-                            }
-                        } else if (0x100A..=0x1011).contains(&base) && self.template.is_some() {
-                            let channels: [Channel; 2] = core::array::from_fn(|n| {
-                                let color = |reg: u32| [24, 16, 8, 0].map(|s| ((reg >> s) & 0xFF) as f32 / 255.0);
-                                Channel {
-                                    material: color(self.xf[0x100C + n]),
-                                    ambient: color(self.xf[0x100A + n]),
-                                    ctrl: [self.xf[0x100E + n], self.xf[0x1010 + n]],
-                                }
-                            });
-                            let lit_channels = (self.xf[0x1009] & 3).min(2) as usize;
-                            let lit = |ctrl: u32| ctrl & 2 != 0 && ctrl & 0x783C != 0;
-                            let lighting = channels[..lit_channels]
-                                .iter()
-                                .any(|ch| lit(ch.ctrl[0]) || lit(ch.ctrl[1]));
-                            if let Some(t) = &mut self.template {
-                                t.vstate.channels = channels;
-                                t.vstate.lit_channels = lit_channels;
-                                t.vstate.lighting = lighting;
-                                t.vparams = None;
-                                t.vparams_flat = None;
-                            }
-                        } else if (0x0600..0x0680).contains(&base) && self.template.is_some() {
-                            let lighting = self.template.as_ref().map(|t| t.vstate.lighting).unwrap_or(false);
-                            let lights: [Light; 8] = core::array::from_fn(|n| {
-                                if !lighting {
-                                    return Light::default();
-                                }
-                                let b = 0x600 + n * 16;
-                                let vector = |at: usize| [0, 1, 2].map(|k| self.xf_float(b + at + k));
-                                Light {
-                                    color: [24, 16, 8, 0].map(|s| ((self.xf[b + 3] >> s) & 0xFF) as f32 / 255.0),
-                                    cos_att: vector(4),
-                                    dist_att: vector(7),
-                                    pos: vector(10),
-                                    dir: vector(13),
-                                }
-                            });
-                            if let Some(t) = &mut self.template {
-                                t.vstate.lights = lights;
                                 t.vparams = None;
                                 t.vparams_flat = None;
                             }

@@ -1804,14 +1804,6 @@ fn call_display_list(c: &mut Ctx) -> bool {
     }
     c.call(GX_CALL_DISPLAY_LIST);
     INSIDE.store(false, Ordering::Relaxed);
-    #[allow(static_mut_refs)]
-    unsafe {
-        if let Some(gx) = GX_STATE.as_mut() {
-            let t0 = switch_now_ns();
-            gx.look_ahead(c);
-            PERF_LOOKAHEAD_NS.fetch_add(switch_now_ns() - t0, Ordering::Relaxed);
-        }
-    }
     true
 }
 
@@ -2293,7 +2285,6 @@ fn switch_policy(name: &str) -> Hle {
         "GXSetVtxAttrFmt" => Hle::Replace(arm64_native::hle_gx_set_vtx_attr_fmt),
         "GXSetArray" => Hle::Replace(arm64_native::hle_gx_set_array),
         "__GXSetVAT" => Hle::Replace(arm64_native::hle_gx_set_vat),
-        "__GXSetDirtyState" => Hle::Replace(arm64_native::hle_gx_set_dirty_state),
         _ if name.starts_with("GX") || name.starts_with("__GX") => Hle::Original,
 
         // DVD file system
@@ -2684,9 +2675,9 @@ fn switch_policy(name: &str) -> Hle {
         "_rwDlSkinUpdate4WeightsP" => Hle::Replace(arm64_native::hle_skin_4w_p),
         "_rwDlSkinUpdate4WeightsPN" => Hle::Replace(arm64_native::hle_skin_4w_pn),
 
-        // Retain original for complex multi-bone ASM blend
-        "_rpSkinMatrixBlendUpdateASM" => Hle::Original,
-        "_rwDlSetRenderState" => Hle::Replace(arm64_native::hle_rw_dl_set_render_state),
+        // Retain original for complex multi-bone ASM blend and DL render state
+        "_rpSkinMatrixBlendUpdateASM"
+        | "_rwDlSetRenderState" => Hle::Original,
         "_rxGCResEntryWaitDone" => Hle::Native(|_| {}),
         "_rwDlTokenQueryDone" => Hle::Native(|c| c.r[3] = 1),
 
