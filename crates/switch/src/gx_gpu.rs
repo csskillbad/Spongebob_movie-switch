@@ -1358,7 +1358,7 @@ impl Gx {
         let mut extents = Vec::with_capacity(jobs.len());
         unsafe { extents.set_len(jobs.len()) };
 
-        if jobs.len() >= 4 && total >= 1024 {
+        if jobs.len() >= 2 && total >= 64 {
             let mid = jobs.len() / 2;
             let worker_verts: usize = jobs[..mid].iter().map(|j| j.count).sum();
 
