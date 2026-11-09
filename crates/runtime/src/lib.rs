@@ -882,7 +882,7 @@ impl Ctx {
     #[inline(always)]
     pub fn hle(&mut self, id: usize) -> bool {
         if !PROFILE_DETAILED {
-            let res = match unsafe { *self.hle_ptr.add(id) } {
+            return match unsafe { *self.hle_ptr.add(id) } {
                 Hle::Original => false,
                 Hle::Native(f) => {
                     f(self);
@@ -895,10 +895,6 @@ impl Ctx {
                 Hle::Replace(f) => f(self),
                 Hle::Unimplemented => self.hle_unimplemented(id),
             };
-            if id < MAX_HLE_FUNCS {
-                HLE_CALL_COUNTS[id].fetch_add(1, Ordering::Relaxed);
-            }
-            return res;
         }
         self.hle_profiled(id)
     }

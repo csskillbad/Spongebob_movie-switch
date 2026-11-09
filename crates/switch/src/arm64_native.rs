@@ -1963,25 +1963,33 @@ pub fn hle_gx_set_chan_ctrl(c: &mut Ctx) -> bool {
     reg |= ((light_mask >> 4) & 0xF) << 11;
 
     let xf_reg = 0x100E + (chan & 3);
-    c.gw8(0xCC00_8000, 0x10);
-    c.gw32(0xCC00_8000, xf_reg);
-    c.gw32(0xCC00_8000, reg);
+    unsafe {
+        let fifo_base = c.mem.add(0x0200_0000);
+        let mut cur = c.fifo_len & 0x01FF_FFFF;
+        fifo_base.add(cur).write(0x10);
+        (fifo_base.add(cur + 1) as *mut u32).write_unaligned(xf_reg.to_be());
+        (fifo_base.add(cur + 5) as *mut u32).write_unaligned(reg.to_be());
+        cur += 9;
 
-    if chan == 4 {
-        c.gw8(0xCC00_8000, 0x10);
-        c.gw32(0xCC00_8000, 0x1010);
-        c.gw32(0xCC00_8000, reg);
-    } else if chan == 5 {
-        c.gw8(0xCC00_8000, 0x10);
-        c.gw32(0xCC00_8000, 0x1011);
-        c.gw32(0xCC00_8000, reg);
+        if chan == 4 {
+            fifo_base.add(cur).write(0x10);
+            (fifo_base.add(cur + 1) as *mut u32).write_unaligned(0x1010u32.to_be());
+            (fifo_base.add(cur + 5) as *mut u32).write_unaligned(reg.to_be());
+            cur += 9;
+        } else if chan == 5 {
+            fifo_base.add(cur).write(0x10);
+            (fifo_base.add(cur + 1) as *mut u32).write_unaligned(0x1011u32.to_be());
+            (fifo_base.add(cur + 5) as *mut u32).write_unaligned(reg.to_be());
+            cur += 9;
+        }
+        c.fifo_len = cur & 0x01FF_FFFF;
     }
 
     let gx_data_ptr = c.r[2].wrapping_add(0xFFFFA5C8);
     if in_ram(gx_data_ptr, 4) {
         let gx_data = mr32(c.mem, gx_data_ptr);
         if in_ram(gx_data, 4) {
-            c.gw16(gx_data + 2, 1);
+            c.w16(gx_data + 2, 1);
         }
     }
 
@@ -1996,12 +2004,12 @@ pub fn hle_gx_clear_vtx_desc(c: &mut Ctx) -> bool {
     let gx_data = mr32(mem, gx_data_ptr);
     if !in_ram(gx_data, 0x5B0) { return false; }
 
-    c.gw32(gx_data + 0x14, 0x200); // POS direct (bit 9)
-    c.gw32(gx_data + 0x18, 0);
-    c.gw8(gx_data + 0x4D4, 0);
-    c.gw8(gx_data + 0x4D5, 0);
+    c.w32(gx_data + 0x14, 0x200); // POS direct (bit 9)
+    c.w32(gx_data + 0x18, 0);
+    c.w8(gx_data + 0x4D4, 0);
+    c.w8(gx_data + 0x4D5, 0);
     let dirty = mr32(mem, gx_data + 0x5AC);
-    c.gw32(gx_data + 0x5AC, dirty | 8);
+    c.w32(gx_data + 0x5AC, dirty | 8);
     true
 }
 
@@ -2021,45 +2029,45 @@ pub fn hle_gx_set_vtx_desc(c: &mut Ctx) -> bool {
     match attr {
         0 => {
             let cur = mr32(mem, gx_data + 0x14);
-            c.gw32(gx_data + 0x14, (cur & !1) | (attr_type & 1));
+            c.w32(gx_data + 0x14, (cur & !1) | (attr_type & 1));
         }
         1..=8 => {
             let cur = mr32(mem, gx_data + 0x14);
-            c.gw32(gx_data + 0x14, (cur & !(1 << attr)) | ((attr_type & 1) << attr));
+            c.w32(gx_data + 0x14, (cur & !(1 << attr)) | ((attr_type & 1) << attr));
         }
         9 => {
             let cur = mr32(mem, gx_data + 0x14);
-            c.gw32(gx_data + 0x14, (cur & !(3 << 9)) | ((attr_type & 3) << 9));
+            c.w32(gx_data + 0x14, (cur & !(3 << 9)) | ((attr_type & 3) << 9));
         }
         10 => {
             let cur = mr32(mem, gx_data + 0x14);
-            c.gw32(gx_data + 0x14, (cur & !(3 << 11)) | ((attr_type & 3) << 11));
+            c.w32(gx_data + 0x14, (cur & !(3 << 11)) | ((attr_type & 3) << 11));
             if attr_type != 0 {
-                c.gw8(gx_data + 0x4D5, 1);
-                c.gw8(gx_data + 0x4D4, 0);
-                c.gw32(gx_data + 0x4D0, attr_type);
+                c.w8(gx_data + 0x4D5, 1);
+                c.w8(gx_data + 0x4D4, 0);
+                c.w32(gx_data + 0x4D0, attr_type);
             } else {
-                c.gw8(gx_data + 0x4D5, 0);
+                c.w8(gx_data + 0x4D5, 0);
             }
         }
         11 => {
             let cur = mr32(mem, gx_data + 0x14);
-            c.gw32(gx_data + 0x14, (cur & !(3 << 13)) | ((attr_type & 3) << 13));
+            c.w32(gx_data + 0x14, (cur & !(3 << 13)) | ((attr_type & 3) << 13));
         }
         12 => {
             let cur = mr32(mem, gx_data + 0x14);
-            c.gw32(gx_data + 0x14, (cur & !(3 << 15)) | ((attr_type & 3) << 15));
+            c.w32(gx_data + 0x14, (cur & !(3 << 15)) | ((attr_type & 3) << 15));
         }
         13..=20 => {
             let shift = (attr - 13) * 2;
             let cur = mr32(mem, gx_data + 0x18);
-            c.gw32(gx_data + 0x18, (cur & !(3 << shift)) | ((attr_type & 3) << shift));
+            c.w32(gx_data + 0x18, (cur & !(3 << shift)) | ((attr_type & 3) << shift));
         }
         _ => {}
     }
 
     let dirty = mr32(mem, gx_data + 0x5AC);
-    c.gw32(gx_data + 0x5AC, dirty | 8);
+    c.w32(gx_data + 0x5AC, dirty | 8);
     true
 }
 
@@ -2088,7 +2096,7 @@ pub fn hle_gx_set_vtx_attr_fmt(c: &mut Ctx) -> bool {
         9 => {
             let cur = mr32(mem, va_addr);
             let val = (cnt & 1) | ((comp_type & 7) << 1) | ((frac & 0x1F) << 4);
-            c.gw32(va_addr, (cur & !0x1FF) | val);
+            c.w32(va_addr, (cur & !0x1FF) | val);
         }
         10 | 25 => {
             let cur = mr32(mem, va_addr);
@@ -2098,49 +2106,49 @@ pub fn hle_gx_set_vtx_attr_fmt(c: &mut Ctx) -> bool {
             } else {
                 val = (val & !(1 << 31)) | ((cnt & 1) << 9);
             }
-            c.gw32(va_addr, val);
+            c.w32(va_addr, val);
         }
         11 => {
             let cur = mr32(mem, va_addr);
             let val = ((cnt & 1) << 13) | ((comp_type & 7) << 14);
-            c.gw32(va_addr, (cur & !(0xF << 13)) | val);
+            c.w32(va_addr, (cur & !(0xF << 13)) | val);
         }
         12 => {
             let cur = mr32(mem, va_addr);
             let val = ((cnt & 1) << 17) | ((comp_type & 7) << 18);
-            c.gw32(va_addr, (cur & !(0xF << 17)) | val);
+            c.w32(va_addr, (cur & !(0xF << 17)) | val);
         }
         13 => {
             let cur = mr32(mem, va_addr);
             let val = ((cnt & 1) << 21) | ((comp_type & 7) << 22) | ((frac & 0x1F) << 25);
-            c.gw32(va_addr, (cur & !(0x1FF << 21)) | val);
+            c.w32(va_addr, (cur & !(0x1FF << 21)) | val);
         }
         14..=16 => {
             let shift = (attr - 14) * 9;
             let cur = mr32(mem, vb_addr);
             let val = (cnt & 1) | ((comp_type & 7) << 1) | ((frac & 0x1F) << 4);
-            c.gw32(vb_addr, (cur & !(0x1FF << shift)) | (val << shift));
+            c.w32(vb_addr, (cur & !(0x1FF << shift)) | (val << shift));
         }
         17 => {
             let cur_b = mr32(mem, vb_addr);
             let val_b = ((cnt & 1) << 27) | ((comp_type & 7) << 28);
-            c.gw32(vb_addr, (cur_b & !(0xF << 27)) | val_b);
+            c.w32(vb_addr, (cur_b & !(0xF << 27)) | val_b);
 
             let cur_c = mr32(mem, vc_addr);
             let val_c = frac & 0x1F;
-            c.gw32(vc_addr, (cur_c & !0x1F) | val_c);
+            c.w32(vc_addr, (cur_c & !0x1F) | val_c);
         }
         18..=20 => {
             let shift = 5 + (attr - 18) * 9;
             let cur = mr32(mem, vc_addr);
             let val = (cnt & 1) | ((comp_type & 7) << 1) | ((frac & 0x1F) << 4);
-            c.gw32(vc_addr, (cur & !(0x1FF << shift)) | (val << shift));
+            c.w32(vc_addr, (cur & !(0x1FF << shift)) | (val << shift));
         }
         _ => {}
     }
 
     let dirty = mr8(mem, gx_data + 0x5AB);
-    c.gw8(gx_data + 0x5AB, dirty | (1 << vtxfmt));
+    c.w8(gx_data + 0x5AB, dirty | (1 << vtxfmt));
     true
 }
 
@@ -2155,9 +2163,20 @@ pub fn hle_gx_set_array(c: &mut Ctx) -> bool {
     }
     let r6 = attr.wrapping_sub(9);
 
-    c.gw8(0xCC00_8000, 0x08);
-    c.gw8(0xCC00_8000, 0xA0 | (r6 as u8));
-    c.gw32(0xCC00_8000, base_ptr & 0x3FFF_FFFF);
+    unsafe {
+        let fifo_base = c.mem.add(0x0200_0000);
+        let mut cur = c.fifo_len & 0x01FF_FFFF;
+        fifo_base.add(cur).write(0x08);
+        fifo_base.add(cur + 1).write(0xA0 | (r6 as u8));
+        (fifo_base.add(cur + 2) as *mut u32).write_unaligned((base_ptr & 0x3FFF_FFFF).to_be());
+        cur += 6;
+
+        fifo_base.add(cur).write(0x08);
+        fifo_base.add(cur + 1).write(0xB0 | (r6 as u8));
+        (fifo_base.add(cur + 2) as *mut u32).write_unaligned((stride & 0xFF).to_be());
+        cur += 6;
+        c.fifo_len = cur & 0x01FF_FFFF;
+    }
 
     let gx_data_ptr = c.r[2].wrapping_add(0xFFFFA5C8);
     let mem = c.mem;
@@ -2165,18 +2184,8 @@ pub fn hle_gx_set_array(c: &mut Ctx) -> bool {
     if r0 < 4 && in_ram(gx_data_ptr, 4) {
         let gx_data = mr32(mem, gx_data_ptr);
         if in_ram(gx_data, 0x100) {
-            c.gw32(gx_data + 0x88 + r0 * 4, base_ptr);
-        }
-    }
-
-    c.gw8(0xCC00_8000, 0x08);
-    c.gw8(0xCC00_8000, 0xB0 | (r6 as u8));
-    c.gw32(0xCC00_8000, stride & 0xFF);
-
-    if r0 < 4 && in_ram(gx_data_ptr, 4) {
-        let gx_data = mr32(mem, gx_data_ptr);
-        if in_ram(gx_data, 0x100) {
-            c.gw32(gx_data + 0x98 + r0 * 4, stride);
+            c.w32(gx_data + 0x88 + r0 * 4, base_ptr);
+            c.w32(gx_data + 0x98 + r0 * 4, stride);
         }
     }
 
@@ -2193,23 +2202,22 @@ pub fn hle_xquick_cull_isects(c: &mut Ctx) -> bool {
 
     if in_ram(a_ptr, 8) && in_ram(b_ptr, 8) {
         unsafe {
+            use core::arch::aarch64::*;
             let pa = mptr(mem, a_ptr) as *const i8;
             let pb = mptr(mem, b_ptr) as *const i8;
 
-            // Box A: min = [pa[0], pa[1], pa[2]], max = [pa[4], pa[5], pa[6]]
-            // Box B: min = [pb[0], pb[1], pb[2]], max = [pb[4], pb[5], pb[6]]
-            // If any min_A > max_B or min_B > max_A => disjoint
-            if *pa.add(0) > *pb.add(4)
-                || *pa.add(1) > *pb.add(5)
-                || *pa.add(2) > *pb.add(6)
-                || *pb.add(0) > *pa.add(4)
-                || *pb.add(1) > *pa.add(5)
-                || *pb.add(2) > *pa.add(6)
-            {
-                c.r[3] = 0;
-            } else {
-                c.r[3] = 1;
-            }
+            let va = vld1_s8(pa);
+            let vb = vld1_s8(pb);
+
+            let max_b = vext_s8(vb, vb, 4);
+            let max_a = vext_s8(va, va, 4);
+
+            let cmp1 = vcgt_s8(va, max_b);
+            let cmp2 = vcgt_s8(vb, max_a);
+
+            let disjoint = vorr_u8(cmp1, cmp2);
+            let val = vget_lane_u32(vreinterpret_u32_u8(disjoint), 0) & 0x00FF_FFFF;
+            c.r[3] = if val != 0 { 0 } else { 1 };
         }
     } else {
         let a0 = mr8(mem, a_ptr) as i8;
