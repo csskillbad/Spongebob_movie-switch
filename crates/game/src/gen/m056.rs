@@ -16770,6 +16770,14 @@ pub fn fn_802ADCF4(c: &mut Ctx) {
 
 // __ieee754_fmod
 pub fn fn_802ADF18(c: &mut Ctx) {
+    let x = c.f[1];
+    let y = c.f[2];
+    if y != 0.0 && x.is_finite() && y.is_finite() {
+        let res = x % y;
+        c.f[1] = res;
+        c.ps1[1] = res;
+        return;
+    }
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r1 = c.r[1]; let mut r3 = c.r[3]; let mut r4 = c.r[4]; let mut r5 = c.r[5]; let mut r6 = c.r[6]; let mut r7 = c.r[7]; let mut r8 = c.r[8]; let mut r9 = c.r[9]; let mut r10 = c.r[10]; let mut r11 = c.r[11]; 
     let mut f0 = c.f[0]; let mut f1 = c.f[1]; let mut f2 = c.f[2]; 

@@ -11,6 +11,7 @@ extern "C" {
     fn sinf(x: f32) -> f32;
     fn cosf(x: f32) -> f32;
     fn powf(x: f32, y: f32) -> f32;
+    fn fmodf(x: f32, y: f32) -> f32;
     fn sin(x: f64) -> f64;
     fn cos(x: f64) -> f64;
     fn tan(x: f64) -> f64;
@@ -18,6 +19,7 @@ extern "C" {
     fn atan2(y: f64, x: f64) -> f64;
     fn acos(x: f64) -> f64;
     fn asin(x: f64) -> f64;
+    fn fmod(x: f64, y: f64) -> f64;
 }
 
 #[inline(always)]
@@ -478,6 +480,19 @@ pub fn hle_asin(c: &mut Ctx) -> bool {
     let x = c.f[1];
     if (-1.0..=1.0).contains(&x) {
         c.f[1] = unsafe { asin(x) };
+        true
+    } else {
+        false
+    }
+}
+
+pub fn hle_fmod(c: &mut Ctx) -> bool {
+    let x = c.f[1];
+    let y = c.f[2];
+    if y != 0.0 && x.is_finite() && y.is_finite() {
+        let res = unsafe { fmod(x, y) };
+        c.f[1] = res;
+        c.ps1[1] = res;
         true
     } else {
         false
@@ -1872,7 +1887,11 @@ pub fn hle_rt_intersection_sphere_triangle(c: &mut Ctx) -> bool {
 }
 
 /// Native ARM64 fast-path for RenderWare `RtIntersectionBBoxTriangle` (`0x8033818C`).
-/// Fast Cohen-Sutherland outcode tests for bounding box vs triangle.
+/// Evaluates the complete Tomas Akenine-Möller 13-axis Separating Axis Theorem (SAT) test:
+/// - 3 box face normals (AABB vs AABB overlap)
+/// - 1 triangle face normal (plane vs box overlap)
+/// - 9 cross-product axes of box edges and triangle edges
+/// Resolves 100% of AABB-triangle intersection queries without any fallback to recompiled code.
 pub fn hle_rt_intersection_bbox_triangle(c: &mut Ctx) -> bool {
     let bbox_ptr = c.r[3];
     let v0_ptr = c.r[4];
@@ -1903,42 +1922,185 @@ pub fn hle_rt_intersection_bbox_triangle(c: &mut Ctx) -> bool {
     let v2_y = f32::from_bits(mr32(mem, v2_ptr + 4));
     let v2_z = f32::from_bits(mr32(mem, v2_ptr + 8));
 
-    #[inline(always)]
-    fn calc_outcode(x: f32, y: f32, z: f32, sup_x: f32, sup_y: f32, sup_z: f32, inf_x: f32, inf_y: f32, inf_z: f32) -> u32 {
-        let mut code = 0u32;
-        if y > sup_y { code |= 4; } else if y < inf_y { code |= 8; }
-        if x > sup_x { code |= 1; } else if x < inf_x { code |= 2; }
-        if z > sup_z { code |= 0x10; } else if z < inf_z { code |= 0x20; }
-        code
-    }
-
-    let o0 = calc_outcode(v0_x, v0_y, v0_z, sup_x, sup_y, sup_z, inf_x, inf_y, inf_z);
-    if o0 == 0 {
-        c.r[3] = 1;
-        return true;
-    }
-
-    let o1 = calc_outcode(v1_x, v1_y, v1_z, sup_x, sup_y, sup_z, inf_x, inf_y, inf_z);
-    if o1 == 0 {
-        c.r[3] = 1;
-        return true;
-    }
-
-    let o2 = calc_outcode(v2_x, v2_y, v2_z, sup_x, sup_y, sup_z, inf_x, inf_y, inf_z);
-    if o2 == 0 {
-        c.r[3] = 1;
-        return true;
-    }
-
-    // If all three vertices share any plane outcode, the triangle is completely outside
-    if (o0 & o1 & o2) != 0 {
+    // Phase 1: Fast bounding box overlap along the 3 coordinate axes
+    let min_x = v0_x.min(v1_x).min(v2_x);
+    let max_x = v0_x.max(v1_x).max(v2_x);
+    if min_x > sup_x || max_x < inf_x {
         c.r[3] = 0;
         return true;
     }
 
-    // Fall back to recompiled PPC code for full SAT tests
+    let min_y = v0_y.min(v1_y).min(v2_y);
+    let max_y = v0_y.max(v1_y).max(v2_y);
+    if min_y > sup_y || max_y < inf_y {
+        c.r[3] = 0;
+        return true;
+    }
+
+    let min_z = v0_z.min(v1_z).min(v2_z);
+    let max_z = v0_z.max(v1_z).max(v2_z);
+    if min_z > sup_z || max_z < inf_z {
+        c.r[3] = 0;
+        return true;
+    }
+
+    // Translate triangle vertices relative to box center:
+    let center_x = 0.5 * (sup_x + inf_x);
+    let center_y = 0.5 * (sup_y + inf_y);
+    let center_z = 0.5 * (sup_z + inf_z);
+
+    let ext_x = 0.5 * (sup_x - inf_x);
+    let ext_y = 0.5 * (sup_y - inf_y);
+    let ext_z = 0.5 * (sup_z - inf_z);
+
+    let u0_x = v0_x - center_x;
+    let u0_y = v0_y - center_y;
+    let u0_z = v0_z - center_z;
+
+    let u1_x = v1_x - center_x;
+    let u1_y = v1_y - center_y;
+    let u1_z = v1_z - center_z;
+
+    let u2_x = v2_x - center_x;
+    let u2_y = v2_y - center_y;
+    let u2_z = v2_z - center_z;
+
+    // Edge vectors of the triangle:
+    let f0_x = u1_x - u0_x;
+    let f0_y = u1_y - u0_y;
+    let f0_z = u1_z - u0_z;
+
+    let f1_x = u2_x - u1_x;
+    let f1_y = u2_y - u1_y;
+    let f1_z = u2_z - u1_z;
+
+    let f2_x = u0_x - u2_x;
+    let f2_y = u0_y - u2_y;
+    let f2_z = u0_z - u2_z;
+
+    // Phase 2: 9 edge cross-product axes
+    // --- Axis a00 = u_x x f0 = (0, -f0_z, f0_y) ---
+    let p0 = -f0_z * u0_y + f0_y * u0_z;
+    let p2 = -f0_z * u2_y + f0_y * u2_z;
+    let rad = ext_y * f0_z.abs() + ext_z * f0_y.abs();
+    if p0.min(p2) > rad || p0.max(p2) < -rad {
+        c.r[3] = 0;
+        return true;
+    }
+
+    // --- Axis a01 = u_x x f1 = (0, -f1_z, f1_y) ---
+    let p0 = -f1_z * u0_y + f1_y * u0_z;
+    let p1 = -f1_z * u1_y + f1_y * u1_z;
+    let rad = ext_y * f1_z.abs() + ext_z * f1_y.abs();
+    if p0.min(p1) > rad || p0.max(p1) < -rad {
+        c.r[3] = 0;
+        return true;
+    }
+
+    // --- Axis a02 = u_x x f2 = (0, -f2_z, f2_y) ---
+    let p0 = -f2_z * u0_y + f2_y * u0_z;
+    let p1 = -f2_z * u1_y + f2_y * u1_z;
+    let rad = ext_y * f2_z.abs() + ext_z * f2_y.abs();
+    if p0.min(p1) > rad || p0.max(p1) < -rad {
+        c.r[3] = 0;
+        return true;
+    }
+
+    // --- Axis a10 = u_y x f0 = (f0_z, 0, -f0_x) ---
+    let p0 = f0_z * u0_x - f0_x * u0_z;
+    let p2 = f0_z * u2_x - f0_x * u2_z;
+    let rad = ext_x * f0_z.abs() + ext_z * f0_x.abs();
+    if p0.min(p2) > rad || p0.max(p2) < -rad {
+        c.r[3] = 0;
+        return true;
+    }
+
+    // --- Axis a11 = u_y x f1 = (f1_z, 0, -f1_x) ---
+    let p0 = f1_z * u0_x - f1_x * u0_z;
+    let p1 = f1_z * u1_x - f1_x * u1_z;
+    let rad = ext_x * f1_z.abs() + ext_z * f1_x.abs();
+    if p0.min(p1) > rad || p0.max(p1) < -rad {
+        c.r[3] = 0;
+        return true;
+    }
+
+    // --- Axis a12 = u_y x f2 = (f2_z, 0, -f2_x) ---
+    let p0 = f2_z * u0_x - f2_x * u0_z;
+    let p1 = f2_z * u1_x - f2_x * u1_z;
+    let rad = ext_x * f2_z.abs() + ext_z * f2_x.abs();
+    if p0.min(p1) > rad || p0.max(p1) < -rad {
+        c.r[3] = 0;
+        return true;
+    }
+
+    // --- Axis a20 = u_z x f0 = (-f0_y, f0_x, 0) ---
+    let p0 = -f0_y * u0_x + f0_x * u0_y;
+    let p2 = -f0_y * u2_x + f0_x * u2_y;
+    let rad = ext_x * f0_y.abs() + ext_y * f0_x.abs();
+    if p0.min(p2) > rad || p0.max(p2) < -rad {
+        c.r[3] = 0;
+        return true;
+    }
+
+    // --- Axis a21 = u_z x f1 = (-f1_y, f1_x, 0) ---
+    let p0 = -f1_y * u0_x + f1_x * u0_y;
+    let p1 = -f1_y * u1_x + f1_x * u1_y;
+    let rad = ext_x * f1_y.abs() + ext_y * f1_x.abs();
+    if p0.min(p1) > rad || p0.max(p1) < -rad {
+        c.r[3] = 0;
+        return true;
+    }
+
+    // --- Axis a22 = u_z x f2 = (-f2_y, f2_x, 0) ---
+    let p0 = -f2_y * u0_x + f2_x * u0_y;
+    let p1 = -f2_y * u1_x + f2_x * u1_y;
+    let rad = ext_x * f2_y.abs() + ext_y * f2_x.abs();
+    if p0.min(p1) > rad || p0.max(p1) < -rad {
+        c.r[3] = 0;
+        return true;
+    }
+
+    // Phase 3: Plane of the triangle vs box
+    let norm_x = f0_y * (-f2_z) - f0_z * (-f2_y);
+    let norm_y = f0_z * (-f2_x) - f0_x * (-f2_z);
+    let norm_z = f0_x * (-f2_y) - f0_y * (-f2_x);
+
+    let rad = ext_x * norm_x.abs() + ext_y * norm_y.abs() + ext_z * norm_z.abs();
+    let d = norm_x * u0_x + norm_y * u0_y + norm_z * u0_z;
+    if d.abs() > rad {
+        c.r[3] = 0;
+        return true;
+    }
+
+    // All 13 separating axis tests passed -> Intersection!
+    c.r[3] = 1;
+    true
+}
+
+/// Native fast-path for GameCube SDK `__GXSetDirtyState` (`0x802EBBF4`).
+/// When dirtyState == 0 (consecutive draw calls sharing vertex, lighting, and texture state),
+/// this eliminates function prologue, stack frame allocation, multiple condition checks, and stack epilogue.
+pub fn hle_gx_set_dirty_state(c: &mut Ctx) -> bool {
+    let mem = c.mem;
+    let r2 = c.r[2];
+    let gx_data_ptr_addr = r2.wrapping_add(0xFFFFA5C8);
+    if !in_ram(gx_data_ptr_addr, 4) {
+        return false;
+    }
+    let gx_data = mr32(mem, gx_data_ptr_addr);
+    let dirty_addr = gx_data.wrapping_add(0x5AC);
+    if !in_ram(dirty_addr, 4) {
+        return false;
+    }
+    let dirty = mr32(mem, dirty_addr);
+    if dirty == 0 {
+        c.r[3] = gx_data;
+        c.r[0] = 0;
+        return true;
+    }
     false
 }
+
 
 /// Native fast-path for GameCube SDK `GXSetChanCtrl` (`0x802ED06C`).
 pub fn hle_gx_set_chan_ctrl(c: &mut Ctx) -> bool {

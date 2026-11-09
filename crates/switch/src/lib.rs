@@ -2285,6 +2285,7 @@ fn switch_policy(name: &str) -> Hle {
         "GXSetVtxAttrFmt" => Hle::Replace(arm64_native::hle_gx_set_vtx_attr_fmt),
         "GXSetArray" => Hle::Replace(arm64_native::hle_gx_set_array),
         "__GXSetVAT" => Hle::Replace(arm64_native::hle_gx_set_vat),
+        "__GXSetDirtyState" => Hle::Replace(arm64_native::hle_gx_set_dirty_state),
         _ if name.starts_with("GX") || name.starts_with("__GX") => Hle::Original,
 
         // DVD file system
@@ -2627,6 +2628,7 @@ fn switch_policy(name: &str) -> Hle {
         "atan2" => Hle::Replace(arm64_native::hle_atan2),
         "acos" => Hle::Replace(arm64_native::hle_acos),
         "asin" => Hle::Replace(arm64_native::hle_asin),
+        "fmod" | "__ieee754_fmod" => Hle::Replace(arm64_native::hle_fmod),
 
         // Matrix identity/scale & scene culling/collision acceleration
         "PSMTXIdentity" => Hle::Replace(arm64_native::hle_psmtx_identity),

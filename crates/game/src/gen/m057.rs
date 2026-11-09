@@ -2833,6 +2833,14 @@ pub fn fn_802B0D38(c: &mut Ctx) {
 // fmod
 #[inline]
 pub fn fn_802B0D58(c: &mut Ctx) {
+    let x = c.f[1];
+    let y = c.f[2];
+    if y != 0.0 && x.is_finite() && y.is_finite() {
+        let res = x % y;
+        c.f[1] = res;
+        c.ps1[1] = res;
+        return;
+    }
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r1 = c.r[1]; 
     { let ea = r1.wrapping_add(0xFFFFFFF0); runtime::mw32(mem, ea, r1); r1 = ea; }
