@@ -9569,6 +9569,7 @@ pub fn fn_801EA174(c: &mut Ctx) {
 
 // xQuatToMat__FPC5xQuatP7xMat3x3
 pub fn fn_801EA1F8(c: &mut Ctx) {
+    if c.hle(889) { return; }
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r1 = c.r[1]; let mut r2 = c.r[2]; let mut r3 = c.r[3]; let mut r4 = c.r[4]; 
     let mut f0 = c.f[0]; let mut f1 = c.f[1]; let mut f2 = c.f[2]; let mut f3 = c.f[3]; let mut f4 = c.f[4]; let mut f5 = c.f[5]; let mut f6 = c.f[6]; let mut f7 = c.f[7]; let mut f8 = c.f[8]; let mut f9 = c.f[9]; let mut f10 = c.f[10]; let mut f11 = c.f[11]; let mut f12 = c.f[12]; let mut f13 = c.f[13]; let mut f30 = c.f[30]; let mut f31 = c.f[31]; 
@@ -10629,6 +10630,7 @@ pub fn fn_801EAD50(c: &mut Ctx) {
 
 // xMat3x3Tolocal__FP5xVec3PC7xMat3x3PC5xVec3
 pub fn fn_801EAF90(c: &mut Ctx) {
+    if c.hle(891) { return; }
     let mem = c.mem;
     let mut r1 = c.r[1]; let mut r3 = c.r[3]; let mut r4 = c.r[4]; let mut r5 = c.r[5]; 
     let mut f0 = c.f[0]; let mut f1 = c.f[1]; let mut f2 = c.f[2]; let mut f3 = c.f[3]; let mut f4 = c.f[4]; let mut f5 = c.f[5]; let mut f6 = c.f[6]; let mut f7 = c.f[7]; let mut f8 = c.f[8]; let mut f9 = c.f[9]; let mut f10 = c.f[10]; let mut f11 = c.f[11]; let mut f12 = c.f[12]; let mut f13 = c.f[13]; let mut f31 = c.f[31]; 
@@ -10692,6 +10694,7 @@ pub fn fn_801EAF90(c: &mut Ctx) {
 
 // xMat3x3LMulVec__FP5xVec3PC7xMat3x3PC5xVec3
 pub fn fn_801EB06C(c: &mut Ctx) {
+    if c.hle(890) { return; }
     let mem = c.mem;
     let mut r3 = c.r[3]; let mut r4 = c.r[4]; let mut r5 = c.r[5]; 
     let mut f0 = c.f[0]; let mut f1 = c.f[1]; let mut f2 = c.f[2]; let mut f3 = c.f[3]; let mut f4 = c.f[4]; let mut f5 = c.f[5]; let mut f6 = c.f[6]; let mut f7 = c.f[7]; 
@@ -10725,6 +10728,7 @@ pub fn fn_801EB06C(c: &mut Ctx) {
 
 // xMat3x3Mul__FP7xMat3x3PC7xMat3x3PC7xMat3x3
 pub fn fn_801EB0D0(c: &mut Ctx) {
+    if c.hle(892) { return; }
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r1 = c.r[1]; let mut r3 = c.r[3]; let mut r4 = c.r[4]; let mut r5 = c.r[5]; let mut r6 = c.r[6]; let mut r11 = c.r[11]; let mut r12 = c.r[12]; 
     let mut f0 = c.f[0]; let mut f1 = c.f[1]; let mut f2 = c.f[2]; let mut f3 = c.f[3]; let mut f4 = c.f[4]; 
@@ -12946,6 +12950,7 @@ pub fn fn_801ECB34(c: &mut Ctx) {
 
 // xBoxInitBoundOBB__FP4xBoxPC4xBoxPC7xMat4x3
 pub fn fn_801ECBEC(c: &mut Ctx) {
+    if c.hle(893) { return; }
     let mem = c.mem;
     let mut r1 = c.r[1]; let mut r2 = c.r[2]; let mut r3 = c.r[3]; let mut r4 = c.r[4]; let mut r5 = c.r[5]; 
     let mut f0 = c.f[0]; let mut f1 = c.f[1]; let mut f2 = c.f[2]; let mut f3 = c.f[3]; let mut f4 = c.f[4]; let mut f5 = c.f[5]; let mut f6 = c.f[6]; let mut f7 = c.f[7]; let mut f8 = c.f[8]; let mut f9 = c.f[9]; let mut f10 = c.f[10]; let mut f11 = c.f[11]; let mut f12 = c.f[12]; let mut f13 = c.f[13]; let mut f22 = c.f[22]; let mut f23 = c.f[23]; let mut f24 = c.f[24]; let mut f25 = c.f[25]; let mut f26 = c.f[26]; let mut f27 = c.f[27]; let mut f28 = c.f[28]; let mut f29 = c.f[29]; let mut f30 = c.f[30]; let mut f31 = c.f[31]; 

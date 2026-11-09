@@ -2179,7 +2179,7 @@ pub fn hle_gx_clear_vtx_desc(c: &mut Ctx) -> bool {
 pub fn hle_gx_set_vtx_desc(c: &mut Ctx) -> bool {
     let attr = c.r[3];
     let attr_type = c.r[4];
-    if attr > 0x18 {
+    if attr > 25 {
         return true;
     }
     let gx_data_ptr = c.r[2].wrapping_add(0xFFFFA5C8);
@@ -2202,14 +2202,33 @@ pub fn hle_gx_set_vtx_desc(c: &mut Ctx) -> bool {
             c.w32(gx_data + 0x14, (cur & !(3 << 9)) | ((attr_type & 3) << 9));
         }
         10 => {
-            let cur = mr32(mem, gx_data + 0x14);
-            c.w32(gx_data + 0x14, (cur & !(3 << 11)) | ((attr_type & 3) << 11));
+            if attr_type != 0 {
+                c.w8(gx_data + 0x4D4, 1);
+                c.w8(gx_data + 0x4D5, 0);
+                c.w32(gx_data + 0x4D0, attr_type);
+                let cur = mr32(mem, gx_data + 0x14);
+                c.w32(gx_data + 0x14, (cur & !(3 << 11)) | ((attr_type & 3) << 11));
+            } else {
+                c.w8(gx_data + 0x4D4, 0);
+                let cur = mr32(mem, gx_data + 0x14);
+                if mr8(mem, gx_data + 0x4D5) == 0 {
+                    c.w32(gx_data + 0x14, cur & !(3 << 11));
+                }
+            }
+        }
+        25 => {
             if attr_type != 0 {
                 c.w8(gx_data + 0x4D5, 1);
                 c.w8(gx_data + 0x4D4, 0);
                 c.w32(gx_data + 0x4D0, attr_type);
+                let cur = mr32(mem, gx_data + 0x14);
+                c.w32(gx_data + 0x14, (cur & !(3 << 11)) | ((attr_type & 3) << 11));
             } else {
                 c.w8(gx_data + 0x4D5, 0);
+                let cur = mr32(mem, gx_data + 0x14);
+                if mr8(mem, gx_data + 0x4D4) == 0 {
+                    c.w32(gx_data + 0x14, cur & !(3 << 11));
+                }
             }
         }
         11 => {
@@ -2311,6 +2330,8 @@ pub fn hle_gx_set_vtx_attr_fmt(c: &mut Ctx) -> bool {
 
     let dirty = mr8(mem, gx_data + 0x5AB);
     c.w8(gx_data + 0x5AB, dirty | (1 << vtxfmt));
+    let dirty_5ac = mr32(mem, gx_data + 0x5AC);
+    c.w32(gx_data + 0x5AC, dirty_5ac | 0x10);
     true
 }
 
@@ -2422,6 +2443,647 @@ pub fn hle_xquick_cull_isects(c: &mut Ctx) -> bool {
     }
     true
 }
+
+/// Native fast implementation of RenderWare `_rwGCNDisplayListGetStride` (`0x80331A64`).
+/// Computes the exact byte stride of a vertex formatted according to `_rwVtxFmt`.
+pub fn hle_rw_gcn_display_list_get_stride(c: &mut Ctx) -> bool {
+    let fmt_ptr = c.r[3];
+    let mem = c.mem;
+    if !in_ram(fmt_ptr, 0x20) {
+        return false;
+    }
+    let vcd_lo = mr32(mem, fmt_ptr + 0x10);
+    let vcd_hi = mr32(mem, fmt_ptr + 0x14);
+    let vat_a = mr32(mem, fmt_ptr + 0x4);
+    let vat_b = mr32(mem, fmt_ptr + 0x8);
+    let vat_c = mr32(mem, fmt_ptr + 0xC);
+
+    let attr = |kind: u32, direct: u32| match kind {
+        1 => direct,
+        2 => 1,
+        3 => 2,
+        _ => 0,
+    };
+
+    const COMP: [u32; 8] = [1, 1, 2, 2, 4, 0, 0, 0];
+    const COLOR: [u32; 8] = [2, 3, 4, 2, 3, 4, 0, 0];
+
+    // Attributes 0..7 (matrix indices)
+    let mut stride = (vcd_lo & 0x1FF).count_ones();
+
+    // Attribute 9: POS
+    stride += attr(
+        (vcd_lo >> 9) & 3,
+        (2 + (vat_a & 1)) * COMP[((vat_a >> 1) & 7) as usize],
+    );
+
+    // Attribute 10: NRM / NBT
+    let nbt = (vat_a >> 9) & 1 != 0;
+    let nrm_direct = if nbt { 9 } else { 3 } * COMP[((vat_a >> 10) & 7) as usize];
+    let nrm_indices = if nbt && (vat_a >> 31) != 0 { 3 } else { 1 };
+    stride += match (vcd_lo >> 11) & 3 {
+        1 => nrm_direct,
+        k => attr(k, 0) * nrm_indices,
+    };
+
+    // Attribute 11: CLR0
+    stride += attr((vcd_lo >> 13) & 3, COLOR[((vat_a >> 14) & 7) as usize]);
+
+    // Attribute 12: CLR1
+    stride += attr((vcd_lo >> 15) & 3, COLOR[((vat_a >> 18) & 7) as usize]);
+
+    // Attributes 13..20: TEX0..TEX7
+    let tex = [
+        (vat_a >> 21, vat_a >> 22),
+        (vat_b, vat_b >> 1),
+        (vat_b >> 9, vat_b >> 10),
+        (vat_b >> 18, vat_b >> 19),
+        (vat_b >> 27, vat_b >> 28),
+        (vat_c >> 5, vat_c >> 6),
+        (vat_c >> 14, vat_c >> 15),
+        (vat_c >> 23, vat_c >> 24),
+    ];
+    for (i, (cnt, fmt)) in tex.into_iter().enumerate() {
+        stride += attr(
+            (vcd_hi >> (i * 2)) & 3,
+            (1 + (cnt & 1)) * COMP[(fmt & 7) as usize],
+        );
+    }
+
+    c.r[3] = stride;
+    true
+}
+
+/// Native ARM64 implementation of Heavy Iron `properSphereIsectTri` (`0x80206EDC`).
+/// Computes exact sphere-triangle intersection with normal, closest point, and distance.
+pub fn hle_proper_sphere_isect_tri(c: &mut Ctx) -> bool {
+    let center_ptr = c.r[3];
+    let radius = c.f[1] as f32;
+    let hit_ptr = c.r[4];
+    let dist_ptr = c.r[5];
+    let tri_ptr = c.r[6];
+    let mem = c.mem;
+
+    if !in_ram(center_ptr, 12) || !in_ram(hit_ptr, 12) || !in_ram(dist_ptr, 4) || !in_ram(tri_ptr, 40) {
+        return false;
+    }
+
+    let cx = rf32(mem, center_ptr);
+    let cy = rf32(mem, center_ptr + 4);
+    let cz = rf32(mem, center_ptr + 8);
+
+    let nx = rf32(mem, tri_ptr);
+    let ny = rf32(mem, tri_ptr + 4);
+    let nz = rf32(mem, tri_ptr + 8);
+
+    let px = rf32(mem, tri_ptr + 12);
+    let py = rf32(mem, tri_ptr + 16);
+    let pz = rf32(mem, tri_ptr + 20);
+
+    let v0_ptr = mr32(mem, tri_ptr + 28);
+    let v1_ptr = mr32(mem, tri_ptr + 32);
+    let v2_ptr = mr32(mem, tri_ptr + 36);
+
+    if !in_ram(v0_ptr, 12) || !in_ram(v1_ptr, 12) || !in_ram(v2_ptr, 12) {
+        return false;
+    }
+
+    let v0_x = rf32(mem, v0_ptr);
+    let v0_y = rf32(mem, v0_ptr + 4);
+    let v0_z = rf32(mem, v0_ptr + 8);
+
+    let v1_x = rf32(mem, v1_ptr);
+    let v1_y = rf32(mem, v1_ptr + 4);
+    let v1_z = rf32(mem, v1_ptr + 8);
+
+    let v2_x = rf32(mem, v2_ptr);
+    let v2_y = rf32(mem, v2_ptr + 4);
+    let v2_z = rf32(mem, v2_ptr + 8);
+
+    // Plane distance: dot(normal, center) - dot(normal, point)
+    let dot_c = nx * cx + ny * cy + nz * cz;
+    let dot_p = nx * px + ny * py + nz * pz;
+    let dist_to_plane = dot_c - dot_p;
+
+    let abs_dist_plane = dist_to_plane.abs();
+    if abs_dist_plane > radius {
+        c.r[3] = 0;
+        return true;
+    }
+
+    // Projected point on plane: center - normal * dist_to_plane
+    let proj_x = cx - nx * dist_to_plane;
+    let proj_y = cy - ny * dist_to_plane;
+    let proj_z = cz - nz * dist_to_plane;
+
+    // Test PointWithinTriangle on projected 2D coordinates (dominant normal axis)
+    let abs_nx = nx.abs();
+    let abs_ny = ny.abs();
+    let abs_nz = nz.abs();
+
+    let inside = if abs_nz >= abs_nx && abs_nz >= abs_ny {
+        let c0 = (v1_x - v0_x) * (proj_y - v0_y) - (v1_y - v0_y) * (proj_x - v0_x);
+        let c1 = (v2_x - v1_x) * (proj_y - v1_y) - (v2_y - v1_y) * (proj_x - v1_x);
+        let c2 = (v0_x - v2_x) * (proj_y - v2_y) - (v0_y - v2_y) * (proj_x - v2_x);
+        (c0 >= 0.0 && c1 >= 0.0 && c2 >= 0.0) || (c0 <= 0.0 && c1 <= 0.0 && c2 <= 0.0)
+    } else if abs_ny >= abs_nx {
+        let c0 = (v1_x - v0_x) * (proj_z - v0_z) - (v1_z - v0_z) * (proj_x - v0_x);
+        let c1 = (v2_x - v1_x) * (proj_z - v1_z) - (v2_z - v1_z) * (proj_x - v1_x);
+        let c2 = (v0_x - v2_x) * (proj_z - v2_z) - (v0_z - v2_z) * (proj_x - v2_x);
+        (c0 >= 0.0 && c1 >= 0.0 && c2 >= 0.0) || (c0 <= 0.0 && c1 <= 0.0 && c2 <= 0.0)
+    } else {
+        let c0 = (v1_y - v0_y) * (proj_z - v0_z) - (v1_z - v0_z) * (proj_y - v0_y);
+        let c1 = (v2_y - v1_y) * (proj_z - v1_z) - (v2_z - v1_z) * (proj_y - v1_y);
+        let c2 = (v0_y - v2_y) * (proj_z - v2_z) - (v0_z - v2_z) * (proj_y - v2_y);
+        (c0 >= 0.0 && c1 >= 0.0 && c2 >= 0.0) || (c0 <= 0.0 && c1 <= 0.0 && c2 <= 0.0)
+    };
+
+    if inside {
+        wf32(mem, hit_ptr, proj_x);
+        wf32(mem, hit_ptr + 4, proj_y);
+        wf32(mem, hit_ptr + 8, proj_z);
+        wf32(mem, dist_ptr, abs_dist_plane);
+        c.r[3] = 1;
+        return true;
+    }
+
+    // Not inside triangle: test closest point on the 3 edges
+    let edges = [
+        (v0_x, v0_y, v0_z, v1_x, v1_y, v1_z),
+        (v1_x, v1_y, v1_z, v2_x, v2_y, v2_z),
+        (v2_x, v2_y, v2_z, v0_x, v0_y, v0_z),
+    ];
+
+    let r_sq = radius * radius;
+    let cur_dist = rf32(mem, dist_ptr);
+    let mut min_d_sq = cur_dist * cur_dist;
+    if min_d_sq > r_sq {
+        min_d_sq = r_sq;
+    }
+    let mut best_hit = None;
+
+    for (ax, ay, az, bx, by, bz) in edges {
+        let ab_x = bx - ax;
+        let ab_y = by - ay;
+        let ab_z = bz - az;
+        let ab_sq = ab_x * ab_x + ab_y * ab_y + ab_z * ab_z;
+        if ab_sq <= 0.0 {
+            continue;
+        }
+        let ac_x = cx - ax;
+        let ac_y = cy - ay;
+        let ac_z = cz - az;
+        let t = (ac_x * ab_x + ac_y * ab_y + ac_z * ab_z) / ab_sq;
+        let t_clamped = if t < 0.0 { 0.0 } else if t > 1.0 { 1.0 } else { t };
+        let qx = ax + ab_x * t_clamped;
+        let qy = ay + ab_y * t_clamped;
+        let qz = az + ab_z * t_clamped;
+        let diff_x = cx - qx;
+        let diff_y = cy - qy;
+        let diff_z = cz - qz;
+        let d_sq = diff_x * diff_x + diff_y * diff_y + diff_z * diff_z;
+        if d_sq < min_d_sq {
+            min_d_sq = d_sq;
+            best_hit = Some((qx, qy, qz));
+        }
+    }
+
+    if let Some((qx, qy, qz)) = best_hit {
+        let final_dist = hw_sqrt_f32(min_d_sq);
+        wf32(mem, hit_ptr, qx);
+        wf32(mem, hit_ptr + 4, qy);
+        wf32(mem, hit_ptr + 8, qz);
+        wf32(mem, dist_ptr, final_dist);
+        c.r[3] = 1;
+        return true;
+    }
+
+    c.r[3] = 0;
+    true
+}
+
+/// Native ARM64 implementation of `PointWithinTriangle` (`0x8020722C`).
+pub fn hle_point_within_triangle(c: &mut Ctx) -> bool {
+    let p_ptr = c.r[3];
+    let v_ptrs_ptr = c.r[4];
+    let norm_ptr = c.r[5];
+    let mem = c.mem;
+
+    if !in_ram(p_ptr, 12) || !in_ram(v_ptrs_ptr, 12) || !in_ram(norm_ptr, 12) {
+        return false;
+    }
+
+    let px = rf32(mem, p_ptr);
+    let py = rf32(mem, p_ptr + 4);
+    let pz = rf32(mem, p_ptr + 8);
+
+    let nx = rf32(mem, norm_ptr);
+    let ny = rf32(mem, norm_ptr + 4);
+    let nz = rf32(mem, norm_ptr + 8);
+
+    let v0_ptr = mr32(mem, v_ptrs_ptr);
+    let v1_ptr = mr32(mem, v_ptrs_ptr + 4);
+    let v2_ptr = mr32(mem, v_ptrs_ptr + 8);
+
+    if !in_ram(v0_ptr, 12) || !in_ram(v1_ptr, 12) || !in_ram(v2_ptr, 12) {
+        return false;
+    }
+
+    let v0_x = rf32(mem, v0_ptr);
+    let v0_y = rf32(mem, v0_ptr + 4);
+    let v0_z = rf32(mem, v0_ptr + 8);
+
+    let v1_x = rf32(mem, v1_ptr);
+    let v1_y = rf32(mem, v1_ptr + 4);
+    let v1_z = rf32(mem, v1_ptr + 8);
+
+    let v2_x = rf32(mem, v2_ptr);
+    let v2_y = rf32(mem, v2_ptr + 4);
+    let v2_z = rf32(mem, v2_ptr + 8);
+
+    let abs_nx = nx.abs();
+    let abs_ny = ny.abs();
+    let abs_nz = nz.abs();
+
+    let inside = if abs_nz >= abs_nx && abs_nz >= abs_ny {
+        let c0 = (v1_x - v0_x) * (py - v0_y) - (v1_y - v0_y) * (px - v0_x);
+        let c1 = (v2_x - v1_x) * (py - v1_y) - (v2_y - v1_y) * (px - v1_x);
+        let c2 = (v0_x - v2_x) * (py - v2_y) - (v0_y - v2_y) * (px - v2_x);
+        (c0 >= 0.0 && c1 >= 0.0 && c2 >= 0.0) || (c0 <= 0.0 && c1 <= 0.0 && c2 <= 0.0)
+    } else if abs_ny >= abs_nx {
+        let c0 = (v1_x - v0_x) * (pz - v0_z) - (v1_z - v0_z) * (px - v0_x);
+        let c1 = (v2_x - v1_x) * (pz - v1_z) - (v2_z - v1_z) * (px - v1_x);
+        let c2 = (v0_x - v2_x) * (pz - v2_z) - (v0_z - v2_z) * (px - v2_x);
+        (c0 >= 0.0 && c1 >= 0.0 && c2 >= 0.0) || (c0 <= 0.0 && c1 <= 0.0 && c2 <= 0.0)
+    } else {
+        let c0 = (v1_y - v0_y) * (pz - v0_z) - (v1_z - v0_z) * (py - v0_y);
+        let c1 = (v2_y - v1_y) * (pz - v1_z) - (v2_z - v1_z) * (py - v1_y);
+        let c2 = (v0_y - v2_y) * (pz - v2_z) - (v0_z - v2_z) * (py - v2_y);
+        (c0 >= 0.0 && c1 >= 0.0 && c2 >= 0.0) || (c0 <= 0.0 && c1 <= 0.0 && c2 <= 0.0)
+    };
+
+    c.r[3] = if inside { 1 } else { 0 };
+    true
+}
+
+/// Native ARM64 implementation of RenderWare `RwBBoxCalculate` (`0x803418F8`).
+/// Computes axis-aligned bounding box enclosing `num_points`.
+pub fn hle_rw_bbox_calculate(c: &mut Ctx) -> bool {
+    let bbox_ptr = c.r[3];
+    let points_ptr = c.r[4];
+    let n = c.r[5] as usize;
+    let mem = c.mem;
+
+    if n == 0 || !in_ram(bbox_ptr, 24) || !in_ram(points_ptr, n * 12) {
+        return false;
+    }
+
+    let mut min_x = rf32(mem, points_ptr);
+    let mut min_y = rf32(mem, points_ptr + 4);
+    let mut min_z = rf32(mem, points_ptr + 8);
+    let mut max_x = min_x;
+    let mut max_y = min_y;
+    let mut max_z = min_z;
+
+    for i in 1..n {
+        let p = points_ptr + (i as u32) * 12;
+        let px = rf32(mem, p);
+        let py = rf32(mem, p + 4);
+        let pz = rf32(mem, p + 8);
+
+        if px < min_x { min_x = px; }
+        if py < min_y { min_y = py; }
+        if pz < min_z { min_z = pz; }
+        if px > max_x { max_x = px; }
+        if py > max_y { max_y = py; }
+        if pz > max_z { max_z = pz; }
+    }
+
+    // In RenderWare RwBBox:
+    // offset 0x0..0xC is sup (max: x, y, z)
+    // offset 0xC..0x18 is inf (min: x, y, z)
+    wf32(mem, bbox_ptr, max_x);
+    wf32(mem, bbox_ptr + 4, max_y);
+    wf32(mem, bbox_ptr + 8, max_z);
+    wf32(mem, bbox_ptr + 12, min_x);
+    wf32(mem, bbox_ptr + 16, min_y);
+    wf32(mem, bbox_ptr + 20, min_z);
+
+    c.r[3] = bbox_ptr;
+    true
+}
+
+/// Native ARM64 implementation of `xBoxForTriangle` (`0x802020AC`).
+/// Computes axis-aligned bounding box enclosing triangle vertices (v0, v1, v2).
+/// In Heavy Iron's `xBox`:
+/// offset +0x00..+0x0C: upper (max: x, y, z)
+/// offset +0x0C..+0x18: lower (min: x, y, z)
+pub fn hle_xbox_for_triangle(c: &mut Ctx) -> bool {
+    let box_ptr = c.r[3];
+    let v0_ptr = c.r[4];
+    let v1_ptr = c.r[5];
+    let v2_ptr = c.r[6];
+    let mem = c.mem;
+
+    if !in_ram(box_ptr, 24) || !in_ram(v0_ptr, 12) || !in_ram(v1_ptr, 12) || !in_ram(v2_ptr, 12) {
+        return false;
+    }
+
+    let v0_x = rf32(mem, v0_ptr);
+    let v0_y = rf32(mem, v0_ptr + 4);
+    let v0_z = rf32(mem, v0_ptr + 8);
+
+    let v1_x = rf32(mem, v1_ptr);
+    let v1_y = rf32(mem, v1_ptr + 4);
+    let v1_z = rf32(mem, v1_ptr + 8);
+
+    let v2_x = rf32(mem, v2_ptr);
+    let v2_y = rf32(mem, v2_ptr + 4);
+    let v2_z = rf32(mem, v2_ptr + 8);
+
+    let max_x = v0_x.max(v1_x).max(v2_x);
+    let max_y = v0_y.max(v1_y).max(v2_y);
+    let max_z = v0_z.max(v1_z).max(v2_z);
+
+    let min_x = v0_x.min(v1_x).min(v2_x);
+    let min_y = v0_y.min(v1_y).min(v2_y);
+    let min_z = v0_z.min(v1_z).min(v2_z);
+
+    wf32(mem, box_ptr, max_x);
+    wf32(mem, box_ptr + 4, max_y);
+    wf32(mem, box_ptr + 8, max_z);
+
+    wf32(mem, box_ptr + 12, min_x);
+    wf32(mem, box_ptr + 16, min_y);
+    wf32(mem, box_ptr + 20, min_z);
+
+    true
+}
+
+/// Native ARM64 implementation of `xQuatToMat` (`0x801EA1F8`).
+/// Converts unit quaternion (x, y, z, w) into 3x3 rotation matrix (16-byte row stride).
+pub fn hle_xquat_to_mat(c: &mut Ctx) -> bool {
+    let q_ptr = c.r[3];
+    let m_ptr = c.r[4];
+    let mem = c.mem;
+
+    if !in_ram(q_ptr, 16) || !in_ram(m_ptr, 48) {
+        return false;
+    }
+
+    let qx = rf32(mem, q_ptr);
+    let qy = rf32(mem, q_ptr + 4);
+    let qz = rf32(mem, q_ptr + 8);
+    let qw = rf32(mem, q_ptr + 12);
+
+    let xx = 2.0 * qx * qx;
+    let yy = 2.0 * qy * qy;
+    let zz = 2.0 * qz * qz;
+    let xy = 2.0 * qx * qy;
+    let xz = 2.0 * qx * qz;
+    let yz = 2.0 * qy * qz;
+    let wx = 2.0 * qw * qx;
+    let wy = 2.0 * qw * qy;
+    let wz = 2.0 * qw * qz;
+
+    // Row 0
+    wf32(mem, m_ptr, 1.0 - yy - zz);
+    wf32(mem, m_ptr + 4, xy - wz);
+    wf32(mem, m_ptr + 8, xz + wy);
+    mw32(mem, m_ptr + 12, 0);
+
+    // Row 1
+    wf32(mem, m_ptr + 0x10, xy + wz);
+    wf32(mem, m_ptr + 0x14, 1.0 - xx - zz);
+    wf32(mem, m_ptr + 0x18, yz - wx);
+
+    // Row 2
+    wf32(mem, m_ptr + 0x20, xz - wy);
+    wf32(mem, m_ptr + 0x24, yz + wx);
+    wf32(mem, m_ptr + 0x28, 1.0 - xx - yy);
+
+    true
+}
+
+/// Native ARM64 implementation of `xMat3x3LMulVec` (`0x801EB06C`).
+/// Computes out = m * v (row-major dot products).
+pub fn hle_xmat3x3_lmul_vec(c: &mut Ctx) -> bool {
+    let out_ptr = c.r[3];
+    let m_ptr = c.r[4];
+    let v_ptr = c.r[5];
+    let mem = c.mem;
+
+    if !in_ram(out_ptr, 12) || !in_ram(m_ptr, 48) || !in_ram(v_ptr, 12) {
+        return false;
+    }
+
+    let vx = rf32(mem, v_ptr);
+    let vy = rf32(mem, v_ptr + 4);
+    let vz = rf32(mem, v_ptr + 8);
+
+    let m00 = rf32(mem, m_ptr);
+    let m01 = rf32(mem, m_ptr + 4);
+    let m02 = rf32(mem, m_ptr + 8);
+
+    let m10 = rf32(mem, m_ptr + 0x10);
+    let m11 = rf32(mem, m_ptr + 0x14);
+    let m12 = rf32(mem, m_ptr + 0x18);
+
+    let m20 = rf32(mem, m_ptr + 0x20);
+    let m21 = rf32(mem, m_ptr + 0x24);
+    let m22 = rf32(mem, m_ptr + 0x28);
+
+    let ox = m00 * vx + m01 * vy + m02 * vz;
+    let oy = m10 * vx + m11 * vy + m12 * vz;
+    let oz = m20 * vx + m21 * vy + m22 * vz;
+
+    wf32(mem, out_ptr, ox);
+    wf32(mem, out_ptr + 4, oy);
+    wf32(mem, out_ptr + 8, oz);
+
+    true
+}
+
+/// Native ARM64 implementation of `xMat3x3Tolocal` (`0x801EAF90`).
+/// Transforms vector v into local coordinate space of matrix m,
+/// normalizing each coordinate by the squared length of the corresponding basis row.
+pub fn hle_xmat3x3_tolocal(c: &mut Ctx) -> bool {
+    let out_ptr = c.r[3];
+    let m_ptr = c.r[4];
+    let v_ptr = c.r[5];
+    let mem = c.mem;
+
+    if !in_ram(out_ptr, 12) || !in_ram(m_ptr, 48) || !in_ram(v_ptr, 12) {
+        return false;
+    }
+
+    let vx = rf32(mem, v_ptr);
+    let vy = rf32(mem, v_ptr + 4);
+    let vz = rf32(mem, v_ptr + 8);
+
+    let m00 = rf32(mem, m_ptr);
+    let m01 = rf32(mem, m_ptr + 4);
+    let m02 = rf32(mem, m_ptr + 8);
+
+    let m10 = rf32(mem, m_ptr + 0x10);
+    let m11 = rf32(mem, m_ptr + 0x14);
+    let m12 = rf32(mem, m_ptr + 0x18);
+
+    let m20 = rf32(mem, m_ptr + 0x20);
+    let m21 = rf32(mem, m_ptr + 0x24);
+    let m22 = rf32(mem, m_ptr + 0x28);
+
+    let dot0 = m00 * vx + m01 * vy + m02 * vz;
+    let dot1 = m10 * vx + m11 * vy + m12 * vz;
+    let dot2 = m20 * vx + m21 * vy + m22 * vz;
+
+    let len_sq0 = m00 * m00 + m01 * m01 + m02 * m02;
+    let len_sq1 = m10 * m10 + m11 * m11 + m12 * m12;
+    let len_sq2 = m20 * m20 + m21 * m21 + m22 * m22;
+
+    let ox = dot0 / len_sq0;
+    let oy = dot1 / len_sq1;
+    let oz = dot2 / len_sq2;
+
+    wf32(mem, out_ptr, ox);
+    wf32(mem, out_ptr + 4, oy);
+    wf32(mem, out_ptr + 8, oz);
+
+    true
+}
+
+/// Native ARM64 implementation of `xMat3x3Mul` (`0x801EB0D0`).
+/// Computes out = a * b (3x3 matrix multiplication with 16-byte row stride).
+/// Safe against in-place aliasing (out == a or out == b).
+pub fn hle_xmat3x3_mul(c: &mut Ctx) -> bool {
+    let out_ptr = c.r[3];
+    let a_ptr = c.r[4];
+    let b_ptr = c.r[5];
+    let mem = c.mem;
+
+    if !in_ram(out_ptr, 48) || !in_ram(a_ptr, 48) || !in_ram(b_ptr, 48) {
+        return false;
+    }
+
+    let a00 = rf32(mem, a_ptr);
+    let a01 = rf32(mem, a_ptr + 4);
+    let a02 = rf32(mem, a_ptr + 8);
+
+    let a10 = rf32(mem, a_ptr + 0x10);
+    let a11 = rf32(mem, a_ptr + 0x14);
+    let a12 = rf32(mem, a_ptr + 0x18);
+
+    let a20 = rf32(mem, a_ptr + 0x20);
+    let a21 = rf32(mem, a_ptr + 0x24);
+    let a22 = rf32(mem, a_ptr + 0x28);
+
+    let b00 = rf32(mem, b_ptr);
+    let b01 = rf32(mem, b_ptr + 4);
+    let b02 = rf32(mem, b_ptr + 8);
+
+    let b10 = rf32(mem, b_ptr + 0x10);
+    let b11 = rf32(mem, b_ptr + 0x14);
+    let b12 = rf32(mem, b_ptr + 0x18);
+
+    let b20 = rf32(mem, b_ptr + 0x20);
+    let b21 = rf32(mem, b_ptr + 0x24);
+    let b22 = rf32(mem, b_ptr + 0x28);
+
+    let o00 = a00 * b00 + a01 * b10 + a02 * b20;
+    let o01 = a00 * b01 + a01 * b11 + a02 * b21;
+    let o02 = a00 * b02 + a01 * b12 + a02 * b22;
+
+    let o10 = a10 * b00 + a11 * b10 + a12 * b20;
+    let o11 = a10 * b01 + a11 * b11 + a12 * b21;
+    let o12 = a10 * b02 + a11 * b12 + a12 * b22;
+
+    let o20 = a20 * b00 + a21 * b10 + a22 * b20;
+    let o21 = a20 * b01 + a21 * b11 + a22 * b21;
+    let o22 = a20 * b02 + a21 * b12 + a22 * b22;
+
+    wf32(mem, out_ptr, o00);
+    wf32(mem, out_ptr + 4, o01);
+    wf32(mem, out_ptr + 8, o02);
+    mw32(mem, out_ptr + 12, 0);
+
+    wf32(mem, out_ptr + 0x10, o10);
+    wf32(mem, out_ptr + 0x14, o11);
+    wf32(mem, out_ptr + 0x18, o12);
+
+    wf32(mem, out_ptr + 0x20, o20);
+    wf32(mem, out_ptr + 0x24, o21);
+    wf32(mem, out_ptr + 0x28, o22);
+
+    true
+}
+
+/// Native ARM64 implementation of `xBoxInitBoundOBB` (`0x801ECBEC`).
+/// Computes axis-aligned bounding box enclosing an oriented bounding box (OBB)
+/// transformed by affine matrix (right, up, at, pos).
+pub fn hle_xbox_init_bound_obb(c: &mut Ctx) -> bool {
+    let out_box_ptr = c.r[3];
+    let src_box_ptr = c.r[4];
+    let mat_ptr = c.r[5];
+    let mem = c.mem;
+
+    if !in_ram(out_box_ptr, 24) || !in_ram(src_box_ptr, 24) || !in_ram(mat_ptr, 64) {
+        return false;
+    }
+
+    let ux = rf32(mem, src_box_ptr);
+    let uy = rf32(mem, src_box_ptr + 4);
+    let uz = rf32(mem, src_box_ptr + 8);
+
+    let lx = rf32(mem, src_box_ptr + 12);
+    let ly = rf32(mem, src_box_ptr + 16);
+    let lz = rf32(mem, src_box_ptr + 20);
+
+    let cx = 0.5 * (lx + ux);
+    let cy = 0.5 * (ly + uy);
+    let cz = 0.5 * (lz + uz);
+
+    let ex = ux - cx;
+    let ey = uy - cy;
+    let ez = uz - cz;
+
+    let rx = rf32(mem, mat_ptr);
+    let ry = rf32(mem, mat_ptr + 4);
+    let rz = rf32(mem, mat_ptr + 8);
+
+    let ux_m = rf32(mem, mat_ptr + 0x10);
+    let uy_m = rf32(mem, mat_ptr + 0x14);
+    let uz_m = rf32(mem, mat_ptr + 0x18);
+
+    let ax = rf32(mem, mat_ptr + 0x20);
+    let ay = rf32(mem, mat_ptr + 0x24);
+    let az = rf32(mem, mat_ptr + 0x28);
+
+    let px = rf32(mem, mat_ptr + 0x30);
+    let py = rf32(mem, mat_ptr + 0x34);
+    let pz = rf32(mem, mat_ptr + 0x38);
+
+    let nc_x = rx * cx + ux_m * cy + ax * cz + px;
+    let nc_y = ry * cx + uy_m * cy + ay * cz + py;
+    let nc_z = rz * cx + uz_m * cy + az * cz + pz;
+
+    let ne_x = rx.abs() * ex + ux_m.abs() * ey + ax.abs() * ez;
+    let ne_y = ry.abs() * ex + uy_m.abs() * ey + ay.abs() * ez;
+    let ne_z = rz.abs() * ex + uz_m.abs() * ey + az.abs() * ez;
+
+    // Heavy Iron xBox layout:
+    // +0x00: upper (max)
+    // +0x0C: lower (min)
+    wf32(mem, out_box_ptr, nc_x + ne_x);
+    wf32(mem, out_box_ptr + 4, nc_y + ne_y);
+    wf32(mem, out_box_ptr + 8, nc_z + ne_z);
+
+    wf32(mem, out_box_ptr + 12, nc_x - ne_x);
+    wf32(mem, out_box_ptr + 16, nc_y - ne_y);
+    wf32(mem, out_box_ptr + 20, nc_z - ne_z);
+
+    true
+}
+
 
 
 

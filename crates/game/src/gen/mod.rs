@@ -9844,6 +9844,17 @@ pub static HLE_NAMES: &[&str] = &[
     "xQuickCullIsects__FPC7xQCDataPC7xQCData",
     "_rxGCResEntryWaitDone",
     "_rwDlTokenQueryDone",
+    "properSphereIsectTri__FPC5xVec3fP5xVec3PfP19RpCollisionTriangle",
+    "PointWithinTriangle__FP5xVec3PP5xVec3P5xVec3",
+    "RwBBoxCalculate",
+    "_rwGCNDisplayListGetStride",
+    "xBoxForTriangle__FR4xBoxRC5xVec3RC5xVec3RC5xVec3",
+    "xQuatToMat__FPC5xQuatP7xMat3x3",
+    "xMat3x3LMulVec__FP5xVec3PC7xMat3x3PC5xVec3",
+    "xMat3x3Tolocal__FP5xVec3PC7xMat3x3PC5xVec3",
+    "xMat3x3Mul__FP7xMat3x3PC7xMat3x3PC7xMat3x3",
+    "xBoxInitBoundOBB__FP4xBoxPC4xBoxPC7xMat4x3",
+    "_rwDlSetRenderState",
 ];
 
 /// Linker-defined symbols (stack top, small-data bases, section bounds).

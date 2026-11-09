@@ -5344,7 +5344,7 @@ pub fn fn_803299D8(c: &mut Ctx) {
             fmt = 0x80486240;
         }
         let mesh_vtx = runtime::mr32(mem, mesh);
-        if runtime::in_ram(mesh_vtx, 0x18 + 8) && runtime::in_ram(fmt, 0x20) {
+        if runtime::in_ram(mesh_vtx, 0x80) && runtime::in_ram(fmt, 0x20) {
             let r30 = mesh_vtx.wrapping_add(0x18);
 
             // GXClearVtxDesc
@@ -5376,7 +5376,7 @@ pub fn fn_803299D8(c: &mut Ctx) {
             let mut r31: u32 = 1;
 
             // Normals
-            if (flags & 0x10) == 0 {
+            if (flags & 0x10) != 0 {
                 let is_nbt = runtime::mr8(mem, fmt.wrapping_add(0xD)) != 0;
                 let (attr, cnt) = if is_nbt { (0x19u32, 1u32) } else { (0xAu32, 0u32) };
                 let nrm_ptr = r30.wrapping_add(r31.wrapping_mul(8));
@@ -5404,7 +5404,7 @@ pub fn fn_803299D8(c: &mut Ctx) {
             }
 
             // Colors
-            if (flags & 0x8) == 0 {
+            if (flags & 0x8) != 0 {
                 let clr_ptr = r30.wrapping_add(r31.wrapping_mul(8));
                 let clr_desc = runtime::mr8(mem, clr_ptr.wrapping_add(0x12)) as u32;
                 c.r[3] = 0xBu32; // GX_VA_CLR0
@@ -5431,8 +5431,8 @@ pub fn fn_803299D8(c: &mut Ctx) {
             }
 
             // Texture coordinates
-            if (flags & 0x84) == 0 {
-                let num_tex = runtime::mr32(mem, r30.wrapping_add(8));
+            if (flags & 0x84) != 0 {
+                let num_tex = runtime::mr32(mem, r30.wrapping_add(8)).min(12);
                 let mut tex_attr = 0xDu32; // GX_VA_TEX0
                 let mut curr_ptr = r30.wrapping_add(r31.wrapping_mul(8));
                 while r31 < num_tex {
@@ -15925,6 +15925,7 @@ pub fn fn_80331018(c: &mut Ctx) {
 
 // _rwGCNDisplayListGetStride
 pub fn fn_80331A64(c: &mut Ctx) {
+    if c.hle(887) { return; }
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r1 = c.r[1]; let mut r3 = c.r[3]; let mut r4 = c.r[4]; let mut r5 = c.r[5]; let mut r11 = c.r[11]; let mut r27 = c.r[27]; let mut r28 = c.r[28]; let mut r29 = c.r[29]; let mut r30 = c.r[30]; let mut r31 = c.r[31]; 
     let mut cr0 = c.cr[0]; 

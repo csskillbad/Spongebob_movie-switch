@@ -5864,6 +5864,7 @@ pub fn fn_803418A0(c: &mut Ctx) {
 
 // RwBBoxCalculate
 pub fn fn_803418F8(c: &mut Ctx) {
+    if c.hle(886) { return; }
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r3 = c.r[3]; let mut r4 = c.r[4]; let mut r5 = c.r[5]; let mut r6 = c.r[6]; let mut r7 = c.r[7]; let mut r8 = c.r[8]; 
     let mut f0 = c.f[0]; let mut f1 = c.f[1]; 

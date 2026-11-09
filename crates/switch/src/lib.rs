@@ -1804,6 +1804,14 @@ fn call_display_list(c: &mut Ctx) -> bool {
     }
     c.call(GX_CALL_DISPLAY_LIST);
     INSIDE.store(false, Ordering::Relaxed);
+    #[allow(static_mut_refs)]
+    unsafe {
+        if let Some(gx) = GX_STATE.as_mut() {
+            let t0 = switch_now_ns();
+            gx.look_ahead(c);
+            PERF_LOOKAHEAD_NS.fetch_add(switch_now_ns() - t0, Ordering::Relaxed);
+        }
+    }
     true
 }
 
@@ -2637,6 +2645,16 @@ fn switch_policy(name: &str) -> Hle {
         "RtIntersectionSphereTriangle" => Hle::Replace(arm64_native::hle_rt_intersection_sphere_triangle),
         "RtIntersectionBBoxTriangle" => Hle::Replace(arm64_native::hle_rt_intersection_bbox_triangle),
         "xQuickCullIsects__FPC7xQCDataPC7xQCData" => Hle::Replace(arm64_native::hle_xquick_cull_isects),
+        "properSphereIsectTri__FPC5xVec3fP5xVec3PfP19RpCollisionTriangle" => Hle::Replace(arm64_native::hle_proper_sphere_isect_tri),
+        "PointWithinTriangle__FP5xVec3PP5xVec3P5xVec3" => Hle::Replace(arm64_native::hle_point_within_triangle),
+        "RwBBoxCalculate" => Hle::Replace(arm64_native::hle_rw_bbox_calculate),
+        "_rwGCNDisplayListGetStride" => Hle::Replace(arm64_native::hle_rw_gcn_display_list_get_stride),
+        "xBoxForTriangle__FR4xBoxRC5xVec3RC5xVec3RC5xVec3" => {
+            Hle::Replace(arm64_native::hle_xbox_for_triangle)
+        }
+        "xBoxInitBoundOBB__FP4xBoxPC4xBoxPC7xMat4x3" => {
+            Hle::Replace(arm64_native::hle_xbox_init_bound_obb)
+        }
 
         // RenderWare matrix, vector transforms, and concatenation acceleration
         "PSMTXConcat" => Hle::Replace(arm64_native::hle_psmtx_concat),
@@ -2644,6 +2662,14 @@ fn switch_policy(name: &str) -> Hle {
         "RwMatrixMultiply" => Hle::Replace(arm64_native::hle_rw_matrix_multiply),
         "RwMatrixUpdate" => Hle::Replace(arm64_native::hle_rw_matrix_update),
         "xMat4x3Mul__FP7xMat4x3PC7xMat4x3PC7xMat4x3" => Hle::Replace(arm64_native::hle_xmat4x3_mul),
+        "xQuatToMat__FPC5xQuatP7xMat3x3" => Hle::Replace(arm64_native::hle_xquat_to_mat),
+        "xMat3x3LMulVec__FP5xVec3PC7xMat3x3PC5xVec3" => {
+            Hle::Replace(arm64_native::hle_xmat3x3_lmul_vec)
+        }
+        "xMat3x3Tolocal__FP5xVec3PC7xMat3x3PC5xVec3" => {
+            Hle::Replace(arm64_native::hle_xmat3x3_tolocal)
+        }
+        "xMat3x3Mul__FP7xMat3x3PC7xMat3x3PC7xMat3x3" => Hle::Replace(arm64_native::hle_xmat3x3_mul),
         "RwV3dLength" => Hle::Replace(arm64_native::hle_rw_v3d_length),
         "RwV3dTransformPoint" => Hle::Replace(arm64_native::hle_rw_v3d_transform_point),
         "RwV3dTransformPoints" => Hle::Replace(arm64_native::hle_rw_v3d_transform_points),
@@ -2658,9 +2684,9 @@ fn switch_policy(name: &str) -> Hle {
         "_rwDlSkinUpdate4WeightsP" => Hle::Replace(arm64_native::hle_skin_4w_p),
         "_rwDlSkinUpdate4WeightsPN" => Hle::Replace(arm64_native::hle_skin_4w_pn),
 
-        // Retain original for complex multi-bone ASM blend and DL render state
-        "_rpSkinMatrixBlendUpdateASM"
-        | "_rwDlSetRenderState" => Hle::Original,
+        // Retain original for complex multi-bone ASM blend
+        "_rpSkinMatrixBlendUpdateASM" => Hle::Original,
+        "_rwDlSetRenderState" => Hle::Replace(arm64_native::hle_rw_dl_set_render_state),
         "_rxGCResEntryWaitDone" => Hle::Native(|_| {}),
         "_rwDlTokenQueryDone" => Hle::Native(|c| c.r[3] = 1),
 

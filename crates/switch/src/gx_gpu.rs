@@ -1902,7 +1902,12 @@ impl Gx {
             if !(0x80..=0xBF).contains(&op) || at + 3 > list.len() {
                 static FAIL_LOG_COUNT: core::sync::atomic::AtomicU32 = core::sync::atomic::AtomicU32::new(0);
                 if FAIL_LOG_COUNT.fetch_add(1, core::sync::atomic::Ordering::Relaxed) < 10 {
-                    crate::log_c(&format!("[dl-plain-fail] len={} at={} op={:#04x}", list.len(), at, op));
+                    crate::log_c(&format!("[dl-plain-fail] len={} at={} op={:#04x} vcd=({:#x},{:#x}) vat0=({:#x},{:#x},{:#x}) vsz0={} head={:02x?}",
+                        list.len(), at, op, vcd_lo, vcd_hi,
+                        self.cp[0x70], self.cp[0x80], self.cp[0x90],
+                        self.vertex_size(0),
+                        &list[..list.len().min(32)]
+                    ));
                 }
                 plain = false;
                 break;
@@ -1913,7 +1918,12 @@ impl Gx {
             if at + need > list.len() {
                 static OVERRUN_LOG_COUNT: core::sync::atomic::AtomicU32 = core::sync::atomic::AtomicU32::new(0);
                 if OVERRUN_LOG_COUNT.fetch_add(1, core::sync::atomic::Ordering::Relaxed) < 10 {
-                    crate::log_c(&format!("[dl-overrun-fail] len={} at={} need={} count={}", list.len(), at, need, count));
+                    crate::log_c(&format!("[dl-overrun-fail] len={} at={} need={} count={} vat={} vsz={} vcd=({:#x},{:#x}) vat=({:#x},{:#x},{:#x}) head={:02x?}",
+                        list.len(), at, need, count, vat, self.vertex_size(vat),
+                        vcd_lo, vcd_hi,
+                        self.cp[0x70 + vat], self.cp[0x80 + vat], self.cp[0x90 + vat],
+                        &list[..list.len().min(32)]
+                    ));
                 }
                 plain = false;
                 break;
@@ -1993,40 +2003,32 @@ impl Gx {
         } else {
             (addr as u64) ^ ((size as u64) << 32)
         };
-        let vcd_sig = (self.cp[0x50] as u64) ^ ((self.cp[0x60] as u64) << 32);
-        let key = (list_hash, vcd_sig);
+        let cp_sig = self.cp_signature();
+        let key = (list_hash, cp_sig);
         let mut built = false;
         let shape = match self.shapes.get(&key).copied() {
             Some(shape) => shape,
             None => {
-                let shape = match self.build_list(list) {
+                match self.build_list(list) {
                     Some((spans, draws, vertices, vats_used)) => {
                         built = true;
-                        ListShape {
+                        let s = ListShape {
                             plain: true,
                             spans,
                             index_count: self.list_indices.len() as u32,
                             draws,
                             vertices,
                             vats_used,
-                        }
+                        };
+                        self.shapes.insert(key, s);
+                        s
                     }
-                    None => ListShape {
-                        plain: false,
-                        spans: [(0, 0); 12],
-                        index_count: 0,
-                        draws: 0,
-                        vertices: 0,
-                        vats_used: 0,
-                    },
-                };
-                self.shapes.insert(key, shape);
-                shape
+                    None => {
+                        return Ahead::Late;
+                    }
+                }
             }
         };
-        if !shape.plain {
-            return Ahead::Late;
-        }
 
         let mut place = None;
         if let (true, Some(at)) = (!self.cache_full, self.spans_at(&shape.spans)) {
@@ -2037,24 +2039,12 @@ impl Gx {
                 bases = (bases.rotate_left(9) ^ ((n as u64) << 32) ^ (base as u64) ^ ((stride as u64) << 48))
                     .wrapping_mul(0x9E37_79B9_7F4A_7C15);
             }
-            let mut vat_sig = vcd_sig;
-            for v in 0..8 {
-                if (shape.vats_used & (1 << v)) != 0 {
-                    let (va, vb, vc) = (
-                        self.cp[0x70 + v] as u64,
-                        self.cp[0x80 + v] as u64,
-                        self.cp[0x90 + v] as u64,
-                    );
-                    vat_sig = (vat_sig.rotate_left(7) ^ va ^ (vb << 21) ^ (vc << 42))
-                        .wrapping_mul(0x9E37_79B9_7F4A_7C15);
-                }
-            }
-            let check_key = (key.0, vat_sig, bases);
+            let check_key = (key.0, cp_sig, bases);
             if let Some(check) = self.checks.get(&check_key) {
                 place = Some(check.place);
             } else {
                 let exact = self.exact_hash(&at);
-                place = self.places.get(&(key.0, vat_sig, exact)).copied();
+                place = self.places.get(&(key.0, cp_sig, exact)).copied();
                 if place.is_none() && (built || self.build_list(list).is_some()) {
                     built = true;
                     let content = (
@@ -2071,7 +2061,7 @@ impl Gx {
                     match place {
                         None => self.cache_full = true,
                         Some(p) => {
-                            self.places.insert((key.0, vat_sig, exact), p);
+                            self.places.insert((key.0, cp_sig, exact), p);
                             if shared.is_none() {
                                 self.contents.insert(content, p);
                             }
@@ -2389,6 +2379,18 @@ impl Gx {
                                     t.vparams_flat = None;
                                 }
                             }
+                        } else if (0xA0..0xBC).contains(&register) && self.template.is_some() {
+                            if let Some(t) = &mut self.template {
+                                if (0xA0..0xAC).contains(&register) {
+                                    let n = register - 0xA0;
+                                    t.vstate.arrays[n].0 = (value & 0x03FF_FFFF) | 0x8000_0000;
+                                } else if (0xB0..0xBC).contains(&register) {
+                                    let n = register - 0xB0;
+                                    t.vstate.arrays[n].1 = value & 0xFF;
+                                }
+                                t.vparams = None;
+                                t.vparams_flat = None;
+                            }
                         } else {
                             self.template = None;
                         }
@@ -2427,6 +2429,48 @@ impl Gx {
                                         Matrices::All(*all)
                                     }
                                 };
+                                t.vparams = None;
+                                t.vparams_flat = None;
+                            }
+                        } else if (0x100A..=0x1011).contains(&base) && self.template.is_some() {
+                            let channels: [Channel; 2] = core::array::from_fn(|n| {
+                                let color = |reg: u32| [24, 16, 8, 0].map(|s| ((reg >> s) & 0xFF) as f32 / 255.0);
+                                Channel {
+                                    material: color(self.xf[0x100C + n]),
+                                    ambient: color(self.xf[0x100A + n]),
+                                    ctrl: [self.xf[0x100E + n], self.xf[0x1010 + n]],
+                                }
+                            });
+                            let lit_channels = (self.xf[0x1009] & 3).min(2) as usize;
+                            let lit = |ctrl: u32| ctrl & 2 != 0 && ctrl & 0x783C != 0;
+                            let lighting = channels[..lit_channels]
+                                .iter()
+                                .any(|ch| lit(ch.ctrl[0]) || lit(ch.ctrl[1]));
+                            if let Some(t) = &mut self.template {
+                                t.vstate.channels = channels;
+                                t.vstate.lit_channels = lit_channels;
+                                t.vstate.lighting = lighting;
+                                t.vparams = None;
+                                t.vparams_flat = None;
+                            }
+                        } else if (0x0600..0x0680).contains(&base) && self.template.is_some() {
+                            let lighting = self.template.as_ref().map(|t| t.vstate.lighting).unwrap_or(false);
+                            let lights: [Light; 8] = core::array::from_fn(|n| {
+                                if !lighting {
+                                    return Light::default();
+                                }
+                                let b = 0x600 + n * 16;
+                                let vector = |at: usize| [0, 1, 2].map(|k| self.xf_float(b + at + k));
+                                Light {
+                                    color: [24, 16, 8, 0].map(|s| ((self.xf[b + 3] >> s) & 0xFF) as f32 / 255.0),
+                                    cos_att: vector(4),
+                                    dist_att: vector(7),
+                                    pos: vector(10),
+                                    dir: vector(13),
+                                }
+                            });
+                            if let Some(t) = &mut self.template {
+                                t.vstate.lights = lights;
                                 t.vparams = None;
                                 t.vparams_flat = None;
                             }
