@@ -2602,49 +2602,55 @@ fn switch_policy(name: &str) -> Hle {
         "__mod2u" => Hle::Replace(arm64_native::hle_mod2u),
         "__mod2i" => Hle::Replace(arm64_native::hle_mod2i),
 
-        // Math functions (matching desktop TSSM policy)
-        "sqrt" | "__ieee754_sqrt" => Hle::Original,
-        "xsqrt__Ff" => Hle::Original,
-        "_rwSqrt" => Hle::Original,
-        "_rwInvSqrt" => Hle::Original,
-        "ceil" => Hle::Original,
-        "floor" => Hle::Original,
-        "sinf" | "isin__Ff" => Hle::Original,
-        "cosf" | "icos__Ff" => Hle::Original,
-        "powf" => Hle::Original,
-        "sin" => Hle::Original,
-        "cos" => Hle::Original,
-        "tan" => Hle::Original,
-        "atan" => Hle::Original,
-        "atan2" => Hle::Original,
-        "acos" => Hle::Original,
-        "asin" => Hle::Original,
+        // Math functions (native ARM64 / IEEE-754 hardware acceleration)
+        "sqrt" | "__ieee754_sqrt" => Hle::Replace(arm64_native::hle_sqrt),
+        "xsqrt__Ff" => Hle::Replace(arm64_native::hle_xsqrt),
+        "_rwSqrt" => Hle::Replace(arm64_native::hle_rw_sqrt),
+        "_rwInvSqrt" => Hle::Replace(arm64_native::hle_rw_inv_sqrt),
+        "ceil" => Hle::Replace(arm64_native::hle_ceil),
+        "floor" => Hle::Replace(arm64_native::hle_floor),
+        "sinf" | "isin__Ff" => Hle::Replace(arm64_native::hle_sinf),
+        "cosf" | "icos__Ff" => Hle::Replace(arm64_native::hle_cosf),
+        "powf" => Hle::Replace(arm64_native::hle_powf),
+        "sin" => Hle::Replace(arm64_native::hle_sin),
+        "cos" => Hle::Replace(arm64_native::hle_cos),
+        "tan" => Hle::Replace(arm64_native::hle_tan),
+        "atan" => Hle::Replace(arm64_native::hle_atan),
+        "atan2" => Hle::Replace(arm64_native::hle_atan2),
+        "acos" => Hle::Replace(arm64_native::hle_acos),
+        "asin" => Hle::Replace(arm64_native::hle_asin),
 
-        // Matrix, vector math, skeletal skinning & scene culling/collision (matching desktop TSSM for 100% bit-exact bone hierarchies and animation)
-        "PSMTXIdentity"
-        | "PSMTXScale"
-        | "PSMTXConcat"
-        | "MatrixMultiply"
-        | "RwMatrixMultiply"
-        | "RwMatrixUpdate"
-        | "xMat4x3Mul__FP7xMat4x3PC7xMat4x3PC7xMat4x3"
-        | "RwV3dLength"
-        | "RwV3dTransformPoint"
-        | "RwV3dTransformPoints"
-        | "RwV3dTransformVector"
-        | "RwV3dTransformVectors"
-        | "_rpSkinMatrixBlendUpdateASM"
-        | "_rwDlSkinUpdate2WeightsP"
-        | "_rwDlSkinUpdate2WeightsPN"
-        | "_rwDlSkinUpdate3WeightsP"
-        | "_rwDlSkinUpdate3WeightsPN"
-        | "_rwDlSkinUpdate4WeightsP"
-        | "_rwDlSkinUpdate4WeightsPN"
-        | "_rwDlSetRenderState"
-        | "RwCameraFrustumTestSphere"
-        | "RtIntersectionSphereTriangle"
-        | "RtIntersectionBBoxTriangle"
-        | "xQuickCullIsects__FPC7xQCDataPC7xQCData" => Hle::Original,
+        // Matrix identity/scale & scene culling/collision acceleration
+        "PSMTXIdentity" => Hle::Replace(arm64_native::hle_psmtx_identity),
+        "PSMTXScale" => Hle::Replace(arm64_native::hle_psmtx_scale),
+        "RwCameraFrustumTestSphere" => Hle::Replace(arm64_native::hle_rw_camera_frustum_test_sphere),
+        "RtIntersectionSphereTriangle" => Hle::Replace(arm64_native::hle_rt_intersection_sphere_triangle),
+        "RtIntersectionBBoxTriangle" => Hle::Replace(arm64_native::hle_rt_intersection_bbox_triangle),
+        "xQuickCullIsects__FPC7xQCDataPC7xQCData" => Hle::Replace(arm64_native::hle_xquick_cull_isects),
+
+        // RenderWare matrix, vector transforms, and concatenation acceleration
+        "PSMTXConcat" => Hle::Replace(arm64_native::hle_psmtx_concat),
+        "MatrixMultiply" => Hle::Replace(arm64_native::hle_matrix_multiply),
+        "RwMatrixMultiply" => Hle::Replace(arm64_native::hle_rw_matrix_multiply),
+        "RwMatrixUpdate" => Hle::Replace(arm64_native::hle_rw_matrix_update),
+        "xMat4x3Mul__FP7xMat4x3PC7xMat4x3PC7xMat4x3" => Hle::Replace(arm64_native::hle_xmat4x3_mul),
+        "RwV3dLength" => Hle::Replace(arm64_native::hle_rw_v3d_length),
+        "RwV3dTransformPoint" => Hle::Replace(arm64_native::hle_rw_v3d_transform_point),
+        "RwV3dTransformPoints" => Hle::Replace(arm64_native::hle_rw_v3d_transform_points),
+        "RwV3dTransformVector" => Hle::Replace(arm64_native::hle_rw_v3d_transform_vector),
+        "RwV3dTransformVectors" => Hle::Replace(arm64_native::hle_rw_v3d_transform_vectors),
+
+        // Skeletal skinning vertex updates (NEON SIMD with quantized fallback)
+        "_rwDlSkinUpdate2WeightsP" => Hle::Replace(arm64_native::hle_skin_2w_p),
+        "_rwDlSkinUpdate2WeightsPN" => Hle::Replace(arm64_native::hle_skin_2w_pn),
+        "_rwDlSkinUpdate3WeightsP" => Hle::Replace(arm64_native::hle_skin_3w_p),
+        "_rwDlSkinUpdate3WeightsPN" => Hle::Replace(arm64_native::hle_skin_3w_pn),
+        "_rwDlSkinUpdate4WeightsP" => Hle::Replace(arm64_native::hle_skin_4w_p),
+        "_rwDlSkinUpdate4WeightsPN" => Hle::Replace(arm64_native::hle_skin_4w_pn),
+
+        // Retain original for complex multi-bone ASM blend and DL render state
+        "_rpSkinMatrixBlendUpdateASM"
+        | "_rwDlSetRenderState" => Hle::Original,
         "_rxGCResEntryWaitDone" => Hle::Native(|_| {}),
         "_rwDlTokenQueryDone" => Hle::Native(|c| c.r[3] = 1),
 
