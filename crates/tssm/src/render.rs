@@ -772,9 +772,9 @@ impl WindowSurface {
         WindowSurface { size: Arc::new(size), instance, surface }
     }
 
-    /// For a window that is not winit's (Android): a surface made from it with `instance`,
+    /// For a window that is not winit's (Android, Switch): a surface made from it with `instance`,
     /// and how to ask for its size.
-    #[cfg(target_os = "android")]
+    #[cfg(any(target_os = "android", feature = "switch"))]
     pub fn from_parts(
         instance: wgpu::Instance,
         surface: wgpu::Surface<'static>,

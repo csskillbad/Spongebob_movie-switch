@@ -24,7 +24,18 @@ mod sys {
     }
 }
 
-#[cfg(unix)]
+#[cfg(target_os = "none")]
+mod sys {
+    extern "C" {
+        fn switch_alloc_guest_memory() -> *mut u8;
+    }
+
+    pub unsafe fn alloc() -> *mut u8 {
+        switch_alloc_guest_memory()
+    }
+}
+
+#[cfg(all(unix, not(target_os = "none")))]
 mod sys {
     extern "C" {
         fn mmap(addr: *mut u8, len: usize, prot: i32, flags: i32, fd: i32, off: i64) -> *mut u8;
@@ -59,6 +70,11 @@ pub const WGPIPE: u32 = 0xCC00_8000;
 
 /// Reserves the guest address space and returns its base pointer. Never freed.
 pub fn alloc_guest_memory() -> *mut u8 {
+    #[cfg(target_os = "none")]
+    unsafe {
+        sys::alloc()
+    }
+    #[cfg(not(target_os = "none"))]
     unsafe {
         let base = sys::reserve(1 << 32);
         assert!(!base.is_null(), "cannot reserve 4 GB of address space for the guest");
@@ -119,5 +135,6 @@ mod fault {
 
 #[cfg(not(windows))]
 mod fault {
+    #[allow(dead_code)]
     pub fn install(_base: *mut u8) {}
 }

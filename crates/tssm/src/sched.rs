@@ -73,6 +73,17 @@ impl Sched {
     /// is yielding.
     fn pick(&self, me: usize, yielding: bool) -> Option<usize> {
         let n = self.threads.len();
+        if n == 0 {
+            return None;
+        }
+        if yielding {
+            if let Some(next) = (1..n)
+                .map(|k| (me + k) % n)
+                .find(|&i| self.runnable(i))
+            {
+                return Some(next);
+            }
+        }
         let best = (0..n).filter(|&i| self.runnable(i)).map(|i| self.threads[i].priority).min()?;
         (0..n)
             .map(|k| (me + yielding as usize + k) % n)

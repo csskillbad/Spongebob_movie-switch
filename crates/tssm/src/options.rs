@@ -21,12 +21,27 @@ use runtime::Ctx;
 use crate::input::{A, DOWN, LEFT, RIGHT, UP};
 use crate::menu::{self, Widget, DIMMED, FOCUS_OFF_UNSELECT, FOCUS_ON_SELECT, IMAGE_WIDGET, TEXT_WIDGET, WIDGET_TEXT};
 
+pub static SHOW_FPS: std::sync::atomic::AtomicBool = std::sync::atomic::AtomicBool::new(true);
+
+pub fn fps_counter_enabled() -> bool {
+    static INIT: std::sync::Once = std::sync::Once::new();
+    INIT.call_once(|| {
+        if let Ok(s) = std::fs::read_to_string("config/fps_counter.txt") {
+            if s.trim() == "0" {
+                SHOW_FPS.store(false, std::sync::atomic::Ordering::Relaxed);
+            }
+        }
+    });
+    SHOW_FPS.load(std::sync::atomic::Ordering::Relaxed)
+}
+
 struct Setting {
     name: &'static str,
     values: [u32; 11],
 }
 
-const SETTINGS: [Setting; 2] = [
+const SETTINGS: [Setting; 3] = [
+    Setting { name: "FPS Counter", values: [0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1] },
     Setting { name: "Frame Rate", values: [60, 75, 90, 120, 144, 165, 200, 240, 300, 360, 500] },
     Setting { name: "Field of View", values: [60, 65, 70, 75, 80, 85, 90, 95, 100, 105, 110] },
 ];
@@ -39,9 +54,9 @@ const GAME_SETTINGS: [&str; 3] = ["rumble feature", "music volume", "sfx volume"
 /// what is drawn here does not follow.
 const ROWS_LEFT: f32 = 80.0;
 const ROW_TOPS: [f32; 3] = [190.0, 230.0, 270.0];
-/// Where all five rows are put instead, evenly, to fit in the panel: the game's three are
-/// drawn and clicked this much higher (`row_shift`), and the port's two follow.
-const LAYOUT_TOPS: [f32; 5] = [172.0, 210.0, 248.0, 286.0, 324.0];
+/// Where all six rows are put instead, evenly, to fit in the panel: the game's three are
+/// drawn and clicked this much higher (`row_shift`), and the port's three follow.
+const LAYOUT_TOPS: [f32; 6] = [154.0, 190.0, 226.0, 262.0, 298.0, 334.0];
 const ROW_HEIGHT: f32 = 38.0;
 /// A row with the focus bounces as the game's do: up and back down over the first part of
 /// each period (milliseconds), this high at the top.
@@ -155,7 +170,8 @@ pub fn let_accept_through() {
 /// Which of a setting's values is in use.
 fn current(setting: usize) -> usize {
     let now = match setting {
-        0 => crate::host::frame_rate_now(),
+        0 => if fps_counter_enabled() { 1.0 } else { 0.0 },
+        1 => crate::host::frame_rate_now(),
         _ => crate::aspect::fov() as f64,
     };
     let values = &SETTINGS[setting].values;
@@ -170,6 +186,11 @@ fn choose(setting: usize, index: usize) {
     let value = SETTINGS[setting].values[index.min(10)];
     match setting {
         0 => {
+            let enabled = index > 0;
+            SHOW_FPS.store(enabled, std::sync::atomic::Ordering::Relaxed);
+            save("config/fps_counter.txt", if enabled { 1 } else { 0 });
+        }
+        1 => {
             crate::host::set_frame_rate(value as f64);
             save("config/fps.txt", value);
         }
@@ -469,11 +490,18 @@ fn draw(c: &mut Ctx, row: u32) {
     }
     let word = |x: f32| texts.iter().find(|(.., rect)| rect[0] == x && rect[1] == WORDS_TOP && rect[2] == 100.0).map(|w| w.0);
     if let (Some(low), Some(high)) = (word(WORD_LEFT), word(WORD_RIGHT)) {
-        let unit = if focus == 0 { " FPS" } else { "" };
-        draw_widget(c, state, low, Some(&setting.values[0].to_string()), (WORD_LEFT + dx, WORDS_TOP + dy), 255);
-        draw_widget(c, state, high, Some(&setting.values[10].to_string()), (WORD_RIGHT + dx, WORDS_TOP + dy), 255);
-        let middle = (WORD_LEFT + WORD_RIGHT) / 2.0;
-        draw_widget(c, state, low, Some(&format!("{}{unit}", setting.values[index])), (middle + dx, WORDS_TOP + dy), 255);
+        if focus == 0 {
+            draw_widget(c, state, low, Some("Off"), (WORD_LEFT + dx, WORDS_TOP + dy), 255);
+            draw_widget(c, state, high, Some("On"), (WORD_RIGHT + dx, WORDS_TOP + dy), 255);
+            let middle = (WORD_LEFT + WORD_RIGHT) / 2.0;
+            draw_widget(c, state, low, Some(if index == 0 { "Off" } else { "On" }), (middle + dx, WORDS_TOP + dy), 255);
+        } else {
+            let unit = if focus == 1 { " FPS" } else { "" };
+            draw_widget(c, state, low, Some(&setting.values[0].to_string()), (WORD_LEFT + dx, WORDS_TOP + dy), 255);
+            draw_widget(c, state, high, Some(&setting.values[10].to_string()), (WORD_RIGHT + dx, WORDS_TOP + dy), 255);
+            let middle = (WORD_LEFT + WORD_RIGHT) / 2.0;
+            draw_widget(c, state, low, Some(&format!("{}{unit}", setting.values[index])), (middle + dx, WORDS_TOP + dy), 255);
+        }
     }
 
     // The bars of a volume: a dark one at each place, and the lit one at the place of its

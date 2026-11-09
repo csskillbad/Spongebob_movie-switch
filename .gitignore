@@ -8,7 +8,6 @@ disc/
 # Build output
 target/
 /generated/
-crates/game/src/gen/
 screenshots/
 saves/
 *.gcm
@@ -26,3 +25,4 @@ config/fov.txt
 /The SpongeBob Movie Game.exe
 /textures/
 /*.zip
+hacbrewpack_backup/

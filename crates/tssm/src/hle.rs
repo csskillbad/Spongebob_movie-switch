@@ -580,10 +580,43 @@ pub fn policy(name: &str) -> Hle {
         "OSExitThread" => Hle::Native(|_| sched::exit_current()),
         "OSIsThreadSuspended" => Hle::Native(|c| c.r[3] = sched::is_suspended(c.r[3]) as u32),
         "OSIsThreadTerminated" => Hle::Native(|c| c.r[3] = sched::is_terminated(c.r[3]) as u32),
-        // Semaphores are counters built on sleep and wakeup: run the original.
-        "OSInitSemaphore" | "OSWaitSemaphore" | "OSTryWaitSemaphore" | "OSSignalSemaphore" | "OSGetSemaphoreCount" => {
-            Hle::Original
-        }
+        "OSInitSemaphore" => Hle::Native(|c| {
+            let (sem, count) = (c.r[3], c.r[4]);
+            c.w32(sem, count);
+            c.slice_mut(sem + 4, 8).fill(0);
+        }),
+        "OSWaitSemaphore" => Hle::Native(|c| {
+            let sem = c.r[3];
+            let q = sem + 4;
+            while (c.r32(sem) as i32) <= 0 {
+                sched::sleep(c, q);
+            }
+            let old = c.r32(sem) as i32;
+            c.w32(sem, (old - 1) as u32);
+            c.r[3] = old as u32;
+        }),
+        "OSTryWaitSemaphore" => Hle::Native(|c| {
+            let sem = c.r[3];
+            let count = c.r32(sem) as i32;
+            if count > 0 {
+                c.w32(sem, (count - 1) as u32);
+                c.r[3] = 1;
+            } else {
+                c.r[3] = 0;
+            }
+        }),
+        "OSSignalSemaphore" => Hle::Native(|c| {
+            let sem = c.r[3];
+            let q = sem + 4;
+            let old = c.r32(sem) as i32;
+            c.w32(sem, (old + 1) as u32);
+            sched::wake(q);
+            sched::preempt(c);
+            c.r[3] = old as u32;
+        }),
+        "OSGetSemaphoreCount" => Hle::Native(|c| {
+            c.r[3] = c.r32(c.r[3]);
+        }),
         // OSMutex: owner thread at +8, recursion count at +0xC. Waiters sleep on the mutex.
         "OSInitMutex" => Hle::Native(|c| {
             let mutex = c.r[3];
@@ -635,6 +668,70 @@ pub fn policy(name: &str) -> Hle {
         "DBInit" | "__DBExceptionDestination" | "DBPrintf" | "__flush_cache" | "PPCSync" | "PPCHalt" => {
             Hle::Native(nop)
         }
+
+        // FMOD GameCube ARAM flag hooks
+        "FMUSIC_LoadSongEx" => Hle::Before(|c| c.r[6] &= !0x0100_0000),
+        "FMUSIC_LoadInternal" => Hle::Before(|c| c.r[4] &= !0x0100_0000),
+        "FSOUND_Sample_LoadEx" => Hle::Before(|c| c.r[5] &= !0x0100_0000),
+
+        // Symbols targeted by Switch native ARM64 / NEON HLE run their original code on x86_64 host
+        "memcpy"
+        | "memset"
+        | "__fill_mem"
+        | "memmove"
+        | "F_memmove"
+        | "memcmp"
+        | "strlen"
+        | "F_strlen"
+        | "strcpy"
+        | "F_strcpy"
+        | "strcmp"
+        | "__div2u"
+        | "__div2i"
+        | "__mod2u"
+        | "__mod2i"
+        | "sqrt"
+        | "__ieee754_sqrt"
+        | "xsqrt__Ff"
+        | "_rwSqrt"
+        | "_rwInvSqrt"
+        | "ceil"
+        | "floor"
+        | "sinf"
+        | "cosf"
+        | "isin__Ff"
+        | "icos__Ff"
+        | "powf"
+        | "sin"
+        | "cos"
+        | "tan"
+        | "atan"
+        | "atan2"
+        | "acos"
+        | "asin"
+        | "PSMTXIdentity"
+        | "PSMTXScale"
+        | "PSMTXConcat"
+        | "MatrixMultiply"
+        | "RwMatrixMultiply"
+        | "RwMatrixUpdate"
+        | "xMat4x3Mul__FP7xMat4x3PC7xMat4x3PC7xMat4x3"
+        | "RwV3dLength"
+        | "RwV3dTransformPoint"
+        | "RwV3dTransformPoints"
+        | "RwV3dTransformVector"
+        | "RwV3dTransformVectors"
+        | "_rpSkinMatrixBlendUpdateASM"
+        | "_rwDlSkinUpdate2WeightsP"
+        | "_rwDlSkinUpdate2WeightsPN"
+        | "_rwDlSkinUpdate3WeightsP"
+        | "_rwDlSkinUpdate3WeightsPN"
+        | "_rwDlSkinUpdate4WeightsP"
+        | "_rwDlSkinUpdate4WeightsPN"
+        | "FSOUND_Memory_Pool_Alloc"
+        | "FSOUND_Memory_Pool_Free"
+        | "FSOUND_Memory_Pool_Calloc" => Hle::Original,
+
         _ => Hle::Unimplemented,
     }
 }

@@ -1,21 +1,176 @@
 //! Runtime for the recompiled game: guest CPU state, guest memory and SDK replacements.
 
+#![cfg_attr(not(feature = "std"), no_std)]
+
+#[cfg(not(feature = "std"))]
+extern crate alloc;
+
+#[cfg(not(feature = "std"))]
+use alloc::{boxed::Box, vec, vec::Vec};
+
 pub mod hle;
 pub mod mem;
 
+use core::sync::atomic::{AtomicU32, AtomicU64, AtomicUsize, Ordering};
 use hle::Hle;
 
 /// A recompiled guest function.
 pub type GuestFn = fn(&mut Ctx);
 
 /// Loop iterations between chances for the host to deliver interrupts.
-const POLL_INTERVAL: u32 = 1 << 16;
+pub const POLL_INTERVAL: u32 = 1 << 16;
 
 /// Id of the replaceable SDK function entered most recently on any thread; a breadcrumb for
 /// diagnosing hangs.
-pub static LAST_HLE: std::sync::atomic::AtomicUsize = std::sync::atomic::AtomicUsize::new(0);
+pub static LAST_HLE: AtomicUsize = AtomicUsize::new(0);
 /// Guest return address of that call.
-pub static LAST_HLE_CALLER: std::sync::atomic::AtomicU32 = std::sync::atomic::AtomicU32::new(0);
+pub static LAST_HLE_CALLER: AtomicU32 = AtomicU32::new(0);
+
+pub struct SampleEntry {
+    pub lr: AtomicU32,
+    pub count: AtomicU32,
+}
+
+pub const SAMPLE_SLOTS: usize = 256;
+pub static SAMPLE_TABLE: [SampleEntry; SAMPLE_SLOTS] = [const { SampleEntry { lr: AtomicU32::new(0), count: AtomicU32::new(0) } }; SAMPLE_SLOTS];
+pub static SAMPLE_TOTAL: AtomicU32 = AtomicU32::new(0);
+
+pub const PROFILE_DETAILED: bool = false;
+pub const MAX_HLE_FUNCS: usize = 1024;
+pub static HLE_CALL_COUNTS: [AtomicU32; MAX_HLE_FUNCS] = [const { AtomicU32::new(0) }; MAX_HLE_FUNCS];
+pub static HLE_CALL_TICKS: [AtomicU64; MAX_HLE_FUNCS] = [const { AtomicU64::new(0) }; MAX_HLE_FUNCS];
+
+#[inline(always)]
+pub unsafe fn mptr(mem: *mut u8, a: u32) -> *mut u8 {
+    #[cfg(target_os = "none")]
+    {
+        mem.add((a & 0x07FF_FFFF) as usize)
+    }
+    #[cfg(not(target_os = "none"))]
+    {
+        mem.add(a as usize)
+    }
+}
+
+#[inline(always)]
+pub fn mr8(mem: *mut u8, a: u32) -> u8 {
+    unsafe { mptr(mem, a).read() }
+}
+#[inline(always)]
+pub fn mr16(mem: *mut u8, a: u32) -> u16 {
+    unsafe { u16::from_be((mptr(mem, a) as *const u16).read_unaligned()) }
+}
+#[inline(always)]
+pub fn mr32(mem: *mut u8, a: u32) -> u32 {
+    unsafe { u32::from_be((mptr(mem, a) as *const u32).read_unaligned()) }
+}
+#[inline(always)]
+pub fn mr64(mem: *mut u8, a: u32) -> u64 {
+    unsafe { u64::from_be((mptr(mem, a) as *const u64).read_unaligned()) }
+}
+#[inline(always)]
+pub fn mw8(mem: *mut u8, a: u32, v: u8) {
+    unsafe { mptr(mem, a).write(v) }
+}
+#[inline(always)]
+pub fn mw16(mem: *mut u8, a: u32, v: u16) {
+    unsafe { (mptr(mem, a) as *mut u16).write_unaligned(v.to_be()) }
+}
+#[inline(always)]
+pub fn mw32(mem: *mut u8, a: u32, v: u32) {
+    unsafe { (mptr(mem, a) as *mut u32).write_unaligned(v.to_be()) }
+}
+#[inline(always)]
+pub fn mw64(mem: *mut u8, a: u32, v: u64) {
+    unsafe { (mptr(mem, a) as *mut u64).write_unaligned(v.to_be()) }
+}
+#[inline(always)]
+pub fn dcbz_mem(mem: *mut u8, ea: u32) {
+    let line = ea & !31;
+    unsafe {
+        let p = mptr(mem, line) as *mut u64;
+        p.write_unaligned(0);
+        p.add(1).write_unaligned(0);
+        p.add(2).write_unaligned(0);
+        p.add(3).write_unaligned(0);
+    }
+}
+
+#[inline(always)]
+pub fn add3_val(a: u32, b: u32, carry: u32) -> (u32, u32) {
+    let sum = a as u64 + b as u64 + carry as u64;
+    (sum as u32, (sum >> 32) as u32)
+}
+#[inline(always)]
+pub fn slw_val(v: u32, n: u32) -> u32 {
+    if n & 32 != 0 { 0 } else { v << (n & 31) }
+}
+#[inline(always)]
+pub fn srw_val(v: u32, n: u32) -> u32 {
+    if n & 32 != 0 { 0 } else { v >> (n & 31) }
+}
+#[inline(always)]
+pub fn sraw_val(v: u32, n: u32) -> (u32, u32) {
+    let s = v as i32;
+    if n & 32 != 0 {
+        ((s >> 31) as u32, (s < 0) as u32)
+    } else {
+        let n = n & 31;
+        ((s >> n) as u32, (s < 0 && v & ((1u32 << n) - 1) != 0) as u32)
+    }
+}
+#[inline(always)]
+pub fn cmps_val(a: i32, b: i32) -> u8 {
+    if a < b { 8 } else if a > b { 4 } else { 2 }
+}
+#[inline(always)]
+pub fn cmpu_val(a: u32, b: u32) -> u8 {
+    if a < b { 8 } else if a > b { 4 } else { 2 }
+}
+#[inline(always)]
+pub fn fcmp_val(a: f64, b: f64) -> u8 {
+    if a < b { 8 } else if a > b { 4 } else if a == b { 2 } else { 1 }
+}
+#[inline(always)]
+pub fn fctiwz_val(v: f64) -> f64 {
+    f64::from_bits(v as i32 as u32 as u64)
+}
+#[inline(always)]
+pub fn fctiw_val(v: f64) -> f64 {
+    #[cfg(feature = "std")]
+    {
+        f64::from_bits(v.round_ties_even() as i32 as u32 as u64)
+    }
+    #[cfg(not(feature = "std"))]
+    {
+        let rounded: i32;
+        unsafe {
+            core::arch::asm!("fcvtns {:w}, {:d}", out(reg) rounded, in(vreg) v);
+        }
+        f64::from_bits(rounded as u32 as u64)
+    }
+}
+
+#[inline(always)]
+pub fn sample_guest_pc(lr: u32) {
+    if lr == 0 { return; }
+    SAMPLE_TOTAL.fetch_add(1, Ordering::Relaxed);
+    let hash = ((lr >> 2) ^ (lr >> 6) ^ (lr >> 10)) as usize;
+    for offset in 0..8 {
+        let idx = (hash + offset) & (SAMPLE_SLOTS - 1);
+        let entry = &SAMPLE_TABLE[idx];
+        let curr = entry.lr.load(Ordering::Relaxed);
+        if curr == lr {
+            entry.count.fetch_add(1, Ordering::Relaxed);
+            return;
+        } else if curr == 0 {
+            if entry.lr.compare_exchange(0, lr, Ordering::Relaxed, Ordering::Relaxed).is_ok() {
+                entry.count.fetch_add(1, Ordering::Relaxed);
+                return;
+            }
+        }
+    }
+}
 
 /// Guest CPU state plus everything recompiled code needs to reach.
 pub struct Ctx {
@@ -38,22 +193,32 @@ pub struct Ctx {
     pub mem: *mut u8,
     /// Bytes the guest has written to the GX write-gather pipe and the host has not consumed.
     pub fifo: Vec<u8>,
+    /// Number of bytes written to the branchless WGPIPE buffer at `mem + 0x0200_0000`.
+    pub fifo_len: usize,
     /// Loop iterations left before `poll_hook` runs.
-    budget: u32,
+    pub budget: u32,
     /// Called every `POLL_INTERVAL` loop iterations so the host can deliver interrupts to
     /// code that loops without calling anything. It must leave the registers as it found them.
     pub poll_hook: Option<fn(&mut Ctx)>,
 
     table_base: u32,
+    table_ptr: *const Option<GuestFn>,
+    table_len: usize,
     table: Vec<Option<GuestFn>>,
+    hle_ptr: *const Hle,
     hle: Vec<Hle>,
     hle_names: &'static [&'static str],
     hle_logged: Vec<bool>,
     /// Survey mode: unimplemented SDK calls are logged once and return 0 instead of panicking.
     pub survey: bool,
     funcs: &'static [(u32, GuestFn, &'static str)],
+    pub guest_thread: u32,
+    pub sample_countdown: u32,
+    #[cfg(feature = "std")]
     start: std::time::Instant,
 }
+
+unsafe impl Send for Ctx {}
 
 impl Ctx {
     pub fn new(
@@ -67,6 +232,10 @@ impl Ctx {
         for &(addr, f, _) in funcs {
             table[((addr - table_base) / 4) as usize] = Some(f);
         }
+        let table_ptr = table.as_ptr();
+        let table_len = table.len();
+        let hle: Vec<Hle> = hle_names.iter().map(|n| policy(n)).collect();
+        let hle_ptr = hle.as_ptr();
         Box::new(Ctx {
             r: [0; 32],
             f: [0.0; 32],
@@ -81,15 +250,22 @@ impl Ctx {
             spr: [0; 1024],
             mem: mem::alloc_guest_memory(),
             fifo: Vec::new(),
+            fifo_len: 0,
             budget: POLL_INTERVAL,
             poll_hook: None,
             table_base,
+            table_ptr,
+            table_len,
             table,
-            hle: hle_names.iter().map(|n| policy(n)).collect(),
+            hle_ptr,
+            hle,
             hle_names,
             hle_logged: vec![false; hle_names.len()],
             survey: false,
             funcs,
+            guest_thread: 0x817E_0000,
+            sample_countdown: 128,
+            #[cfg(feature = "std")]
             start: std::time::Instant::now(),
         })
     }
@@ -97,6 +273,11 @@ impl Ctx {
     /// A context for another guest thread: fresh registers, but the same memory, function
     /// tables, clock and special-purpose registers (the quantization registers among them).
     pub fn fork(&self) -> Box<Ctx> {
+        let table = self.table.clone();
+        let table_ptr = table.as_ptr();
+        let table_len = table.len();
+        let hle = self.hle.clone();
+        let hle_ptr = hle.as_ptr();
         Box::new(Ctx {
             r: [0; 32],
             f: [0.0; 32],
@@ -111,22 +292,29 @@ impl Ctx {
             spr: self.spr,
             mem: self.mem,
             fifo: Vec::new(),
+            fifo_len: 0,
             budget: POLL_INTERVAL,
             poll_hook: self.poll_hook,
             table_base: self.table_base,
-            table: self.table.clone(),
-            hle: self.hle.clone(),
+            table_ptr,
+            table_len,
+            table,
+            hle_ptr,
+            hle,
             hle_names: self.hle_names,
             hle_logged: self.hle_logged.clone(),
             survey: self.survey,
             funcs: self.funcs,
+            guest_thread: self.guest_thread,
+            sample_countdown: 128,
+            #[cfg(feature = "std")]
             start: self.start,
         })
     }
 
     /// Copies a DOL executable's sections into guest memory and returns its entry point.
     pub fn load_dol(&mut self, dol: &[u8]) -> u32 {
-        let be = |o: usize| u32::from_be_bytes(dol[o..o + 4].try_into().unwrap());
+        let be = |o: usize| u32::from_be_bytes([dol[o], dol[o + 1], dol[o + 2], dol[o + 3]]);
         for i in 0..18 {
             let (off, addr, size) = (be(i * 4) as usize, be(0x48 + i * 4), be(0x90 + i * 4) as usize);
             if size != 0 {
@@ -157,49 +345,86 @@ impl Ctx {
         self.slice_mut(addr, len).to_vec()
     }
 
+    /// Translates a 32-bit GameCube guest address to host memory.
+    #[inline(always)]
+    pub unsafe fn guest_ptr(&self, a: u32) -> *mut u8 {
+        #[cfg(target_os = "none")]
+        {
+            self.mem.add((a & 0x07FF_FFFF) as usize)
+        }
+        #[cfg(not(target_os = "none"))]
+        {
+            self.mem.add(a as usize)
+        }
+    }
+
     pub fn slice_mut(&mut self, addr: u32, len: usize) -> &mut [u8] {
-        let (lo, hi) = (addr as u64, addr as u64 + len as u64);
-        let ram = mem::RAM_BASE as u64..=(mem::RAM_BASE + mem::RAM_SIZE) as u64;
-        assert!(ram.contains(&lo) && ram.contains(&hi), "guest range {addr:#010x}+{len:#x} is outside RAM");
-        unsafe { std::slice::from_raw_parts_mut(self.mem.add(addr as usize), len) }
+        #[cfg(target_os = "none")]
+        unsafe {
+            core::slice::from_raw_parts_mut(self.guest_ptr(addr), len)
+        }
+        #[cfg(not(target_os = "none"))]
+        {
+            let (lo, hi) = (addr as u64, addr as u64 + len as u64);
+            let ram = mem::RAM_BASE as u64..=(mem::RAM_BASE + mem::RAM_SIZE) as u64;
+            assert!(ram.contains(&lo) && ram.contains(&hi), "guest range is outside RAM");
+            unsafe { core::slice::from_raw_parts_mut(self.mem.add(addr as usize), len) }
+        }
     }
 
     #[inline(always)]
     pub fn r8(&self, a: u32) -> u8 {
-        unsafe { self.mem.add(a as usize).read() }
+        unsafe { self.guest_ptr(a).read() }
     }
     #[inline(always)]
     pub fn r16(&self, a: u32) -> u16 {
-        unsafe { u16::from_be((self.mem.add(a as usize) as *const u16).read_unaligned()) }
+        unsafe { u16::from_be((self.guest_ptr(a) as *const u16).read_unaligned()) }
     }
     #[inline(always)]
     pub fn r32(&self, a: u32) -> u32 {
-        unsafe { u32::from_be((self.mem.add(a as usize) as *const u32).read_unaligned()) }
+        unsafe { u32::from_be((self.guest_ptr(a) as *const u32).read_unaligned()) }
     }
     #[inline(always)]
     pub fn r64(&self, a: u32) -> u64 {
-        unsafe { u64::from_be((self.mem.add(a as usize) as *const u64).read_unaligned()) }
+        unsafe { u64::from_be((self.guest_ptr(a) as *const u64).read_unaligned()) }
     }
     #[inline(always)]
     pub fn w8(&mut self, a: u32, v: u8) {
-        unsafe { self.mem.add(a as usize).write(v) }
+        unsafe { self.guest_ptr(a).write(v) }
     }
     #[inline(always)]
     pub fn w16(&mut self, a: u32, v: u16) {
-        unsafe { (self.mem.add(a as usize) as *mut u16).write_unaligned(v.to_be()) }
+        unsafe { (self.guest_ptr(a) as *mut u16).write_unaligned(v.to_be()) }
     }
     #[inline(always)]
     pub fn w32(&mut self, a: u32, v: u32) {
-        unsafe { (self.mem.add(a as usize) as *mut u32).write_unaligned(v.to_be()) }
+        unsafe { (self.guest_ptr(a) as *mut u32).write_unaligned(v.to_be()) }
     }
     #[inline(always)]
     pub fn w64(&mut self, a: u32, v: u64) {
-        unsafe { (self.mem.add(a as usize) as *mut u64).write_unaligned(v.to_be()) }
+        unsafe { (self.guest_ptr(a) as *mut u64).write_unaligned(v.to_be()) }
     }
 
     // Stores that may target the GX write-gather pipe.
+    #[cfg(target_os = "none")]
+    #[inline(always)]
+    pub unsafe fn gw_ptr(&mut self, a: u32, size: usize) -> *mut u8 {
+        let is_wg = (a == mem::WGPIPE) as usize;
+        let mask = is_wg.wrapping_neg();
+        let ram_off = (a & 0x07FF_FFFF) as usize;
+        let fifo_off = 0x0200_0000usize.wrapping_add(self.fifo_len & 0x01FF_FFFF);
+        let off = ram_off ^ ((ram_off ^ fifo_off) & mask);
+        self.fifo_len = (self.fifo_len.wrapping_add(size & mask)) & 0x01FF_FFFF;
+        self.mem.add(off)
+    }
+
     #[inline(always)]
     pub fn gw8(&mut self, a: u32, v: u8) {
+        #[cfg(target_os = "none")]
+        unsafe {
+            self.gw_ptr(a, 1).write(v);
+        }
+        #[cfg(not(target_os = "none"))]
         if a == mem::WGPIPE {
             self.fifo.push(v)
         } else {
@@ -208,6 +433,11 @@ impl Ctx {
     }
     #[inline(always)]
     pub fn gw16(&mut self, a: u32, v: u16) {
+        #[cfg(target_os = "none")]
+        unsafe {
+            (self.gw_ptr(a, 2) as *mut u16).write_unaligned(v.to_be());
+        }
+        #[cfg(not(target_os = "none"))]
         if a == mem::WGPIPE {
             self.fifo.extend_from_slice(&v.to_be_bytes())
         } else {
@@ -216,10 +446,28 @@ impl Ctx {
     }
     #[inline(always)]
     pub fn gw32(&mut self, a: u32, v: u32) {
+        #[cfg(target_os = "none")]
+        unsafe {
+            (self.gw_ptr(a, 4) as *mut u32).write_unaligned(v.to_be());
+        }
+        #[cfg(not(target_os = "none"))]
         if a == mem::WGPIPE {
             self.fifo.extend_from_slice(&v.to_be_bytes())
         } else {
             self.w32(a, v)
+        }
+    }
+    #[inline(always)]
+    pub fn gw64(&mut self, a: u32, v: u64) {
+        #[cfg(target_os = "none")]
+        unsafe {
+            (self.gw_ptr(a, 8) as *mut u64).write_unaligned(v.to_be());
+        }
+        #[cfg(not(target_os = "none"))]
+        if a == mem::WGPIPE {
+            self.fifo.extend_from_slice(&v.to_be_bytes())
+        } else {
+            self.w64(a, v)
         }
     }
     #[inline(always)]
@@ -228,11 +476,7 @@ impl Ctx {
     }
     #[inline(always)]
     pub fn gstfd(&mut self, s: usize, ea: u32) {
-        if ea == mem::WGPIPE {
-            self.fifo.extend_from_slice(&self.f[s].to_bits().to_be_bytes())
-        } else {
-            self.stfd(s, ea)
-        }
+        self.gw64(ea, self.f[s].to_bits());
     }
 
     #[inline(always)]
@@ -247,6 +491,7 @@ impl Ctx {
             self.w32(ea.wrapping_add(i as u32 * 4), self.r[reg]);
         }
     }
+    #[inline(always)]
     pub fn dcbz(&mut self, _reg: usize, ea: u32) {
         let line = ea & !31;
         for i in 0..4 {
@@ -377,30 +622,79 @@ impl Ctx {
     /// Float to integer, truncating; the integer lands in the low word of the register.
     #[inline(always)]
     pub fn fctiwz(&self, v: f64) -> f64 {
-        f64::from_bits(v as i32 as u32 as u64)
+        fctiwz_val(v)
     }
     #[inline(always)]
     pub fn fctiw(&self, v: f64) -> f64 {
-        f64::from_bits(v.round_ties_even() as i32 as u32 as u64)
+        fctiw_val(v)
     }
 
-    /// Quantized paired-single load: element type and scale come from GQR[i].
-    pub fn psq_l(&mut self, d: usize, ea: u32, single: bool, i: usize) {
+    /// Value-returning quantized paired-single load using unaliased `mem`.
+    #[inline(always)]
+    pub fn psq_l_val(&self, mem: *mut u8, ea: u32, single: bool, i: usize) -> (f64, f64) {
         let gqr = self.spr[912 + i];
+        if (gqr & 0x0004_0000) == 0 {
+            if single {
+                (f32::from_bits(mr32(mem, ea)) as f64, 1.0)
+            } else {
+                let pair = mr64(mem, ea);
+                (f32::from_bits((pair >> 32) as u32) as f64, f32::from_bits(pair as u32) as f64)
+            }
+        } else {
+            self.psq_l_val_slow(ea, single, gqr)
+        }
+    }
+
+    #[cold]
+    fn psq_l_val_slow(&self, ea: u32, single: bool, gqr: u32) -> (f64, f64) {
         let (ty, scale) = ((gqr >> 16) & 7, (gqr >> 24) & 0x3F);
         let (v0, size) = self.dequantize(ea, ty, scale);
         let v1 = if single { 1.0 } else { self.dequantize(ea.wrapping_add(size), ty, scale).0 };
-        self.f[d] = v0;
-        self.ps1[d] = v1;
+        (v0, v1)
     }
-    pub fn psq_st(&mut self, s: usize, ea: u32, single: bool, i: usize) {
+
+    #[inline(always)]
+    pub fn psq_st_val(&mut self, mem: *mut u8, ea: u32, f0: f64, f1: f64, single: bool, i: usize) {
+        let _ = mem;
         let gqr = self.spr[912 + i];
+        if (gqr & 4) == 0 {
+            let w0 = (f0 as f32).to_bits();
+            if single {
+                self.gw32(ea, w0);
+            } else {
+                let w1 = (f1 as f32).to_bits();
+                let pair = ((w0 as u64) << 32) | (w1 as u64);
+                #[cfg(target_os = "none")]
+                unsafe {
+                    (self.gw_ptr(ea, 8) as *mut u64).write_unaligned(pair.to_be());
+                }
+                #[cfg(not(target_os = "none"))]
+                if ea == mem::WGPIPE {
+                    self.fifo.extend_from_slice(&pair.to_be_bytes());
+                } else {
+                    mw64(mem, ea, pair);
+                }
+            }
+        } else {
+            self.psq_st_val_slow(ea, f0, f1, single, gqr);
+        }
+    }
+
+    #[cold]
+    fn psq_st_val_slow(&mut self, ea: u32, f0: f64, f1: f64, single: bool, gqr: u32) {
         let (ty, scale) = (gqr & 7, (gqr >> 8) & 0x3F);
-        let (b0, size) = Self::quantize(ty, scale, self.f[s]);
-        let (b1, _) = Self::quantize(ty, scale, self.ps1[s]);
+        let (b0, size) = Self::quantize(ty, scale, f0);
+        let (b1, _) = Self::quantize(ty, scale, f1);
         let count = if single { 1 } else { 2 };
         for (i, bytes) in [b0, b1].iter().take(count).enumerate() {
-            // The SDK's matrix loaders stream straight into the write-gather pipe this way.
+            #[cfg(target_os = "none")]
+            unsafe {
+                let is_wg = (ea == mem::WGPIPE) as u32;
+                let at = ea.wrapping_add(((i * size) as u32) * (1 - is_wg));
+                let p = self.gw_ptr(at, size);
+                core::ptr::copy_nonoverlapping(bytes.as_ptr(), p, size);
+            }
+            #[cfg(not(target_os = "none"))]
             if ea == mem::WGPIPE {
                 self.fifo.extend_from_slice(&bytes[..size]);
             } else {
@@ -409,9 +703,35 @@ impl Ctx {
             }
         }
     }
-    fn dequantize(&self, ea: u32, ty: u32, scale: u32) -> (f64, u32) {
+
+    /// Quantized paired-single load: element type and scale come from GQR[i].
+    #[inline(always)]
+    pub fn psq_l(&mut self, d: usize, ea: u32, single: bool, i: usize) {
+        let (v0, v1) = self.psq_l_val(self.mem, ea, single, i);
+        self.f[d] = v0;
+        self.ps1[d] = v1;
+    }
+
+    #[inline(always)]
+    pub fn psq_st(&mut self, s: usize, ea: u32, single: bool, i: usize) {
+        self.psq_st_val(self.mem, ea, self.f[s], self.ps1[s], single, i);
+    }
+
+    #[inline(always)]
+    pub fn pow2(exp: i32) -> f64 {
+        if exp < -1022 {
+            0.0
+        } else if exp > 1023 {
+            f64::INFINITY
+        } else {
+            f64::from_bits(((1023 + exp) as u64) << 52)
+        }
+    }
+
+    #[inline(always)]
+    pub fn dequantize(&self, ea: u32, ty: u32, scale: u32) -> (f64, u32) {
         // scale is a signed 6-bit exponent
-        let k = (2.0f64).powi(-(((scale ^ 32) as i32) - 32));
+        let k = Self::pow2(-(((scale ^ 32) as i32) - 32));
         match ty {
             4 => (self.r8(ea) as f64 * k, 1),
             5 => (self.r16(ea) as f64 * k, 2),
@@ -421,8 +741,9 @@ impl Ctx {
         }
     }
     /// Big-endian encoding of `v` in quantization type `ty`, and its length in bytes.
-    fn quantize(ty: u32, scale: u32, v: f64) -> ([u8; 4], usize) {
-        let k = (2.0f64).powi(((scale ^ 32) as i32) - 32);
+    #[inline(always)]
+    pub fn quantize(ty: u32, scale: u32, v: f64) -> ([u8; 4], usize) {
+        let k = Self::pow2(((scale ^ 32) as i32) - 32);
         let mut out = [0u8; 4];
         let size = match ty {
             4 => {
@@ -452,19 +773,73 @@ impl Ctx {
     /// Raw view of guest memory with no range check; faults like any other guest access.
     #[inline(always)]
     fn slice_unchecked(&mut self, addr: u32, len: usize) -> &mut [u8] {
-        unsafe { std::slice::from_raw_parts_mut(self.mem.add(addr as usize), len) }
+        #[cfg(target_os = "none")]
+        unsafe {
+            core::slice::from_raw_parts_mut(self.guest_ptr(addr), len)
+        }
+        #[cfg(not(target_os = "none"))]
+        unsafe { core::slice::from_raw_parts_mut(self.mem.add(addr as usize), len) }
     }
 
     /// Time base: ticks at 1/4 of the 162 MHz bus clock.
+    #[inline(always)]
     pub fn timebase(&self) -> u64 {
-        (self.start.elapsed().as_nanos() * 40_500_000 / 1_000_000_000) as u64
+        #[cfg(feature = "std")]
+        {
+            (self.start.elapsed().as_nanos() * 40_500_000 / 1_000_000_000) as u64
+        }
+        #[cfg(not(feature = "std"))]
+        {
+            let ticks: u64;
+            unsafe {
+                core::arch::asm!("mrs {}, cntvct_el0", out(reg) ticks, options(pure, nomem, nostack));
+            }
+            ticks.wrapping_mul(135) / 64
+        }
+    }
+
+    #[inline(always)]
+    pub fn now_ticks(&self) -> u64 {
+        #[cfg(feature = "std")]
+        {
+            self.start.elapsed().as_nanos() as u64
+        }
+        #[cfg(not(feature = "std"))]
+        {
+            let ticks: u64;
+            unsafe {
+                core::arch::asm!("mrs {}, cntvct_el0", out(reg) ticks, options(pure, nomem, nostack));
+            }
+            ticks
+        }
     }
 
     // ---- control flow ------------------------------------------------------------------
 
+    #[inline(always)]
+    pub fn sample_tick(&mut self) {
+        self.sample_countdown = self.sample_countdown.wrapping_sub(1);
+        if self.sample_countdown == 0 {
+            self.sample_countdown = 16;
+            sample_guest_pc(self.lr);
+        }
+    }
+
+    #[inline(always)]
+    pub fn sample_tick_pc(&mut self, pc: u32) {
+        self.sample_countdown = self.sample_countdown.wrapping_sub(1);
+        if self.sample_countdown == 0 {
+            self.sample_countdown = 16;
+            sample_guest_pc(pc);
+        }
+    }
+
     /// Counts one loop iteration (a backward branch) in recompiled code.
     #[inline(always)]
     pub fn back_edge(&mut self) {
+        if PROFILE_DETAILED {
+            self.sample_tick();
+        }
         self.budget -= 1;
         if self.budget == 0 {
             self.poll();
@@ -472,7 +847,8 @@ impl Ctx {
     }
 
     #[cold]
-    fn poll(&mut self) {
+    #[inline(never)]
+    pub fn poll(&mut self) {
         self.budget = POLL_INTERVAL;
         if let Some(hook) = self.poll_hook {
             hook(self);
@@ -480,21 +856,78 @@ impl Ctx {
     }
 
     /// Indirect call through a guest address (function pointers, virtual calls).
-    #[inline]
+    #[inline(always)]
     pub fn call(&mut self, addr: u32) {
-        let slot = self.table.get((addr.wrapping_sub(self.table_base) / 4) as usize).copied().flatten();
-        match slot {
-            Some(f) if addr & 3 == 0 => f(self),
-            _ => panic!("indirect call to {addr:#010x}, which is not a function (lr = {:#010x})", self.lr),
+        if PROFILE_DETAILED {
+            self.sample_tick_pc(addr);
         }
+        let idx = (addr.wrapping_sub(self.table_base) >> 2) as usize;
+        if (addr & 3) == 0 && idx < self.table_len {
+            if let Some(f) = unsafe { *self.table_ptr.add(idx) } {
+                f(self);
+                return;
+            }
+        }
+        self.call_bad(addr);
+    }
+
+    #[cold]
+    fn call_bad(&self, addr: u32) {
+        let _ = addr;
+        #[cfg(feature = "std")]
+        eprintln!("indirect call to {addr:#010x}, which is not a function (lr = {:#010x})", self.lr);
     }
 
     /// Entry check for a replaceable SDK function; true means a native version handled the call.
-    #[inline]
+    #[inline(always)]
     pub fn hle(&mut self, id: usize) -> bool {
-        LAST_HLE.store(id, std::sync::atomic::Ordering::Relaxed);
-        LAST_HLE_CALLER.store(self.lr, std::sync::atomic::Ordering::Relaxed);
-        match self.hle[id] {
+        if !PROFILE_DETAILED {
+            let res = match unsafe { *self.hle_ptr.add(id) } {
+                Hle::Original => false,
+                Hle::Native(f) => {
+                    f(self);
+                    true
+                }
+                Hle::Before(f) => {
+                    f(self);
+                    false
+                }
+                Hle::Replace(f) => f(self),
+                Hle::Unimplemented => self.hle_unimplemented(id),
+            };
+            if id < MAX_HLE_FUNCS {
+                HLE_CALL_COUNTS[id].fetch_add(1, Ordering::Relaxed);
+            }
+            return res;
+        }
+        self.hle_profiled(id)
+    }
+
+    #[cold]
+    fn hle_unimplemented(&mut self, id: usize) -> bool {
+        if self.survey {
+            if !core::mem::replace(&mut self.hle_logged[id], true) {
+                #[cfg(feature = "std")]
+                eprintln!("[survey] {} (first called from {})", self.hle_names[id], self.func_name(self.lr));
+            }
+            self.r[3] = 0;
+            true
+        } else {
+            panic!(
+                "SDK function {} has no native implementation yet (called from {}, lr = {:#010x})",
+                self.hle_names[id],
+                self.func_name(self.lr),
+                self.lr
+            )
+        }
+    }
+
+    #[cold]
+    fn hle_profiled(&mut self, id: usize) -> bool {
+        LAST_HLE.store(id, Ordering::Relaxed);
+        LAST_HLE_CALLER.store(self.lr, Ordering::Relaxed);
+        let t0 = self.now_ticks();
+        let ret = match self.hle[id] {
             Hle::Native(f) => {
                 f(self);
                 true
@@ -505,20 +938,43 @@ impl Ctx {
                 false
             }
             Hle::Replace(f) => f(self),
-            Hle::Unimplemented if self.survey => {
-                if !std::mem::replace(&mut self.hle_logged[id], true) {
-                    eprintln!("[survey] {} (first called from {})", self.hle_names[id], self.func_name(self.lr));
-                }
-                self.r[3] = 0;
-                true
-            }
-            Hle::Unimplemented => panic!(
-                "SDK function {} has no native implementation yet (called from {}, lr = {:#010x})",
-                self.hle_names[id],
-                self.func_name(self.lr),
-                self.lr
-            ),
+            Hle::Unimplemented => self.hle_unimplemented(id),
+        };
+        let dt = self.now_ticks().saturating_sub(t0);
+        if id < MAX_HLE_FUNCS {
+            HLE_CALL_TICKS[id].fetch_add(dt, Ordering::Relaxed);
+            HLE_CALL_COUNTS[id].fetch_add(1, Ordering::Relaxed);
         }
+        ret
+    }
+
+    pub fn drain_sample_table(&self) -> (u32, Vec<(u32, u32)>) {
+        let total = SAMPLE_TOTAL.swap(0, Ordering::Relaxed);
+        let mut samples = Vec::new();
+        for entry in &SAMPLE_TABLE {
+            let count = entry.count.swap(0, Ordering::Relaxed);
+            let lr = entry.lr.swap(0, Ordering::Relaxed);
+            if count > 0 && lr != 0 {
+                samples.push((lr, count));
+            }
+        }
+        samples.sort_unstable_by(|a, b| b.1.cmp(&a.1));
+        (total, samples)
+    }
+
+    pub fn drain_hle_stats(&self) -> Vec<(&'static str, u32, u64)> {
+        let mut stats = Vec::new();
+        for (id, &name) in self.hle_names.iter().enumerate() {
+            if id < MAX_HLE_FUNCS {
+                let count = HLE_CALL_COUNTS[id].swap(0, Ordering::Relaxed);
+                let ticks = HLE_CALL_TICKS[id].swap(0, Ordering::Relaxed);
+                if count > 0 {
+                    stats.push((name, count, ticks));
+                }
+            }
+        }
+        stats.sort_unstable_by(|a, b| b.2.cmp(&a.2).then_with(|| b.1.cmp(&a.1)));
+        stats
     }
 
     #[cold]

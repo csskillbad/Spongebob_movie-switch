@@ -87,3 +87,86 @@ L2
 =InitMetroTRK
 =InitMetroTRK_BBA
 =EnableMetroTRKInterrupts
+
+# FMOD GameCube ARAM flag hooks
+=FMUSIC_LoadSongEx
+=FMUSIC_LoadInternal
+=FSOUND_Sample_LoadEx
+
+# Native ARM64 HLE replacements: FMOD memory pool allocator
+=FSOUND_Memory_Pool_Alloc
+=FSOUND_Memory_Pool_Free
+=FSOUND_Memory_Pool_Calloc
+
+# Native ARM64 / NEON HLE replacements: Libc memory & string
+=memcpy
+=memset
+=__fill_mem
+=memmove
+=F_memmove
+=memcmp
+=strlen
+=F_strlen
+=strcpy
+=F_strcpy
+=strcmp
+
+# Native ARM64 HLE replacements: 64-bit PPCEABI integer division/modulo
+=__div2u
+=__div2i
+=__mod2u
+=__mod2i
+
+# Native ARM64 HLE replacements: MSL / Heavy Iron / RenderWare math
+=sqrt
+=__ieee754_sqrt
+=xsqrt__Ff
+=_rwSqrt
+=_rwInvSqrt
+=ceil
+=floor
+=sinf
+=cosf
+=isin__Ff
+=icos__Ff
+=powf
+=sin
+=cos
+=tan
+=atan
+=atan2
+=acos
+=asin
+
+# Native ARM64 NEON HLE replacements: Matrix & vector math
+=PSMTXIdentity
+=PSMTXScale
+=PSMTXConcat
+=MatrixMultiply
+=RwMatrixMultiply
+=RwMatrixUpdate
+=xMat4x3Mul__FP7xMat4x3PC7xMat4x3PC7xMat4x3
+=RwV3dLength
+=RwV3dTransformPoint
+=RwV3dTransformPoints
+=RwV3dTransformVector
+=RwV3dTransformVectors
+
+# Native ARM64 NEON HLE replacements: Skeletal skinning
+=_rpSkinMatrixBlendUpdateASM
+=_rwDlSkinUpdate2WeightsP
+=_rwDlSkinUpdate2WeightsPN
+=_rwDlSkinUpdate3WeightsP
+=_rwDlSkinUpdate3WeightsPN
+=_rwDlSkinUpdate4WeightsP
+=_rwDlSkinUpdate4WeightsPN
+
+# Native ARM64 Collision & Spatial acceleration
+=RtIntersectionSphereTriangle
+=RtIntersectionBBoxTriangle
+=xQuickCullIsects__FPC7xQCDataPC7xQCData
+
+# RenderWare Resource Sync bypass
+=_rxGCResEntryWaitDone
+=_rwDlTokenQueryDone
+

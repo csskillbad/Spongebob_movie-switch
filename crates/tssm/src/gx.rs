@@ -355,8 +355,8 @@ enum Source {
 enum Matrices {
     /// The draw's one pair.
     One([f32; 12], [f32; 9]),
-    /// For vertices that each choose their own: XF 0x000-0x0FF, then 0x400-0x45F.
-    All(Box<[u32; 0x160]>),
+    /// For vertices that each choose their own: XF 0x000-0x0FF, then 0x400-0x47F.
+    All(Box<[u32; 0x180]>),
 }
 
 impl Matrices {
@@ -364,8 +364,14 @@ impl Matrices {
         match self {
             Matrices::One(position, normal) => (*position, *normal),
             Matrices::All(all) => (
-                std::array::from_fn(|k| f32::from_bits(all[(matrix * 4 + k) & 0xFF])),
-                std::array::from_fn(|k| f32::from_bits(all[0x100 + (matrix & 31) * 3 + k])),
+                std::array::from_fn(|k| {
+                    let idx = (matrix * 4 + k) & 0xFF;
+                    f32::from_bits(all[idx])
+                }),
+                std::array::from_fn(|k| {
+                    let idx = 0x100 + (matrix & 31) * 3 + k;
+                    f32::from_bits(all[idx.min(all.len() - 1)])
+                }),
             ),
         }
     }
@@ -1623,9 +1629,9 @@ impl Gx {
         let default_matrix = (self.cp[0x30] & 0x3F) as usize;
         let matrices = if vcd_lo & 1 != 0 {
             // Vertices choose their own matrices: keep all of them as they are now.
-            let mut all = Box::new([0u32; 0x160]);
+            let mut all = Box::new([0u32; 0x180]);
             all[..0x100].copy_from_slice(&self.xf[..0x100]);
-            all[0x100..].copy_from_slice(&self.xf[0x400..0x460]);
+            all[0x100..].copy_from_slice(&self.xf[0x400..0x480]);
             Matrices::All(all)
         } else {
             Matrices::One(

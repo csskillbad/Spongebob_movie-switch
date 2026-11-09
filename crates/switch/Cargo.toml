@@ -1,0 +1,15 @@
+[package]
+name = "tssm-switch"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+crate-type = ["staticlib"]
+
+[dependencies]
+runtime = { path = "../runtime", default-features = false, features = ["switch"] }
+game = { path = "../game", default-features = false, features = ["switch"] }
+bytemuck = { version = "1.25.2", default-features = false, features = ["derive"] }
+hashbrown = "0.17.1"
+libm = "0.2.16"
+

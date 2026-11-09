@@ -3,6 +3,10 @@ name = "tssm"
 version = "0.1.0"
 edition = "2021"
 
+[features]
+default = []
+switch = []
+
 [dependencies]
 runtime = { path = "../runtime" }
 game = { path = "../game" }

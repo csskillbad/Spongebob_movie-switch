@@ -4,6 +4,8 @@
 
 #[cfg(target_os = "android")]
 mod android;
+#[cfg(feature = "switch")]
+pub mod switch;
 mod aspect;
 mod audio;
 mod camera;
@@ -193,7 +195,7 @@ fn spawn_call_sampler() {
 }
 
 /// Runs the game on its own large-stack thread; the process ends when the game does.
-fn spawn_guest(disc: PathBuf, window: Option<WindowSurface>) -> std::thread::JoinHandle<()> {
+pub fn spawn_guest(disc: PathBuf, window: Option<WindowSurface>) -> std::thread::JoinHandle<()> {
     std::thread::Builder::new()
         .name("guest".into())
         .stack_size(GUEST_STACK)

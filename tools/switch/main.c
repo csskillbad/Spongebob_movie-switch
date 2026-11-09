@@ -1,0 +1,684 @@
+#include <switch.h>
+#include <SDL2/SDL.h>
+#include <stdio.h>
+#include <stdbool.h>
+#include <stdlib.h>
+#include <string.h>
+#include <math.h>
+
+#include <setjmp.h>
+#include "gl_backend.h"
+
+// Symbols exported by libtssm_switch.a (Rust)
+extern int      tssm_switch_init(void);
+extern void     tssm_switch_guest_main(void);
+extern void     tssm_switch_request_exit(void);
+extern void     tssm_switch_set_docked(int docked);
+extern void     tssm_switch_set_pad(uint32_t buttons);
+extern void     tssm_switch_set_sticks(int32_t lx, int32_t ly, int32_t rx, int32_t ry);
+extern size_t   tssm_switch_drain_audio(int16_t* out, size_t max_frames);
+extern void     tssm_switch_set_boot_scene(const char* scene);
+extern void     tssm_switch_warp(const char* scene);
+extern int      tssm_switch_get_fps_enabled(void);
+extern void     tssm_switch_set_fps_enabled(int val);
+extern void     tssm_switch_set_scale_override(uint32_t scale);
+extern uint32_t tssm_switch_get_current_scene(void);
+extern uint32_t tssm_switch_get_frame_count(void);
+extern uint32_t tssm_switch_get_game_mode(void);
+extern int      tssm_switch_is_in_gameplay(void);
+extern void     tssm_switch_free_ctx(void* ctx);
+
+static Mutex s_log_mutex;
+static FILE* s_log_fp = NULL;
+
+void switch_log(const char* msg) {
+    if (msg) {
+        svcOutputDebugString(msg, strlen(msg));
+        svcOutputDebugString("\n", 1);
+        printf("%s\n", msg);
+        fflush(stdout);
+
+        mutexLock(&s_log_mutex);
+        if (!s_log_fp) {
+            s_log_fp = fopen("sdmc:/tssm.log", "a");
+            if (!s_log_fp) {
+                s_log_fp = fopen("sdmc:/switch/tssm/tssm.log", "a");
+            }
+        }
+        if (s_log_fp) {
+            fputs(msg, s_log_fp);
+            fputc('\n', s_log_fp);
+            fflush(s_log_fp);
+        }
+        mutexUnlock(&s_log_mutex);
+    }
+}
+
+void switch_yield(void) {
+    svcSleepThread(1000ULL);
+}
+
+void switch_sleep_ms(uint32_t ms) {
+    svcSleepThread((uint64_t)ms * 1000000ULL);
+}
+
+void switch_sleep_ns(uint64_t ns) {
+    svcSleepThread(ns);
+}
+
+uint64_t switch_now_ns(void) {
+    return armTicksToNs(armGetSystemTick());
+}
+
+static volatile uint32_t s_is_docked = 1u;
+
+uint32_t switch_is_docked_mode(void) {
+    return s_is_docked;
+}
+
+void switch_exit_guest_thread(void) {
+    switch_gl_shutdown();
+    threadExit();
+}
+
+static Mutex             s_sched_mutex;
+static CondVar           s_sched_cond;
+static __thread uint32_t s_thread_index = 0;
+static __thread uint32_t s_guest_thread = 0x817E0000;
+static __thread int32_t  s_thread_prio  = 16;
+static __thread jmp_buf  s_worker_jmp;
+static __thread bool     s_is_worker = false;
+
+void switch_sched_lock(void) {
+    mutexLock(&s_sched_mutex);
+}
+
+void switch_sched_unlock(void) {
+    mutexUnlock(&s_sched_mutex);
+}
+
+void switch_sched_wait(void) {
+    condvarWait(&s_sched_cond, &s_sched_mutex);
+}
+
+void switch_sched_wake_all(void) {
+    condvarWakeAll(&s_sched_cond);
+}
+
+uint32_t switch_get_thread_index(void) {
+    return s_thread_index;
+}
+
+void switch_set_thread_index(uint32_t idx) {
+    s_thread_index = idx;
+}
+
+uint32_t switch_get_guest_thread(void) {
+    return s_guest_thread;
+}
+
+void switch_set_guest_thread(uint32_t gt) {
+    s_guest_thread = gt;
+}
+
+int32_t switch_get_thread_prio(void) {
+    return s_thread_prio;
+}
+
+void switch_set_thread_prio(int32_t prio) {
+    s_thread_prio = prio;
+}
+
+void switch_exit_worker_thread(void) {
+    if (s_is_worker) {
+        longjmp(s_worker_jmp, 1);
+    }
+    threadExit();
+}
+
+// Thread-safe single-file handle cache to eliminate repeated RomFS/SD fopen/fclose overhead during HIP/HOP streaming
+static Mutex s_file_mutex;
+static FILE* s_cached_fp = NULL;
+static char  s_cached_rel[256] = {0};
+
+static void close_cached_file(void) {
+    mutexLock(&s_file_mutex);
+    if (s_cached_fp) {
+        fclose(s_cached_fp);
+        s_cached_fp = NULL;
+        s_cached_rel[0] = '\0';
+    }
+    mutexUnlock(&s_file_mutex);
+}
+
+int switch_read_file(const char* path, uint32_t offset, uint32_t len, uint8_t* out) {
+    if (!path || !out) return -1;
+
+    mutexLock(&s_file_mutex);
+
+    if (!s_cached_fp || strcmp(s_cached_rel, path) != 0) {
+        if (s_cached_fp) {
+            fclose(s_cached_fp);
+            s_cached_fp = NULL;
+            s_cached_rel[0] = '\0';
+        }
+
+        char full_path[512];
+        snprintf(full_path, sizeof(full_path), "romfs:/files/%s", path);
+        FILE* f = fopen(full_path, "rb");
+        if (!f) {
+            snprintf(full_path, sizeof(full_path), "disc/files/%s", path);
+            f = fopen(full_path, "rb");
+        }
+        if (!f) {
+            snprintf(full_path, sizeof(full_path), "sdmc:/switch/tssm/disc/files/%s", path);
+            f = fopen(full_path, "rb");
+        }
+        if (!f) {
+            mutexUnlock(&s_file_mutex);
+            char err[512];
+            snprintf(err, sizeof(err), "[switch_read_file] File not found: %s", path);
+            switch_log(err);
+            return -1;
+        }
+
+        s_cached_fp = f;
+        strncpy(s_cached_rel, path, sizeof(s_cached_rel) - 1);
+        s_cached_rel[sizeof(s_cached_rel) - 1] = '\0';
+    }
+
+    if (fseek(s_cached_fp, (long)offset, SEEK_SET) != 0) {
+        mutexUnlock(&s_file_mutex);
+        return -1;
+    }
+
+    size_t read_bytes = fread(out, 1, len, s_cached_fp);
+    mutexUnlock(&s_file_mutex);
+    return (int)read_bytes;
+}
+
+static Thread g_guest_thread;
+
+static void guest_thread_fn(void* arg) {
+    (void)arg;
+    s_thread_index = 0;
+    s_is_worker = false;
+    switch_log("[switch] Guest engine & OpenGL 4.3 GPU thread started on dedicated Core 1!");
+    tssm_switch_guest_main();
+    switch_log("[switch] Guest thread finished.");
+}
+
+typedef struct SwitchThread {
+    Thread               thread;
+    void                 (*entry)(void*);
+    void*                arg;
+    void*                ctx_to_free;
+    uint32_t             index;
+    struct SwitchThread* next;
+} SwitchThread;
+
+static SwitchThread* s_finished_threads = NULL;
+
+static void reap_finished_threads(void) {
+    switch_sched_lock();
+    SwitchThread* list = s_finished_threads;
+    s_finished_threads = NULL;
+    switch_sched_unlock();
+
+    while (list) {
+        SwitchThread* next = list->next;
+        threadWaitForExit(&list->thread);
+        threadClose(&list->thread);
+        free(list);
+        list = next;
+    }
+}
+
+static void thread_wrapper(void* arg) {
+    SwitchThread* st = (SwitchThread*)arg;
+    s_is_worker = true;
+    s_thread_index = st->index;
+    if (setjmp(s_worker_jmp) == 0) {
+        st->entry(st->arg);
+    }
+    if (st->ctx_to_free) {
+        tssm_switch_free_ctx(st->ctx_to_free);
+        st->ctx_to_free = NULL;
+    }
+    switch_sched_lock();
+    st->next = s_finished_threads;
+    s_finished_threads = st;
+    switch_sched_unlock();
+}
+
+int switch_create_worker_thread(
+    void (*entry)(void*),
+    void* arg,
+    void* ctx_to_free,
+    uint32_t index,
+    uint32_t stack_size
+) {
+    reap_finished_threads();
+
+    SwitchThread* st = (SwitchThread*)malloc(sizeof(SwitchThread));
+    if (!st) return -1;
+    memset(st, 0, sizeof(*st));
+    st->entry = entry;
+    st->arg = arg;
+    st->ctx_to_free = ctx_to_free;
+    st->index = index;
+    if (stack_size < 1u * 1024u * 1024u) {
+        stack_size = 1u * 1024u * 1024u;
+    }
+    Result rc = threadCreate(&st->thread, thread_wrapper, st, NULL, stack_size, 0x2C, 2);
+    if (R_FAILED(rc)) {
+        rc = threadCreate(&st->thread, thread_wrapper, st, NULL, stack_size, 0x2C, -2);
+    }
+    if (R_FAILED(rc)) {
+        free(st);
+        return -1;
+    }
+    rc = threadStart(&st->thread);
+    if (R_FAILED(rc)) {
+        threadClose(&st->thread);
+        free(st);
+        return -1;
+    }
+    return 0;
+}
+
+// Dedicated Core 2 background vertex transformation worker
+static Thread  s_vertex_worker;
+static Mutex   s_vw_mutex;
+static CondVar s_vw_cond_work;
+static CondVar s_vw_cond_done;
+static void (*s_vw_fn)(void*) = NULL;
+static void*  s_vw_arg = NULL;
+static bool   s_vw_busy = false;
+static bool   s_vw_exit = false;
+static bool   s_vw_initialized = false;
+
+static void vertex_worker_entry(void* arg) {
+    (void)arg;
+    mutexLock(&s_vw_mutex);
+    while (!s_vw_exit) {
+        while (!s_vw_busy && !s_vw_exit) {
+            condvarWait(&s_vw_cond_work, &s_vw_mutex);
+        }
+        if (s_vw_exit) break;
+        void (*fn)(void*) = s_vw_fn;
+        void* task_arg = s_vw_arg;
+        mutexUnlock(&s_vw_mutex);
+
+        if (fn) {
+            fn(task_arg);
+        }
+
+        mutexLock(&s_vw_mutex);
+        s_vw_busy = false;
+        s_vw_fn = NULL;
+        s_vw_arg = NULL;
+        condvarWakeOne(&s_vw_cond_done);
+    }
+    mutexUnlock(&s_vw_mutex);
+}
+
+void switch_init_vertex_worker(void) {
+    mutexInit(&s_vw_mutex);
+    condvarInit(&s_vw_cond_work);
+    condvarInit(&s_vw_cond_done);
+    s_vw_busy = false;
+    s_vw_exit = false;
+    Result rc = threadCreate(&s_vertex_worker, vertex_worker_entry, NULL, NULL, 2u * 1024u * 1024u, 0x2C, 0);
+    if (R_FAILED(rc)) {
+        rc = threadCreate(&s_vertex_worker, vertex_worker_entry, NULL, NULL, 2u * 1024u * 1024u, 0x2C, -2);
+    }
+    if (R_SUCCEEDED(rc)) {
+        threadStart(&s_vertex_worker);
+        s_vw_initialized = true;
+        switch_log("[switch] Dedicated Core 0 vertex worker thread initialized.");
+    } else {
+        switch_log("[switch] Warning: failed to spawn Core 0 vertex worker thread.");
+    }
+}
+
+void switch_dispatch_worker(void (*fn)(void*), void* arg) {
+    if (!s_vw_initialized) {
+        if (fn) fn(arg);
+        return;
+    }
+    mutexLock(&s_vw_mutex);
+    s_vw_fn = fn;
+    s_vw_arg = arg;
+    s_vw_busy = true;
+    condvarWakeOne(&s_vw_cond_work);
+    mutexUnlock(&s_vw_mutex);
+}
+
+void switch_wait_worker(void) {
+    if (!s_vw_initialized) return;
+    mutexLock(&s_vw_mutex);
+    while (s_vw_busy) {
+        condvarWait(&s_vw_cond_done, &s_vw_mutex);
+    }
+    mutexUnlock(&s_vw_mutex);
+}
+
+// Allocate GameCube 128 MB guest address space (24 MB RAM + branchless WGPIPE FIFO & MMIO window)
+void* switch_alloc_guest_memory(void) {
+    size_t size = (128u * 1024u * 1024u) + 65536u;
+    void* ptr = malloc(size);
+    if (!ptr) {
+        switch_log("[switch] Failed to allocate 128MB guest address space!");
+        return NULL;
+    }
+    memset(ptr, 0, size);
+    return ptr;
+}
+
+static void audio_callback(void* userdata, Uint8* stream, int len) {
+    (void)userdata;
+    int16_t* out = (int16_t*)stream;
+    size_t stereo_frames = (size_t)len / (2u * sizeof(int16_t));
+    size_t got = tssm_switch_drain_audio(out, stereo_frames);
+    if (got < stereo_frames) {
+        memset(out + got * 2u, 0, (stereo_frames - got) * 2u * sizeof(int16_t));
+    }
+}
+
+static const char* s_level_names[] = {
+    "BB02", // Bikini Bottom
+    "BB01", // No Cheese! (Patty Wagon Driving)
+    "JK01", // Jellyfish Fields
+    "AM01", // Thug Tug
+    "TR01", // Trench
+    "DE01", // Now That We're Men
+    "SC02", // Shell City
+    "PT01", // Planktopolis
+};
+#define NUM_LEVELS (sizeof(s_level_names) / sizeof(s_level_names[0]))
+static int s_current_level_idx = 0;
+
+int main(int argc, char* argv[]) {
+    (void)argc;
+    (void)argv;
+    mutexInit(&s_file_mutex);
+    mutexInit(&s_sched_mutex);
+    condvarInit(&s_sched_cond);
+    consoleDebugInit(debugDevice_SVC);
+    setvbuf(stdout, NULL, _IONBF, 0);
+    fsdevMountSdmc();
+    switch_log("[switch] Starting The SpongeBob SquarePants Movie (Hardware GPU 60 FPS Port)...");
+
+    // 1. Mount RomFS
+    bool romfs_mounted = false;
+    Result rc = romfsInit();
+    if (R_SUCCEEDED(rc)) {
+        romfs_mounted = true;
+        switch_log("[switch] RomFS mounted successfully.");
+    } else {
+        char rmsg[128];
+        snprintf(rmsg, sizeof(rmsg), "[switch] RomFS not available (0x%x), using SD fallback.", rc);
+        switch_log(rmsg);
+    }
+
+    // 2. Configure Switch controller input
+    padConfigureInput(1, HidNpadStyleSet_NpadStandard);
+    PadState pad;
+    padInitializeDefault(&pad);
+
+    s_is_docked = (appletGetOperationMode() == AppletOperationMode_Console) ? 1u : 0u;
+    bool is_docked = (switch_is_docked_mode() != 0);
+    tssm_switch_set_docked(is_docked ? 1 : 0);
+
+    // 3. Initialize 32 kHz stereo SDL2 audio output (audio subsystem only; EGL owns NWindow)
+    SDL_AudioDeviceID audio_dev = 0;
+    if (SDL_Init(SDL_INIT_AUDIO) == 0) {
+        SDL_AudioSpec wanted, obtained;
+        SDL_zero(wanted);
+        wanted.freq = 32000;
+        wanted.format = AUDIO_S16SYS;
+        wanted.channels = 2;
+        wanted.samples = 512;
+        wanted.callback = audio_callback;
+
+        audio_dev = SDL_OpenAudioDevice(NULL, 0, &wanted, &obtained, 0);
+        if (audio_dev > 0) {
+            SDL_PauseAudioDevice(audio_dev, 0);
+            switch_log("[switch] 32kHz stereo hardware audio mixer online.");
+        }
+    } else {
+        char emsg[128];
+        snprintf(emsg, sizeof(emsg), "[switch] SDL_Init(SDL_INIT_AUDIO) failed: %s", SDL_GetError());
+        switch_log(emsg);
+    }
+
+    // 4. Initialize recompiled game engine tables & audio state
+    int num_funcs = tssm_switch_init();
+    char init_msg[128];
+    snprintf(init_msg, sizeof(init_msg), "[switch] TSSM initialized (%d recompiled symbols).", num_funcs);
+    switch_log(init_msg);
+
+    // Optional boot scene override from SD card
+    FILE* sf = fopen("sdmc:/scene.txt", "r");
+    if (!sf) sf = fopen("sdmc:/switch/tssm/scene.txt", "r");
+    if (!sf) sf = fopen("romfs:/config/scene.txt", "r");
+    if (sf) {
+        char sname[8] = {0};
+        if (fscanf(sf, "%4s", sname) == 1 && strlen(sname) == 4) {
+            tssm_switch_set_boot_scene(sname);
+            for (size_t i = 0; i < NUM_LEVELS; i++) {
+                if (strncmp(s_level_names[i], sname, 4) == 0) {
+                    s_current_level_idx = (int)i;
+                    break;
+                }
+            }
+        }
+        fclose(sf);
+    }
+
+    // Optional FPS HUD & automated benchmark flag
+    bool show_fps = false;
+    bool autodemo = false;
+
+    FILE* cf = fopen("sdmc:/switch/tssm/fps_counter.txt", "r");
+    if (!cf) cf = fopen("romfs:/config/fps_counter.txt", "r");
+    if (cf) {
+        int v = 0;
+        if (fscanf(cf, "%d", &v) == 1) {
+            show_fps = (v != 0);
+        }
+        fclose(cf);
+    }
+
+    FILE* scf = fopen("sdmc:/switch/tssm/scale.txt", "r");
+    if (!scf) scf = fopen("romfs:/config/scale.txt", "r");
+    if (scf) {
+        int sc = 0;
+        if (fscanf(scf, "%d", &sc) == 1 && sc >= 1 && sc <= 2) {
+            tssm_switch_set_scale_override((uint32_t)sc);
+            char sc_msg[64];
+            snprintf(sc_msg, sizeof(sc_msg), "[switch] Scale override: %dx", sc);
+            switch_log(sc_msg);
+        }
+        fclose(scf);
+    }
+
+    FILE* af = fopen("sdmc:/switch/tssm/autodemo.flag", "rb");
+    if (!af) af = fopen("sdmc:/autodemo.flag", "rb");
+    if (!af) af = fopen("romfs:/config/autodemo.flag", "rb");
+    if (af) {
+        fclose(af);
+        autodemo = true;
+        show_fps = true;
+        switch_log("[switch] autodemo.flag detected: automated 60 FPS benchmark & HUD enabled.");
+    }
+    tssm_switch_set_fps_enabled(show_fps ? 1 : 0);
+
+    // 5. Initialize Core 2 vertex worker and launch GameCube guest engine on dedicated Core 1
+    switch_init_vertex_worker();
+    size_t stack_size = 8u * 1024u * 1024u;
+    Result trc = threadCreate(&g_guest_thread, guest_thread_fn, NULL, NULL, stack_size, 0x2C, 1);
+    if (R_FAILED(trc)) {
+        trc = threadCreate(&g_guest_thread, guest_thread_fn, NULL, NULL, stack_size, 0x2C, -2);
+    }
+    if (R_SUCCEEDED(trc)) {
+        threadStart(&g_guest_thread);
+    } else {
+        switch_log("[switch] Fatal: could not spawn Core 1 guest thread!");
+        return 1;
+    }
+
+    // 6. Lightweight Core 0 OS & input polling loop (125 Hz, < 0.05% CPU usage)
+    u64 prev_kHeld = 0;
+    uint32_t auto_tick = 0;
+    uint32_t dock_poll = 0;
+
+    while (appletMainLoop()) {
+        if ((dock_poll++ & 31u) == 0) {
+            s_is_docked = (appletGetOperationMode() == AppletOperationMode_Console) ? 1u : 0u;
+        }
+        bool current_docked = (switch_is_docked_mode() != 0);
+        if (current_docked != is_docked) {
+            is_docked = current_docked;
+            tssm_switch_set_docked(is_docked ? 1 : 0);
+            switch_log(is_docked ? "[switch] Mode -> Docked (1080p)" : "[switch] Mode -> Handheld (720p)");
+        }
+
+        padUpdate(&pad);
+        u64 kHeld = padGetButtons(&pad);
+        u64 kDown = kHeld & ~prev_kHeld;
+
+        // Clean exit on Plus + Minus
+        if ((kHeld & HidNpadButton_Plus) && (kHeld & HidNpadButton_Minus)) {
+            switch_log("[switch] Plus+Minus pressed: requesting clean shutdown.");
+            break;
+        }
+
+        // Toggle GPU FPS HUD pill with Minus (-)
+        if ((kDown & HidNpadButton_Minus) && !(kHeld & HidNpadButton_Plus)) {
+            show_fps = !show_fps;
+            tssm_switch_set_fps_enabled(show_fps ? 1 : 0);
+        }
+
+        // Toggle automated demo input with L-Stick + R-Stick click
+        if ((kDown & HidNpadButton_StickL) && (kHeld & HidNpadButton_StickR)) {
+            autodemo = !autodemo;
+        }
+
+        // Level warp shortcut: hold ZL + press D-Pad Left / Right
+        bool warp_combo = false;
+        if (kHeld & HidNpadButton_ZL) {
+            if (kDown & HidNpadButton_Right) {
+                s_current_level_idx = (s_current_level_idx + 1) % (int)NUM_LEVELS;
+                tssm_switch_warp(s_level_names[s_current_level_idx]);
+                warp_combo = true;
+            } else if (kDown & HidNpadButton_Left) {
+                s_current_level_idx = (s_current_level_idx + (int)NUM_LEVELS - 1) % (int)NUM_LEVELS;
+                tssm_switch_warp(s_level_names[s_current_level_idx]);
+                warp_combo = true;
+            }
+        }
+        prev_kHeld = kHeld;
+
+        uint32_t gc_buttons = 0;
+        if (kHeld & HidNpadButton_A)    gc_buttons |= 0x0100; // GC A
+        if (kHeld & HidNpadButton_B)    gc_buttons |= 0x0200; // GC B
+        if (kHeld & HidNpadButton_X)    gc_buttons |= 0x0400; // GC X
+        if (kHeld & HidNpadButton_Y)    gc_buttons |= 0x0800; // GC Y
+        if (kHeld & HidNpadButton_Plus) gc_buttons |= 0x1000; // GC Start
+        if (kHeld & HidNpadButton_L)    gc_buttons |= 0x0040; // GC L
+        if (kHeld & HidNpadButton_R)    gc_buttons |= 0x0020; // GC R
+        if (kHeld & HidNpadButton_ZR)   gc_buttons |= 0x0020; // GC R
+        if ((kHeld & HidNpadButton_ZL) && !warp_combo) gc_buttons |= 0x0010; // GC Z
+        if (kHeld & HidNpadButton_Up)   gc_buttons |= 0x0008; // GC D-Up
+        if (kHeld & HidNpadButton_Down) gc_buttons |= 0x0004; // GC D-Down
+        if (!warp_combo) {
+            if (kHeld & HidNpadButton_Left)  gc_buttons |= 0x0001; // GC D-Left
+            if (kHeld & HidNpadButton_Right) gc_buttons |= 0x0002; // GC D-Right
+        }
+
+        HidAnalogStickState l_stick = padGetStickPos(&pad, 0);
+        HidAnalogStickState r_stick = padGetStickPos(&pad, 1);
+
+        if (autodemo && gc_buttons == 0 && abs(l_stick.x) < 4000 && abs(l_stick.y) < 4000) {
+            auto_tick++;
+
+            bool in_gameplay = (tssm_switch_is_in_gameplay() != 0);
+
+            if (!in_gameplay) {
+                // Not in active gameplay yet (logos, title screen, loading screen, intro FMV, prompts):
+                // Regularly pulse Start every 60 ticks (skips intro FMV and dismisses title screen)
+                uint32_t start_phase = auto_tick % 60;
+                if (start_phase < 6) {
+                    gc_buttons |= 0x1000; // GC Start
+                }
+                // Regularly pulse A to dismiss loading screens, level intros, and prompts
+                uint32_t a_phase = auto_tick % 30;
+                if (a_phase < 6) {
+                    gc_buttons |= 0x0100; // GC A
+                }
+            } else {
+                // In active 3D gameplay (mode == 12): NEVER press Start so pause menu never opens!
+                // Regularly pulse A to dismiss any tutorial dialog
+                uint32_t a_phase = auto_tick % 60;
+                if (a_phase >= 40 && a_phase <= 48) {
+                    gc_buttons |= 0x0100; // GC A
+                }
+
+                // Smooth 3D movement, camera panning, double-jumping, and spin attack
+                l_stick.y = 28000;
+                l_stick.x = (int16_t)(sinf((float)auto_tick * 0.022f) * 16000.0f);
+                r_stick.x = (int16_t)(cosf((float)auto_tick * 0.015f) * 11000.0f);
+
+                uint32_t cycle = auto_tick % 180;
+                if (cycle >= 16 && cycle <= 30) {
+                    gc_buttons |= 0x0100; // Jump
+                } else if (cycle >= 46 && cycle <= 58) {
+                    gc_buttons |= 0x0100; // Double Jump
+                } else if (cycle >= 96 && cycle <= 110) {
+                    gc_buttons |= 0x0200; // Karate Spin
+                }
+            }
+        }
+
+        tssm_switch_set_pad(gc_buttons);
+        tssm_switch_set_sticks(l_stick.x, l_stick.y, r_stick.x, r_stick.y);
+
+        // Sleep 8 ms on Core 0 (125 Hz input polling, virtually zero CPU usage)
+        svcSleepThread(8000000ULL);
+    }
+
+    // 7. Clean shutdown
+    tssm_switch_request_exit();
+    threadWaitForExit(&g_guest_thread);
+    threadClose(&g_guest_thread);
+    reap_finished_threads();
+    if (s_vw_initialized) {
+        mutexLock(&s_vw_mutex);
+        s_vw_exit = true;
+        condvarWakeOne(&s_vw_cond_work);
+        mutexUnlock(&s_vw_mutex);
+        threadWaitForExit(&s_vertex_worker);
+        threadClose(&s_vertex_worker);
+        s_vw_initialized = false;
+    }
+
+    if (audio_dev > 0) {
+        SDL_CloseAudioDevice(audio_dev);
+    }
+    SDL_Quit();
+    close_cached_file();
+    if (romfs_mounted) {
+        romfsExit();
+    }
+    mutexLock(&s_log_mutex);
+    if (s_log_fp) {
+        fclose(s_log_fp);
+        s_log_fp = NULL;
+    }
+    mutexUnlock(&s_log_mutex);
+    fsdevUnmountDevice("sdmc");
+
+    return 0;
+}
