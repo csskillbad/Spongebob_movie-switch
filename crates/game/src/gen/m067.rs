@@ -12112,7 +12112,81 @@ pub fn fn_8032D900(c: &mut Ctx) {
 
 // _rwGCNVtxFmtInstNrm
 pub fn fn_8032E970(c: &mut Ctx) {
+    let dst_addr = c.r[3];
+    let src_addr = c.r[4];
+    let fmt = c.r[5];
+    let count = c.r[6];
+    let mut stride = c.r[7];
     let mem = c.mem;
+
+    if (dst_addr >= 0x8000_0000 && dst_addr < 0x8180_0000)
+        && (src_addr >= 0x8000_0000 && src_addr < 0x8180_0000)
+    {
+        if (count as i32) <= 0 || (fmt != 1 && fmt != 3 && fmt != 4) {
+            c.r[0] = 0;
+            c.r[3] = 0;
+            return;
+        }
+
+        if fmt == 1 {
+            if stride == 0 {
+                stride = 3;
+            }
+            let f0 = f32::from_bits(runtime::mr32(mem, c.r[2].wrapping_add(0xFFFFA960)));
+            for i in 0..count {
+                let src = src_addr.wrapping_add(i.wrapping_mul(12));
+                let dst = dst_addr.wrapping_add(i.wrapping_mul(stride));
+                let nx = f32::from_bits(runtime::mr32(mem, src));
+                let ny = f32::from_bits(runtime::mr32(mem, src.wrapping_add(4)));
+                let nz = f32::from_bits(runtime::mr32(mem, src.wrapping_add(8)));
+                runtime::mw8(mem, dst, ((nx * f0) as i32) as u8);
+                runtime::mw8(mem, dst.wrapping_add(1), ((ny * f0) as i32) as u8);
+                runtime::mw8(mem, dst.wrapping_add(2), ((nz * f0) as i32) as u8);
+            }
+            let total = count.wrapping_mul(3);
+            c.r[0] = total;
+            c.r[3] = total;
+            return;
+        } else if fmt == 3 {
+            if stride == 0 {
+                stride = 6;
+            }
+            let f0 = f32::from_bits(runtime::mr32(mem, c.r[2].wrapping_add(0xFFFFA964)));
+            for i in 0..count {
+                let src = src_addr.wrapping_add(i.wrapping_mul(12));
+                let dst = dst_addr.wrapping_add(i.wrapping_mul(stride));
+                let nx = f32::from_bits(runtime::mr32(mem, src));
+                let ny = f32::from_bits(runtime::mr32(mem, src.wrapping_add(4)));
+                let nz = f32::from_bits(runtime::mr32(mem, src.wrapping_add(8)));
+                runtime::mw16(mem, dst, ((nx * f0) as i32) as u16);
+                runtime::mw16(mem, dst.wrapping_add(2), ((ny * f0) as i32) as u16);
+                runtime::mw16(mem, dst.wrapping_add(4), ((nz * f0) as i32) as u16);
+            }
+            let total = count.wrapping_mul(6);
+            c.r[0] = total;
+            c.r[3] = total;
+            return;
+        } else if fmt == 4 {
+            if stride == 0 {
+                stride = 12;
+            }
+            for i in 0..count {
+                let src = src_addr.wrapping_add(i.wrapping_mul(12));
+                let dst = dst_addr.wrapping_add(i.wrapping_mul(stride));
+                let nx = runtime::mr32(mem, src);
+                let ny = runtime::mr32(mem, src.wrapping_add(4));
+                let nz = runtime::mr32(mem, src.wrapping_add(8));
+                runtime::mw32(mem, dst, nx);
+                runtime::mw32(mem, dst.wrapping_add(4), ny);
+                runtime::mw32(mem, dst.wrapping_add(8), nz);
+            }
+            let total = count.wrapping_mul(12);
+            c.r[0] = total;
+            c.r[3] = total;
+            return;
+        }
+    }
+
     let mut r0 = c.r[0]; let mut r1 = c.r[1]; let mut r2 = c.r[2]; let mut r3 = c.r[3]; let mut r4 = c.r[4]; let mut r5 = c.r[5]; let mut r6 = c.r[6]; let mut r7 = c.r[7]; let mut r8 = c.r[8]; let mut r9 = c.r[9]; let mut r10 = c.r[10]; let mut r11 = c.r[11]; let mut r12 = c.r[12]; let mut r29 = c.r[29]; let mut r30 = c.r[30]; let mut r31 = c.r[31]; 
     let mut f0 = c.f[0]; let mut f1 = c.f[1]; 
     let mut ps0 = c.ps1[0]; let mut ps1 = c.ps1[1]; 

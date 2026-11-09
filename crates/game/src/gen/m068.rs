@@ -3414,7 +3414,129 @@ pub fn fn_80334670(c: &mut Ctx) {
 
 // _rwGCNInstanceIndices
 pub fn fn_803347CC(c: &mut Ctx) {
+    let cur_idx_ptr_arg = c.r[3];
+    let base_idx_ptr = c.r[4];
+    let num_indices = c.r[5];
+    let is_strip = c.r[6];
+    let stride = c.r[7];
+    let idx_format = c.r[8];
+    let flag_r9 = c.r[9];
+    let dst_buf = c.r[10];
     let mem = c.mem;
+
+    if num_indices == 0 {
+        return;
+    }
+
+    if (base_idx_ptr >= 0x8000_0000 && base_idx_ptr < 0x8180_0000)
+        && (dst_buf >= 0x8000_0000 && dst_buf < 0x8180_0000)
+    {
+        if is_strip == 0 {
+            if idx_format == 2 {
+                for i in 0..num_indices {
+                    let idx = runtime::mr16(mem, base_idx_ptr.wrapping_add(i.wrapping_mul(2)));
+                    runtime::mw8(mem, dst_buf.wrapping_add(i.wrapping_mul(stride)), idx as u8);
+                }
+                return;
+            } else if idx_format == 3 {
+                for i in 0..num_indices {
+                    let idx = runtime::mr16(mem, base_idx_ptr.wrapping_add(i.wrapping_mul(2)));
+                    runtime::mw16(mem, dst_buf.wrapping_add(i.wrapping_mul(stride)), idx);
+                }
+                return;
+            }
+            return;
+        } else {
+            if (num_indices as i32) <= 2 {
+                return;
+            }
+            let num_triangles = num_indices.wrapping_sub(2);
+            let mut cur_idx_ptr = cur_idx_ptr_arg;
+            let mut cur_strip_len: u32 = 0;
+            let mut strip_count: u32 = 0;
+            let mut total_verts: u32 = 0;
+            let mut header_offset: u32 = 0;
+
+            for i in 0..num_triangles {
+                let v0 = runtime::mr16(mem, cur_idx_ptr) as u32;
+                let v1 = runtime::mr16(mem, cur_idx_ptr.wrapping_add(2)) as u32;
+                let v2 = runtime::mr16(mem, cur_idx_ptr.wrapping_add(4)) as u32;
+                let is_non_deg = (v0 != v1) && (v0 != v2) && (v1 != v2);
+
+                if is_non_deg {
+                    if cur_strip_len == 0 {
+                        if (i & 1) != 0 || flag_r9 != 0 {
+                            cur_strip_len = cur_strip_len.wrapping_add(1);
+                        } else {
+                            cur_strip_len = 2;
+                        }
+                    } else {
+                        cur_strip_len = cur_strip_len.wrapping_add(1);
+                    }
+                } else {
+                    if cur_strip_len != 0 {
+                        let should_flush = if flag_r9 != 0 || i >= num_indices.wrapping_sub(3) {
+                            true
+                        } else {
+                            let v3 = runtime::mr16(mem, cur_idx_ptr.wrapping_add(6)) as u32;
+                            let next_is_deg = (v1 == v2) || (v1 == v3) || (v2 == v3);
+                            if !next_is_deg {
+                                if ((i + 1) & 1) != 0 {
+                                    cur_strip_len = cur_strip_len.wrapping_add(1);
+                                    false
+                                } else {
+                                    true
+                                }
+                            } else {
+                                true
+                            }
+                        };
+
+                        if should_flush {
+                            let strip_verts = cur_strip_len.wrapping_add(2);
+                            let start_idx = i.wrapping_sub(cur_strip_len);
+                            let dst_base = dst_buf.wrapping_add(header_offset).wrapping_add(total_verts.wrapping_mul(stride));
+                            if idx_format == 2 {
+                                for k in 0..strip_verts {
+                                    let idx = runtime::mr16(mem, base_idx_ptr.wrapping_add(start_idx.wrapping_add(k).wrapping_mul(2)));
+                                    runtime::mw8(mem, dst_base.wrapping_add(k.wrapping_mul(stride)), idx as u8);
+                                }
+                            } else if idx_format == 3 {
+                                for k in 0..strip_verts {
+                                    let idx = runtime::mr16(mem, base_idx_ptr.wrapping_add(start_idx.wrapping_add(k).wrapping_mul(2)));
+                                    runtime::mw16(mem, dst_base.wrapping_add(k.wrapping_mul(stride)), idx);
+                                }
+                            }
+                            total_verts = total_verts.wrapping_add(strip_verts);
+                            header_offset = header_offset.wrapping_add(3);
+                            strip_count = strip_count.wrapping_add(1);
+                            cur_strip_len = 0;
+                        }
+                    }
+                }
+                cur_idx_ptr = cur_idx_ptr.wrapping_add(2);
+            }
+
+            if cur_strip_len != 0 {
+                let strip_verts = cur_strip_len.wrapping_add(2);
+                let start_idx = num_triangles.wrapping_sub(cur_strip_len);
+                let dst_base = dst_buf.wrapping_add(header_offset).wrapping_add(total_verts.wrapping_mul(stride));
+                if idx_format == 2 {
+                    for k in 0..strip_verts {
+                        let idx = runtime::mr16(mem, base_idx_ptr.wrapping_add(start_idx.wrapping_add(k).wrapping_mul(2)));
+                        runtime::mw8(mem, dst_base.wrapping_add(k.wrapping_mul(stride)), idx as u8);
+                    }
+                } else if idx_format == 3 {
+                    for k in 0..strip_verts {
+                        let idx = runtime::mr16(mem, base_idx_ptr.wrapping_add(start_idx.wrapping_add(k).wrapping_mul(2)));
+                        runtime::mw16(mem, dst_base.wrapping_add(k.wrapping_mul(stride)), idx);
+                    }
+                }
+            }
+            return;
+        }
+    }
+
     let mut r0 = c.r[0]; let mut r1 = c.r[1]; let mut r3 = c.r[3]; let mut r4 = c.r[4]; let mut r5 = c.r[5]; let mut r6 = c.r[6]; let mut r7 = c.r[7]; let mut r8 = c.r[8]; let mut r9 = c.r[9]; let mut r10 = c.r[10]; let mut r11 = c.r[11]; let mut r12 = c.r[12]; let mut r20 = c.r[20]; let mut r21 = c.r[21]; let mut r22 = c.r[22]; let mut r23 = c.r[23]; let mut r24 = c.r[24]; let mut r25 = c.r[25]; let mut r26 = c.r[26]; let mut r27 = c.r[27]; let mut r28 = c.r[28]; let mut r29 = c.r[29]; let mut r30 = c.r[30]; let mut r31 = c.r[31]; 
     let mut cr0 = c.cr[0]; 
     let mut ctr = c.ctr;
