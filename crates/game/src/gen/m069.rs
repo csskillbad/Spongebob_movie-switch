@@ -9307,7 +9307,42 @@ pub fn fn_803442C8(c: &mut Ctx) {
 
 // RwCameraFrustumTestSphere
 pub fn fn_80344384(c: &mut Ctx) {
+    let camera = c.r[3];
+    let sphere = c.r[4];
     let mem = c.mem;
+    if (camera >= 0x8000_0000 && camera < 0x817F_0000) && (sphere >= 0x8000_0000 && sphere < 0x817F_FFF0) {
+        let cx = f32::from_bits(runtime::mr32(mem, sphere));
+        let cy = f32::from_bits(runtime::mr32(mem, sphere + 4));
+        let cz = f32::from_bits(runtime::mr32(mem, sphere + 8));
+        let radius = f32::from_bits(runtime::mr32(mem, sphere + 12));
+        let neg_radius = -radius;
+
+        let mut result = 2u32; // rwSPHEREINSIDE
+        let mut plane_addr = camera + 0x94;
+        let mut outside = false;
+        for _ in 0..6 {
+            let nx = f32::from_bits(runtime::mr32(mem, plane_addr));
+            let ny = f32::from_bits(runtime::mr32(mem, plane_addr + 4));
+            let nz = f32::from_bits(runtime::mr32(mem, plane_addr + 8));
+            let dist = f32::from_bits(runtime::mr32(mem, plane_addr + 12));
+            plane_addr += 20;
+
+            let dot = cx * nx + cy * ny + cz * nz - dist;
+            if dot > radius {
+                outside = true;
+                break;
+            }
+            if dot > neg_radius {
+                result = 1; // rwSPHEREBOUNDARY
+            }
+        }
+        if outside {
+            c.r[3] = 0;
+            return;
+        }
+        c.r[3] = result;
+        return;
+    }
     let mut r0 = c.r[0]; let mut r3 = c.r[3]; let mut r4 = c.r[4]; let mut r5 = c.r[5]; 
     let mut f0 = c.f[0]; let mut f1 = c.f[1]; let mut f2 = c.f[2]; let mut f3 = c.f[3]; let mut f4 = c.f[4]; let mut f5 = c.f[5]; let mut f6 = c.f[6]; let mut f7 = c.f[7]; let mut f8 = c.f[8]; 
     let mut ps1 = c.ps1[1]; let mut ps2 = c.ps1[2]; let mut ps3 = c.ps1[3]; let mut ps4 = c.ps1[4]; let mut ps5 = c.ps1[5]; let mut ps6 = c.ps1[6]; let mut ps7 = c.ps1[7]; let mut ps8 = c.ps1[8]; 
