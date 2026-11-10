@@ -9,7 +9,6 @@ use alloc::sync::Arc;
 use alloc::vec;
 use alloc::vec::Vec;
 use hashbrown::{HashMap, HashSet};
-use runtime::Ctx;
 
 use crate::gl_renderer::{
     Draw, DrawState, EFB_HEIGHT, EFB_WIDTH, Flat, Frame, Geometry, PARAMS_FLOATS, RawVertex,
@@ -23,15 +22,6 @@ fn in_ram(addr: u32, len: usize) -> bool {
     let end = addr as u64 + len as u64;
     addr >= runtime::mem::RAM_BASE
         && end <= (runtime::mem::RAM_BASE + runtime::mem::RAM_SIZE) as u64
-}
-
-#[inline(always)]
-fn fifo_slice(c: &Ctx) -> &[u8] {
-    if c.fifo_len == 0 {
-        &[]
-    } else {
-        unsafe { core::slice::from_raw_parts(c.mem.add(0x0200_0000), c.fifo_len) }
-    }
 }
 
 /// Byte widths of position/normal/texcoord component formats: u8 s8 u16 s16 f32.
@@ -60,6 +50,15 @@ impl Mem {
     #[inline(always)]
     fn r8(self, addr: u32) -> u8 {
         unsafe { self.0.add((addr & 0x07FF_FFFF) as usize).read() }
+    }
+
+    #[inline(always)]
+    fn r32(self, addr: u32) -> u32 {
+        unsafe {
+            u32::from_be(
+                (self.0.add((addr & 0x07FF_FFFF) as usize) as *const u32).read_unaligned(),
+            )
+        }
     }
 
     #[inline(always)]
@@ -1080,7 +1079,7 @@ const BP_PE_TOKEN_INT: usize = 0x48;
 const BP_EFB_COPY: usize = 0x52;
 
 pub struct Gx {
-    pending: Vec<u8>,
+    pub pending: Vec<u8>,
     consumed: u64,
     limit: Option<u64>,
     break_signalled: bool,
@@ -1139,36 +1138,17 @@ pub struct Gx {
     list_vertices: Vec<RawVertex>,
     list_indices: Vec<u32>,
     hud: u32,
-    hud_marks: VecDeque<(u64, u32)>,
+    pub hud_marks: VecDeque<(u64, u32)>,
     hud_marked: u32,
     hud_widgets: u32,
+    ready_presents: VecDeque<PendingPresent>,
 }
 
-struct WorkerSlice {
-    jobs: *const VertexJob,
-    job_count: usize,
-    mem: Mem,
-    data: *const u8,
-    data_len: usize,
-    out_ptr: *mut core::mem::MaybeUninit<Vertex>,
-    extents_ptr: *mut (f32, f32),
-}
-
-extern "C" fn run_worker_jobs(arg: *mut core::ffi::c_void) {
-    let task = unsafe { &*(arg as *const WorkerSlice) };
-    let jobs = unsafe { core::slice::from_raw_parts(task.jobs, task.job_count) };
-    let data = unsafe { core::slice::from_raw_parts(task.data, task.data_len) };
-    let mut out_curr = task.out_ptr;
-    let mut ext_curr = task.extents_ptr;
-    for job in jobs {
-        let out_slice = unsafe { core::slice::from_raw_parts_mut(out_curr, job.count) };
-        let ext = job.run(task.mem, data, out_slice);
-        unsafe {
-            *ext_curr = ext;
-            out_curr = out_curr.add(job.count);
-            ext_curr = ext_curr.add(1);
-        }
-    }
+struct PendingPresent {
+    frame: Frame,
+    clear: Option<[f64; 4]>,
+    shown: [u32; 4],
+    frames: u64,
 }
 
 impl Gx {
@@ -1236,6 +1216,7 @@ impl Gx {
             hud_marks: VecDeque::with_capacity(64),
             hud_marked: 0,
             hud_widgets: 0,
+            ready_presents: VecDeque::with_capacity(2),
         }
     }
 
@@ -1253,7 +1234,7 @@ impl Gx {
         }
     }
 
-    fn map_texture(&mut self, c: &mut Ctx, map: usize) -> Option<(usize, SamplerKey, [f32; 2])> {
+    fn map_texture(&mut self, map: usize) -> Option<(usize, SamplerKey, [f32; 2])> {
         let reg = |low: usize, high: usize| {
             self.bp[if map < 4 { low + map } else { high + map - 4 }]
         };
@@ -1287,7 +1268,7 @@ impl Gx {
             return None;
         }
         // Zero-copy read directly from masked guest RAM!
-        let data = unsafe { Mem(c.mem).slice(address, size) };
+        let data = unsafe { self.mem.slice(address, size) };
 
         let (palette_base, palette_format) = (((tlut & 0x3FF) << 9) as usize, (tlut >> 10) & 3);
         let palette_end = (palette_base + texture::palette_entries(format) * 2).min(self.tmem.len());
@@ -1358,46 +1339,11 @@ impl Gx {
         let mut extents = Vec::with_capacity(jobs.len());
         unsafe { extents.set_len(jobs.len()) };
 
-        if jobs.len() >= 2 && total >= 64 {
-            let mid = jobs.len() / 2;
-            let worker_verts: usize = jobs[..mid].iter().map(|j| j.count).sum();
-
-            let worker_slice = WorkerSlice {
-                jobs: jobs.as_ptr(),
-                job_count: mid,
-                mem,
-                data: data.as_ptr(),
-                data_len: data.len(),
-                out_ptr: spare.as_mut_ptr(),
-                extents_ptr: extents.as_mut_ptr(),
-            };
-
-            unsafe {
-                crate::switch_dispatch_worker(run_worker_jobs, &worker_slice as *const _ as *mut _);
-            }
-
-            let mut out_curr = unsafe { spare.as_mut_ptr().add(worker_verts) };
-            let mut ext_curr = unsafe { extents.as_mut_ptr().add(mid) };
-            for job in &jobs[mid..] {
-                let out_slice = unsafe { core::slice::from_raw_parts_mut(out_curr, job.count) };
-                let ext = job.run(mem, data, out_slice);
-                unsafe {
-                    *ext_curr = ext;
-                    out_curr = out_curr.add(job.count);
-                    ext_curr = ext_curr.add(1);
-                }
-            }
-
-            unsafe {
-                crate::switch_wait_worker();
-            }
-        } else {
-            let mut spare_slice = spare;
-            for (idx, job) in jobs.iter().enumerate() {
-                let (out, rest) = core::mem::take(&mut spare_slice).split_at_mut(job.count);
-                spare_slice = rest;
-                extents[idx] = job.run(mem, data, out);
-            }
+        let mut spare_slice = spare;
+        for (idx, job) in jobs.iter().enumerate() {
+            let (out, rest) = core::mem::take(&mut spare_slice).split_at_mut(job.count);
+            spare_slice = rest;
+            extents[idx] = job.run(mem, data, out);
         }
         unsafe { vertices.set_len(vertices.len() + total) };
         self.frame.vertices = vertices;
@@ -1443,7 +1389,7 @@ impl Gx {
         self.template = None;
     }
 
-    fn build_template(&mut self, c: &mut Ctx) {
+    fn build_template(&mut self) {
         let material = match self.material {
             Some(material) => material,
             None => {
@@ -1486,7 +1432,7 @@ impl Gx {
                         let mut coord_bias = [[0.0f32; 2]; 8];
                         for (map, coord) in config.texture_uses() {
                             coord_used[coord] = true;
-                            if let Some((id, sampler, bias)) = self.map_texture(c, map) {
+                            if let Some((id, sampler, bias)) = self.map_texture(map) {
                                 textures[map] = id;
                                 samplers[map] = sampler;
                                 coord_bias[coord] = bias;
@@ -1680,10 +1626,10 @@ impl Gx {
         });
     }
 
-    fn draw(&mut self, op: u8, count: usize, data: &[u8], c: &mut Ctx) {
+    fn draw(&mut self, op: u8, count: usize, data: &[u8]) {
         self.draw_index += 1;
         if self.template.is_none() {
-            self.build_template(c);
+            self.build_template();
         }
         let mut template = self.template.take().expect("template built");
         self.draw_with(&mut template, op, count, data);
@@ -2053,7 +1999,7 @@ impl Gx {
         }
     }
 
-    fn cached_list(&mut self, addr: u32, size: usize, at: u64, c: &mut Ctx) -> bool {
+    fn cached_list(&mut self, addr: u32, size: usize, at: u64) -> bool {
         crate::STAT_CLIST_CALLS.fetch_add(1, core::sync::atomic::Ordering::Relaxed);
         while self.ahead.front().is_some_and(|ahead| ahead.0 < at) {
             if let Some((_, Ahead::Owned(_, vertices, indices))) = self.ahead.pop_front() {
@@ -2077,7 +2023,7 @@ impl Gx {
             return give_back(self, noted);
         }
         if self.template.is_none() {
-            self.build_template(c);
+            self.build_template();
         }
         let raw_ok = self
             .template
@@ -2156,78 +2102,6 @@ impl Gx {
         true
     }
 
-    pub fn look_ahead(&mut self, c: &Ctx) {
-        if self.renderer.is_none() {
-            return;
-        }
-        self.mem = Mem(c.mem);
-        if self.ahead_pos < self.consumed || self.ahead_bad {
-            self.ahead_pos = self.consumed;
-            self.ahead_cp.copy_from_slice(&self.cp);
-            self.ahead_sig = self.cp_sig;
-            self.ahead_bad = false;
-        }
-        let start = (self.ahead_pos - self.consumed) as usize;
-        let fifo = fifo_slice(c);
-        let mut data = core::mem::take(&mut self.ahead_data);
-        data.clear();
-        if start < self.pending.len() {
-            data.extend_from_slice(&self.pending[start..]);
-            data.extend_from_slice(fifo);
-        } else {
-            data.extend_from_slice(fifo.get(start - self.pending.len()..).unwrap_or(&[]));
-        }
-        if data.is_empty() {
-            self.ahead_data = data;
-            return;
-        }
-        core::mem::swap(&mut self.cp, &mut self.ahead_cp);
-        core::mem::swap(&mut self.cp_sig, &mut self.ahead_sig);
-        let mut i = 0;
-        while i < data.len() {
-            let rest = &data[i..];
-            let op = rest[0];
-            let need = match op {
-                0x00 | 0x48 => 1,
-                0x08 => 6,
-                0x10 if rest.len() >= 5 => 5 + 4 * ((be16(rest, 1) & 0xF) + 1),
-                0x20 | 0x28 | 0x30 | 0x38 | 0x61 => 5,
-                0x40 => 9,
-                0x80..=0xBF if rest.len() >= 3 => {
-                    3 + be16(rest, 1) * self.vertex_size((op & 7) as usize)
-                }
-                0x10 | 0x80..=0xBF => break,
-                _ => {
-                    self.ahead_bad = true;
-                    break;
-                }
-            };
-            if rest.len() < need {
-                break;
-            }
-            match op {
-                0x08 => {
-                    let (register, value) = (rest[1] as usize, be32(rest, 2));
-                    if self.cp[register] != value {
-                        self.cp[register] = value;
-                        self.cp_sig = None;
-                    }
-                }
-                0x40 => {
-                    let (addr, size) = (be32(rest, 1) | 0x8000_0000, be32(rest, 5));
-                    let ahead = self.resolve_list(addr, size as usize);
-                    self.ahead.push_back((self.ahead_pos + i as u64, ahead));
-                }
-                _ => {}
-            }
-            i += need;
-        }
-        core::mem::swap(&mut self.cp, &mut self.ahead_cp);
-        core::mem::swap(&mut self.cp_sig, &mut self.ahead_sig);
-        self.ahead_pos += i as u64;
-        self.ahead_data = data;
-    }
-
     pub fn cache_room_used(&self) -> u64 {
         self.renderer
             .as_ref()
@@ -2277,7 +2151,7 @@ impl Gx {
         size
     }
 
-    fn parse(&mut self, data: &[u8], c: &mut Ctx, depth: u32) -> usize {
+    fn parse(&mut self, data: &[u8], depth: u32) -> usize {
         let mut i = 0;
         while i < data.len() {
             if depth == 0 {
@@ -2390,10 +2264,10 @@ impl Gx {
                     let (addr, size) = (be32(rest, 1) | 0x8000_0000, be32(rest, 5));
                     self.stats.display_lists += 1;
                     let at = self.consumed + i as u64;
-                    if depth != 0 || !self.cached_list(addr, size as usize, at, c) {
+                    if depth != 0 || !self.cached_list(addr, size as usize, at) {
                         if in_ram(addr, size as usize) {
-                            let list = unsafe { Mem(c.mem).slice(addr, size as usize) };
-                            self.parse(list, c, depth + 1);
+                            let list = unsafe { self.mem.slice(addr, size as usize) };
+                            self.parse(list, depth + 1);
                         }
                     }
                     let dt = unsafe { crate::switch_now_ns().saturating_sub(t0) };
@@ -2403,10 +2277,10 @@ impl Gx {
                     let word = be32(rest, 1);
                     let reg = (word >> 24) as usize;
                     if reg == BP_EFB_COPY {
-                        self.bp_load(word, c);
+                        self.bp_load(word);
                     } else {
                         let t0 = unsafe { crate::switch_now_ns() };
-                        self.bp_load(word, c);
+                        self.bp_load(word);
                         let dt = unsafe { crate::switch_now_ns().saturating_sub(t0) };
                         crate::PERF_PARSE_BP_NS.fetch_add(dt, core::sync::atomic::Ordering::Relaxed);
                     }
@@ -2417,7 +2291,7 @@ impl Gx {
                     let vcnt = be16(rest, 1);
                     self.stats.vertices += vcnt as u32;
                     if self.renderer.is_some() {
-                        self.draw(op, vcnt, &rest[3..need], c);
+                        self.draw(op, vcnt, &rest[3..need]);
                     }
                     let dt = unsafe { crate::switch_now_ns().saturating_sub(t0) };
                     crate::PERF_PARSE_DIRECT_DRAW_NS.fetch_add(dt, core::sync::atomic::Ordering::Relaxed);
@@ -2429,7 +2303,7 @@ impl Gx {
         i
     }
 
-    fn bp_load(&mut self, word: u32, c: &mut Ctx) {
+    fn bp_load(&mut self, word: u32) {
         let reg = (word >> 24) as usize;
         let mask = if reg == 0xFE {
             0xFF_FFFF
@@ -2497,7 +2371,7 @@ impl Gx {
                     (((value >> 10) & 0x3FF) << 5) as usize,
                 );
                 if in_ram(source, len) && dest + len <= self.tmem.len() {
-                    let src_bytes = unsafe { Mem(c.mem).slice(source, len) };
+                    let src_bytes = unsafe { self.mem.slice(source, len) };
                     self.tmem[dest..dest + len].copy_from_slice(src_bytes);
                 }
                 if self.has_paletted_textures {
@@ -2556,6 +2430,9 @@ impl Gx {
     }
 
     fn copy_to_texture(&mut self, copy: u32) {
+        if !self.ready_presents.is_empty() {
+            self.flush_ready_presents();
+        }
         self.finish_vertices();
         let mut frame = core::mem::take(&mut self.frame);
         frame.flat.clear();
@@ -2664,55 +2541,27 @@ impl Gx {
             self.display_copies.push(to);
         }
 
-        let mut frame = core::mem::take(&mut self.frame);
+        let frame = core::mem::take(&mut self.frame);
         self.flat_started = false;
-        let widen = crate::aspect::widen();
-        if widen != 1.0 {
-            let mut widgets: HashMap<u32, (f32, f32)> = HashMap::new();
-            for flat in frame.flat.iter().filter(|flat| flat.hud != 0) {
-                let extent = widgets.entry(flat.hud).or_insert((f32::MAX, f32::MIN));
-                *extent = (extent.0.min(flat.extent.0), extent.1.max(flat.extent.1));
-            }
-            let margin = 1.0 - 1.0 / widen;
-            for flat in &frame.flat {
-                let side = match widgets.get(&flat.hud) {
-                    Some(&(_, right)) if right < 0.0 => -margin,
-                    Some(&(left, _)) if left > 0.0 => margin,
-                    _ => 0.0,
-                };
-                for vertex in &mut frame.vertices[flat.from as usize..flat.to as usize] {
-                    match flat.origin {
-                        None => vertex.pos[0] /= widen,
-                        Some(centre) => {
-                            for (at, origin) in vertex.pos.iter_mut().zip(centre) {
-                                *at = origin + (*at - origin) / widen;
-                            }
-                            vertex.pos[0] -= centre[0] / centre[3] * margin * vertex.pos[3];
-                        }
-                    }
-                    vertex.pos[0] += side * vertex.pos[3];
-                }
-            }
-            for (offset, centre) in core::mem::take(&mut frame.raw_flat) {
-                frame.place_again(offset, 1.0 / widen, -centre[0] / centre[3] * margin);
-            }
-        }
-
-        if let Some(renderer) = &mut self.renderer {
-            let (xy, wh) = (self.bp[0x49], self.bp[0x4A]);
-            let shown = [
-                xy & 0x3FF,
-                (xy >> 10) & 0x3FF,
-                (wh & 0x3FF) + 1,
-                ((wh >> 10) & 0x3FF) + 1,
-            ];
-            renderer.present(&frame, self.clear, shown, self.frames);
-        }
-
-        frame.clear();
-        self.frame = frame;
+        let cur_clear = self.clear.take();
+        let (xy, wh) = (self.bp[0x49], self.bp[0x4A]);
+        let shown = [
+            xy & 0x3FF,
+            (xy >> 10) & 0x3FF,
+            (wh & 0x3FF) + 1,
+            ((wh >> 10) & 0x3FF) + 1,
+        ];
+        self.ready_presents.push_back(PendingPresent {
+            frame,
+            clear: cur_clear,
+            shown,
+            frames: self.frames,
+        });
 
         if core::mem::take(&mut self.cache_full) {
+            if !self.ready_presents.is_empty() {
+                self.flush_ready_presents();
+            }
             self.shapes.clear();
             self.checks.clear();
             self.places.clear();
@@ -2730,7 +2579,6 @@ impl Gx {
         }
 
         let rect = self.copy_source();
-        self.clear = None;
         if copy & (1 << 11) != 0 {
             if self.write_masks() == (true, true, true) {
                 self.clear = Some(self.clear_color());
@@ -2745,65 +2593,115 @@ impl Gx {
         crate::STAT_COPY_DISPLAY_COUNT.fetch_add(1, core::sync::atomic::Ordering::Relaxed);
     }
 
-    #[inline(always)]
-    pub fn has_pending(&self, c: &Ctx) -> bool {
-        c.fifo_len != 0 || !self.pending.is_empty()
+    pub fn has_ready_presents(&self) -> bool {
+        !self.ready_presents.is_empty()
     }
 
-    pub fn process(&mut self, c: &mut Ctx) {
-        let mut data = core::mem::take(&mut self.pending);
-        if c.fifo_len != 0 {
-            data.extend_from_slice(fifo_slice(c));
-            c.fifo_len = 0;
+    /// Runs HUD widescreen anchoring and GL pass encoding/presentation AFTER Core 1 has already
+    /// been woken to advance to the next game frame (pure host RAM/VRAM work, zero guest RAM reads).
+    pub fn flush_ready_presents(&mut self) {
+        if self.ready_presents.is_empty() {
+            return;
         }
+        let t0 = unsafe { crate::switch_now_ns() };
+        let widen = crate::aspect::widen();
+        while let Some(PendingPresent { mut frame, clear, shown, frames }) = self.ready_presents.pop_front() {
+            if widen != 1.0 {
+                let mut widgets: HashMap<u32, (f32, f32)> = HashMap::new();
+                for flat in frame.flat.iter().filter(|flat| flat.hud != 0) {
+                    let extent = widgets.entry(flat.hud).or_insert((f32::MAX, f32::MIN));
+                    *extent = (extent.0.min(flat.extent.0), extent.1.max(flat.extent.1));
+                }
+                let margin = 1.0 - 1.0 / widen;
+                for flat in &frame.flat {
+                    let side = match widgets.get(&flat.hud) {
+                        Some(&(_, right)) if right < 0.0 => -margin,
+                        Some(&(left, _)) if left > 0.0 => margin,
+                        _ => 0.0,
+                    };
+                    for vertex in &mut frame.vertices[flat.from as usize..flat.to as usize] {
+                        match flat.origin {
+                            None => vertex.pos[0] /= widen,
+                            Some(centre) => {
+                                for (at, origin) in vertex.pos.iter_mut().zip(centre) {
+                                    *at = origin + (*at - origin) / widen;
+                                }
+                                vertex.pos[0] -= centre[0] / centre[3] * margin * vertex.pos[3];
+                            }
+                        }
+                        vertex.pos[0] += side * vertex.pos[3];
+                    }
+                }
+                for (offset, centre) in core::mem::take(&mut frame.raw_flat) {
+                    frame.place_again(offset, 1.0 / widen, -centre[0] / centre[3] * margin);
+                }
+            }
+
+            if let Some(renderer) = &mut self.renderer {
+                renderer.present(&frame, clear, shown, frames);
+            }
+
+            frame.clear();
+            if self.frame.vertices.is_empty()
+                && self.frame.raw.is_empty()
+                && self.frame.draws.is_empty()
+                && self.frame.vertices.capacity() < frame.vertices.capacity()
+            {
+                self.frame = frame;
+            }
+        }
+        let dt = unsafe { crate::switch_now_ns().saturating_sub(t0) };
+        crate::PERF_COPY_DISPLAY_NS.fetch_add(dt, core::sync::atomic::Ordering::Relaxed);
+    }
+
+    #[inline(always)]
+    pub fn has_pending_local(&self) -> bool {
+        !self.pending.is_empty()
+    }
+
+    pub fn process_chunk(&mut self, guest_mem: *const u8, chunk: &[u8]) {
+        self.mem = Mem(guest_mem);
+        let mut data = core::mem::take(&mut self.pending);
+        let mut combined_owned = false;
+        let slice: &[u8] = if data.is_empty() {
+            chunk
+        } else {
+            data.extend_from_slice(chunk);
+            combined_owned = true;
+            &data
+        };
         let allowed = match self.limit {
-            Some(limit) => (limit.saturating_sub(self.consumed) as usize).min(data.len()),
-            None => data.len(),
+            Some(limit) => (limit.saturating_sub(self.consumed) as usize).min(slice.len()),
+            None => slice.len(),
         };
         if allowed > 0 {
-            self.mem = Mem(c.mem);
             let t0 = unsafe { crate::switch_now_ns() };
-            let used = self.parse(&data[..allowed], c, 0);
+            let used = self.parse(&slice[..allowed], 0);
             self.finish_vertices();
             let dt = unsafe { crate::switch_now_ns().saturating_sub(t0) };
             crate::PERF_PARSE_NS.fetch_add(dt, core::sync::atomic::Ordering::Relaxed);
-            data.drain(..used);
+            if combined_owned {
+                data.drain(..used);
+                self.pending = data;
+            } else if used < slice.len() {
+                self.pending.extend_from_slice(&slice[used..]);
+            }
             self.consumed += used as u64;
+        } else if combined_owned {
+            self.pending = data;
+        } else if !chunk.is_empty() {
+            self.pending.extend_from_slice(chunk);
         }
-        self.pending = data;
         if self.limit == Some(self.consumed) && !self.break_signalled {
             self.break_signalled = true;
             self.raised.push(Raised::Break);
         }
     }
 
-    pub fn absorb(&mut self, c: &mut Ctx) {
-        if c.fifo_len != 0 {
-            self.pending.extend_from_slice(fifo_slice(c));
-            c.fifo_len = 0;
-        }
-    }
-
-    pub fn mark_hud(&mut self, c: &Ctx, widget: bool) {
-        if !widget && self.hud_marked == 0 {
-            return;
-        }
-        if widget {
-            self.hud_widgets = self.hud_widgets % 0xFFFF + 1;
-        }
-        self.hud_marked = if widget { self.hud_widgets } else { 0 };
-        self.hud_marks.push_back((self.written(c), self.hud_marked));
-    }
-
-    #[inline(always)]
-    fn written(&self, c: &Ctx) -> u64 {
-        self.consumed + (self.pending.len() + c.fifo_len) as u64
-    }
-
-    fn fifo_range(c: &Ctx) -> (u32, u64) {
+    fn fifo_range(&self) -> (u32, u64) {
         let (base, top) = (
-            c.r32(0xCC00_300C) & 0x03FF_FFE0,
-            c.r32(0xCC00_3010) & 0x03FF_FFE0,
+            self.mem.r32(0xCC00_300C) & 0x03FF_FFE0,
+            self.mem.r32(0xCC00_3010) & 0x03FF_FFE0,
         );
         if top > base {
             (base | 0x8000_0000, (top - base + 4) as u64)
@@ -2812,10 +2710,11 @@ impl Gx {
         }
     }
 
-    pub fn fifo_ptrs(&mut self, c: &Ctx) -> (u32, u32) {
-        let (base, size) = Self::fifo_range(c);
+    pub fn fifo_ptrs(&mut self, guest_mem: *const u8) -> (u32, u32) {
+        self.mem = Mem(guest_mem);
+        let (base, size) = self.fifo_range();
         let at = |pos: u64| base + (pos % size) as u32;
-        let written = self.written(c);
+        let written = self.consumed + self.pending.len() as u64;
         if self.marks.len() == 64 {
             self.marks.remove(0);
         }
@@ -2823,7 +2722,9 @@ impl Gx {
         (at(self.consumed), at(written))
     }
 
-    pub fn set_breakpoint(&mut self, c: &Ctx, addr: u32) {
+    pub fn set_breakpoint(&mut self, guest_mem: *const u8, addr: u32) {
+        self.mem = Mem(guest_mem);
+        let written = self.consumed + self.pending.len() as u64;
         let known = self
             .marks
             .iter()
@@ -2831,8 +2732,7 @@ impl Gx {
             .map(|m| m.1)
             .min();
         let limit = known.unwrap_or_else(|| {
-            let (base, size) = Self::fifo_range(c);
-            let written = self.written(c);
+            let (base, size) = self.fifo_range();
             let behind = (written + size - (addr.wrapping_sub(base) as u64 % size)) % size;
             written - behind.min(written)
         });

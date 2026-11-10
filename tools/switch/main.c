@@ -76,7 +76,10 @@ uint32_t switch_is_docked_mode(void) {
     return s_is_docked;
 }
 
+void switch_stop_gx_worker(void);
+
 void switch_exit_guest_thread(void) {
+    switch_stop_gx_worker();
     switch_gl_shutdown();
     threadExit();
 }
@@ -203,7 +206,7 @@ static void guest_thread_fn(void* arg) {
     (void)arg;
     s_thread_index = 0;
     s_is_worker = false;
-    switch_log("[switch] Guest engine & OpenGL 4.3 GPU thread started on dedicated Core 1!");
+    switch_log("[switch] Dedicated Core 1 Game Engine thread started!");
     tssm_switch_guest_main();
     switch_log("[switch] Guest thread finished.");
 }
@@ -287,82 +290,72 @@ int switch_create_worker_thread(
     return 0;
 }
 
-// Dedicated Core 2 background vertex transformation worker
-static Thread  s_vertex_worker;
-static Mutex   s_vw_mutex;
-static CondVar s_vw_cond_work;
-static CondVar s_vw_cond_done;
-static void (*s_vw_fn)(void*) = NULL;
-static void*  s_vw_arg = NULL;
-static bool   s_vw_busy = false;
-static bool   s_vw_exit = false;
-static bool   s_vw_initialized = false;
+// Dedicated Core 0 GX Graphics Frontend Worker Thread (FIFO Parser, Display Lists, Textures, Passes)
+static Thread  s_gx_worker;
+static Mutex   s_gx_mutex;
+static Mutex   s_gx_stop_mutex;
+static CondVar s_gx_cond_work;
+static CondVar s_gx_cond_done;
+static bool    s_gx_worker_started = false;
+static void  (*s_gx_entry)(void*) = NULL;
+static void*   s_gx_arg = NULL;
 
-static void vertex_worker_entry(void* arg) {
+static void gx_worker_trampoline(void* arg) {
     (void)arg;
-    mutexLock(&s_vw_mutex);
-    while (!s_vw_exit) {
-        while (!s_vw_busy && !s_vw_exit) {
-            condvarWait(&s_vw_cond_work, &s_vw_mutex);
-        }
-        if (s_vw_exit) break;
-        void (*fn)(void*) = s_vw_fn;
-        void* task_arg = s_vw_arg;
-        mutexUnlock(&s_vw_mutex);
-
-        if (fn) {
-            fn(task_arg);
-        }
-
-        mutexLock(&s_vw_mutex);
-        s_vw_busy = false;
-        s_vw_fn = NULL;
-        s_vw_arg = NULL;
-        condvarWakeOne(&s_vw_cond_done);
+    if (s_gx_entry) {
+        s_gx_entry(s_gx_arg);
     }
-    mutexUnlock(&s_vw_mutex);
 }
 
-void switch_init_vertex_worker(void) {
-    mutexInit(&s_vw_mutex);
-    condvarInit(&s_vw_cond_work);
-    condvarInit(&s_vw_cond_done);
-    s_vw_busy = false;
-    s_vw_exit = false;
-    Result rc = threadCreate(&s_vertex_worker, vertex_worker_entry, NULL, NULL, 2u * 1024u * 1024u, 0x2C, 0);
+int switch_start_gx_worker(void (*entry)(void*), void* arg) {
+    mutexInit(&s_gx_mutex);
+    mutexInit(&s_gx_stop_mutex);
+    condvarInit(&s_gx_cond_work);
+    condvarInit(&s_gx_cond_done);
+    s_gx_entry = entry;
+    s_gx_arg = arg;
+    Result rc = threadCreate(&s_gx_worker, gx_worker_trampoline, NULL, NULL, 4u * 1024u * 1024u, 0x2C, 0);
     if (R_FAILED(rc)) {
-        rc = threadCreate(&s_vertex_worker, vertex_worker_entry, NULL, NULL, 2u * 1024u * 1024u, 0x2C, -2);
+        rc = threadCreate(&s_gx_worker, gx_worker_trampoline, NULL, NULL, 4u * 1024u * 1024u, 0x2C, -2);
     }
     if (R_SUCCEEDED(rc)) {
-        threadStart(&s_vertex_worker);
-        s_vw_initialized = true;
-        switch_log("[switch] Dedicated Core 0 vertex worker thread initialized.");
-    } else {
-        switch_log("[switch] Warning: failed to spawn Core 0 vertex worker thread.");
+        s_gx_worker_started = true;
+        threadStart(&s_gx_worker);
+        switch_log("[switch] Dedicated Core 0 GX Frontend worker thread started!");
+        return 0;
     }
+    switch_log("[switch] Fatal: failed to spawn Core 0 GX Frontend worker thread.");
+    return -1;
 }
+
+void switch_stop_gx_worker(void) {
+    mutexLock(&s_gx_stop_mutex);
+    if (s_gx_worker_started) {
+        s_gx_worker_started = false;
+        mutexLock(&s_gx_mutex);
+        condvarWakeAll(&s_gx_cond_work);
+        condvarWakeAll(&s_gx_cond_done);
+        mutexUnlock(&s_gx_mutex);
+        threadWaitForExit(&s_gx_worker);
+        threadClose(&s_gx_worker);
+    }
+    mutexUnlock(&s_gx_stop_mutex);
+}
+
+void switch_gx_lock(void)      { mutexLock(&s_gx_mutex); }
+void switch_gx_unlock(void)    { mutexUnlock(&s_gx_mutex); }
+void switch_gx_wait_work(void) { condvarWait(&s_gx_cond_work, &s_gx_mutex); }
+void switch_gx_wake_work(void) { condvarWakeAll(&s_gx_cond_work); }
+void switch_gx_wait_done(void) { condvarWait(&s_gx_cond_done, &s_gx_mutex); }
+void switch_gx_wake_done(void) { condvarWakeAll(&s_gx_cond_done); }
+
+void switch_init_vertex_worker(void) {}
 
 void switch_dispatch_worker(void (*fn)(void*), void* arg) {
-    if (!s_vw_initialized) {
-        if (fn) fn(arg);
-        return;
-    }
-    mutexLock(&s_vw_mutex);
-    s_vw_fn = fn;
-    s_vw_arg = arg;
-    s_vw_busy = true;
-    condvarWakeOne(&s_vw_cond_work);
-    mutexUnlock(&s_vw_mutex);
+    if (fn) fn(arg);
 }
 
-void switch_wait_worker(void) {
-    if (!s_vw_initialized) return;
-    mutexLock(&s_vw_mutex);
-    while (s_vw_busy) {
-        condvarWait(&s_vw_cond_done, &s_vw_mutex);
-    }
-    mutexUnlock(&s_vw_mutex);
-}
+void switch_wait_worker(void) {}
 
 // Allocate GameCube 128 MB guest address space (24 MB RAM + branchless WGPIPE FIFO & MMIO window)
 void* switch_alloc_guest_memory(void) {
@@ -515,8 +508,7 @@ int main(int argc, char* argv[]) {
     }
     tssm_switch_set_fps_enabled(show_fps ? 1 : 0);
 
-    // 5. Initialize Core 2 vertex worker and launch GameCube guest engine on dedicated Core 1
-    switch_init_vertex_worker();
+    // 5. Launch GameCube guest engine on dedicated Core 1 (spawns Core 0 GX worker & Core 2 GL renderer)
     size_t stack_size = 8u * 1024u * 1024u;
     Result trc = threadCreate(&g_guest_thread, guest_thread_fn, NULL, NULL, stack_size, 0x2C, 1);
     if (R_FAILED(trc)) {
@@ -651,18 +643,15 @@ int main(int argc, char* argv[]) {
 
     // 7. Clean shutdown
     tssm_switch_request_exit();
+    switch_gx_lock();
+    switch_gx_wake_work();
+    switch_gx_wake_done();
+    switch_gx_unlock();
     threadWaitForExit(&g_guest_thread);
     threadClose(&g_guest_thread);
     reap_finished_threads();
-    if (s_vw_initialized) {
-        mutexLock(&s_vw_mutex);
-        s_vw_exit = true;
-        condvarWakeOne(&s_vw_cond_work);
-        mutexUnlock(&s_vw_mutex);
-        threadWaitForExit(&s_vertex_worker);
-        threadClose(&s_vertex_worker);
-        s_vw_initialized = false;
-    }
+    switch_stop_gx_worker();
+    switch_gl_shutdown();
 
     if (audio_dev > 0) {
         SDL_CloseAudioDevice(audio_dev);

@@ -26,11 +26,6 @@ mod gx_gpu;
 mod tev_gl;
 mod texture;
 
-use gl_renderer::Renderer;
-use gx_gpu::{Gx, Raised};
-
-static mut GX_STATE: Option<Gx> = None;
-
 extern "C" {
     fn malloc(size: usize) -> *mut u8;
     fn free(ptr: *mut u8);
@@ -59,11 +54,14 @@ extern "C" {
         index: u32,
         stack_size: u32,
     ) -> i32;
-    pub(crate) fn switch_dispatch_worker(
-        entry: extern "C" fn(*mut c_void),
-        arg: *mut c_void,
-    );
-    pub(crate) fn switch_wait_worker();
+    fn switch_start_gx_worker(entry: extern "C" fn(*mut c_void), arg: *mut c_void) -> i32;
+    fn switch_stop_gx_worker();
+    fn switch_gx_lock();
+    fn switch_gx_unlock();
+    fn switch_gx_wait_work();
+    fn switch_gx_wake_work();
+    fn switch_gx_wait_done();
+    fn switch_gx_wake_done();
     fn switch_gl_shutdown();
     fn switch_gl_get_perf_stats(
         out_ring_upload_ns: *mut u64,
@@ -211,6 +209,7 @@ fn update_next_due() {
 
 // Low-overhead performance accumulators (nanoseconds)
 pub static PERF_GX_NS: AtomicU64 = AtomicU64::new(0);
+pub static PERF_GX_WAIT_NS: AtomicU64 = AtomicU64::new(0);
 pub static PERF_AUDIO_NS: AtomicU64 = AtomicU64::new(0);
 pub static PERF_SLEEP_NS: AtomicU64 = AtomicU64::new(0);
 pub static PERF_PARSE_NS: AtomicU64 = AtomicU64::new(0);
@@ -264,7 +263,7 @@ const AUDIO_INTERVAL: u64 = 202_500;   // 40.5 MHz / 200.000 Hz (5.0000 ms)
 fn check_exit(c: &mut Ctx) {
     if EXIT_REQUESTED.load(Ordering::Relaxed) {
         if unsafe { switch_get_thread_index() } == 0 {
-            log_c("[switch] Exit requested: shutting down OpenGL on Core 1 and exiting guest thread.");
+            log_c("[switch] Exit requested: stopping Core 0 GX & Core 2 OpenGL and exiting guest thread.");
             unsafe {
                 switch_exit_guest_thread();
             }
@@ -302,9 +301,9 @@ fn check_warp(c: &mut Ctx) {
 // ---- Cooperative Single-Baton Guest Thread Scheduler (ported from crates/tssm/src/sched.rs) ----
 //
 // Exactly ONE guest thread runs at a time, matching the GameCube's single PowerPC Gekko core.
-// Non-running threads sleep on a Horizon OS CondVar (~0.00% CPU). Core 1 (`index == 0`) owns
-// the EGL/OpenGL 4.3 context permanently; whenever all threads are blocked (`idle`) or a
-// background loading thread flushes GX commands, Core 1 executes the OpenGL work directly.
+// Non-running threads sleep on a Horizon OS CondVar (~0.00% CPU). Core 0 owns the GX Frontend
+// (`Gx`), Core 2 owns the OpenGL 4.3 hardware renderer (`s_gl_thread`), and Core 1 runs the
+// guest game engine loop and streams GX FIFO buffers to Core 0.
 mod sched {
     use alloc::boxed::Box;
     use alloc::format;
@@ -315,7 +314,7 @@ mod sched {
     use runtime::Ctx;
 
     use super::{
-        absorb_gx, check_exit, gx_process_core1_only, idle, switch_create_worker_thread,
+        absorb_gx, check_exit, idle, switch_create_worker_thread,
         switch_exit_guest_thread, switch_exit_worker_thread, switch_get_thread_index,
         switch_set_thread_index, switch_sched_lock, switch_sched_unlock, switch_sched_wait,
         switch_sched_wake_all, EXIT_REQUESTED, IN_HANDLER, INTERRUPTS_ENABLED,
@@ -342,7 +341,6 @@ mod sched {
     struct Sched {
         threads: Vec<Thread>,
         current: usize,
-        gl_request: bool,
     }
 
     static mut SCHED: Option<Sched> = None;
@@ -377,7 +375,6 @@ mod sched {
         SCHED.get_or_insert_with(|| Sched {
             threads: Vec::with_capacity(8),
             current: 0,
-            gl_request: false,
         })
     }
 
@@ -473,36 +470,10 @@ mod sched {
     }
 
     /// Waits with `sched` lock held until `s.current == caller`.
-    /// While `caller == 0` (Core 1) is parked waiting for a worker thread, it services any
-    /// synchronous OpenGL flush requests (`gl_request`) on Core 1's EGLContext.
-    fn wait_until_turn(c: &mut Ctx, caller: usize) {
+    fn wait_until_turn(caller: usize) {
         while unsafe { state().current } != caller && !EXIT_REQUESTED.load(Ordering::Relaxed) {
-            if caller == 0 && unsafe { state().gl_request } {
-                unlock();
-                gx_process_core1_only(c);
-                lock();
-                unsafe {
-                    state().gl_request = false;
-                }
-                wake_all();
-                continue;
-            }
             wait_cond();
         }
-    }
-
-    /// Called by a worker thread (`me() != 0`) while holding the baton to execute `gx.process`
-    /// on Core 1 (`me() == 0`), where the EGLContext is permanently bound.
-    pub fn request_gl_flush_on_core1() {
-        lock();
-        unsafe {
-            state().gl_request = true;
-        }
-        wake_all();
-        while unsafe { state().gl_request } && !EXIT_REQUESTED.load(Ordering::Relaxed) {
-            wait_cond();
-        }
-        unlock();
     }
 
     pub fn reschedule(c: &mut Ctx, yielding: bool) {
@@ -533,21 +504,21 @@ mod sched {
                         update_best_ready_prio(state());
                     }
                     wake_all();
-                    wait_until_turn(c, caller);
+                    wait_until_turn(caller);
                     update_best_ready_prio(unsafe { state() });
                     unlock();
                     yielding = false;
                 }
                 None => {
                     if caller != 0 {
-                        // Hand idle duty to Core 1 (thread 0) so OpenGL & VI retrace callbacks
-                        // execute natively on Core 1.
+                        // Hand idle duty to Core 1 (thread 0) so timers & VI retrace callbacks
+                        // run on the main guest thread.
                         unsafe {
                             state().current = 0;
                             update_best_ready_prio(state());
                         }
                         wake_all();
-                        wait_until_turn(c, caller);
+                        wait_until_turn(caller);
                         update_best_ready_prio(unsafe { state() });
                         unlock();
                         yielding = false;
@@ -1175,36 +1146,149 @@ fn next_alarm_due() -> u64 {
     due
 }
 
-#[inline(always)]
-fn absorb_gx(c: &mut Ctx) {
-    if c.fifo_len != 0 {
-        #[allow(static_mut_refs)]
-        unsafe {
-            if let Some(gx) = GX_STATE.as_mut() {
-                gx.absorb(c);
-            }
-        }
-    }
-}
+mod gx_worker {
+    use alloc::collections::VecDeque;
+    use alloc::vec::Vec;
+    use core::ffi::c_void;
+    use core::sync::atomic::Ordering;
+    use runtime::Ctx;
 
-/// Runs `Gx::process` directly on Core 1 (`sched::me() == 0`).
-fn gx_process_core1_only(c: &mut Ctx) {
-    #[allow(static_mut_refs)]
-    unsafe {
-        if let Some(gx) = GX_STATE.as_ref() {
-            if !gx.has_pending(c) {
-                return;
-            }
-        }
+    use crate::gl_renderer::Renderer;
+    use crate::gx_gpu::{FrameStats, Gx, Raised};
+    use crate::{
+        push_event, switch_gx_lock, switch_gx_unlock, switch_gx_wait_done, switch_gx_wait_work,
+        switch_gx_wake_done, switch_gx_wake_work, switch_now_ns, switch_start_gx_worker, Event,
+        EXIT_REQUESTED, FRAME_COUNT, GUEST_MEM_PTR, PERF_GX_NS, PERF_GX_WAIT_NS,
+    };
+
+    #[derive(Clone, Copy)]
+    pub enum CtrlCmd {
+        ResetCache,
+        EnableBreakPt(u32),
+        DisableBreakPt,
+        QueryFifoPtrs,
     }
-    let t0 = unsafe { switch_now_ns() };
+
+    struct Shared {
+        initialized: bool,
+        staging: Vec<u8>,
+        hud_marks: VecDeque<(u64, u32)>,
+        cmds: VecDeque<CtrlCmd>,
+        written_bytes: u64,
+        written_seq: u64,
+        completed_ram_seq: u64,
+        completed_full_seq: u64,
+        token: u16,
+        frames: u64,
+        last_stats: FrameStats,
+        cache_used: u64,
+        made: (u32, u32, u32, u64),
+        fifo_ptrs: (u32, u32),
+        hud_widgets: u32,
+        hud_marked: u32,
+    }
+
+    static mut SHARED: Option<Shared> = None;
+
+    #[inline(always)]
     #[allow(static_mut_refs)]
-    unsafe {
-        if let Some(gx) = GX_STATE.as_mut() {
-            gx.process(c);
+    unsafe fn shared() -> &'static mut Shared {
+        SHARED.as_mut().expect("gx_worker::SHARED initialized")
+    }
+
+    extern "C" fn worker_entry(_arg: *mut c_void) {
+        let mut gx = Gx::new();
+        gx.renderer = Some(Renderer::new());
+
+        unsafe {
+            switch_gx_lock();
+            shared().initialized = true;
+            switch_gx_wake_done();
+            switch_gx_unlock();
+        }
+
+        let mut work_buf: Vec<u8> = Vec::with_capacity(256 * 1024);
+        let mut work_hud: VecDeque<(u64, u32)> = VecDeque::with_capacity(64);
+        let mut work_cmds: VecDeque<CtrlCmd> = VecDeque::with_capacity(16);
+
+        loop {
+            unsafe {
+                switch_gx_lock();
+            }
+            loop {
+                if EXIT_REQUESTED.load(Ordering::Relaxed) {
+                    unsafe {
+                        switch_gx_unlock();
+                    }
+                    return;
+                }
+                let s = unsafe { shared() };
+                if !s.staging.is_empty()
+                    || !s.cmds.is_empty()
+                    || !s.hud_marks.is_empty()
+                    || gx.has_ready_presents()
+                {
+                    break;
+                }
+                unsafe {
+                    switch_gx_wait_work();
+                }
+            }
+
+            let s = unsafe { shared() };
+            core::mem::swap(&mut s.staging, &mut work_buf);
+            while let Some(hm) = s.hud_marks.pop_front() {
+                work_hud.push_back(hm);
+            }
+            while let Some(cmd) = s.cmds.pop_front() {
+                work_cmds.push_back(cmd);
+            }
+            let seq_at_pickup = s.written_seq;
+            unsafe {
+                switch_gx_unlock();
+            }
+
+            let guest_mem = GUEST_MEM_PTR.load(Ordering::Relaxed) as *const u8;
+            let t0 = unsafe { switch_now_ns() };
+
+            while let Some(hm) = work_hud.pop_front() {
+                gx.hud_marks.push_back(hm);
+            }
+
+            let mut need_reset_after = false;
+            if !work_cmds.is_empty() && !work_buf.is_empty() {
+                gx.pending.extend_from_slice(&work_buf);
+                work_buf.clear();
+            }
+            while let Some(cmd) = work_cmds.pop_front() {
+                match cmd {
+                    CtrlCmd::ResetCache => need_reset_after = true,
+                    CtrlCmd::EnableBreakPt(addr) => gx.set_breakpoint(guest_mem, addr),
+                    CtrlCmd::DisableBreakPt => gx.clear_breakpoint(),
+                    CtrlCmd::QueryFifoPtrs => {
+                        let ptrs = gx.fifo_ptrs(guest_mem);
+                        unsafe {
+                            switch_gx_lock();
+                            shared().fifo_ptrs = ptrs;
+                            switch_gx_unlock();
+                        }
+                    }
+                }
+            }
+
+            if !work_buf.is_empty() || gx.has_pending_local() {
+                gx.process_chunk(guest_mem, &work_buf);
+                work_buf.clear();
+            }
+
+            if need_reset_after {
+                gx.reset_cache();
+            }
+
             gx.display_copies.clear();
             gx.copied_to_display = false;
             FRAME_COUNT.store(gx.frames as u32, Ordering::Relaxed);
+
             for raised in gx.raised.drain(..) {
                 push_event(match raised {
                     Raised::Token(token) => Event::GxToken(token),
@@ -1212,22 +1296,217 @@ fn gx_process_core1_only(c: &mut Ctx) {
                     Raised::Finish => Event::GxFinish,
                 });
             }
+
+            let frames = gx.frames;
+            let last_stats = gx.last_stats;
+            let cache_used = gx.cache_room_used();
+            let token = gx.token;
+
+            // Wake Core 1 immediately once all guest RAM reads and raised tokens for seq_at_pickup complete!
+            unsafe {
+                switch_gx_lock();
+                let s = shared();
+                s.frames = frames;
+                s.last_stats = last_stats;
+                s.cache_used = cache_used;
+                s.token = token;
+                if s.completed_ram_seq < seq_at_pickup {
+                    s.completed_ram_seq = seq_at_pickup;
+                }
+                if !gx.has_ready_presents() && s.completed_full_seq < seq_at_pickup {
+                    s.completed_full_seq = seq_at_pickup;
+                }
+                switch_gx_wake_done();
+                switch_gx_unlock();
+            }
+
+            // Finish pure-host HUD widescreen adjustment and pass encoding to Core 2 GL backend
+            // concurrently while Core 1 simulates the next game frame!
+            if gx.has_ready_presents() {
+                gx.flush_ready_presents();
+            }
+
+            let made_delta = gx
+                .renderer
+                .as_mut()
+                .map_or((0, 0, 0, 0), |r| core::mem::take(&mut r.made));
+            let cache_used_after = gx.cache_room_used();
+            let dt = unsafe { switch_now_ns().saturating_sub(t0) };
+            PERF_GX_NS.fetch_add(dt, Ordering::Relaxed);
+
+            unsafe {
+                switch_gx_lock();
+                let s = shared();
+                s.made.0 += made_delta.0;
+                s.made.1 += made_delta.1;
+                s.made.2 += made_delta.2;
+                s.made.3 += made_delta.3;
+                s.cache_used = cache_used_after;
+                if s.completed_full_seq < seq_at_pickup {
+                    s.completed_full_seq = seq_at_pickup;
+                }
+                switch_gx_wake_done();
+                switch_gx_unlock();
+            }
         }
     }
-    let dt = unsafe { switch_now_ns().saturating_sub(t0) };
-    PERF_GX_NS.fetch_add(dt, Ordering::Relaxed);
+
+    pub fn init() {
+        unsafe {
+            SHARED = Some(Shared {
+                initialized: false,
+                staging: Vec::with_capacity(256 * 1024),
+                hud_marks: VecDeque::with_capacity(64),
+                cmds: VecDeque::with_capacity(16),
+                written_bytes: 0,
+                written_seq: 0,
+                completed_ram_seq: 0,
+                completed_full_seq: 0,
+                token: 0,
+                frames: 0,
+                last_stats: FrameStats::default(),
+                cache_used: 0,
+                made: (0, 0, 0, 0),
+                fifo_ptrs: (0x8000_0000, 0x8000_0000),
+                hud_widgets: 0,
+                hud_marked: 0,
+            });
+            switch_start_gx_worker(worker_entry, core::ptr::null_mut());
+            switch_gx_lock();
+            while !shared().initialized && !EXIT_REQUESTED.load(Ordering::Relaxed) {
+                switch_gx_wait_done();
+            }
+            switch_gx_unlock();
+        }
+    }
+
+    #[inline(always)]
+    pub fn push_fifo(c: &mut Ctx, min_bytes: usize) {
+        if c.fifo_len == 0 || c.fifo_len < min_bytes {
+            return;
+        }
+        let slice = unsafe { core::slice::from_raw_parts(c.mem.add(0x0200_0000), c.fifo_len) };
+        unsafe {
+            switch_gx_lock();
+            let s = shared();
+            s.staging.extend_from_slice(slice);
+            s.written_bytes += slice.len() as u64;
+            s.written_seq += 1;
+            switch_gx_wake_work();
+            switch_gx_unlock();
+        }
+        c.fifo_len = 0;
+    }
+
+    /// Waits for Core 0 GX worker to finish all guest RAM reads & raise GX sync tokens.
+    /// Does NOT stall Core 1 on Core 0's host-only HUD/present pass encoding or Core 2's GL draws.
+    pub fn sync_ram(c: &mut Ctx) {
+        let t0 = unsafe { switch_now_ns() };
+        unsafe {
+            switch_gx_lock();
+            let s = shared();
+            if c.fifo_len != 0 {
+                let slice = core::slice::from_raw_parts(c.mem.add(0x0200_0000), c.fifo_len);
+                s.staging.extend_from_slice(slice);
+                s.written_bytes += slice.len() as u64;
+                s.written_seq += 1;
+                c.fifo_len = 0;
+                switch_gx_wake_work();
+            }
+            let target = s.written_seq;
+            while s.completed_ram_seq < target && !EXIT_REQUESTED.load(Ordering::Relaxed) {
+                switch_gx_wait_done();
+            }
+            switch_gx_unlock();
+        }
+        let dt = unsafe { switch_now_ns().saturating_sub(t0) };
+        PERF_GX_WAIT_NS.fetch_add(dt, Ordering::Relaxed);
+    }
+
+    /// Strict full sync (used for GXDrawDone, GXReadDrawSync, breakpoints, scene init reset).
+    pub fn sync_full(c: &mut Ctx, cmd: Option<CtrlCmd>) {
+        let t0 = unsafe { switch_now_ns() };
+        unsafe {
+            switch_gx_lock();
+            let s = shared();
+            if c.fifo_len != 0 {
+                let slice = core::slice::from_raw_parts(c.mem.add(0x0200_0000), c.fifo_len);
+                s.staging.extend_from_slice(slice);
+                s.written_bytes += slice.len() as u64;
+                s.written_seq += 1;
+                c.fifo_len = 0;
+            }
+            if let Some(cmd) = cmd {
+                s.cmds.push_back(cmd);
+                s.written_seq += 1;
+            }
+            let target = s.written_seq;
+            switch_gx_wake_work();
+            while s.completed_full_seq < target && !EXIT_REQUESTED.load(Ordering::Relaxed) {
+                switch_gx_wait_done();
+            }
+            switch_gx_unlock();
+        }
+        let dt = unsafe { switch_now_ns().saturating_sub(t0) };
+        PERF_GX_WAIT_NS.fetch_add(dt, Ordering::Relaxed);
+    }
+
+    pub fn mark_hud(c: &Ctx, widget: bool) {
+        unsafe {
+            switch_gx_lock();
+            let s = shared();
+            if !widget && s.hud_marked == 0 {
+                switch_gx_unlock();
+                return;
+            }
+            if widget {
+                s.hud_widgets = s.hud_widgets % 0xFFFF + 1;
+            }
+            s.hud_marked = if widget { s.hud_widgets } else { 0 };
+            let at = s.written_bytes + c.fifo_len as u64;
+            s.hud_marks.push_back((at, s.hud_marked));
+            switch_gx_unlock();
+        }
+    }
+
+    pub fn read_token() -> u16 {
+        unsafe {
+            switch_gx_lock();
+            let tok = shared().token;
+            switch_gx_unlock();
+            tok
+        }
+    }
+
+    pub fn read_fifo_ptrs(c: &mut Ctx) -> (u32, u32) {
+        sync_full(c, Some(CtrlCmd::QueryFifoPtrs));
+        unsafe {
+            switch_gx_lock();
+            let ptrs = shared().fifo_ptrs;
+            switch_gx_unlock();
+            ptrs
+        }
+    }
+
+    pub fn drain_perf_snapshot() -> (u64, FrameStats, u64, (u32, u32, u32, u64)) {
+        unsafe {
+            switch_gx_lock();
+            let s = shared();
+            let made = core::mem::take(&mut s.made);
+            let res = (s.frames, s.last_stats, s.cache_used, made);
+            switch_gx_unlock();
+            res
+        }
+    }
 }
 
-/// Processes pending GX commands. When called from Core 1 (`me == 0`), executes directly;
-/// when called from a background worker thread (`me != 0`), absorbs WGPIPE bytes and
-/// synchronously delegates OpenGL execution to Core 1.
+#[inline(always)]
+fn absorb_gx(c: &mut Ctx) {
+    gx_worker::push_fifo(c, 1);
+}
+
 fn gx_process(c: &mut Ctx) {
-    if sched::me() == 0 {
-        gx_process_core1_only(c);
-    } else {
-        absorb_gx(c);
-        sched::request_gl_flush_on_core1();
-    }
+    gx_worker::sync_ram(c);
 }
 
 #[inline(always)]
@@ -1254,23 +1533,18 @@ fn uncap_frame_rate(c: &mut Ctx) {
 fn log_perf_summary(c: &Ctx, retrace: u32) {
     let now_ns = unsafe { switch_now_ns() };
     let prev_ns = PERF_LAST_NS.swap(now_ns, Ordering::Relaxed);
-    #[allow(static_mut_refs)]
-    let (frames, draws, verts, cached_v, _made, dls, bps, cps, xfs) = unsafe {
-        match GX_STATE.as_mut() {
-            Some(gx) => {
-                let st = gx.last_stats;
-                let cache_v = gx.cache_room_used();
-                let made = gx
-                    .renderer
-                    .as_mut()
-                    .map_or((0, 0, 0, 0), |r| core::mem::take(&mut r.made));
-                (gx.frames, st.draws, st.vertices, cache_v, made, st.display_lists, st.bp_loads, st.cp_loads, st.xf_loads)
-            }
-            None => (0, 0, 0, 0, (0, 0, 0, 0), 0, 0, 0, 0),
-        }
-    };
+    let (frames, st, cached_v, _made) = gx_worker::drain_perf_snapshot();
+    let (draws, verts, dls, bps, cps, xfs) = (
+        st.draws,
+        st.vertices,
+        st.display_lists,
+        st.bp_loads,
+        st.cp_loads,
+        st.xf_loads,
+    );
     let prev_frames = PERF_LAST_FRAMES.swap(frames, Ordering::Relaxed);
     let gx_ns = PERF_GX_NS.swap(0, Ordering::Relaxed);
+    let gx_wait_ns = PERF_GX_WAIT_NS.swap(0, Ordering::Relaxed);
     let aud_ns = PERF_AUDIO_NS.swap(0, Ordering::Relaxed);
     let slp_ns = PERF_SLEEP_NS.swap(0, Ordering::Relaxed);
     let parse_ns = PERF_PARSE_NS.swap(0, Ordering::Relaxed);
@@ -1342,13 +1616,14 @@ fn log_perf_summary(c: &Ctx, retrace: u32) {
     let shown = df.max(1) as f64;
     let frame_ms = wall_ms / shown;
     let gx_ms = (gx_ns as f64 / 1_000_000.0) / shown;
+    let wait_gx_ms = (gx_wait_ns as f64 / 1_000_000.0) / shown;
     let aud_ms = (aud_ns as f64 / 1_000_000.0) / shown;
     let slp_ms = (slp_ns as f64 / 1_000_000.0) / shown;
     let parse_ms = (parse_ns as f64 / 1_000_000.0) / shown;
     let gl_ms = (gl_ns as f64 / 1_000_000.0) / shown;
     let pump_ms = (pump_ns as f64 / 1_000_000.0) / shown;
     let wait_ms = (wait_ns as f64 / 1_000_000.0) / shown;
-    let cpu_game_ms = (frame_ms - gx_ms - aud_ms - slp_ms).max(0.0);
+    let cpu_game_ms = (frame_ms - wait_gx_ms - aud_ms - slp_ms).max(0.0);
     let la_ms = (lookahead_ns as f64 / 1_000_000.0) / shown;
     let pure_guest_ms = (cpu_game_ms - pump_ms - la_ms).max(0.0);
     let heap_mb = ALLOC_BYTES.load(Ordering::Relaxed) / (1024 * 1024);
@@ -1403,20 +1678,20 @@ fn log_perf_summary(c: &Ctx, retrace: u32) {
         retrace, frames, df, gmode, fps, frame_ms, draws, cached_draws / df.max(1) as u32, raw_draws / df.max(1) as u32, xform_draws / df.max(1) as u32, verts, cached_v, heap_mb, sched::describe()
     ));
     log_c(&format!(
-        "  [cpu] game={:.2}ms (pure_guest={:.2}ms la={:.2}ms pump={:.2}ms [retrace_gx={:.2}ms cb={:.2}ms aud={:.2}ms alm={:.2}ms sc={:.2}ms] wait={:.2}ms) | aud={:.2}ms slp={:.2}ms",
-        cpu_game_ms, pure_guest_ms, la_ms, pump_ms, p_retrace_gx_ms, p_retrace_cb_ms, p_audio_ms, p_alarms_ms, p_sched_ms, wait_ms, aud_ms, slp_ms
+        "  [cpu-core1] game={:.2}ms (pure_guest={:.2}ms wait_gx={:.2}ms pump={:.2}ms [retrace_gx={:.2}ms cb={:.2}ms aud={:.2}ms alm={:.2}ms sc={:.2}ms] wait={:.2}ms) | aud={:.2}ms slp={:.2}ms",
+        cpu_game_ms, pure_guest_ms, wait_gx_ms, pump_ms, p_retrace_gx_ms, p_retrace_cb_ms, p_audio_ms, p_alarms_ms, p_sched_ms, wait_ms, aud_ms, slp_ms
     ));
     let cl_raw_fail = STAT_CLIST_RAW_FAIL.swap(0, Ordering::Relaxed) / df.max(1) as u32;
     let cl_hud_fail = STAT_CLIST_HUD_FAIL.swap(0, Ordering::Relaxed) / df.max(1) as u32;
     let cl_res_fail = STAT_CLIST_RES_FAIL.swap(0, Ordering::Relaxed) / df.max(1) as u32;
     log_c(&format!(
-        "  [gx]  gx={:.2}ms (parse_cpu={:.2}ms [dls:{} bps:{} cps:{} xfs:{}] | cl={:.2}ms (res={:.2}ms fails:[raw:{} hud:{} res:{}]) bp={:.2}ms cp={:.2}ms xf={:.2}ms dd={:.2}ms fv={:.2}ms | copy_tex={:.2}ms [{}x] copy_disp={:.2}ms [{}x])",
-        gx_ms, (parse_ms - gl_ms).max(0.0), dls / df.max(1) as u32, bps / df.max(1) as u32, cps / df.max(1) as u32, xfs / df.max(1) as u32,
-        _cl_ms, _res_ms, cl_raw_fail, cl_hud_fail, cl_res_fail, _bp_ms, _cp_ms, _xf_ms, _dd_ms, _fv_ms, ct_ms, copy_tex_cnt / df.max(1) as u32, cd_ms, copy_disp_cnt / df.max(1) as u32
+        "  [gx-core0]  gx={:.2}ms (parse_cpu={:.2}ms [dls:{} bps:{} cps:{} xfs:{}] | cl={:.2}ms (res={:.2}ms fails:[raw:{} hud:{} res:{}]) bp={:.2}ms cp={:.2}ms xf={:.2}ms dd={:.2}ms fv={:.2}ms | copy_tex={:.2}ms [{}x] copy_disp={:.2}ms [{}x] gl_enc={:.2}ms)",
+        gx_ms, parse_ms, dls / df.max(1) as u32, bps / df.max(1) as u32, cps / df.max(1) as u32, xfs / df.max(1) as u32,
+        _cl_ms, _res_ms, cl_raw_fail, cl_hud_fail, cl_res_fail, _bp_ms, _cp_ms, _xf_ms, _dd_ms, _fv_ms, ct_ms, copy_tex_cnt / df.max(1) as u32, cd_ms, copy_disp_cnt / df.max(1) as u32, gl_ms
     ));
     log_c(&format!(
-        "  [gl]  gl={:.2}ms (upload={:.2}ms state={:.2}ms draw_calls={:.2}ms [{} draws in {} batches] blit={:.2}ms swap_buffers={:.2}ms)",
-        gl_ms, gl_up_ms, gl_st_ms, gl_dc_ms, gl_draws_cnt / df.max(1) as u32, gl_batches_cnt / df.max(1) as u32, gl_bl_ms, gl_sw_ms
+        "  [gl-core2]  upload={:.2}ms state={:.2}ms draw_calls={:.2}ms [{} draws in {} batches] blit={:.2}ms swap_buffers={:.2}ms",
+        gl_up_ms, gl_st_ms, gl_dc_ms, gl_draws_cnt / df.max(1) as u32, gl_batches_cnt / df.max(1) as u32, gl_bl_ms, gl_sw_ms
     ));
 
     // Print Top 6 Sampled Guest Functions
@@ -1695,7 +1970,7 @@ fn pump(c: &mut Ctx) {
 /// 5 ms audio frame, or OSAlarm (~0.00% CPU while waiting).
 fn idle(c: &mut Ctx) {
     check_exit(c);
-    gx_process(c);
+    gx_worker::push_fifo(c, 1);
     let now = c.timebase();
     let due = if has_pending_events() {
         now
@@ -1743,7 +2018,7 @@ fn idle(c: &mut Ctx) {
 fn before_show_raster(c: &mut Ctx) {
     if sched::me() != 0 {
         let saved = SavedRegs::save(c);
-        gx_process(c);
+        gx_worker::push_fifo(c, 1);
         sched::sleep(c, sched::RETRACE_QUEUE);
         saved.restore(c);
         return;
@@ -1755,7 +2030,7 @@ fn before_show_raster(c: &mut Ctx) {
     let t0 = unsafe { switch_now_ns() };
     let saved = SavedRegs::save(c);
     while sched::has_sleepers(FRAME_QUEUE_SLEEPERS) && !EXIT_REQUESTED.load(Ordering::Relaxed) {
-        gx_process(c);
+        gx_worker::push_fifo(c, 1);
         sched::sleep(c, sched::RETRACE_QUEUE);
     }
     saved.restore(c);
@@ -1776,7 +2051,7 @@ fn replace_get_xfbs(c: &mut Ctx) -> bool {
         let t0 = unsafe { switch_now_ns() };
         let saved = SavedRegs::save(c);
         while waiting(c) && !EXIT_REQUESTED.load(Ordering::Relaxed) {
-            gx_process(c);
+            gx_worker::push_fifo(c, 1);
             sched::sleep(c, sched::RETRACE_QUEUE);
         }
         saved.restore(c);
@@ -1804,12 +2079,49 @@ fn call_display_list(c: &mut Ctx) -> bool {
     }
     c.call(GX_CALL_DISPLAY_LIST);
     INSIDE.store(false, Ordering::Relaxed);
+    gx_worker::push_fifo(c, 4096);
     true
 }
 
+fn flush_hook(c: &mut Ctx) -> bool {
+    const GX_FLUSH: u32 = 0x802E_B5A0;
+    static INSIDE: AtomicBool = AtomicBool::new(false);
+    if INSIDE.swap(true, Ordering::Relaxed) {
+        return false;
+    }
+    c.call(GX_FLUSH);
+    INSIDE.store(false, Ordering::Relaxed);
+    gx_worker::push_fifo(c, 1);
+    true
+}
+
+fn copy_disp_hook(c: &mut Ctx) -> bool {
+    const GX_COPY_DISP: u32 = 0x802E_C7E4;
+    static INSIDE: AtomicBool = AtomicBool::new(false);
+    if INSIDE.swap(true, Ordering::Relaxed) {
+        return false;
+    }
+    c.call(GX_COPY_DISP);
+    INSIDE.store(false, Ordering::Relaxed);
+    gx_worker::push_fifo(c, 1);
+    true
+}
+
+fn copy_tex_hook(c: &mut Ctx) -> bool {
+    const GX_COPY_TEX: u32 = 0x802E_C94C;
+    static INSIDE: AtomicBool = AtomicBool::new(false);
+    if INSIDE.swap(true, Ordering::Relaxed) {
+        return false;
+    }
+    c.call(GX_COPY_TEX);
+    INSIDE.store(false, Ordering::Relaxed);
+    gx_worker::push_fifo(c, 1);
+    true
+}
 
 fn guest_poll_hook(c: &mut Ctx) {
     runtime::sample_guest_pc(c.lr);
+    gx_worker::push_fifo(c, 4096);
     let saved = SavedRegs::save(c);
     pump(c);
     if sched::me() != 0 {
@@ -2216,30 +2528,26 @@ fn switch_policy(name: &str) -> Hle {
         }),
         "VIWaitForRetrace" => Hle::Native(|c| {
             let t0 = unsafe { switch_now_ns() };
-            gx_process(c);
+            gx_worker::push_fifo(c, 1);
             sched::sleep(c, sched::RETRACE_QUEUE);
             let dt = unsafe { switch_now_ns().saturating_sub(t0) };
             PERF_WAIT_NS.fetch_add(dt, Ordering::Relaxed);
         }),
 
-        // Hardware GX pipeline (matching crates/tssm/src/hle.rs::video_policy)
+        // Hardware GX pipeline (Core 1 streams FIFO to Core 0 GX Frontend -> Core 2 OpenGL Backend)
         "GXDrawDone" | "GXWaitDrawDone" => Hle::Native(|c| {
-            gx_process(c);
+            gx_worker::sync_ram(c);
         }),
         "GXCallDisplayList" => Hle::Replace(call_display_list),
+        "GXFlush" => Hle::Replace(flush_hook),
+        "GXCopyDisp" => Hle::Replace(copy_disp_hook),
+        "GXCopyTex" => Hle::Replace(copy_tex_hook),
         "GXReadDrawSync" => Hle::Native(|c| {
-            gx_process(c);
-            #[allow(static_mut_refs)]
-            let tok = unsafe { GX_STATE.as_ref().map_or(0, |g| g.token as u32) };
-            c.r[3] = tok;
+            gx_worker::sync_ram(c);
+            c.r[3] = gx_worker::read_token() as u32;
         }),
         "GXGetFifoPtrs" => Hle::Native(|c| {
-            #[allow(static_mut_refs)]
-            let (read_ptr, write_ptr) = unsafe {
-                GX_STATE
-                    .as_mut()
-                    .map_or((0x8000_0000, 0x8000_0000), |g| g.fifo_ptrs(c))
-            };
+            let (read_ptr, write_ptr) = gx_worker::read_fifo_ptrs(c);
             let (read_out, write_out) = (c.r[4], c.r[5]);
             if read_out != 0 {
                 c.w32(read_out, read_ptr);
@@ -2250,22 +2558,10 @@ fn switch_policy(name: &str) -> Hle {
         }),
         "GXEnableBreakPt" => Hle::Native(|c| {
             let addr = c.r[3];
-            #[allow(static_mut_refs)]
-            unsafe {
-                if let Some(gx) = GX_STATE.as_mut() {
-                    gx.set_breakpoint(c, addr);
-                }
-            }
-            gx_process(c);
+            gx_worker::sync_full(c, Some(gx_worker::CtrlCmd::EnableBreakPt(addr)));
         }),
         "GXDisableBreakPt" => Hle::Native(|c| {
-            #[allow(static_mut_refs)]
-            unsafe {
-                if let Some(gx) = GX_STATE.as_mut() {
-                    gx.clear_breakpoint();
-                }
-            }
-            gx_process(c);
+            gx_worker::sync_full(c, Some(gx_worker::CtrlCmd::DisableBreakPt));
         }),
         "GXSetDrawSyncCallback" => Hle::Native(|c| {
             let new = c.r[3];
@@ -2516,12 +2812,7 @@ fn switch_policy(name: &str) -> Hle {
                 .map(|&b| (b as char).escape_default().to_string())
                 .collect();
             log_c(&format!("[scene] zSceneInit({} / {:#010x})", s, scene));
-            #[allow(static_mut_refs)]
-            unsafe {
-                if let Some(gx) = GX_STATE.as_mut() {
-                    gx.reset_cache();
-                }
-            }
+            gx_worker::sync_full(c, Some(gx_worker::CtrlCmd::ResetCache));
         }),
 
         // Native 16:9 widescreen camera & HUD edge anchoring
@@ -2532,24 +2823,14 @@ fn switch_policy(name: &str) -> Hle {
         | "render__Q24xhud12model_widgetFv"
         | "render__Q24xhud17font_meter_widgetFv"
         | "render__Q24xhud17unit_meter_widgetFv" => Hle::Before(|c| {
-            #[allow(static_mut_refs)]
-            unsafe {
-                if let Some(gx) = GX_STATE.as_mut() {
-                    gx.mark_hud(c, true);
-                }
-            }
+            gx_worker::mark_hud(c, true);
         }),
         "zGameModeGet__Fv"
         | "zSceneRender__Fv"
         | "zSceneRenderPreFX__Fv"
         | "zSceneRenderPostFX__Fv"
         | "_rxGCDefaultRenderCallback" => Hle::Before(|c| {
-            #[allow(static_mut_refs)]
-            unsafe {
-                if let Some(gx) = GX_STATE.as_mut() {
-                    gx.mark_hud(c, false);
-                }
-            }
+            gx_worker::mark_hud(c, false);
         }),
 
         // Fixed 60 Hz car physics step + smooth matrix interpolation
@@ -2710,18 +2991,14 @@ pub extern "C" fn tssm_switch_guest_main() {
     unsafe {
         switch_set_thread_index(0);
     }
-    log_c("[switch] Initializing OpenGL 4.3 Core hardware GX renderer on Core 1...");
-    let mut gx = Gx::new();
-    gx.renderer = Some(Renderer::new());
-    unsafe {
-        GX_STATE = Some(gx);
-    }
 
     let mut c = Ctx::new(game::FUNCS, game::HLE_NAMES, switch_policy);
     c.survey = false;
     c.poll_hook = Some(guest_poll_hook);
     sched::init(0x817E_0000);
     GUEST_MEM_PTR.store(c.mem as usize, Ordering::Relaxed);
+    log_c("[switch] Starting Core 0 GX Frontend & Core 2 OpenGL 4.3 hardware renderer...");
+    gx_worker::init();
     NEXT_RETRACE_TIME.store(c.timebase() + RETRACE_INTERVAL, Ordering::Relaxed);
     NEXT_AUDIO_TIME.store(c.timebase() + AUDIO_INTERVAL, Ordering::Relaxed);
     PERF_LAST_NS.store(unsafe { switch_now_ns() }, Ordering::Relaxed);
@@ -2766,7 +3043,9 @@ pub extern "C" fn tssm_switch_guest_main() {
         log_c("[switch] Error: main symbol not found in game!");
     }
 
+    EXIT_REQUESTED.store(true, Ordering::Relaxed);
     unsafe {
+        switch_stop_gx_worker();
         switch_gl_shutdown();
     }
 }
@@ -2775,6 +3054,12 @@ pub extern "C" fn tssm_switch_guest_main() {
 pub extern "C" fn tssm_switch_request_exit() {
     EXIT_REQUESTED.store(true, Ordering::Relaxed);
     sched::wake_all();
+    unsafe {
+        switch_gx_lock();
+        switch_gx_wake_work();
+        switch_gx_wake_done();
+        switch_gx_unlock();
+    }
 }
 
 #[no_mangle]
