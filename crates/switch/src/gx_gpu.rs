@@ -36,7 +36,7 @@ fn be16(d: &[u8], o: usize) -> usize {
 
 #[inline(always)]
 fn be32(d: &[u8], o: usize) -> u32 {
-    u32::from_be_bytes(d[o..o + 4].try_into().unwrap())
+    u32::from_be_bytes([d[o], d[o + 1], d[o + 2], d[o + 3]])
 }
 
 /// Masked guest memory accessor for Switch's 128 MB guest address buffer (`addr & 0x07FF_FFFF`).
@@ -195,6 +195,15 @@ fn decode_raw(
     let mut buf = [0u8; 16];
     let mut o = 0;
     for _ in 0..count {
+        // Per-vertex position/normal matrix index (PNMTXIDX): passed to vs_gx in pos.w, which
+        // picks the rows out of the XF matrix memory uploaded with the draw's VParams.
+        let matrix = if vcd_lo & 1 != 0 {
+            let m = (data[o] & 0x3F) as f32;
+            o += 1;
+            m
+        } else {
+            0.0
+        };
         note(
             0,
             fetch(mem, data, &mut o, kind(9), pos_size, arrays[0], &mut buf),
@@ -350,7 +359,7 @@ fn decode_raw(
         }
         out.push(RawVertex {
             pos,
-            pad0: 0.0,
+            pad0: matrix,
             normal,
             pad1: 0.0,
             colors,
@@ -396,21 +405,6 @@ fn emit_indices(op: u8, base: u32, count: u32, out: &mut Vec<u32>) {
 #[inline]
 fn hash_bytes(data: &[u8]) -> u64 {
     texture::hash(data)
-}
-
-#[inline(always)]
-fn fast_block_hash(data: &[u8]) -> u64 {
-    if data.len() >= 32 {
-        let w0 = u64::from_le_bytes(data[..8].try_into().unwrap());
-        let w1 = u64::from_le_bytes(data[data.len() / 2..data.len() / 2 + 8].try_into().unwrap());
-        let w2 = u64::from_le_bytes(data[data.len() - 8..].try_into().unwrap());
-        (data.len() as u64)
-            ^ w0.wrapping_mul(0x9E37_79B9_7F4A_7C15)
-            ^ w1.rotate_left(23).wrapping_mul(0xC2B2_AE3D_27D4_EB4F)
-            ^ w2.rotate_left(47)
-    } else {
-        texture::hash(data)
-    }
 }
 
 const BLOCK_SHIFT: u32 = 12;
@@ -663,7 +657,12 @@ fn vparams_block(state: &VState, over_flat: Option<[f32; 4]>) -> [u32; VPARAMS_W
     put(0, &state.proj[..4]);
     put(
         4,
-        &[state.proj[4], state.proj[5], state.lighting as u32 as f32],
+        &[
+            state.proj[4],
+            state.proj[5],
+            state.lighting as u32 as f32,
+            matches!(state.matrices, Matrices::All(_)) as u32 as f32,
+        ],
     );
     let (position, normal) = state.matrices.rows(state.default_matrix);
     put(8, &position);
@@ -727,15 +726,20 @@ struct Template {
 
 impl Template {
     fn vparams(&mut self, frame: &mut Frame, flat_started: bool) -> u32 {
+        let _phase = crate::GxPhase::enter(5);
+        let xf = match &self.vstate.matrices {
+            Matrices::All(all) => Some(all),
+            Matrices::One(..) => None,
+        };
         match self.vstate.origin.filter(|_| flat_started) {
             Some(origin) => *self.vparams_flat.get_or_insert_with(|| {
-                let offset = frame.push_vparams(&vparams_block(&self.vstate, Some(origin)));
+                let offset = frame.push_vparams(&vparams_block(&self.vstate, Some(origin)), xf);
                 frame.raw_flat.push((offset, origin));
                 offset
             }),
-            None => *self
-                .vparams
-                .get_or_insert_with(|| frame.push_vparams(&vparams_block(&self.vstate, None))),
+            None => *self.vparams.get_or_insert_with(|| {
+                frame.push_vparams(&vparams_block(&self.vstate, None), xf)
+            }),
         }
     }
 }
@@ -896,7 +900,12 @@ impl VertexJob {
                 1 => buf[i] as i8 as f32 * pos_scale,
                 2 => u16::from_be_bytes([buf[i * 2], buf[i * 2 + 1]]) as f32 * pos_scale,
                 3 => i16::from_be_bytes([buf[i * 2], buf[i * 2 + 1]]) as f32 * pos_scale,
-                _ => f32::from_be_bytes(buf[i * 4..i * 4 + 4].try_into().unwrap()),
+                _ => f32::from_bits(u32::from_be_bytes([
+                    buf[i * 4],
+                    buf[i * 4 + 1],
+                    buf[i * 4 + 2],
+                    buf[i * 4 + 3],
+                ])),
             };
             let p = [
                 comp(0),
@@ -911,7 +920,12 @@ impl VertexJob {
                 normal = core::array::from_fn(|i| match normal_format {
                     0 | 1 => buf[i] as i8 as f32 / 64.0,
                     2 | 3 => i16::from_be_bytes([buf[i * 2], buf[i * 2 + 1]]) as f32 / 16384.0,
-                    _ => f32::from_be_bytes(buf[i * 4..i * 4 + 4].try_into().unwrap()),
+                    _ => f32::from_bits(u32::from_be_bytes([
+                        buf[i * 4],
+                        buf[i * 4 + 1],
+                        buf[i * 4 + 2],
+                        buf[i * 4 + 3],
+                    ])),
                 });
             }
             o += normal_size;
@@ -949,7 +963,12 @@ impl VertexJob {
                         1 => buf[n] as i8 as f32 * scale,
                         2 => u16::from_be_bytes([buf[n * 2], buf[n * 2 + 1]]) as f32 * scale,
                         3 => i16::from_be_bytes([buf[n * 2], buf[n * 2 + 1]]) as f32 * scale,
-                        _ => f32::from_be_bytes(buf[n * 4..n * 4 + 4].try_into().unwrap()),
+                        _ => f32::from_bits(u32::from_be_bytes([
+                            buf[n * 4],
+                            buf[n * 4 + 1],
+                            buf[n * 4 + 2],
+                            buf[n * 4 + 3],
+                        ])),
                     };
                 }
             }
@@ -1235,6 +1254,7 @@ impl Gx {
     }
 
     fn map_texture(&mut self, map: usize) -> Option<(usize, SamplerKey, [f32; 2])> {
+        let _phase = crate::GxPhase::enter(12);
         let reg = |low: usize, high: usize| {
             self.bp[if map < 4 { low + map } else { high + map - 4 }]
         };
@@ -1319,9 +1339,10 @@ impl Gx {
     }
 
     fn finish_vertices(&mut self) {
-        let t0 = unsafe { crate::switch_now_ns() };
+        let _phase = crate::GxPhase::enter(6);
+        let t0 = crate::prof_now();
         self.finish_vertices_inner();
-        let dt = unsafe { crate::switch_now_ns().saturating_sub(t0) };
+        let dt = crate::prof_now().saturating_sub(t0);
         crate::PERF_FINISH_VERTS_NS.fetch_add(dt, core::sync::atomic::Ordering::Relaxed);
     }
 
@@ -1390,6 +1411,7 @@ impl Gx {
     }
 
     fn build_template(&mut self) {
+        let _phase = crate::GxPhase::enter(3);
         let material = match self.material {
             Some(material) => material,
             None => {
@@ -1562,7 +1584,7 @@ impl Gx {
             ]
         });
         let raw_ok = !orthographic
-            && vcd_lo & 0x1FF == 0
+            && vcd_lo & 0x1FE == 0
             && vcd_hi >> 8 == 0
             && (0..8).all(|n| !coord_used[n] || !matches!(gens[n].0, Source::Tex(k) if k >= 4));
         let vstate = VState {
@@ -1627,6 +1649,7 @@ impl Gx {
     }
 
     fn draw(&mut self, op: u8, count: usize, data: &[u8]) {
+        let _phase = crate::GxPhase::enter(7);
         self.draw_index += 1;
         if self.template.is_none() {
             self.build_template();
@@ -1668,6 +1691,22 @@ impl Gx {
             );
             base
         } else {
+            if runtime::PROFILE_FN {
+                use core::sync::atomic::Ordering::Relaxed;
+                let n = count as u32;
+                let why = if vstate.orthographic {
+                    0
+                } else if vstate.vcd_lo & 1 != 0 {
+                    1
+                } else if vstate.vcd_lo & 0x1FE != 0 {
+                    2
+                } else if vstate.vcd_hi >> 8 != 0 {
+                    3
+                } else {
+                    4
+                };
+                crate::CPUV_WHY[why].fetch_add(n, Relaxed);
+            }
             let base = (self.frame.vertices.len() + self.job_vertices) as u32;
             let bytes = self.job_data.len();
             self.job_data.extend_from_slice(data);
@@ -1784,15 +1823,18 @@ impl Gx {
     }
 
     fn exact_hash(&self, spans: &[(u32, u32); 12]) -> u64 {
+        let _phase = crate::GxPhase::enter(9);
         let mut hash = 0u64;
         for &(addr, len) in spans.iter().filter(|span| span.1 != 0) {
             let bytes = unsafe { self.mem.slice(addr, len as usize) };
-            hash = (hash.rotate_left(5) ^ fast_block_hash(bytes)).wrapping_mul(0x9E37_79B9_7F4A_7C15);
+            hash = (hash.rotate_left(5) ^ hash_bytes(bytes)).wrapping_mul(0x9E37_79B9_7F4A_7C15);
         }
         hash
     }
 
+    /// Hash of the guest memory blocks `spans` lie in; each block is hashed once per frame.
     fn spans_hash(&mut self, spans: &[(u32, u32); 12]) -> u64 {
+        let _phase = crate::GxPhase::enter(9);
         let mut hash = 0u64;
         for &(addr, len) in spans.iter().filter(|span| span.1 != 0) {
             let from = addr - runtime::mem::RAM_BASE;
@@ -1802,7 +1844,7 @@ impl Gx {
                 if self.block_stamp[block] != self.epoch {
                     let block_addr = runtime::mem::RAM_BASE + ((block as u32) << BLOCK_SHIFT);
                     let bytes = unsafe { self.mem.slice(block_addr, 1 << BLOCK_SHIFT) };
-                    self.block_hash[block] = fast_block_hash(bytes);
+                    self.block_hash[block] = hash_bytes(bytes);
                     self.block_stamp[block] = self.epoch;
                 }
                 hash = (hash.rotate_left(5) ^ self.block_hash[block])
@@ -1813,6 +1855,7 @@ impl Gx {
     }
 
     fn build_list(&mut self, list: &[u8]) -> Option<([(u32, u32); 12], u32, u32)> {
+        let _phase = crate::GxPhase::enter(13);
         let mut vertices = core::mem::take(&mut self.list_vertices);
         let mut indices = core::mem::take(&mut self.list_indices);
         vertices.clear();
@@ -1886,9 +1929,10 @@ impl Gx {
     }
 
     fn resolve_list(&mut self, addr: u32, size: usize) -> Ahead {
-        let t0 = unsafe { crate::switch_now_ns() };
+        let _phase = crate::GxPhase::enter(4);
+        let t0 = crate::prof_now();
         let res = self.resolve_list_inner(addr, size);
-        let dt = unsafe { crate::switch_now_ns().saturating_sub(t0) };
+        let dt = crate::prof_now().saturating_sub(t0);
         crate::PERF_RESOLVE_NS.fetch_add(dt, core::sync::atomic::Ordering::Relaxed);
         res
     }
@@ -1897,7 +1941,7 @@ impl Gx {
         if self.renderer.is_none() || size == 0 || !in_ram(addr, size) {
             return Ahead::Late;
         }
-        if self.cp[0x50] & 0x1FF != 0 || self.cp[0x60] >> 8 != 0 {
+        if self.cp[0x50] & 0x1FE != 0 || self.cp[0x60] >> 8 != 0 {
             return Ahead::Late;
         }
         let list = unsafe { self.mem.slice(addr, size) };
@@ -1943,22 +1987,40 @@ impl Gx {
             return Ahead::Late;
         }
 
+        // Lists whose vertices keep changing (CPU-skinned, animated models) are left out of the
+        // cache for a while and uploaded fresh each frame instead (ported from the desktop gx.rs).
+        let frames = self.frames;
+        let keep = !self.cache_full
+            && !self
+                .churn
+                .get(&key)
+                .is_some_and(|churn| frames < churn.out_until);
         let mut place = None;
-        if let (true, Some(at)) = (!self.cache_full, self.spans_at(&shape.spans)) {
+        if let (true, Some(at)) = (keep, self.spans_at(&shape.spans)) {
             let bases = self.array_bases().iter().fold(0u64, |hash, &base| {
                 (hash.rotate_left(9) ^ base as u64).wrapping_mul(0x9E37_79B9_7F4A_7C15)
             });
             let check_key = (key.0, key.1, bases);
-            if let Some(check) = self.checks.get(&check_key) {
-                place = Some(check.place);
+            // Reuse the remembered placement only while the memory blocks holding the vertices
+            // hash the same as when it was made. Skipping this check froze every CPU-skinned
+            // model (player, NPCs) in its first pose: the game rewrites their vertex arrays in
+            // place each frame, at the same addresses.
+            let blocks = self.spans_hash(&at);
+            let remembered = self
+                .checks
+                .get(&check_key)
+                .filter(|check| check.blocks == blocks)
+                .map(|check| check.place);
+            if let Some(p) = remembered {
+                place = Some(p);
             } else {
                 let exact = self.exact_hash(&at);
                 place = self.places.get(&(key.0, key.1, exact)).copied();
                 if place.is_none() && (built || self.build_list(list).is_some()) {
                     built = true;
                     let content = (
-                        fast_block_hash(bytemuck::cast_slice(&self.list_vertices)),
-                        fast_block_hash(bytemuck::cast_slice(&self.list_indices)),
+                        hash_bytes(bytemuck::cast_slice(&self.list_vertices)),
+                        hash_bytes(bytemuck::cast_slice(&self.list_indices)),
                         self.list_vertices.len() as u32,
                     );
                     let shared = self.contents.get(&content).copied();
@@ -1973,6 +2035,18 @@ impl Gx {
                             self.places.insert((key.0, key.1, exact), p);
                             if shared.is_none() {
                                 self.contents.insert(content, p);
+                                // A list that takes new room three times within 30 frames is an
+                                // animated model: leave it out for a while, twice as long each time.
+                                let churn = self.churn.entry(key).or_default();
+                                churn.builds += 1;
+                                churn.vertices += shape.vertices as u64;
+                                churn.run = if frames - churn.built <= 30 { churn.run + 1 } else { 1 };
+                                churn.built = frames;
+                                if churn.run >= 3 {
+                                    churn.outs = (churn.outs + 1).min(6);
+                                    churn.run = 1;
+                                    churn.out_until = frames + (150 << churn.outs);
+                                }
                             }
                         }
                     }
@@ -1981,7 +2055,7 @@ impl Gx {
                     if self.checks.len() > 1 << 16 {
                         self.checks.clear();
                     }
-                    self.checks.insert(check_key, ListCheck { blocks: 0, exact, place: p });
+                    self.checks.insert(check_key, ListCheck { blocks, exact, place: p });
                 }
             }
         }
@@ -2000,6 +2074,7 @@ impl Gx {
     }
 
     fn cached_list(&mut self, addr: u32, size: usize, at: u64) -> bool {
+        let _phase = crate::GxPhase::enter(2);
         crate::STAT_CLIST_CALLS.fetch_add(1, core::sync::atomic::Ordering::Relaxed);
         while self.ahead.front().is_some_and(|ahead| ahead.0 < at) {
             if let Some((_, Ahead::Owned(_, vertices, indices))) = self.ahead.pop_front() {
@@ -2152,6 +2227,7 @@ impl Gx {
     }
 
     fn parse(&mut self, data: &[u8], depth: u32) -> usize {
+        let _phase = crate::GxPhase::enter(1);
         let mut i = 0;
         while i < data.len() {
             if depth == 0 {
@@ -2183,7 +2259,7 @@ impl Gx {
             }
             match op {
                 0x08 => {
-                    let t0 = unsafe { crate::switch_now_ns() };
+                    let t0 = crate::prof_now();
                     let (register, value) = (rest[1] as usize, be32(rest, 2));
                     if self.cp[register] != value {
                         self.cp[register] = value;
@@ -2216,11 +2292,11 @@ impl Gx {
                         self.cp_sig = None;
                     }
                     self.stats.cp_loads += 1;
-                    let dt = unsafe { crate::switch_now_ns().saturating_sub(t0) };
+                    let dt = crate::prof_now().saturating_sub(t0);
                     crate::PERF_PARSE_CP_NS.fetch_add(dt, core::sync::atomic::Ordering::Relaxed);
                 }
                 0x10 => {
-                    let t0 = unsafe { crate::switch_now_ns() };
+                    let t0 = crate::prof_now();
                     let base = be16(rest, 3);
                     let mut changed = false;
                     for (k, word) in rest[5..need].chunks_exact(4).enumerate() {
@@ -2256,11 +2332,11 @@ impl Gx {
                         }
                     }
                     self.stats.xf_loads += 1;
-                    let dt = unsafe { crate::switch_now_ns().saturating_sub(t0) };
+                    let dt = crate::prof_now().saturating_sub(t0);
                     crate::PERF_PARSE_XF_NS.fetch_add(dt, core::sync::atomic::Ordering::Relaxed);
                 }
                 0x40 if depth < 4 => {
-                    let t0 = unsafe { crate::switch_now_ns() };
+                    let t0 = crate::prof_now();
                     let (addr, size) = (be32(rest, 1) | 0x8000_0000, be32(rest, 5));
                     self.stats.display_lists += 1;
                     let at = self.consumed + i as u64;
@@ -2270,7 +2346,7 @@ impl Gx {
                             self.parse(list, depth + 1);
                         }
                     }
-                    let dt = unsafe { crate::switch_now_ns().saturating_sub(t0) };
+                    let dt = crate::prof_now().saturating_sub(t0);
                     crate::PERF_CLIST_NS.fetch_add(dt, core::sync::atomic::Ordering::Relaxed);
                 }
                 0x61 => {
@@ -2279,21 +2355,21 @@ impl Gx {
                     if reg == BP_EFB_COPY {
                         self.bp_load(word);
                     } else {
-                        let t0 = unsafe { crate::switch_now_ns() };
+                        let t0 = crate::prof_now();
                         self.bp_load(word);
-                        let dt = unsafe { crate::switch_now_ns().saturating_sub(t0) };
+                        let dt = crate::prof_now().saturating_sub(t0);
                         crate::PERF_PARSE_BP_NS.fetch_add(dt, core::sync::atomic::Ordering::Relaxed);
                     }
                 }
                 0x80..=0xBF => {
-                    let t0 = unsafe { crate::switch_now_ns() };
+                    let t0 = crate::prof_now();
                     self.stats.draws += 1;
                     let vcnt = be16(rest, 1);
                     self.stats.vertices += vcnt as u32;
                     if self.renderer.is_some() {
                         self.draw(op, vcnt, &rest[3..need]);
                     }
-                    let dt = unsafe { crate::switch_now_ns().saturating_sub(t0) };
+                    let dt = crate::prof_now().saturating_sub(t0);
                     crate::PERF_PARSE_DIRECT_DRAW_NS.fetch_add(dt, core::sync::atomic::Ordering::Relaxed);
                 }
                 _ => {}
@@ -2304,6 +2380,7 @@ impl Gx {
     }
 
     fn bp_load(&mut self, word: u32) {
+        let _phase = crate::GxPhase::enter(8);
         let reg = (word >> 24) as usize;
         let mask = if reg == 0xFE {
             0xFF_FFFF
@@ -2399,15 +2476,15 @@ impl Gx {
                 self.raised.push(Raised::Finish);
             }
             BP_EFB_COPY if value & (1 << 14) != 0 => {
-                let t0 = unsafe { crate::switch_now_ns() };
+                let t0 = crate::prof_now();
                 self.end_frame(value);
-                let dt = unsafe { crate::switch_now_ns().saturating_sub(t0) };
+                let dt = crate::prof_now().saturating_sub(t0);
                 crate::PERF_COPY_DISPLAY_NS.fetch_add(dt, core::sync::atomic::Ordering::Relaxed);
             }
             BP_EFB_COPY => {
-                let t0 = unsafe { crate::switch_now_ns() };
+                let t0 = crate::prof_now();
                 self.copy_to_texture(value);
-                let dt = unsafe { crate::switch_now_ns().saturating_sub(t0) };
+                let dt = crate::prof_now().saturating_sub(t0);
                 crate::PERF_COPY_TEXTURE_NS.fetch_add(dt, core::sync::atomic::Ordering::Relaxed);
             }
             _ => {}
@@ -2430,6 +2507,7 @@ impl Gx {
     }
 
     fn copy_to_texture(&mut self, copy: u32) {
+        let _phase = crate::GxPhase::enter(10);
         if !self.ready_presents.is_empty() {
             self.flush_ready_presents();
         }
@@ -2523,6 +2601,7 @@ impl Gx {
     }
 
     fn end_frame(&mut self, copy: u32) {
+        let _phase = crate::GxPhase::enter(14);
         self.epoch = self.epoch.wrapping_add(1).max(1);
         self.finish_vertices();
         self.frames += 1;
@@ -2600,10 +2679,11 @@ impl Gx {
     /// Runs HUD widescreen anchoring and GL pass encoding/presentation AFTER Core 1 has already
     /// been woken to advance to the next game frame (pure host RAM/VRAM work, zero guest RAM reads).
     pub fn flush_ready_presents(&mut self) {
+        let _phase = crate::GxPhase::enter(11);
         if self.ready_presents.is_empty() {
             return;
         }
-        let t0 = unsafe { crate::switch_now_ns() };
+        let t0 = crate::prof_now();
         let widen = crate::aspect::widen();
         while let Some(PendingPresent { mut frame, clear, shown, frames }) = self.ready_presents.pop_front() {
             if widen != 1.0 {
@@ -2650,7 +2730,7 @@ impl Gx {
                 self.frame = frame;
             }
         }
-        let dt = unsafe { crate::switch_now_ns().saturating_sub(t0) };
+        let dt = crate::prof_now().saturating_sub(t0);
         crate::PERF_COPY_DISPLAY_NS.fetch_add(dt, core::sync::atomic::Ordering::Relaxed);
     }
 
@@ -2675,10 +2755,10 @@ impl Gx {
             None => slice.len(),
         };
         if allowed > 0 {
-            let t0 = unsafe { crate::switch_now_ns() };
+            let t0 = crate::prof_now();
             let used = self.parse(&slice[..allowed], 0);
             self.finish_vertices();
-            let dt = unsafe { crate::switch_now_ns().saturating_sub(t0) };
+            let dt = crate::prof_now().saturating_sub(t0);
             crate::PERF_PARSE_NS.fetch_add(dt, core::sync::atomic::Ordering::Relaxed);
             if combined_owned {
                 data.drain(..used);

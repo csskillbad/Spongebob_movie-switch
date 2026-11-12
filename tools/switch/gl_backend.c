@@ -232,7 +232,7 @@ static const char* k_vs_transformed_src =
 static const char* k_vs_gx_src =
     "#version 430 core\n"
     "invariant gl_Position;\n"
-    "layout(location = 0) in vec3 a_pos;\n"
+    "layout(location = 0) in vec4 a_pos;\n"
     "layout(location = 1) in vec3 a_nrm;\n"
     "layout(location = 2) in vec4 a_vc0;\n"
     "layout(location = 3) in vec4 a_vc1;\n"
@@ -257,6 +257,11 @@ static const char* k_vs_gx_src =
     "    vec4 origin;\n"
     "    vec4 place;\n"
     "} v;\n"
+    "layout(std140, binding = 2) uniform XfMem {\n"
+    "    vec4 pm[64];\n"
+    "    vec4 nm[32];\n"
+    "} xf;\n"
+    "float xf_normal(int i) { i = min(i, 127); return xf.nm[i >> 2][i & 3]; }\n"
     "vec3 unit_vec(vec3 a) {\n"
     "    float squared = dot(a, a);\n"
     "    if (squared > 1e-30 && squared < 3.0e38) { return a * inversesqrt(squared); }\n"
@@ -333,11 +338,21 @@ static const char* k_vs_gx_src =
     "    return st - info.zw;\n"
     "}\n"
     "void main() {\n"
-    "    vec4 pos4 = vec4(a_pos, 1.0);\n"
-    "    vec3 at = vec3(dot(v.m0, pos4), dot(v.m1, pos4), dot(v.m2, pos4));\n"
+    "    vec4 pos4 = vec4(a_pos.xyz, 1.0);\n"
+    "    vec4 m0 = v.m0, m1 = v.m1, m2 = v.m2;\n"
+    "    vec3 n0 = v.n0.xyz, n1 = v.n1.xyz, n2 = v.n2.xyz;\n"
+    "    if (v.proj1.w != 0.0) {\n"
+    "        int mi = int(a_pos.w + 0.5);\n"
+    "        m0 = xf.pm[mi & 63]; m1 = xf.pm[(mi + 1) & 63]; m2 = xf.pm[(mi + 2) & 63];\n"
+    "        int nb = (mi & 31) * 3;\n"
+    "        n0 = vec3(xf_normal(nb), xf_normal(nb + 1), xf_normal(nb + 2));\n"
+    "        n1 = vec3(xf_normal(nb + 3), xf_normal(nb + 4), xf_normal(nb + 5));\n"
+    "        n2 = vec3(xf_normal(nb + 6), xf_normal(nb + 7), xf_normal(nb + 8));\n"
+    "    }\n"
+    "    vec3 at = vec3(dot(m0, pos4), dot(m1, pos4), dot(m2, pos4));\n"
     "    vec3 normal = a_nrm;\n"
     "    if (v.proj1.z != 0.0) {\n"
-    "        normal = unit_vec(vec3(dot(v.n0.xyz, a_nrm), dot(v.n1.xyz, a_nrm), dot(v.n2.xyz, a_nrm)));\n"
+    "        normal = unit_vec(vec3(dot(n0, a_nrm), dot(n1, a_nrm), dot(n2, a_nrm)));\n"
     "    }\n"
     "    vec4 o_pos = vec4(\n"
     "        v.proj0.x * at.x + v.proj0.y * at.z,\n"
@@ -353,20 +368,20 @@ static const char* k_vs_gx_src =
     "    v_c0 = channel_fn(0u, a_vc0, at, normal);\n"
     "    v_c1 = channel_fn(1u, a_vc1, at, normal);\n"
     "    v_uv01 = vec4(\n"
-    "        coordinate_fn(0u, a_pos, a_t01.xy, a_t01.zw, a_t23.xy, a_t23.zw),\n"
-    "        coordinate_fn(1u, a_pos, a_t01.xy, a_t01.zw, a_t23.xy, a_t23.zw)\n"
+    "        coordinate_fn(0u, a_pos.xyz, a_t01.xy, a_t01.zw, a_t23.xy, a_t23.zw),\n"
+    "        coordinate_fn(1u, a_pos.xyz, a_t01.xy, a_t01.zw, a_t23.xy, a_t23.zw)\n"
     "    );\n"
     "    v_uv23 = vec4(\n"
-    "        coordinate_fn(2u, a_pos, a_t01.xy, a_t01.zw, a_t23.xy, a_t23.zw),\n"
-    "        coordinate_fn(3u, a_pos, a_t01.xy, a_t01.zw, a_t23.xy, a_t23.zw)\n"
+    "        coordinate_fn(2u, a_pos.xyz, a_t01.xy, a_t01.zw, a_t23.xy, a_t23.zw),\n"
+    "        coordinate_fn(3u, a_pos.xyz, a_t01.xy, a_t01.zw, a_t23.xy, a_t23.zw)\n"
     "    );\n"
     "    v_uv45 = vec4(\n"
-    "        coordinate_fn(4u, a_pos, a_t01.xy, a_t01.zw, a_t23.xy, a_t23.zw),\n"
-    "        coordinate_fn(5u, a_pos, a_t01.xy, a_t01.zw, a_t23.xy, a_t23.zw)\n"
+    "        coordinate_fn(4u, a_pos.xyz, a_t01.xy, a_t01.zw, a_t23.xy, a_t23.zw),\n"
+    "        coordinate_fn(5u, a_pos.xyz, a_t01.xy, a_t01.zw, a_t23.xy, a_t23.zw)\n"
     "    );\n"
     "    v_uv67 = vec4(\n"
-    "        coordinate_fn(6u, a_pos, a_t01.xy, a_t01.zw, a_t23.xy, a_t23.zw),\n"
-    "        coordinate_fn(7u, a_pos, a_t01.xy, a_t01.zw, a_t23.xy, a_t23.zw)\n"
+    "        coordinate_fn(6u, a_pos.xyz, a_t01.xy, a_t01.zw, a_t23.xy, a_t23.zw),\n"
+    "        coordinate_fn(7u, a_pos.xyz, a_t01.xy, a_t01.zw, a_t23.xy, a_t23.zw)\n"
     "    );\n"
     "}\n";
 
@@ -454,7 +469,7 @@ static GLuint link_two(GLuint vs, GLuint fs, int delete_both) {
 
 static void setup_raw_vao_attribs(void) {
     glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, RAW_VERTEX_STRIDE, (const void*)0);
+    glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, RAW_VERTEX_STRIDE, (const void*)0); /* xyz + matrix index */
     glEnableVertexAttribArray(1);
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, RAW_VERTEX_STRIDE, (const void*)16);
     glEnableVertexAttribArray(2);
@@ -722,6 +737,11 @@ static void execute_pass_internal(const PassPayload* pass) {
             if (vp_off != cur_vparams) {
                 cur_vparams = vp_off;
                 glBindBufferRange(GL_UNIFORM_BUFFER, 1, s_ring_vparams.id, (GLintptr)vp_off, 1408);
+                /* XfMem: matrix-indexed draws store it in the next 1536-byte slot. Other draws
+                   never read it, so any in-range slot will do. */
+                uint32_t xf_off = vp_off + 1536u;
+                if (xf_off + 1536u > s_ring_vparams.capacity) xf_off = vp_off;
+                glBindBufferRange(GL_UNIFORM_BUFFER, 2, s_ring_vparams.id, (GLintptr)xf_off, 1536);
             }
         }
 

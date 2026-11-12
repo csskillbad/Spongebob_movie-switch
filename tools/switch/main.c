@@ -31,6 +31,63 @@ extern void     tssm_switch_free_ctx(void* ctx);
 static Mutex s_log_mutex;
 static FILE* s_log_fp = NULL;
 
+// ---------------------------------------------------------------------------------------------
+// Crash reporter: on a CPU exception (data abort, misaligned access, bad instruction...) libnx
+// calls __libnx_exception_handler on its own stack. We write the faulting PC/LR/FAR as offsets
+// into this module (match them against tssm.elf with `nm`/`addr2line`) to sdmc:/tssm_crash.txt.
+// ---------------------------------------------------------------------------------------------
+extern char __start__[];
+u8 __nx_exception_stack[0x8000] __attribute__((aligned(16)));
+u64 __nx_exception_stack_size = sizeof(__nx_exception_stack);
+uint32_t switch_get_thread_index(void);
+
+static const char* exception_name(u32 desc) {
+    switch (desc) {
+        case ThreadExceptionDesc_InstructionAbort: return "InstructionAbort";
+        case ThreadExceptionDesc_MisalignedPC:     return "MisalignedPC";
+        case ThreadExceptionDesc_MisalignedSP:     return "MisalignedSP";
+        case ThreadExceptionDesc_SError:           return "SError";
+        case ThreadExceptionDesc_BadSVC:           return "BadSVC";
+        case ThreadExceptionDesc_Trap:             return "Trap";
+        case ThreadExceptionDesc_Other:            return "Other (data abort / alignment fault)";
+        default:                                   return "?";
+    }
+}
+
+void __libnx_exception_handler(ThreadExceptionDump* ctx) {
+    const u64 base = (u64)(uintptr_t)__start__;
+    const u64 limit = base + 0x08000000ull; // module image (code is ~40 MB)
+    if (s_log_fp) fflush(s_log_fp);
+    FILE* f = fopen("sdmc:/tssm_crash.txt", "w");
+    if (!f) f = fopen("sdmc:/switch/tssm/tssm_crash.txt", "w");
+    if (!f) return;
+    u32 ec = (ctx->esr >> 26) & 0x3F;
+    fprintf(f, "TSSM crash: %s (desc=0x%X) ESR=0x%08X (EC=0x%02X) thread_index=%u\n",
+            exception_name(ctx->error_desc), ctx->error_desc, ctx->esr, ec, (unsigned)switch_get_thread_index());
+    fprintf(f, "module base = 0x%016llX   (offsets below are relative to it = addresses in tssm.elf)\n",
+            (unsigned long long)base);
+    #define OFF(v) ((v) >= base && (v) < limit ? (unsigned long long)((v) - base) : 0ull)
+    fprintf(f, "PC  = 0x%016llX  off 0x%llX\n", (unsigned long long)ctx->pc.x, OFF(ctx->pc.x));
+    fprintf(f, "LR  = 0x%016llX  off 0x%llX\n", (unsigned long long)ctx->lr.x, OFF(ctx->lr.x));
+    fprintf(f, "FAR = 0x%016llX  (faulting data address)\n", (unsigned long long)ctx->far.x);
+    fprintf(f, "SP  = 0x%016llX  FP = 0x%016llX\n", (unsigned long long)ctx->sp.x, (unsigned long long)ctx->fp.x);
+    for (int i = 0; i < 29; i++) {
+        fprintf(f, "x%-2d = 0x%016llX%s", i, (unsigned long long)ctx->cpu_gprs[i].x, (i % 2) ? "\n" : "   ");
+    }
+    fprintf(f, "\nlikely return addresses on the stack (offsets):\n");
+    const u64* stack = (const u64*)(uintptr_t)ctx->sp.x;
+    int found = 0;
+    for (int i = 0; i < 512 && found < 32; i++) {
+        u64 v = stack[i];
+        if (v >= base + 0x1000 && v < limit && (v & 3) == 0) {
+            fprintf(f, "  [sp+0x%03X] 0x%llX\n", i * 8, (unsigned long long)(v - base));
+            found++;
+        }
+    }
+    #undef OFF
+    fclose(f);
+}
+
 void switch_log(const char* msg) {
     if (msg) {
         svcOutputDebugString(msg, strlen(msg));
@@ -290,6 +347,30 @@ int switch_create_worker_thread(
     return 0;
 }
 
+// Function-level profiler: a low-priority thread on Core 2 (it only runs while the GL thread is
+// idle) that calls back into Rust every `period_ns` to sample which guest function is executing.
+static Thread   s_prof_thread;
+static void   (*s_prof_tick)(void) = NULL;
+static uint64_t s_prof_period_ns = 200000;
+
+static void prof_thread_fn(void* arg) {
+    (void)arg;
+    for (;;) {
+        svcSleepThread((s64)s_prof_period_ns);
+        if (s_prof_tick) s_prof_tick();
+    }
+}
+
+int switch_start_prof_sampler(void (*tick)(void), uint64_t period_ns) {
+    s_prof_tick = tick;
+    s_prof_period_ns = period_ns;
+    Result rc = threadCreate(&s_prof_thread, prof_thread_fn, NULL, NULL, 64u * 1024u, 0x3B, 2);
+    if (R_FAILED(rc)) return -1;
+    threadStart(&s_prof_thread);
+    switch_log("[switch] Profiler sampler thread started on Core 2");
+    return 0;
+}
+
 // Dedicated Core 0 GX Graphics Frontend Worker Thread (FIFO Parser, Display Lists, Textures, Passes)
 static Thread  s_gx_worker;
 static Mutex   s_gx_mutex;
@@ -358,6 +439,13 @@ void switch_dispatch_worker(void (*fn)(void*), void* arg) {
 void switch_wait_worker(void) {}
 
 // Allocate GameCube 128 MB guest address space (24 MB RAM + branchless WGPIPE FIFO & MMIO window)
+int switch_file_exists(const char* path) {
+    FILE* f = fopen(path, "rb");
+    if (!f) return 0;
+    fclose(f);
+    return 1;
+}
+
 void* switch_alloc_guest_memory(void) {
     size_t size = (128u * 1024u * 1024u) + 65536u;
     void* ptr = malloc(size);

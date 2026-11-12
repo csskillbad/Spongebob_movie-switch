@@ -4,6 +4,7 @@ use super::*;
 
 // __ieee754_rem_pio2
 pub fn fn_802AED00(c: &mut Ctx) {
+    runtime::prof(0x802AED00);
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r1 = c.r[1]; let mut r2 = c.r[2]; let mut r3 = c.r[3]; let mut r4 = c.r[4]; let mut r5 = c.r[5]; let mut r6 = c.r[6]; let mut r7 = c.r[7]; let mut r8 = c.r[8]; let mut r30 = c.r[30]; let mut r31 = c.r[31]; 
     let mut f0 = c.f[0]; let mut f1 = c.f[1]; let mut f2 = c.f[2]; let mut f3 = c.f[3]; let mut f4 = c.f[4]; let mut f5 = c.f[5]; 
@@ -260,7 +261,7 @@ pub fn fn_802AED00(c: &mut Ctx) {
             r8 = r3.wrapping_add(0xFFFFE3C8);
             r7 = 0x2u32;
             r3 = r1.wrapping_add(0x18);
-            { c.lr = 0x802AF064; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[30] = r30; c.r[31] = r31; c.f[0] = f0; c.f[1] = f1; c.f[2] = f2; c.f[3] = f3; c.f[4] = f4; c.f[5] = f5; c.cr[0] = cr0; c.ca = ca; fn_802AF194(c); r0 = c.r[0]; r1 = c.r[1]; r2 = c.r[2]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r30 = c.r[30]; r31 = c.r[31]; f0 = c.f[0]; f1 = c.f[1]; f2 = c.f[2]; f3 = c.f[3]; f4 = c.f[4]; f5 = c.f[5]; cr0 = c.cr[0]; ca = c.ca; }
+            { c.lr = 0x802AF064; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.f[0] = f0; c.f[1] = f1; c.f[2] = f2; c.f[3] = f3; c.f[4] = f4; c.f[5] = f5; c.cr[0] = cr0; c.ca = ca; fn_802AF194(c); runtime::prof(0x802AED00); r0 = c.r[0]; r1 = c.r[1]; r2 = c.r[2]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; f0 = c.f[0]; f1 = c.f[1]; f2 = c.f[2]; f3 = c.f[3]; f4 = c.f[4]; f5 = c.f[5]; cr0 = c.cr[0]; ca = c.ca; }
             cr0 = runtime::cmps_val(r31 as i32, 0);
             if cr0 & 8 == 0 { { pc = 0x802AF088; continue; } }
             { let ea = r30; f0 = f64::from_bits(runtime::mr64(mem, ea)); }
@@ -286,6 +287,7 @@ pub fn fn_802AED00(c: &mut Ctx) {
 
 // __kernel_cos
 pub fn fn_802AF0A0(c: &mut Ctx) {
+    runtime::prof(0x802AF0A0);
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r1 = c.r[1]; let mut r2 = c.r[2]; let mut r3 = c.r[3]; let mut r4 = c.r[4]; 
     let mut f0 = c.f[0]; let mut f1 = c.f[1]; let mut f2 = c.f[2]; let mut f3 = c.f[3]; let mut f4 = c.f[4]; let mut f5 = c.f[5]; let mut f6 = c.f[6]; let mut f7 = c.f[7]; 
@@ -373,6 +375,7 @@ pub fn fn_802AF0A0(c: &mut Ctx) {
 
 // __kernel_rem_pio2
 pub fn fn_802AF194(c: &mut Ctx) {
+    runtime::prof(0x802AF194);
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r1 = c.r[1]; let mut r2 = c.r[2]; let mut r3 = c.r[3]; let mut r4 = c.r[4]; let mut r5 = c.r[5]; let mut r6 = c.r[6]; let mut r7 = c.r[7]; let mut r8 = c.r[8]; let mut r9 = c.r[9]; let mut r10 = c.r[10]; let mut r11 = c.r[11]; let mut r12 = c.r[12]; let mut r16 = c.r[16]; let mut r17 = c.r[17]; let mut r18 = c.r[18]; let mut r19 = c.r[19]; let mut r20 = c.r[20]; let mut r21 = c.r[21]; let mut r22 = c.r[22]; let mut r23 = c.r[23]; let mut r24 = c.r[24]; let mut r25 = c.r[25]; let mut r26 = c.r[26]; let mut r27 = c.r[27]; let mut r28 = c.r[28]; let mut r29 = c.r[29]; let mut r30 = c.r[30]; let mut r31 = c.r[31]; 
     let mut f0 = c.f[0]; let mut f1 = c.f[1]; let mut f2 = c.f[2]; let mut f3 = c.f[3]; let mut f4 = c.f[4]; let mut f5 = c.f[5]; let mut f6 = c.f[6]; let mut f25 = c.f[25]; let mut f26 = c.f[26]; let mut f27 = c.f[27]; let mut f28 = c.f[28]; let mut f29 = c.f[29]; let mut f30 = c.f[30]; let mut f31 = c.f[31]; 
@@ -386,7 +389,7 @@ pub fn fn_802AF194(c: &mut Ctx) {
             r0 = c.lr;
             { let ea = r1.wrapping_add(0x2D4); runtime::mw32(mem, ea, r0); }
             r11 = r1.wrapping_add(0x2D0);
-            { c.lr = 0x802AF1A8; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.r[16] = r16; c.r[17] = r17; c.r[18] = r18; c.r[19] = r19; c.r[20] = r20; c.r[21] = r21; c.r[22] = r22; c.r[23] = r23; c.r[24] = r24; c.r[25] = r25; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.f[0] = f0; c.f[1] = f1; c.f[2] = f2; c.f[3] = f3; c.f[4] = f4; c.f[5] = f5; c.f[6] = f6; c.f[25] = f25; c.f[26] = f26; c.f[27] = f27; c.f[28] = f28; c.f[29] = f29; c.f[30] = f30; c.f[31] = f31; c.cr[0] = cr0; c.ctr = ctr; c.ca = ca; fn_802B196C(c); r0 = c.r[0]; r1 = c.r[1]; r2 = c.r[2]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; r16 = c.r[16]; r17 = c.r[17]; r18 = c.r[18]; r19 = c.r[19]; r20 = c.r[20]; r21 = c.r[21]; r22 = c.r[22]; r23 = c.r[23]; r24 = c.r[24]; r25 = c.r[25]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; f0 = c.f[0]; f1 = c.f[1]; f2 = c.f[2]; f3 = c.f[3]; f4 = c.f[4]; f5 = c.f[5]; f6 = c.f[6]; f25 = c.f[25]; f26 = c.f[26]; f27 = c.f[27]; f28 = c.f[28]; f29 = c.f[29]; f30 = c.f[30]; f31 = c.f[31]; cr0 = c.cr[0]; ctr = c.ctr; ca = c.ca; }
+            { c.lr = 0x802AF1A8; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.r[16] = r16; c.r[17] = r17; c.r[18] = r18; c.r[19] = r19; c.r[20] = r20; c.r[21] = r21; c.r[22] = r22; c.r[23] = r23; c.r[24] = r24; c.r[25] = r25; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.f[0] = f0; c.f[1] = f1; c.f[2] = f2; c.f[3] = f3; c.f[4] = f4; c.f[5] = f5; c.f[6] = f6; c.f[25] = f25; c.f[26] = f26; c.f[27] = f27; c.f[28] = f28; c.f[29] = f29; c.f[30] = f30; c.f[31] = f31; c.cr[0] = cr0; c.ctr = ctr; c.ca = ca; fn_802B196C(c); runtime::prof(0x802AF194); r0 = c.r[0]; r1 = c.r[1]; r2 = c.r[2]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; f0 = c.f[0]; f1 = c.f[1]; f2 = c.f[2]; f3 = c.f[3]; f4 = c.f[4]; f5 = c.f[5]; f6 = c.f[6]; cr0 = c.cr[0]; ctr = c.ctr; ca = c.ca; }
             { let ea = r1.wrapping_add(0x258); runtime::mw32(mem, ea.wrapping_add(0x0), r16); runtime::mw32(mem, ea.wrapping_add(0x4), r17); runtime::mw32(mem, ea.wrapping_add(0x8), r18); runtime::mw32(mem, ea.wrapping_add(0xC), r19); runtime::mw32(mem, ea.wrapping_add(0x10), r20); runtime::mw32(mem, ea.wrapping_add(0x14), r21); runtime::mw32(mem, ea.wrapping_add(0x18), r22); runtime::mw32(mem, ea.wrapping_add(0x1C), r23); runtime::mw32(mem, ea.wrapping_add(0x20), r24); runtime::mw32(mem, ea.wrapping_add(0x24), r25); runtime::mw32(mem, ea.wrapping_add(0x28), r26); runtime::mw32(mem, ea.wrapping_add(0x2C), r27); runtime::mw32(mem, ea.wrapping_add(0x30), r28); runtime::mw32(mem, ea.wrapping_add(0x34), r29); runtime::mw32(mem, ea.wrapping_add(0x38), r30); runtime::mw32(mem, ea.wrapping_add(0x3C), r31);  }
             r9 = 0x2AAB0000u32;
             r23 = r7 | r7;
@@ -650,10 +653,10 @@ pub fn fn_802AF194(c: &mut Ctx) {
         }
         0x802AF508 => {
             r3 = r26 | r26;
-            { c.lr = 0x802AF510; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.r[16] = r16; c.r[17] = r17; c.r[18] = r18; c.r[19] = r19; c.r[20] = r20; c.r[21] = r21; c.r[22] = r22; c.r[23] = r23; c.r[24] = r24; c.r[25] = r25; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.f[0] = f0; c.f[1] = f1; c.f[2] = f2; c.f[3] = f3; c.f[4] = f4; c.f[5] = f5; c.f[6] = f6; c.f[25] = f25; c.f[26] = f26; c.f[27] = f27; c.f[28] = f28; c.f[29] = f29; c.f[30] = f30; c.f[31] = f31; c.cr[0] = cr0; c.ctr = ctr; c.ca = ca; fn_802B08C8(c); r0 = c.r[0]; r1 = c.r[1]; r2 = c.r[2]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; r16 = c.r[16]; r17 = c.r[17]; r18 = c.r[18]; r19 = c.r[19]; r20 = c.r[20]; r21 = c.r[21]; r22 = c.r[22]; r23 = c.r[23]; r24 = c.r[24]; r25 = c.r[25]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; f0 = c.f[0]; f1 = c.f[1]; f2 = c.f[2]; f3 = c.f[3]; f4 = c.f[4]; f5 = c.f[5]; f6 = c.f[6]; f25 = c.f[25]; f26 = c.f[26]; f27 = c.f[27]; f28 = c.f[28]; f29 = c.f[29]; f30 = c.f[30]; f31 = c.f[31]; cr0 = c.cr[0]; ctr = c.ctr; ca = c.ca; }
+            { c.lr = 0x802AF510; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.f[0] = f0; c.f[1] = f1; c.f[2] = f2; c.f[3] = f3; c.f[4] = f4; c.f[5] = f5; c.f[6] = f6; c.cr[0] = cr0; c.ctr = ctr; c.ca = ca; fn_802B08C8(c); runtime::prof(0x802AF194); r0 = c.r[0]; r1 = c.r[1]; r2 = c.r[2]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; f0 = c.f[0]; f1 = c.f[1]; f2 = c.f[2]; f3 = c.f[3]; f4 = c.f[4]; f5 = c.f[5]; f6 = c.f[6]; cr0 = c.cr[0]; ctr = c.ctr; ca = c.ca; }
             f25 = f1;
             f1 = f29 * f25;
-            { c.lr = 0x802AF51C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.r[16] = r16; c.r[17] = r17; c.r[18] = r18; c.r[19] = r19; c.r[20] = r20; c.r[21] = r21; c.r[22] = r22; c.r[23] = r23; c.r[24] = r24; c.r[25] = r25; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.f[0] = f0; c.f[1] = f1; c.f[2] = f2; c.f[3] = f3; c.f[4] = f4; c.f[5] = f5; c.f[6] = f6; c.f[25] = f25; c.f[26] = f26; c.f[27] = f27; c.f[28] = f28; c.f[29] = f29; c.f[30] = f30; c.f[31] = f31; c.cr[0] = cr0; c.ctr = ctr; c.ca = ca; fn_802B06F4(c); r0 = c.r[0]; r1 = c.r[1]; r2 = c.r[2]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; r16 = c.r[16]; r17 = c.r[17]; r18 = c.r[18]; r19 = c.r[19]; r20 = c.r[20]; r21 = c.r[21]; r22 = c.r[22]; r23 = c.r[23]; r24 = c.r[24]; r25 = c.r[25]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; f0 = c.f[0]; f1 = c.f[1]; f2 = c.f[2]; f3 = c.f[3]; f4 = c.f[4]; f5 = c.f[5]; f6 = c.f[6]; f25 = c.f[25]; f26 = c.f[26]; f27 = c.f[27]; f28 = c.f[28]; f29 = c.f[29]; f30 = c.f[30]; f31 = c.f[31]; cr0 = c.cr[0]; ctr = c.ctr; ca = c.ca; }
+            { c.lr = 0x802AF51C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.f[0] = f0; c.f[1] = f1; c.f[2] = f2; c.f[3] = f3; c.f[4] = f4; c.f[5] = f5; c.f[6] = f6; c.cr[0] = cr0; c.ctr = ctr; c.ca = ca; fn_802B06F4(c); runtime::prof(0x802AF194); r0 = c.r[0]; r1 = c.r[1]; r2 = c.r[2]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; f0 = c.f[0]; f1 = c.f[1]; f2 = c.f[2]; f3 = c.f[3]; f4 = c.f[4]; f5 = c.f[5]; f6 = c.f[6]; cr0 = c.cr[0]; ctr = c.ctr; ca = c.ca; }
             f25 = -(f30 * f1 - f25);
             { let ea = r1.wrapping_add(0x240); runtime::mw32(mem, ea, r19); }
             cr0 = runtime::cmps_val(r26 as i32, 0);
@@ -767,7 +770,7 @@ pub fn fn_802AF194(c: &mut Ctx) {
             f25 = f1 - f25;
             if cr0 & 2 != 0 { { pc = 0x802AF684; continue; } }
             r3 = r26 | r26;
-            { c.lr = 0x802AF680; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.r[16] = r16; c.r[17] = r17; c.r[18] = r18; c.r[19] = r19; c.r[20] = r20; c.r[21] = r21; c.r[22] = r22; c.r[23] = r23; c.r[24] = r24; c.r[25] = r25; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.f[0] = f0; c.f[1] = f1; c.f[2] = f2; c.f[3] = f3; c.f[4] = f4; c.f[5] = f5; c.f[6] = f6; c.f[25] = f25; c.f[26] = f26; c.f[27] = f27; c.f[28] = f28; c.f[29] = f29; c.f[30] = f30; c.f[31] = f31; c.cr[0] = cr0; c.ctr = ctr; c.ca = ca; fn_802B08C8(c); r0 = c.r[0]; r1 = c.r[1]; r2 = c.r[2]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; r16 = c.r[16]; r17 = c.r[17]; r18 = c.r[18]; r19 = c.r[19]; r20 = c.r[20]; r21 = c.r[21]; r22 = c.r[22]; r23 = c.r[23]; r24 = c.r[24]; r25 = c.r[25]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; f0 = c.f[0]; f1 = c.f[1]; f2 = c.f[2]; f3 = c.f[3]; f4 = c.f[4]; f5 = c.f[5]; f6 = c.f[6]; f25 = c.f[25]; f26 = c.f[26]; f27 = c.f[27]; f28 = c.f[28]; f29 = c.f[29]; f30 = c.f[30]; f31 = c.f[31]; cr0 = c.cr[0]; ctr = c.ctr; ca = c.ca; }
+            { c.lr = 0x802AF680; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.f[0] = f0; c.f[1] = f1; c.f[2] = f2; c.f[3] = f3; c.f[4] = f4; c.f[5] = f5; c.f[6] = f6; c.cr[0] = cr0; c.ctr = ctr; c.ca = ca; fn_802B08C8(c); runtime::prof(0x802AF194); r0 = c.r[0]; r1 = c.r[1]; r2 = c.r[2]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; f0 = c.f[0]; f1 = c.f[1]; f2 = c.f[2]; f3 = c.f[3]; f4 = c.f[4]; f5 = c.f[5]; f6 = c.f[6]; cr0 = c.cr[0]; ctr = c.ctr; ca = c.ca; }
             f25 = f25 - f1;
             pc = 0x802AF684;
         }
@@ -987,7 +990,7 @@ pub fn fn_802AF194(c: &mut Ctx) {
         0x802AF92C => {
             f1 = f25;
             r3 = r26.wrapping_neg();
-            { c.lr = 0x802AF938; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.r[16] = r16; c.r[17] = r17; c.r[18] = r18; c.r[19] = r19; c.r[20] = r20; c.r[21] = r21; c.r[22] = r22; c.r[23] = r23; c.r[24] = r24; c.r[25] = r25; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.f[0] = f0; c.f[1] = f1; c.f[2] = f2; c.f[3] = f3; c.f[4] = f4; c.f[5] = f5; c.f[6] = f6; c.f[25] = f25; c.f[26] = f26; c.f[27] = f27; c.f[28] = f28; c.f[29] = f29; c.f[30] = f30; c.f[31] = f31; c.cr[0] = cr0; c.ctr = ctr; c.ca = ca; fn_802B08C8(c); r0 = c.r[0]; r1 = c.r[1]; r2 = c.r[2]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; r16 = c.r[16]; r17 = c.r[17]; r18 = c.r[18]; r19 = c.r[19]; r20 = c.r[20]; r21 = c.r[21]; r22 = c.r[22]; r23 = c.r[23]; r24 = c.r[24]; r25 = c.r[25]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; f0 = c.f[0]; f1 = c.f[1]; f2 = c.f[2]; f3 = c.f[3]; f4 = c.f[4]; f5 = c.f[5]; f6 = c.f[6]; f25 = c.f[25]; f26 = c.f[26]; f27 = c.f[27]; f28 = c.f[28]; f29 = c.f[29]; f30 = c.f[30]; f31 = c.f[31]; cr0 = c.cr[0]; ctr = c.ctr; ca = c.ca; }
+            { c.lr = 0x802AF938; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.f[0] = f0; c.f[1] = f1; c.f[2] = f2; c.f[3] = f3; c.f[4] = f4; c.f[5] = f5; c.f[6] = f6; c.cr[0] = cr0; c.ctr = ctr; c.ca = ca; fn_802B08C8(c); runtime::prof(0x802AF194); r0 = c.r[0]; r1 = c.r[1]; r2 = c.r[2]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; f0 = c.f[0]; f1 = c.f[1]; f2 = c.f[2]; f3 = c.f[3]; f4 = c.f[4]; f5 = c.f[5]; f6 = c.f[6]; cr0 = c.cr[0]; ctr = c.ctr; ca = c.ca; }
             { let ea = r2.wrapping_add(0xFFFFA2A0); f3 = f64::from_bits(runtime::mr64(mem, ea)); }
             cr0 = runtime::fcmp_val(f1, f3);
             { let v = (cr0 & 4 != 0) | (cr0 & 2 != 0); cr0 = if v { cr0 | 2 } else { cr0 & 0xFD }; }
@@ -1032,7 +1035,7 @@ pub fn fn_802AF194(c: &mut Ctx) {
         0x802AF9CC => {
             { let ea = r2.wrapping_add(0xFFFFA2C0); f1 = f64::from_bits(runtime::mr64(mem, ea)); }
             r3 = r26 | r26;
-            { c.lr = 0x802AF9D8; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.r[16] = r16; c.r[17] = r17; c.r[18] = r18; c.r[19] = r19; c.r[20] = r20; c.r[21] = r21; c.r[22] = r22; c.r[23] = r23; c.r[24] = r24; c.r[25] = r25; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.f[0] = f0; c.f[1] = f1; c.f[2] = f2; c.f[3] = f3; c.f[4] = f4; c.f[5] = f5; c.f[6] = f6; c.f[25] = f25; c.f[26] = f26; c.f[27] = f27; c.f[28] = f28; c.f[29] = f29; c.f[30] = f30; c.f[31] = f31; c.cr[0] = cr0; c.ctr = ctr; c.ca = ca; fn_802B08C8(c); r0 = c.r[0]; r1 = c.r[1]; r2 = c.r[2]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; r16 = c.r[16]; r17 = c.r[17]; r18 = c.r[18]; r19 = c.r[19]; r20 = c.r[20]; r21 = c.r[21]; r22 = c.r[22]; r23 = c.r[23]; r24 = c.r[24]; r25 = c.r[25]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; f0 = c.f[0]; f1 = c.f[1]; f2 = c.f[2]; f3 = c.f[3]; f4 = c.f[4]; f5 = c.f[5]; f6 = c.f[6]; f25 = c.f[25]; f26 = c.f[26]; f27 = c.f[27]; f28 = c.f[28]; f29 = c.f[29]; f30 = c.f[30]; f31 = c.f[31]; cr0 = c.cr[0]; ctr = c.ctr; ca = c.ca; }
+            { c.lr = 0x802AF9D8; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.f[0] = f0; c.f[1] = f1; c.f[2] = f2; c.f[3] = f3; c.f[4] = f4; c.f[5] = f5; c.f[6] = f6; c.cr[0] = cr0; c.ctr = ctr; c.ca = ca; fn_802B08C8(c); runtime::prof(0x802AF194); r0 = c.r[0]; r1 = c.r[1]; r2 = c.r[2]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; f0 = c.f[0]; f1 = c.f[1]; f2 = c.f[2]; f3 = c.f[3]; f4 = c.f[4]; f5 = c.f[5]; f6 = c.f[6]; cr0 = c.cr[0]; ctr = c.ctr; ca = c.ca; }
             cr0 = runtime::cmps_val(r31 as i32, 0);
             r0 = r31.rotate_left(2) & 0xFFFFFFFC;
             r6 = r1.wrapping_add(0x8);
@@ -1539,7 +1542,7 @@ pub fn fn_802AF194(c: &mut Ctx) {
         0x802AFFC8 => {
             r3 = r27.rotate_left(0) & 0x7;
             r11 = r1.wrapping_add(0x2D0);
-            { c.lr = 0x802AFFD4; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.r[16] = r16; c.r[17] = r17; c.r[18] = r18; c.r[19] = r19; c.r[20] = r20; c.r[21] = r21; c.r[22] = r22; c.r[23] = r23; c.r[24] = r24; c.r[25] = r25; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.f[0] = f0; c.f[1] = f1; c.f[2] = f2; c.f[3] = f3; c.f[4] = f4; c.f[5] = f5; c.f[6] = f6; c.f[25] = f25; c.f[26] = f26; c.f[27] = f27; c.f[28] = f28; c.f[29] = f29; c.f[30] = f30; c.f[31] = f31; c.cr[0] = cr0; c.ctr = ctr; c.ca = ca; fn_802B19B8(c); r0 = c.r[0]; r1 = c.r[1]; r2 = c.r[2]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; r16 = c.r[16]; r17 = c.r[17]; r18 = c.r[18]; r19 = c.r[19]; r20 = c.r[20]; r21 = c.r[21]; r22 = c.r[22]; r23 = c.r[23]; r24 = c.r[24]; r25 = c.r[25]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; f0 = c.f[0]; f1 = c.f[1]; f2 = c.f[2]; f3 = c.f[3]; f4 = c.f[4]; f5 = c.f[5]; f6 = c.f[6]; f25 = c.f[25]; f26 = c.f[26]; f27 = c.f[27]; f28 = c.f[28]; f29 = c.f[29]; f30 = c.f[30]; f31 = c.f[31]; cr0 = c.cr[0]; ctr = c.ctr; ca = c.ca; }
+            { c.lr = 0x802AFFD4; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.r[16] = r16; c.r[17] = r17; c.r[18] = r18; c.r[19] = r19; c.r[20] = r20; c.r[21] = r21; c.r[22] = r22; c.r[23] = r23; c.r[24] = r24; c.r[25] = r25; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.f[0] = f0; c.f[1] = f1; c.f[2] = f2; c.f[3] = f3; c.f[4] = f4; c.f[5] = f5; c.f[6] = f6; c.f[25] = f25; c.f[26] = f26; c.f[27] = f27; c.f[28] = f28; c.f[29] = f29; c.f[30] = f30; c.f[31] = f31; c.cr[0] = cr0; c.ctr = ctr; c.ca = ca; fn_802B19B8(c); runtime::prof(0x802AF194); r0 = c.r[0]; r1 = c.r[1]; r2 = c.r[2]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; r16 = c.r[16]; r17 = c.r[17]; r18 = c.r[18]; r19 = c.r[19]; r20 = c.r[20]; r21 = c.r[21]; r22 = c.r[22]; r23 = c.r[23]; r24 = c.r[24]; r25 = c.r[25]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; f0 = c.f[0]; f1 = c.f[1]; f2 = c.f[2]; f3 = c.f[3]; f4 = c.f[4]; f5 = c.f[5]; f6 = c.f[6]; f25 = c.f[25]; f26 = c.f[26]; f27 = c.f[27]; f28 = c.f[28]; f29 = c.f[29]; f30 = c.f[30]; f31 = c.f[31]; cr0 = c.cr[0]; ctr = c.ctr; ca = c.ca; }
             { let ea = r1.wrapping_add(0x258); r16 = runtime::mr32(mem, ea.wrapping_add(0x0)); r17 = runtime::mr32(mem, ea.wrapping_add(0x4)); r18 = runtime::mr32(mem, ea.wrapping_add(0x8)); r19 = runtime::mr32(mem, ea.wrapping_add(0xC)); r20 = runtime::mr32(mem, ea.wrapping_add(0x10)); r21 = runtime::mr32(mem, ea.wrapping_add(0x14)); r22 = runtime::mr32(mem, ea.wrapping_add(0x18)); r23 = runtime::mr32(mem, ea.wrapping_add(0x1C)); r24 = runtime::mr32(mem, ea.wrapping_add(0x20)); r25 = runtime::mr32(mem, ea.wrapping_add(0x24)); r26 = runtime::mr32(mem, ea.wrapping_add(0x28)); r27 = runtime::mr32(mem, ea.wrapping_add(0x2C)); r28 = runtime::mr32(mem, ea.wrapping_add(0x30)); r29 = runtime::mr32(mem, ea.wrapping_add(0x34)); r30 = runtime::mr32(mem, ea.wrapping_add(0x38)); r31 = runtime::mr32(mem, ea.wrapping_add(0x3C));  }
             { let ea = r1.wrapping_add(0x2D4); r0 = runtime::mr32(mem, ea); }
             c.lr = r0;
@@ -1552,6 +1555,7 @@ pub fn fn_802AF194(c: &mut Ctx) {
 
 // __kernel_sin
 pub fn fn_802AFFE8(c: &mut Ctx) {
+    runtime::prof(0x802AFFE8);
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r1 = c.r[1]; let mut r2 = c.r[2]; let mut r3 = c.r[3]; let mut r4 = c.r[4]; 
     let mut f0 = c.f[0]; let mut f1 = c.f[1]; let mut f2 = c.f[2]; let mut f3 = c.f[3]; let mut f4 = c.f[4]; let mut f5 = c.f[5]; let mut f6 = c.f[6]; let mut f7 = c.f[7]; 
@@ -1613,6 +1617,7 @@ pub fn fn_802AFFE8(c: &mut Ctx) {
 
 // __kernel_tan
 pub fn fn_802B0088(c: &mut Ctx) {
+    runtime::prof(0x802B0088);
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r1 = c.r[1]; let mut r2 = c.r[2]; let mut r3 = c.r[3]; let mut r4 = c.r[4]; let mut r5 = c.r[5]; let mut r6 = c.r[6]; let mut r7 = c.r[7]; 
     let mut f0 = c.f[0]; let mut f1 = c.f[1]; let mut f2 = c.f[2]; let mut f3 = c.f[3]; let mut f4 = c.f[4]; let mut f5 = c.f[5]; let mut f6 = c.f[6]; let mut f7 = c.f[7]; let mut f8 = c.f[8]; let mut f9 = c.f[9]; let mut f10 = c.f[10]; let mut f11 = c.f[11]; let mut f12 = c.f[12]; let mut f13 = c.f[13]; let mut f31 = c.f[31]; 
@@ -1781,6 +1786,7 @@ pub fn fn_802B0088(c: &mut Ctx) {
 
 // atan
 pub fn fn_802B029C(c: &mut Ctx) {
+    runtime::prof(0x802B029C);
     if c.hle(88) { return; }
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r1 = c.r[1]; let mut r2 = c.r[2]; let mut r3 = c.r[3]; let mut r4 = c.r[4]; let mut r5 = c.r[5]; let mut r6 = c.r[6]; 
@@ -1957,6 +1963,7 @@ pub fn fn_802B029C(c: &mut Ctx) {
 
 // ceil
 pub fn fn_802B04B4(c: &mut Ctx) {
+    runtime::prof(0x802B04B4);
     if c.hle(89) { return; }
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r1 = c.r[1]; let mut r2 = c.r[2]; let mut r3 = c.r[3]; let mut r4 = c.r[4]; let mut r5 = c.r[5]; let mut r6 = c.r[6]; let mut r7 = c.r[7]; 
@@ -2084,6 +2091,7 @@ pub fn fn_802B04B4(c: &mut Ctx) {
 // copysign
 #[inline]
 pub fn fn_802B05F8(c: &mut Ctx) {
+    runtime::prof(0x802B05F8);
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r1 = c.r[1]; let mut r3 = c.r[3]; 
     let mut f1 = c.f[1]; let mut f2 = c.f[2]; 
@@ -2101,6 +2109,7 @@ pub fn fn_802B05F8(c: &mut Ctx) {
 
 // cos
 pub fn fn_802B0620(c: &mut Ctx) {
+    runtime::prof(0x802B0620);
     if c.hle(90) { return; }
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r1 = c.r[1]; let mut r2 = c.r[2]; let mut r3 = c.r[3]; 
@@ -2120,7 +2129,7 @@ pub fn fn_802B0620(c: &mut Ctx) {
             cr0 = runtime::cmps_val(r3 as i32, r0 as i32);
             if cr0 & 4 != 0 { { pc = 0x802B0654; continue; } }
             { let ea = r2.wrapping_add(0xFFFFA378); f2 = f64::from_bits(runtime::mr64(mem, ea)); }
-            { c.lr = 0x802B0650; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.f[1] = f1; c.f[2] = f2; c.cr[0] = cr0; fn_802AF0A0(c); r0 = c.r[0]; r1 = c.r[1]; r2 = c.r[2]; r3 = c.r[3]; f1 = c.f[1]; f2 = c.f[2]; cr0 = c.cr[0]; }
+            { c.lr = 0x802B0650; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.f[1] = f1; c.f[2] = f2; c.cr[0] = cr0; fn_802AF0A0(c); runtime::prof(0x802B0620); r0 = c.r[0]; r1 = c.r[1]; r2 = c.r[2]; r3 = c.r[3]; f1 = c.f[1]; f2 = c.f[2]; cr0 = c.cr[0]; }
             { pc = 0x802B06E4; continue; }
         }
         0x802B0654 => {
@@ -2132,7 +2141,7 @@ pub fn fn_802B0620(c: &mut Ctx) {
         }
         0x802B0668 => {
             r3 = r1.wrapping_add(0x10);
-            { c.lr = 0x802B0670; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.f[1] = f1; c.f[2] = f2; c.cr[0] = cr0; fn_802AED00(c); r0 = c.r[0]; r1 = c.r[1]; r2 = c.r[2]; r3 = c.r[3]; f1 = c.f[1]; f2 = c.f[2]; cr0 = c.cr[0]; }
+            { c.lr = 0x802B0670; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.f[1] = f1; c.f[2] = f2; c.cr[0] = cr0; fn_802AED00(c); runtime::prof(0x802B0620); r0 = c.r[0]; r1 = c.r[1]; r2 = c.r[2]; r3 = c.r[3]; f1 = c.f[1]; f2 = c.f[2]; cr0 = c.cr[0]; }
             r0 = r3.rotate_left(0) & 0x3;
             cr0 = runtime::cmps_val(r0 as i32, 1);
             if cr0 & 2 != 0 { { pc = 0x802B06A8; continue; } }
@@ -2149,21 +2158,21 @@ pub fn fn_802B0620(c: &mut Ctx) {
         0x802B0698 => {
             { let ea = r1.wrapping_add(0x10); f1 = f64::from_bits(runtime::mr64(mem, ea)); }
             { let ea = r1.wrapping_add(0x18); f2 = f64::from_bits(runtime::mr64(mem, ea)); }
-            { c.lr = 0x802B06A4; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.f[1] = f1; c.f[2] = f2; c.cr[0] = cr0; fn_802AF0A0(c); r0 = c.r[0]; r1 = c.r[1]; r2 = c.r[2]; r3 = c.r[3]; f1 = c.f[1]; f2 = c.f[2]; cr0 = c.cr[0]; }
+            { c.lr = 0x802B06A4; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.f[1] = f1; c.f[2] = f2; c.cr[0] = cr0; fn_802AF0A0(c); runtime::prof(0x802B0620); r0 = c.r[0]; r1 = c.r[1]; r2 = c.r[2]; r3 = c.r[3]; f1 = c.f[1]; f2 = c.f[2]; cr0 = c.cr[0]; }
             { pc = 0x802B06E4; continue; }
         }
         0x802B06A8 => {
             { let ea = r1.wrapping_add(0x10); f1 = f64::from_bits(runtime::mr64(mem, ea)); }
             r3 = 0x1u32;
             { let ea = r1.wrapping_add(0x18); f2 = f64::from_bits(runtime::mr64(mem, ea)); }
-            { c.lr = 0x802B06B8; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.f[1] = f1; c.f[2] = f2; c.cr[0] = cr0; fn_802AFFE8(c); r0 = c.r[0]; r1 = c.r[1]; r2 = c.r[2]; r3 = c.r[3]; f1 = c.f[1]; f2 = c.f[2]; cr0 = c.cr[0]; }
+            { c.lr = 0x802B06B8; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.f[1] = f1; c.f[2] = f2; c.cr[0] = cr0; fn_802AFFE8(c); runtime::prof(0x802B0620); r0 = c.r[0]; r1 = c.r[1]; r2 = c.r[2]; r3 = c.r[3]; f1 = c.f[1]; f2 = c.f[2]; cr0 = c.cr[0]; }
             f1 = -f1;
             { pc = 0x802B06E4; continue; }
         }
         0x802B06C0 => {
             { let ea = r1.wrapping_add(0x10); f1 = f64::from_bits(runtime::mr64(mem, ea)); }
             { let ea = r1.wrapping_add(0x18); f2 = f64::from_bits(runtime::mr64(mem, ea)); }
-            { c.lr = 0x802B06CC; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.f[1] = f1; c.f[2] = f2; c.cr[0] = cr0; fn_802AF0A0(c); r0 = c.r[0]; r1 = c.r[1]; r2 = c.r[2]; r3 = c.r[3]; f1 = c.f[1]; f2 = c.f[2]; cr0 = c.cr[0]; }
+            { c.lr = 0x802B06CC; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.f[1] = f1; c.f[2] = f2; c.cr[0] = cr0; fn_802AF0A0(c); runtime::prof(0x802B0620); r0 = c.r[0]; r1 = c.r[1]; r2 = c.r[2]; r3 = c.r[3]; f1 = c.f[1]; f2 = c.f[2]; cr0 = c.cr[0]; }
             f1 = -f1;
             { pc = 0x802B06E4; continue; }
         }
@@ -2171,7 +2180,7 @@ pub fn fn_802B0620(c: &mut Ctx) {
             { let ea = r1.wrapping_add(0x10); f1 = f64::from_bits(runtime::mr64(mem, ea)); }
             r3 = 0x1u32;
             { let ea = r1.wrapping_add(0x18); f2 = f64::from_bits(runtime::mr64(mem, ea)); }
-            { c.lr = 0x802B06E4; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.f[1] = f1; c.f[2] = f2; c.cr[0] = cr0; fn_802AFFE8(c); r0 = c.r[0]; r1 = c.r[1]; r2 = c.r[2]; r3 = c.r[3]; f1 = c.f[1]; f2 = c.f[2]; cr0 = c.cr[0]; }
+            { c.lr = 0x802B06E4; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.f[1] = f1; c.f[2] = f2; c.cr[0] = cr0; fn_802AFFE8(c); runtime::prof(0x802B0620); r0 = c.r[0]; r1 = c.r[1]; r2 = c.r[2]; r3 = c.r[3]; f1 = c.f[1]; f2 = c.f[2]; cr0 = c.cr[0]; }
             pc = 0x802B06E4;
         }
         0x802B06E4 => {
@@ -2186,6 +2195,7 @@ pub fn fn_802B0620(c: &mut Ctx) {
 
 // floor
 pub fn fn_802B06F4(c: &mut Ctx) {
+    runtime::prof(0x802B06F4);
     if c.hle(91) { return; }
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r1 = c.r[1]; let mut r2 = c.r[2]; let mut r3 = c.r[3]; let mut r4 = c.r[4]; let mut r5 = c.r[5]; let mut r6 = c.r[6]; let mut r7 = c.r[7]; 
@@ -2313,6 +2323,7 @@ pub fn fn_802B06F4(c: &mut Ctx) {
 
 // frexp
 pub fn fn_802B083C(c: &mut Ctx) {
+    runtime::prof(0x802B083C);
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r1 = c.r[1]; let mut r2 = c.r[2]; let mut r3 = c.r[3]; let mut r4 = c.r[4]; let mut r5 = c.r[5]; let mut r6 = c.r[6]; 
     let mut f0 = c.f[0]; let mut f1 = c.f[1]; 
@@ -2374,6 +2385,7 @@ pub fn fn_802B083C(c: &mut Ctx) {
 
 // ldexp
 pub fn fn_802B08C8(c: &mut Ctx) {
+    runtime::prof(0x802B08C8);
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r1 = c.r[1]; let mut r2 = c.r[2]; let mut r3 = c.r[3]; let mut r4 = c.r[4]; let mut r5 = c.r[5]; let mut r6 = c.r[6]; 
     let mut f0 = c.f[0]; let mut f1 = c.f[1]; let mut f2 = c.f[2]; 
@@ -2479,7 +2491,7 @@ pub fn fn_802B08C8(c: &mut Ctx) {
             if cr0 & 4 == 0 { { pc = 0x802B09F4; continue; } }
             { let ea = r2.wrapping_add(0xFFFFA3B0); f1 = f64::from_bits(runtime::mr64(mem, ea)); }
             { let ea = r1.wrapping_add(0x8); f2 = f64::from_bits(runtime::mr64(mem, ea)); }
-            { c.lr = 0x802B09E8; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.f[0] = f0; c.f[1] = f1; c.f[2] = f2; c.cr[0] = cr0; fn_802B05F8(c); r0 = c.r[0]; r1 = c.r[1]; r2 = c.r[2]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; f0 = c.f[0]; f1 = c.f[1]; f2 = c.f[2]; cr0 = c.cr[0]; }
+            { c.lr = 0x802B09E8; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.f[0] = f0; c.f[1] = f1; c.f[2] = f2; c.cr[0] = cr0; fn_802B05F8(c); runtime::prof(0x802B08C8); r0 = c.r[0]; r1 = c.r[1]; r2 = c.r[2]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; f0 = c.f[0]; f1 = c.f[1]; f2 = c.f[2]; cr0 = c.cr[0]; }
             { let ea = r2.wrapping_add(0xFFFFA3B0); f0 = f64::from_bits(runtime::mr64(mem, ea)); }
             f1 = f0 * f1;
             { pc = 0x802B0A7C; continue; }
@@ -2503,7 +2515,7 @@ pub fn fn_802B08C8(c: &mut Ctx) {
             if cr0 & 4 == 0 { { pc = 0x802B0A44; continue; } }
             { let ea = r2.wrapping_add(0xFFFFA3B0); f1 = f64::from_bits(runtime::mr64(mem, ea)); }
             { let ea = r1.wrapping_add(0x8); f2 = f64::from_bits(runtime::mr64(mem, ea)); }
-            { c.lr = 0x802B0A38; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.f[0] = f0; c.f[1] = f1; c.f[2] = f2; c.cr[0] = cr0; fn_802B05F8(c); r0 = c.r[0]; r1 = c.r[1]; r2 = c.r[2]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; f0 = c.f[0]; f1 = c.f[1]; f2 = c.f[2]; cr0 = c.cr[0]; }
+            { c.lr = 0x802B0A38; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.f[0] = f0; c.f[1] = f1; c.f[2] = f2; c.cr[0] = cr0; fn_802B05F8(c); runtime::prof(0x802B08C8); r0 = c.r[0]; r1 = c.r[1]; r2 = c.r[2]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; f0 = c.f[0]; f1 = c.f[1]; f2 = c.f[2]; cr0 = c.cr[0]; }
             { let ea = r2.wrapping_add(0xFFFFA3B0); f0 = f64::from_bits(runtime::mr64(mem, ea)); }
             f1 = f0 * f1;
             { pc = 0x802B0A7C; continue; }
@@ -2511,7 +2523,7 @@ pub fn fn_802B08C8(c: &mut Ctx) {
         0x802B0A44 => {
             { let ea = r2.wrapping_add(0xFFFFA3A8); f1 = f64::from_bits(runtime::mr64(mem, ea)); }
             { let ea = r1.wrapping_add(0x8); f2 = f64::from_bits(runtime::mr64(mem, ea)); }
-            { c.lr = 0x802B0A50; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.f[0] = f0; c.f[1] = f1; c.f[2] = f2; c.cr[0] = cr0; fn_802B05F8(c); r0 = c.r[0]; r1 = c.r[1]; r2 = c.r[2]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; f0 = c.f[0]; f1 = c.f[1]; f2 = c.f[2]; cr0 = c.cr[0]; }
+            { c.lr = 0x802B0A50; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.f[0] = f0; c.f[1] = f1; c.f[2] = f2; c.cr[0] = cr0; fn_802B05F8(c); runtime::prof(0x802B08C8); r0 = c.r[0]; r1 = c.r[1]; r2 = c.r[2]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; f0 = c.f[0]; f1 = c.f[1]; f2 = c.f[2]; cr0 = c.cr[0]; }
             { let ea = r2.wrapping_add(0xFFFFA3A8); f0 = f64::from_bits(runtime::mr64(mem, ea)); }
             f1 = f0 * f1;
             { pc = 0x802B0A7C; continue; }
@@ -2539,6 +2551,7 @@ pub fn fn_802B08C8(c: &mut Ctx) {
 
 // modf
 pub fn fn_802B0A8C(c: &mut Ctx) {
+    runtime::prof(0x802B0A8C);
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r1 = c.r[1]; let mut r3 = c.r[3]; let mut r4 = c.r[4]; let mut r5 = c.r[5]; let mut r6 = c.r[6]; let mut r7 = c.r[7]; 
     let mut f0 = c.f[0]; let mut f1 = c.f[1]; 
@@ -2630,6 +2643,7 @@ pub fn fn_802B0A8C(c: &mut Ctx) {
 
 // sin
 pub fn fn_802B0B88(c: &mut Ctx) {
+    runtime::prof(0x802B0B88);
     if c.hle(92) { return; }
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r1 = c.r[1]; let mut r2 = c.r[2]; let mut r3 = c.r[3]; 
@@ -2650,7 +2664,7 @@ pub fn fn_802B0B88(c: &mut Ctx) {
             if cr0 & 4 != 0 { { pc = 0x802B0BC0; continue; } }
             { let ea = r2.wrapping_add(0xFFFFA3C0); f2 = f64::from_bits(runtime::mr64(mem, ea)); }
             r3 = 0x0u32;
-            { c.lr = 0x802B0BBC; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.f[1] = f1; c.f[2] = f2; c.cr[0] = cr0; fn_802AFFE8(c); r0 = c.r[0]; r1 = c.r[1]; r2 = c.r[2]; r3 = c.r[3]; f1 = c.f[1]; f2 = c.f[2]; cr0 = c.cr[0]; }
+            { c.lr = 0x802B0BBC; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.f[1] = f1; c.f[2] = f2; c.cr[0] = cr0; fn_802AFFE8(c); runtime::prof(0x802B0B88); r0 = c.r[0]; r1 = c.r[1]; r2 = c.r[2]; r3 = c.r[3]; f1 = c.f[1]; f2 = c.f[2]; cr0 = c.cr[0]; }
             { pc = 0x802B0C50; continue; }
         }
         0x802B0BC0 => {
@@ -2662,7 +2676,7 @@ pub fn fn_802B0B88(c: &mut Ctx) {
         }
         0x802B0BD4 => {
             r3 = r1.wrapping_add(0x10);
-            { c.lr = 0x802B0BDC; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.f[1] = f1; c.f[2] = f2; c.cr[0] = cr0; fn_802AED00(c); r0 = c.r[0]; r1 = c.r[1]; r2 = c.r[2]; r3 = c.r[3]; f1 = c.f[1]; f2 = c.f[2]; cr0 = c.cr[0]; }
+            { c.lr = 0x802B0BDC; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.f[1] = f1; c.f[2] = f2; c.cr[0] = cr0; fn_802AED00(c); runtime::prof(0x802B0B88); r0 = c.r[0]; r1 = c.r[1]; r2 = c.r[2]; r3 = c.r[3]; f1 = c.f[1]; f2 = c.f[2]; cr0 = c.cr[0]; }
             r0 = r3.rotate_left(0) & 0x3;
             cr0 = runtime::cmps_val(r0 as i32, 1);
             if cr0 & 2 != 0 { { pc = 0x802B0C18; continue; } }
@@ -2680,27 +2694,27 @@ pub fn fn_802B0B88(c: &mut Ctx) {
             { let ea = r1.wrapping_add(0x10); f1 = f64::from_bits(runtime::mr64(mem, ea)); }
             r3 = 0x1u32;
             { let ea = r1.wrapping_add(0x18); f2 = f64::from_bits(runtime::mr64(mem, ea)); }
-            { c.lr = 0x802B0C14; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.f[1] = f1; c.f[2] = f2; c.cr[0] = cr0; fn_802AFFE8(c); r0 = c.r[0]; r1 = c.r[1]; r2 = c.r[2]; r3 = c.r[3]; f1 = c.f[1]; f2 = c.f[2]; cr0 = c.cr[0]; }
+            { c.lr = 0x802B0C14; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.f[1] = f1; c.f[2] = f2; c.cr[0] = cr0; fn_802AFFE8(c); runtime::prof(0x802B0B88); r0 = c.r[0]; r1 = c.r[1]; r2 = c.r[2]; r3 = c.r[3]; f1 = c.f[1]; f2 = c.f[2]; cr0 = c.cr[0]; }
             { pc = 0x802B0C50; continue; }
         }
         0x802B0C18 => {
             { let ea = r1.wrapping_add(0x10); f1 = f64::from_bits(runtime::mr64(mem, ea)); }
             { let ea = r1.wrapping_add(0x18); f2 = f64::from_bits(runtime::mr64(mem, ea)); }
-            { c.lr = 0x802B0C24; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.f[1] = f1; c.f[2] = f2; c.cr[0] = cr0; fn_802AF0A0(c); r0 = c.r[0]; r1 = c.r[1]; r2 = c.r[2]; r3 = c.r[3]; f1 = c.f[1]; f2 = c.f[2]; cr0 = c.cr[0]; }
+            { c.lr = 0x802B0C24; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.f[1] = f1; c.f[2] = f2; c.cr[0] = cr0; fn_802AF0A0(c); runtime::prof(0x802B0B88); r0 = c.r[0]; r1 = c.r[1]; r2 = c.r[2]; r3 = c.r[3]; f1 = c.f[1]; f2 = c.f[2]; cr0 = c.cr[0]; }
             { pc = 0x802B0C50; continue; }
         }
         0x802B0C28 => {
             { let ea = r1.wrapping_add(0x10); f1 = f64::from_bits(runtime::mr64(mem, ea)); }
             r3 = 0x1u32;
             { let ea = r1.wrapping_add(0x18); f2 = f64::from_bits(runtime::mr64(mem, ea)); }
-            { c.lr = 0x802B0C38; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.f[1] = f1; c.f[2] = f2; c.cr[0] = cr0; fn_802AFFE8(c); r0 = c.r[0]; r1 = c.r[1]; r2 = c.r[2]; r3 = c.r[3]; f1 = c.f[1]; f2 = c.f[2]; cr0 = c.cr[0]; }
+            { c.lr = 0x802B0C38; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.f[1] = f1; c.f[2] = f2; c.cr[0] = cr0; fn_802AFFE8(c); runtime::prof(0x802B0B88); r0 = c.r[0]; r1 = c.r[1]; r2 = c.r[2]; r3 = c.r[3]; f1 = c.f[1]; f2 = c.f[2]; cr0 = c.cr[0]; }
             f1 = -f1;
             { pc = 0x802B0C50; continue; }
         }
         0x802B0C40 => {
             { let ea = r1.wrapping_add(0x10); f1 = f64::from_bits(runtime::mr64(mem, ea)); }
             { let ea = r1.wrapping_add(0x18); f2 = f64::from_bits(runtime::mr64(mem, ea)); }
-            { c.lr = 0x802B0C4C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.f[1] = f1; c.f[2] = f2; c.cr[0] = cr0; fn_802AF0A0(c); r0 = c.r[0]; r1 = c.r[1]; r2 = c.r[2]; r3 = c.r[3]; f1 = c.f[1]; f2 = c.f[2]; cr0 = c.cr[0]; }
+            { c.lr = 0x802B0C4C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.f[1] = f1; c.f[2] = f2; c.cr[0] = cr0; fn_802AF0A0(c); runtime::prof(0x802B0B88); r0 = c.r[0]; r1 = c.r[1]; r2 = c.r[2]; r3 = c.r[3]; f1 = c.f[1]; f2 = c.f[2]; cr0 = c.cr[0]; }
             f1 = -f1;
             pc = 0x802B0C50;
         }
@@ -2716,6 +2730,7 @@ pub fn fn_802B0B88(c: &mut Ctx) {
 
 // tan
 pub fn fn_802B0C60(c: &mut Ctx) {
+    runtime::prof(0x802B0C60);
     if c.hle(93) { return; }
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r1 = c.r[1]; let mut r2 = c.r[2]; let mut r3 = c.r[3]; 
@@ -2737,7 +2752,7 @@ pub fn fn_802B0C60(c: &mut Ctx) {
             if cr0 & 4 != 0 { { pc = 0x802B0C98; continue; } }
             { let ea = r2.wrapping_add(0xFFFFA3C8); f2 = f64::from_bits(runtime::mr64(mem, ea)); }
             r3 = 0x1u32;
-            { c.lr = 0x802B0C94; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.f[1] = f1; c.f[2] = f2; c.cr[0] = cr0; c.ca = ca; fn_802B0088(c); r0 = c.r[0]; r1 = c.r[1]; r2 = c.r[2]; r3 = c.r[3]; f1 = c.f[1]; f2 = c.f[2]; cr0 = c.cr[0]; ca = c.ca; }
+            { c.lr = 0x802B0C94; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.f[1] = f1; c.f[2] = f2; c.cr[0] = cr0; c.ca = ca; fn_802B0088(c); runtime::prof(0x802B0C60); r0 = c.r[0]; r1 = c.r[1]; r2 = c.r[2]; r3 = c.r[3]; f1 = c.f[1]; f2 = c.f[2]; cr0 = c.cr[0]; ca = c.ca; }
             { pc = 0x802B0CC8; continue; }
         }
         0x802B0C98 => {
@@ -2749,12 +2764,12 @@ pub fn fn_802B0C60(c: &mut Ctx) {
         }
         0x802B0CAC => {
             r3 = r1.wrapping_add(0x10);
-            { c.lr = 0x802B0CB4; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.f[1] = f1; c.f[2] = f2; c.cr[0] = cr0; c.ca = ca; fn_802AED00(c); r0 = c.r[0]; r1 = c.r[1]; r2 = c.r[2]; r3 = c.r[3]; f1 = c.f[1]; f2 = c.f[2]; cr0 = c.cr[0]; ca = c.ca; }
+            { c.lr = 0x802B0CB4; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.f[1] = f1; c.f[2] = f2; c.cr[0] = cr0; c.ca = ca; fn_802AED00(c); runtime::prof(0x802B0C60); r0 = c.r[0]; r1 = c.r[1]; r2 = c.r[2]; r3 = c.r[3]; f1 = c.f[1]; f2 = c.f[2]; cr0 = c.cr[0]; ca = c.ca; }
             r0 = r3.rotate_left(1) & 0x2;
             { let ea = r1.wrapping_add(0x10); f1 = f64::from_bits(runtime::mr64(mem, ea)); }
             { let ea = r1.wrapping_add(0x18); f2 = f64::from_bits(runtime::mr64(mem, ea)); }
             (r3, ca) = runtime::add3_val(!r0, 0x1, 1);
-            { c.lr = 0x802B0CC8; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.f[1] = f1; c.f[2] = f2; c.cr[0] = cr0; c.ca = ca; fn_802B0088(c); r0 = c.r[0]; r1 = c.r[1]; r2 = c.r[2]; r3 = c.r[3]; f1 = c.f[1]; f2 = c.f[2]; cr0 = c.cr[0]; ca = c.ca; }
+            { c.lr = 0x802B0CC8; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.f[1] = f1; c.f[2] = f2; c.cr[0] = cr0; c.ca = ca; fn_802B0088(c); runtime::prof(0x802B0C60); r0 = c.r[0]; r1 = c.r[1]; r2 = c.r[2]; r3 = c.r[3]; f1 = c.f[1]; f2 = c.f[2]; cr0 = c.cr[0]; ca = c.ca; }
             pc = 0x802B0CC8;
         }
         0x802B0CC8 => {
@@ -2770,13 +2785,14 @@ pub fn fn_802B0C60(c: &mut Ctx) {
 // acos
 #[inline]
 pub fn fn_802B0CD8(c: &mut Ctx) {
+    runtime::prof(0x802B0CD8);
     if c.hle(94) { return; }
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r1 = c.r[1]; 
     { let ea = r1.wrapping_add(0xFFFFFFF0); runtime::mw32(mem, ea, r1); r1 = ea; }
     r0 = c.lr;
     { let ea = r1.wrapping_add(0x14); runtime::mw32(mem, ea, r0); }
-    { c.lr = 0x802B0CE8; c.r[0] = r0; c.r[1] = r1; fn_802AD5F0(c); r0 = c.r[0]; r1 = c.r[1]; }
+    { c.lr = 0x802B0CE8; c.r[0] = r0; c.r[1] = r1; fn_802AD5F0(c); runtime::prof(0x802B0CD8); r0 = c.r[0]; r1 = c.r[1]; }
     { let ea = r1.wrapping_add(0x14); r0 = runtime::mr32(mem, ea); }
     c.lr = r0;
     r1 = r1.wrapping_add(0x10);
@@ -2786,13 +2802,14 @@ pub fn fn_802B0CD8(c: &mut Ctx) {
 // asin
 #[inline]
 pub fn fn_802B0CF8(c: &mut Ctx) {
+    runtime::prof(0x802B0CF8);
     if c.hle(95) { return; }
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r1 = c.r[1]; 
     { let ea = r1.wrapping_add(0xFFFFFFF0); runtime::mw32(mem, ea, r1); r1 = ea; }
     r0 = c.lr;
     { let ea = r1.wrapping_add(0x14); runtime::mw32(mem, ea, r0); }
-    { c.lr = 0x802B0D08; c.r[0] = r0; c.r[1] = r1; fn_802AD82C(c); r0 = c.r[0]; r1 = c.r[1]; }
+    { c.lr = 0x802B0D08; c.r[0] = r0; c.r[1] = r1; fn_802AD82C(c); runtime::prof(0x802B0CF8); r0 = c.r[0]; r1 = c.r[1]; }
     { let ea = r1.wrapping_add(0x14); r0 = runtime::mr32(mem, ea); }
     c.lr = r0;
     r1 = r1.wrapping_add(0x10);
@@ -2802,13 +2819,14 @@ pub fn fn_802B0CF8(c: &mut Ctx) {
 // atan2
 #[inline]
 pub fn fn_802B0D18(c: &mut Ctx) {
+    runtime::prof(0x802B0D18);
     if c.hle(96) { return; }
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r1 = c.r[1]; 
     { let ea = r1.wrapping_add(0xFFFFFFF0); runtime::mw32(mem, ea, r1); r1 = ea; }
     r0 = c.lr;
     { let ea = r1.wrapping_add(0x14); runtime::mw32(mem, ea, r0); }
-    { c.lr = 0x802B0D28; c.r[0] = r0; c.r[1] = r1; fn_802ADA64(c); r0 = c.r[0]; r1 = c.r[1]; }
+    { c.lr = 0x802B0D28; c.r[0] = r0; c.r[1] = r1; fn_802ADA64(c); runtime::prof(0x802B0D18); r0 = c.r[0]; r1 = c.r[1]; }
     { let ea = r1.wrapping_add(0x14); r0 = runtime::mr32(mem, ea); }
     c.lr = r0;
     r1 = r1.wrapping_add(0x10);
@@ -2818,12 +2836,13 @@ pub fn fn_802B0D18(c: &mut Ctx) {
 // exp
 #[inline]
 pub fn fn_802B0D38(c: &mut Ctx) {
+    runtime::prof(0x802B0D38);
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r1 = c.r[1]; 
     { let ea = r1.wrapping_add(0xFFFFFFF0); runtime::mw32(mem, ea, r1); r1 = ea; }
     r0 = c.lr;
     { let ea = r1.wrapping_add(0x14); runtime::mw32(mem, ea, r0); }
-    { c.lr = 0x802B0D48; c.r[0] = r0; c.r[1] = r1; fn_802ADCF4(c); r0 = c.r[0]; r1 = c.r[1]; }
+    { c.lr = 0x802B0D48; c.r[0] = r0; c.r[1] = r1; fn_802ADCF4(c); runtime::prof(0x802B0D38); r0 = c.r[0]; r1 = c.r[1]; }
     { let ea = r1.wrapping_add(0x14); r0 = runtime::mr32(mem, ea); }
     c.lr = r0;
     r1 = r1.wrapping_add(0x10);
@@ -2833,6 +2852,7 @@ pub fn fn_802B0D38(c: &mut Ctx) {
 // fmod
 #[inline]
 pub fn fn_802B0D58(c: &mut Ctx) {
+    runtime::prof(0x802B0D58);
     let x = c.f[1];
     let y = c.f[2];
     if y != 0.0 && x.is_finite() && y.is_finite() {
@@ -2846,7 +2866,7 @@ pub fn fn_802B0D58(c: &mut Ctx) {
     { let ea = r1.wrapping_add(0xFFFFFFF0); runtime::mw32(mem, ea, r1); r1 = ea; }
     r0 = c.lr;
     { let ea = r1.wrapping_add(0x14); runtime::mw32(mem, ea, r0); }
-    { c.lr = 0x802B0D68; c.r[0] = r0; c.r[1] = r1; fn_802ADF18(c); r0 = c.r[0]; r1 = c.r[1]; }
+    { c.lr = 0x802B0D68; c.r[0] = r0; c.r[1] = r1; fn_802ADF18(c); runtime::prof(0x802B0D58); r0 = c.r[0]; r1 = c.r[1]; }
     { let ea = r1.wrapping_add(0x14); r0 = runtime::mr32(mem, ea); }
     c.lr = r0;
     r1 = r1.wrapping_add(0x10);
@@ -2856,12 +2876,13 @@ pub fn fn_802B0D58(c: &mut Ctx) {
 // log
 #[inline]
 pub fn fn_802B0D78(c: &mut Ctx) {
+    runtime::prof(0x802B0D78);
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r1 = c.r[1]; 
     { let ea = r1.wrapping_add(0xFFFFFFF0); runtime::mw32(mem, ea, r1); r1 = ea; }
     r0 = c.lr;
     { let ea = r1.wrapping_add(0x14); runtime::mw32(mem, ea, r0); }
-    { c.lr = 0x802B0D88; c.r[0] = r0; c.r[1] = r1; fn_802AE254(c); r0 = c.r[0]; r1 = c.r[1]; }
+    { c.lr = 0x802B0D88; c.r[0] = r0; c.r[1] = r1; fn_802AE254(c); runtime::prof(0x802B0D78); r0 = c.r[0]; r1 = c.r[1]; }
     { let ea = r1.wrapping_add(0x14); r0 = runtime::mr32(mem, ea); }
     c.lr = r0;
     r1 = r1.wrapping_add(0x10);
@@ -2871,12 +2892,13 @@ pub fn fn_802B0D78(c: &mut Ctx) {
 // pow
 #[inline]
 pub fn fn_802B0D98(c: &mut Ctx) {
+    runtime::prof(0x802B0D98);
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r1 = c.r[1]; 
     { let ea = r1.wrapping_add(0xFFFFFFF0); runtime::mw32(mem, ea, r1); r1 = ea; }
     r0 = c.lr;
     { let ea = r1.wrapping_add(0x14); runtime::mw32(mem, ea, r0); }
-    { c.lr = 0x802B0DA8; c.r[0] = r0; c.r[1] = r1; fn_802AE4D0(c); r0 = c.r[0]; r1 = c.r[1]; }
+    { c.lr = 0x802B0DA8; c.r[0] = r0; c.r[1] = r1; fn_802AE4D0(c); runtime::prof(0x802B0D98); r0 = c.r[0]; r1 = c.r[1]; }
     { let ea = r1.wrapping_add(0x14); r0 = runtime::mr32(mem, ea); }
     c.lr = r0;
     r1 = r1.wrapping_add(0x10);
@@ -2885,6 +2907,7 @@ pub fn fn_802B0D98(c: &mut Ctx) {
 
 // __ieee754_sqrt
 pub fn fn_802B0DB8(c: &mut Ctx) {
+    runtime::prof(0x802B0DB8);
     if c.hle(97) { return; }
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r1 = c.r[1]; let mut r2 = c.r[2]; let mut r3 = c.r[3]; let mut r4 = c.r[4]; let mut r5 = c.r[5]; let mut r6 = c.r[6]; let mut r7 = c.r[7]; let mut r8 = c.r[8]; let mut r9 = c.r[9]; let mut r10 = c.r[10]; let mut r11 = c.r[11]; let mut r12 = c.r[12]; let mut r13 = c.r[13]; 
@@ -3098,6 +3121,7 @@ pub fn fn_802B0DB8(c: &mut Ctx) {
 // powf
 #[inline]
 pub fn fn_802B0FDC(c: &mut Ctx) {
+    runtime::prof(0x802B0FDC);
     if c.hle(98) { return; }
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r1 = c.r[1]; 
@@ -3106,7 +3130,7 @@ pub fn fn_802B0FDC(c: &mut Ctx) {
     { let ea = r1.wrapping_add(0xFFFFFFF0); runtime::mw32(mem, ea, r1); r1 = ea; }
     r0 = c.lr;
     { let ea = r1.wrapping_add(0x14); runtime::mw32(mem, ea, r0); }
-    { c.lr = 0x802B0FEC; c.r[0] = r0; c.r[1] = r1; c.f[1] = f1; c.ps1[1] = ps1; fn_802B0D98(c); r0 = c.r[0]; r1 = c.r[1]; f1 = c.f[1]; ps1 = c.ps1[1]; }
+    { c.lr = 0x802B0FEC; c.r[0] = r0; c.r[1] = r1; c.f[1] = f1; c.ps1[1] = ps1; fn_802B0D98(c); runtime::prof(0x802B0FDC); r0 = c.r[0]; r1 = c.r[1]; f1 = c.f[1]; ps1 = c.ps1[1]; }
     { let ea = r1.wrapping_add(0x14); r0 = runtime::mr32(mem, ea); }
     { let v = f1 as f32 as f64; f1 = v; ps1 = v; }
     c.lr = r0;
@@ -3117,6 +3141,7 @@ pub fn fn_802B0FDC(c: &mut Ctx) {
 // sinf
 #[inline]
 pub fn fn_802B1000(c: &mut Ctx) {
+    runtime::prof(0x802B1000);
     if c.hle(99) { return; }
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r1 = c.r[1]; 
@@ -3125,7 +3150,7 @@ pub fn fn_802B1000(c: &mut Ctx) {
     { let ea = r1.wrapping_add(0xFFFFFFF0); runtime::mw32(mem, ea, r1); r1 = ea; }
     r0 = c.lr;
     { let ea = r1.wrapping_add(0x14); runtime::mw32(mem, ea, r0); }
-    { c.lr = 0x802B1010; c.r[0] = r0; c.r[1] = r1; c.f[1] = f1; c.ps1[1] = ps1; fn_802B0B88(c); r0 = c.r[0]; r1 = c.r[1]; f1 = c.f[1]; ps1 = c.ps1[1]; }
+    { c.lr = 0x802B1010; c.r[0] = r0; c.r[1] = r1; c.f[1] = f1; c.ps1[1] = ps1; fn_802B0B88(c); runtime::prof(0x802B1000); r0 = c.r[0]; r1 = c.r[1]; f1 = c.f[1]; ps1 = c.ps1[1]; }
     { let ea = r1.wrapping_add(0x14); r0 = runtime::mr32(mem, ea); }
     { let v = f1 as f32 as f64; f1 = v; ps1 = v; }
     c.lr = r0;
@@ -3136,6 +3161,7 @@ pub fn fn_802B1000(c: &mut Ctx) {
 // cosf
 #[inline]
 pub fn fn_802B1024(c: &mut Ctx) {
+    runtime::prof(0x802B1024);
     if c.hle(100) { return; }
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r1 = c.r[1]; 
@@ -3144,7 +3170,7 @@ pub fn fn_802B1024(c: &mut Ctx) {
     { let ea = r1.wrapping_add(0xFFFFFFF0); runtime::mw32(mem, ea, r1); r1 = ea; }
     r0 = c.lr;
     { let ea = r1.wrapping_add(0x14); runtime::mw32(mem, ea, r0); }
-    { c.lr = 0x802B1034; c.r[0] = r0; c.r[1] = r1; c.f[1] = f1; c.ps1[1] = ps1; fn_802B0620(c); r0 = c.r[0]; r1 = c.r[1]; f1 = c.f[1]; ps1 = c.ps1[1]; }
+    { c.lr = 0x802B1034; c.r[0] = r0; c.r[1] = r1; c.f[1] = f1; c.ps1[1] = ps1; fn_802B0620(c); runtime::prof(0x802B1024); r0 = c.r[0]; r1 = c.r[1]; f1 = c.f[1]; ps1 = c.ps1[1]; }
     { let ea = r1.wrapping_add(0x14); r0 = runtime::mr32(mem, ea); }
     { let v = f1 as f32 as f64; f1 = v; ps1 = v; }
     c.lr = r0;
@@ -3155,13 +3181,14 @@ pub fn fn_802B1024(c: &mut Ctx) {
 // sqrt
 #[inline]
 pub fn fn_802B1048(c: &mut Ctx) {
+    runtime::prof(0x802B1048);
     if c.hle(101) { return; }
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r1 = c.r[1]; 
     { let ea = r1.wrapping_add(0xFFFFFFF0); runtime::mw32(mem, ea, r1); r1 = ea; }
     r0 = c.lr;
     { let ea = r1.wrapping_add(0x14); runtime::mw32(mem, ea, r0); }
-    { c.lr = 0x802B1058; c.r[0] = r0; c.r[1] = r1; fn_802B0DB8(c); r0 = c.r[0]; r1 = c.r[1]; }
+    { c.lr = 0x802B1058; c.r[0] = r0; c.r[1] = r1; fn_802B0DB8(c); runtime::prof(0x802B1048); r0 = c.r[0]; r1 = c.r[1]; }
     { let ea = r1.wrapping_add(0x14); r0 = runtime::mr32(mem, ea); }
     c.lr = r0;
     r1 = r1.wrapping_add(0x10);
@@ -3170,6 +3197,7 @@ pub fn fn_802B1048(c: &mut Ctx) {
 
 // strcmpi
 pub fn fn_802B1068(c: &mut Ctx) {
+    runtime::prof(0x802B1068);
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r3 = c.r[3]; let mut r4 = c.r[4]; let mut r5 = c.r[5]; let mut r6 = c.r[6]; 
     let mut cr0 = c.cr[0]; 
@@ -3232,6 +3260,7 @@ pub fn fn_802B1068(c: &mut Ctx) {
 
 // strupr
 pub fn fn_802B10F4(c: &mut Ctx) {
+    runtime::prof(0x802B10F4);
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r3 = c.r[3]; let mut r4 = c.r[4]; let mut r5 = c.r[5]; let mut r6 = c.r[6]; 
     let mut cr0 = c.cr[0]; 
@@ -3272,6 +3301,7 @@ pub fn fn_802B10F4(c: &mut Ctx) {
 
 // stricmp
 pub fn fn_802B1138(c: &mut Ctx) {
+    runtime::prof(0x802B1138);
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r3 = c.r[3]; let mut r4 = c.r[4]; let mut r5 = c.r[5]; let mut r6 = c.r[6]; 
     let mut cr0 = c.cr[0]; 
@@ -3334,6 +3364,7 @@ pub fn fn_802B1138(c: &mut Ctx) {
 
 // __va_arg
 pub fn fn_802B11C4(c: &mut Ctx) {
+    runtime::prof(0x802B11C4);
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r3 = c.r[3]; let mut r4 = c.r[4]; let mut r5 = c.r[5]; let mut r6 = c.r[6]; let mut r7 = c.r[7]; let mut r8 = c.r[8]; let mut r9 = c.r[9]; let mut r10 = c.r[10]; let mut r11 = c.r[11]; 
     let mut cr0 = c.cr[0]; 
@@ -3414,6 +3445,7 @@ pub fn fn_802B11C4(c: &mut Ctx) {
 
 // __destroy_global_chain
 pub fn fn_802B128C(c: &mut Ctx) {
+    runtime::prof(0x802B128C);
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r1 = c.r[1]; let mut r3 = c.r[3]; let mut r4 = c.r[4]; let mut r12 = c.r[12]; let mut r13 = c.r[13]; 
     let mut cr0 = c.cr[0]; 
@@ -3433,7 +3465,7 @@ pub fn fn_802B128C(c: &mut Ctx) {
             { let ea = r3.wrapping_add(0x4); r12 = runtime::mr32(mem, ea); }
             { let ea = r3.wrapping_add(0x8); r3 = runtime::mr32(mem, ea); }
             ctr = r12;
-            { let t = ctr; c.lr = 0x802B12B8; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[12] = r12; c.cr[0] = cr0; c.ctr = ctr; c.call(t); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r12 = c.r[12]; r13 = c.r[13]; cr0 = c.cr[0]; ctr = c.ctr; }
+            { let t = ctr; c.lr = 0x802B12B8; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[12] = r12; c.cr[0] = cr0; c.ctr = ctr; c.call(t); runtime::prof(0x802B128C); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r12 = c.r[12]; r13 = c.r[13]; cr0 = c.cr[0]; ctr = c.ctr; }
             pc = 0x802B12B8;
         }
         0x802B12B8 => {
@@ -3452,6 +3484,7 @@ pub fn fn_802B128C(c: &mut Ctx) {
 // __register_global_object
 #[inline]
 pub fn fn_802B12D4(c: &mut Ctx) {
+    runtime::prof(0x802B12D4);
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r3 = c.r[3]; let mut r4 = c.r[4]; let mut r5 = c.r[5]; let mut r13 = c.r[13]; 
     { let ea = r13.wrapping_add(0xFFFF9BF0); r0 = runtime::mr32(mem, ea); }
@@ -3464,6 +3497,7 @@ pub fn fn_802B12D4(c: &mut Ctx) {
 
 // __copy
 pub fn fn_802B12EC(c: &mut Ctx) {
+    runtime::prof(0x802B12EC);
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r3 = c.r[3]; let mut r4 = c.r[4]; let mut r5 = c.r[5]; let mut r6 = c.r[6]; 
     let mut cr0 = c.cr[0]; 
@@ -3499,6 +3533,7 @@ pub fn fn_802B12EC(c: &mut Ctx) {
 
 // __dl__FPv
 pub fn fn_802B131C(c: &mut Ctx) {
+    runtime::prof(0x802B131C);
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r1 = c.r[1]; let mut r3 = c.r[3]; let mut r10 = c.r[10]; let mut r31 = c.r[31]; 
     let mut cr0 = c.cr[0]; 
@@ -3512,12 +3547,12 @@ pub fn fn_802B131C(c: &mut Ctx) {
             { let ea = r1.wrapping_add(0x2C); runtime::mw32(mem, ea, r31); }
             r31 = r1 | r1;
             if cr0 & 2 != 0 { { pc = 0x802B134C; continue; } }
-            { c.lr = 0x802B133C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[10] = r10; c.r[31] = r31; c.cr[0] = cr0; fn_8023D50C(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r10 = c.r[10]; r31 = c.r[31]; cr0 = c.cr[0]; }
+            { c.lr = 0x802B133C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[10] = r10; c.cr[0] = cr0; fn_8023D50C(c); runtime::prof(0x802B131C); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r10 = c.r[10]; cr0 = c.cr[0]; }
             { pc = 0x802B134C; continue; }
         }
         0x802B1340 => {
             r3 = r31.wrapping_add(0x8);
-            { c.lr = 0x802B1348; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[10] = r10; c.r[31] = r31; c.cr[0] = cr0; fn_802B278C(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r10 = c.r[10]; r31 = c.r[31]; cr0 = c.cr[0]; }
+            { c.lr = 0x802B1348; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[10] = r10; c.r[31] = r31; c.cr[0] = cr0; fn_802B278C(c); runtime::prof(0x802B131C); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r10 = c.r[10]; cr0 = c.cr[0]; }
             pc = 0x802B1348;
         }
         0x802B1348 => {
@@ -3538,6 +3573,7 @@ pub fn fn_802B131C(c: &mut Ctx) {
 
 // __construct_array
 pub fn fn_802B1368(c: &mut Ctx) {
+    runtime::prof(0x802B1368);
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r1 = c.r[1]; let mut r3 = c.r[3]; let mut r4 = c.r[4]; let mut r5 = c.r[5]; let mut r6 = c.r[6]; let mut r7 = c.r[7]; let mut r12 = c.r[12]; let mut r28 = c.r[28]; let mut r29 = c.r[29]; let mut r30 = c.r[30]; let mut r31 = c.r[31]; 
     let mut cr0 = c.cr[0]; 
@@ -3570,7 +3606,7 @@ pub fn fn_802B1368(c: &mut Ctx) {
             r3 = r31 | r31;
             r4 = 0x1u32;
             ctr = r12;
-            { let t = ctr; c.lr = 0x802B13C8; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[12] = r12; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ctr = ctr; c.call(t); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r12 = c.r[12]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ctr = c.ctr; }
+            { let t = ctr; c.lr = 0x802B13C8; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[12] = r12; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ctr = ctr; c.call(t); runtime::prof(0x802B1368); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r12 = c.r[12]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ctr = c.ctr; }
             { let ea = r1.wrapping_add(0x18); r3 = runtime::mr32(mem, ea); }
             r31 = r31.wrapping_add(r29);
             r0 = r3.wrapping_add(0x1);
@@ -3600,7 +3636,7 @@ pub fn fn_802B1368(c: &mut Ctx) {
             r31 = r31.wrapping_sub(r0);
             r3 = r31 | r31;
             ctr = r12;
-            { let t = ctr; c.lr = 0x802B142C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[12] = r12; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ctr = ctr; c.call(t); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r12 = c.r[12]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ctr = c.ctr; }
+            { let t = ctr; c.lr = 0x802B142C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[12] = r12; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ctr = ctr; c.call(t); runtime::prof(0x802B1368); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r12 = c.r[12]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ctr = c.ctr; }
             { let ea = r1.wrapping_add(0x18); r3 = runtime::mr32(mem, ea); }
             r0 = r3.wrapping_add(0xFFFFFFFF);
             { let ea = r1.wrapping_add(0x18); runtime::mw32(mem, ea, r0); }
@@ -3628,6 +3664,7 @@ pub fn fn_802B1368(c: &mut Ctx) {
 
 // __dt__26__partial_array_destructorFv
 pub fn fn_802B1464(c: &mut Ctx) {
+    runtime::prof(0x802B1464);
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r1 = c.r[1]; let mut r3 = c.r[3]; let mut r4 = c.r[4]; let mut r12 = c.r[12]; let mut r29 = c.r[29]; let mut r30 = c.r[30]; let mut r31 = c.r[31]; 
     let mut cr0 = c.cr[0]; 
@@ -3664,7 +3701,7 @@ pub fn fn_802B1464(c: &mut Ctx) {
             r31 = r31.wrapping_sub(r0);
             r3 = r31 | r31;
             ctr = r12;
-            { let t = ctr; c.lr = 0x802B14D4; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[12] = r12; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ctr = ctr; c.call(t); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r12 = c.r[12]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ctr = c.ctr; }
+            { let t = ctr; c.lr = 0x802B14D4; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[12] = r12; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ctr = ctr; c.call(t); runtime::prof(0x802B1464); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r12 = c.r[12]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ctr = c.ctr; }
             { let ea = r29.wrapping_add(0x10); r3 = runtime::mr32(mem, ea); }
             r0 = r3.wrapping_add(0xFFFFFFFF);
             { let ea = r29.wrapping_add(0x10); runtime::mw32(mem, ea, r0); }
@@ -3680,7 +3717,7 @@ pub fn fn_802B1464(c: &mut Ctx) {
             r0 = r30 as i16 as u32; cr0 = runtime::cmps_val(r0 as i32, 0);
             if cr0 & 4 == 0 { { pc = 0x802B14FC; continue; } }
             r3 = r29 | r29;
-            { c.lr = 0x802B14FC; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[12] = r12; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ctr = ctr; fn_802B131C(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r12 = c.r[12]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ctr = c.ctr; }
+            { c.lr = 0x802B14FC; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[12] = r12; c.cr[0] = cr0; c.ctr = ctr; fn_802B131C(c); runtime::prof(0x802B1464); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r12 = c.r[12]; cr0 = c.cr[0]; ctr = c.ctr; }
             pc = 0x802B14FC;
         }
         0x802B14FC => {
@@ -3699,6 +3736,7 @@ pub fn fn_802B1464(c: &mut Ctx) {
 
 // __construct_new_array
 pub fn fn_802B151C(c: &mut Ctx) {
+    runtime::prof(0x802B151C);
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r1 = c.r[1]; let mut r3 = c.r[3]; let mut r4 = c.r[4]; let mut r5 = c.r[5]; let mut r6 = c.r[6]; let mut r7 = c.r[7]; let mut r12 = c.r[12]; let mut r27 = c.r[27]; let mut r28 = c.r[28]; let mut r29 = c.r[29]; let mut r30 = c.r[30]; let mut r31 = c.r[31]; 
     let mut cr0 = c.cr[0]; 
@@ -3735,7 +3773,7 @@ pub fn fn_802B151C(c: &mut Ctx) {
             r3 = r31 | r31;
             r4 = 0x1u32;
             ctr = r12;
-            { let t = ctr; c.lr = 0x802B158C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[12] = r12; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ctr = ctr; c.call(t); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r12 = c.r[12]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ctr = c.ctr; }
+            { let t = ctr; c.lr = 0x802B158C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[12] = r12; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ctr = ctr; c.call(t); runtime::prof(0x802B151C); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r12 = c.r[12]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ctr = c.ctr; }
             { let ea = r1.wrapping_add(0x18); r3 = runtime::mr32(mem, ea); }
             r31 = r31.wrapping_add(r28);
             r0 = r3.wrapping_add(0x1);
@@ -3765,7 +3803,7 @@ pub fn fn_802B151C(c: &mut Ctx) {
             r31 = r31.wrapping_sub(r0);
             r3 = r31 | r31;
             ctr = r12;
-            { let t = ctr; c.lr = 0x802B15F0; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[12] = r12; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ctr = ctr; c.call(t); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r12 = c.r[12]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ctr = c.ctr; }
+            { let t = ctr; c.lr = 0x802B15F0; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[12] = r12; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ctr = ctr; c.call(t); runtime::prof(0x802B151C); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r12 = c.r[12]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ctr = c.ctr; }
             { let ea = r1.wrapping_add(0x18); r3 = runtime::mr32(mem, ea); }
             r0 = r3.wrapping_add(0xFFFFFFFF);
             { let ea = r1.wrapping_add(0x18); runtime::mw32(mem, ea, r0); }
@@ -3791,6 +3829,7 @@ pub fn fn_802B151C(c: &mut Ctx) {
 
 // __throw_catch_compare
 pub fn fn_802B1620(c: &mut Ctx) {
+    runtime::prof(0x802B1620);
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r3 = c.r[3]; let mut r4 = c.r[4]; let mut r5 = c.r[5]; let mut r6 = c.r[6]; let mut r7 = c.r[7]; 
     let mut cr0 = c.cr[0]; 
@@ -4004,6 +4043,7 @@ pub fn fn_802B1620(c: &mut Ctx) {
 // unexpected__3stdFv
 #[inline]
 pub fn fn_802B184C(c: &mut Ctx) {
+    runtime::prof(0x802B184C);
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r1 = c.r[1]; let mut r12 = c.r[12]; let mut r13 = c.r[13]; 
     let mut ctr = c.ctr;
@@ -4012,7 +4052,7 @@ pub fn fn_802B184C(c: &mut Ctx) {
     { let ea = r1.wrapping_add(0x14); runtime::mw32(mem, ea, r0); }
     { let ea = r13.wrapping_add(0xFFFF852C); r12 = runtime::mr32(mem, ea); }
     ctr = r12;
-    { let t = ctr; c.lr = 0x802B1864; c.r[0] = r0; c.r[1] = r1; c.r[12] = r12; c.ctr = ctr; c.call(t); r0 = c.r[0]; r1 = c.r[1]; r12 = c.r[12]; r13 = c.r[13]; ctr = c.ctr; }
+    { let t = ctr; c.lr = 0x802B1864; c.r[0] = r0; c.r[1] = r1; c.r[12] = r12; c.ctr = ctr; c.call(t); runtime::prof(0x802B184C); r0 = c.r[0]; r1 = c.r[1]; r12 = c.r[12]; r13 = c.r[13]; ctr = c.ctr; }
     { let ea = r1.wrapping_add(0x14); r0 = runtime::mr32(mem, ea); }
     c.lr = r0;
     r1 = r1.wrapping_add(0x10);
@@ -4022,6 +4062,7 @@ pub fn fn_802B184C(c: &mut Ctx) {
 // terminate__3stdFv
 #[inline]
 pub fn fn_802B1874(c: &mut Ctx) {
+    runtime::prof(0x802B1874);
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r1 = c.r[1]; let mut r12 = c.r[12]; let mut r13 = c.r[13]; 
     let mut ctr = c.ctr;
@@ -4030,7 +4071,7 @@ pub fn fn_802B1874(c: &mut Ctx) {
     { let ea = r1.wrapping_add(0x14); runtime::mw32(mem, ea, r0); }
     { let ea = r13.wrapping_add(0xFFFF8528); r12 = runtime::mr32(mem, ea); }
     ctr = r12;
-    { let t = ctr; c.lr = 0x802B188C; c.r[0] = r0; c.r[1] = r1; c.r[12] = r12; c.ctr = ctr; c.call(t); r0 = c.r[0]; r1 = c.r[1]; r12 = c.r[12]; r13 = c.r[13]; ctr = c.ctr; }
+    { let t = ctr; c.lr = 0x802B188C; c.r[0] = r0; c.r[1] = r1; c.r[12] = r12; c.ctr = ctr; c.call(t); runtime::prof(0x802B1874); r0 = c.r[0]; r1 = c.r[1]; r12 = c.r[12]; r13 = c.r[13]; ctr = c.ctr; }
     { let ea = r1.wrapping_add(0x14); r0 = runtime::mr32(mem, ea); }
     c.lr = r0;
     r1 = r1.wrapping_add(0x10);
@@ -4040,6 +4081,7 @@ pub fn fn_802B1874(c: &mut Ctx) {
 // duhandler__3stdFv
 #[inline]
 pub fn fn_802B189C(c: &mut Ctx) {
+    runtime::prof(0x802B189C);
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r1 = c.r[1]; let mut r12 = c.r[12]; let mut r13 = c.r[13]; 
     let mut ctr = c.ctr;
@@ -4048,7 +4090,7 @@ pub fn fn_802B189C(c: &mut Ctx) {
     { let ea = r1.wrapping_add(0x14); runtime::mw32(mem, ea, r0); }
     { let ea = r13.wrapping_add(0xFFFF8528); r12 = runtime::mr32(mem, ea); }
     ctr = r12;
-    { let t = ctr; c.lr = 0x802B18B4; c.r[0] = r0; c.r[1] = r1; c.r[12] = r12; c.ctr = ctr; c.call(t); r0 = c.r[0]; r1 = c.r[1]; r12 = c.r[12]; r13 = c.r[13]; ctr = c.ctr; }
+    { let t = ctr; c.lr = 0x802B18B4; c.r[0] = r0; c.r[1] = r1; c.r[12] = r12; c.ctr = ctr; c.call(t); runtime::prof(0x802B189C); r0 = c.r[0]; r1 = c.r[1]; r12 = c.r[12]; r13 = c.r[13]; ctr = c.ctr; }
     { let ea = r1.wrapping_add(0x14); r0 = runtime::mr32(mem, ea); }
     c.lr = r0;
     r1 = r1.wrapping_add(0x10);
@@ -4058,12 +4100,13 @@ pub fn fn_802B189C(c: &mut Ctx) {
 // dthandler__3stdFv
 #[inline]
 pub fn fn_802B18C4(c: &mut Ctx) {
+    runtime::prof(0x802B18C4);
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r1 = c.r[1]; 
     { let ea = r1.wrapping_add(0xFFFFFFF0); runtime::mw32(mem, ea, r1); r1 = ea; }
     r0 = c.lr;
     { let ea = r1.wrapping_add(0x14); runtime::mw32(mem, ea, r0); }
-    { c.lr = 0x802B18D4; c.r[0] = r0; c.r[1] = r1; fn_802A20F0(c); r0 = c.r[0]; r1 = c.r[1]; }
+    { c.lr = 0x802B18D4; c.r[0] = r0; c.r[1] = r1; fn_802A20F0(c); runtime::prof(0x802B18C4); r0 = c.r[0]; r1 = c.r[1]; }
     { let ea = r1.wrapping_add(0x14); r0 = runtime::mr32(mem, ea); }
     c.lr = r0;
     r1 = r1.wrapping_add(0x10);
@@ -4072,6 +4115,7 @@ pub fn fn_802B18C4(c: &mut Ctx) {
 
 // __cvt_fp2unsigned
 pub fn fn_802B18E4(c: &mut Ctx) {
+    runtime::prof(0x802B18E4);
     let mem = c.mem;
     let mut r1 = c.r[1]; let mut r3 = c.r[3]; let mut r4 = c.r[4]; 
     let mut f0 = c.f[0]; let mut f1 = c.f[1]; let mut f2 = c.f[2]; let mut f3 = c.f[3]; let mut f4 = c.f[4]; 
@@ -4116,6 +4160,7 @@ pub fn fn_802B18E4(c: &mut Ctx) {
 // __save_fpr
 #[inline(always)]
 pub fn fn_802B1940(c: &mut Ctx) {
+    runtime::prof(0x802B1940);
     let mem = c.mem;
     let mut r11 = c.r[11]; 
     let mut f14 = c.f[14]; let mut f15 = c.f[15]; let mut f16 = c.f[16]; let mut f17 = c.f[17]; let mut f18 = c.f[18]; let mut f19 = c.f[19]; let mut f20 = c.f[20]; let mut f21 = c.f[21]; let mut f22 = c.f[22]; let mut f23 = c.f[23]; let mut f24 = c.f[24]; 
@@ -4136,6 +4181,7 @@ pub fn fn_802B1940(c: &mut Ctx) {
 // __save_fpr+0x2C
 #[inline(always)]
 pub fn fn_802B196C(c: &mut Ctx) {
+    runtime::prof(0x802B196C);
     let mem = c.mem;
     let mut r11 = c.r[11]; 
     let mut f25 = c.f[25]; 
@@ -4146,6 +4192,7 @@ pub fn fn_802B196C(c: &mut Ctx) {
 // __save_fpr+0x2C+0x4
 #[inline(always)]
 pub fn fn_802B1970(c: &mut Ctx) {
+    runtime::prof(0x802B1970);
     let mem = c.mem;
     let mut r11 = c.r[11]; 
     let mut f26 = c.f[26]; 
@@ -4156,6 +4203,7 @@ pub fn fn_802B1970(c: &mut Ctx) {
 // __save_fpr+0x2C+0x4+0x4
 #[inline(always)]
 pub fn fn_802B1974(c: &mut Ctx) {
+    runtime::prof(0x802B1974);
     let mem = c.mem;
     let mut r11 = c.r[11]; 
     let mut f27 = c.f[27]; let mut f28 = c.f[28]; let mut f29 = c.f[29]; let mut f30 = c.f[30]; let mut f31 = c.f[31]; 
@@ -4170,6 +4218,7 @@ pub fn fn_802B1974(c: &mut Ctx) {
 // __restore_fpr
 #[inline(always)]
 pub fn fn_802B198C(c: &mut Ctx) {
+    runtime::prof(0x802B198C);
     let mem = c.mem;
     let mut r11 = c.r[11]; 
     let mut f14 = c.f[14]; let mut f15 = c.f[15]; let mut f16 = c.f[16]; let mut f17 = c.f[17]; let mut f18 = c.f[18]; let mut f19 = c.f[19]; let mut f20 = c.f[20]; let mut f21 = c.f[21]; let mut f22 = c.f[22]; let mut f23 = c.f[23]; let mut f24 = c.f[24]; 
@@ -4190,6 +4239,7 @@ pub fn fn_802B198C(c: &mut Ctx) {
 // __restore_fpr+0x2C
 #[inline(always)]
 pub fn fn_802B19B8(c: &mut Ctx) {
+    runtime::prof(0x802B19B8);
     let mem = c.mem;
     let mut r11 = c.r[11]; 
     let mut f25 = c.f[25]; 
@@ -4200,6 +4250,7 @@ pub fn fn_802B19B8(c: &mut Ctx) {
 // __restore_fpr+0x2C+0x4
 #[inline(always)]
 pub fn fn_802B19BC(c: &mut Ctx) {
+    runtime::prof(0x802B19BC);
     let mem = c.mem;
     let mut r11 = c.r[11]; 
     let mut f26 = c.f[26]; 
@@ -4210,6 +4261,7 @@ pub fn fn_802B19BC(c: &mut Ctx) {
 // __restore_fpr+0x2C+0x4+0x4
 #[inline(always)]
 pub fn fn_802B19C0(c: &mut Ctx) {
+    runtime::prof(0x802B19C0);
     let mem = c.mem;
     let mut r11 = c.r[11]; 
     let mut f27 = c.f[27]; let mut f28 = c.f[28]; let mut f29 = c.f[29]; let mut f30 = c.f[30]; let mut f31 = c.f[31]; 
@@ -4224,6 +4276,7 @@ pub fn fn_802B19C0(c: &mut Ctx) {
 // __save_gpr
 #[inline(always)]
 pub fn fn_802B19D8(c: &mut Ctx) {
+    runtime::prof(0x802B19D8);
     let mem = c.mem;
     let mut r11 = c.r[11]; let mut r14 = c.r[14]; 
     { let ea = r11.wrapping_add(0xFFFFFFB8); runtime::mw32(mem, ea, r14); }
@@ -4233,6 +4286,7 @@ pub fn fn_802B19D8(c: &mut Ctx) {
 // __save_gpr+0x4
 #[inline(always)]
 pub fn fn_802B19DC(c: &mut Ctx) {
+    runtime::prof(0x802B19DC);
     let mem = c.mem;
     let mut r11 = c.r[11]; let mut r15 = c.r[15]; let mut r16 = c.r[16]; 
     { let ea = r11.wrapping_add(0xFFFFFFBC); runtime::mw32(mem, ea, r15); }
@@ -4243,6 +4297,7 @@ pub fn fn_802B19DC(c: &mut Ctx) {
 // __save_gpr+0x4+0x8
 #[inline(always)]
 pub fn fn_802B19E4(c: &mut Ctx) {
+    runtime::prof(0x802B19E4);
     let mem = c.mem;
     let mut r11 = c.r[11]; let mut r17 = c.r[17]; 
     { let ea = r11.wrapping_add(0xFFFFFFC4); runtime::mw32(mem, ea, r17); }
@@ -4252,6 +4307,7 @@ pub fn fn_802B19E4(c: &mut Ctx) {
 // __save_gpr+0x4+0x8+0x4
 #[inline(always)]
 pub fn fn_802B19E8(c: &mut Ctx) {
+    runtime::prof(0x802B19E8);
     let mem = c.mem;
     let mut r11 = c.r[11]; let mut r18 = c.r[18]; 
     { let ea = r11.wrapping_add(0xFFFFFFC8); runtime::mw32(mem, ea, r18); }
@@ -4261,6 +4317,7 @@ pub fn fn_802B19E8(c: &mut Ctx) {
 // __save_gpr+0x4+0x8+0x4+0x4
 #[inline(always)]
 pub fn fn_802B19EC(c: &mut Ctx) {
+    runtime::prof(0x802B19EC);
     let mem = c.mem;
     let mut r11 = c.r[11]; let mut r19 = c.r[19]; 
     { let ea = r11.wrapping_add(0xFFFFFFCC); runtime::mw32(mem, ea, r19); }
@@ -4270,6 +4327,7 @@ pub fn fn_802B19EC(c: &mut Ctx) {
 // __save_gpr+0x4+0x8+0x4+0x4+0x4
 #[inline(always)]
 pub fn fn_802B19F0(c: &mut Ctx) {
+    runtime::prof(0x802B19F0);
     let mem = c.mem;
     let mut r11 = c.r[11]; let mut r20 = c.r[20]; 
     { let ea = r11.wrapping_add(0xFFFFFFD0); runtime::mw32(mem, ea, r20); }
@@ -4279,6 +4337,7 @@ pub fn fn_802B19F0(c: &mut Ctx) {
 // __save_gpr+0x4+0x8+0x4+0x4+0x4+0x4
 #[inline(always)]
 pub fn fn_802B19F4(c: &mut Ctx) {
+    runtime::prof(0x802B19F4);
     let mem = c.mem;
     let mut r11 = c.r[11]; let mut r21 = c.r[21]; 
     { let ea = r11.wrapping_add(0xFFFFFFD4); runtime::mw32(mem, ea, r21); }
@@ -4288,6 +4347,7 @@ pub fn fn_802B19F4(c: &mut Ctx) {
 // __save_gpr+0x4+0x8+0x4+0x4+0x4+0x4+0x4
 #[inline(always)]
 pub fn fn_802B19F8(c: &mut Ctx) {
+    runtime::prof(0x802B19F8);
     let mem = c.mem;
     let mut r11 = c.r[11]; let mut r22 = c.r[22]; 
     { let ea = r11.wrapping_add(0xFFFFFFD8); runtime::mw32(mem, ea, r22); }
@@ -4297,6 +4357,7 @@ pub fn fn_802B19F8(c: &mut Ctx) {
 // __save_gpr+0x4+0x8+0x4+0x4+0x4+0x4+0x4+0x4
 #[inline(always)]
 pub fn fn_802B19FC(c: &mut Ctx) {
+    runtime::prof(0x802B19FC);
     let mem = c.mem;
     let mut r11 = c.r[11]; let mut r23 = c.r[23]; 
     { let ea = r11.wrapping_add(0xFFFFFFDC); runtime::mw32(mem, ea, r23); }
@@ -4306,6 +4367,7 @@ pub fn fn_802B19FC(c: &mut Ctx) {
 // __save_gpr+0x4+0x8+0x4+0x4+0x4+0x4+0x4+0x4+0x4
 #[inline(always)]
 pub fn fn_802B1A00(c: &mut Ctx) {
+    runtime::prof(0x802B1A00);
     let mem = c.mem;
     let mut r11 = c.r[11]; let mut r24 = c.r[24]; 
     { let ea = r11.wrapping_add(0xFFFFFFE0); runtime::mw32(mem, ea, r24); }
@@ -4315,6 +4377,7 @@ pub fn fn_802B1A00(c: &mut Ctx) {
 // __save_gpr+0x4+0x8+0x4+0x4+0x4+0x4+0x4+0x4+0x4+0x4
 #[inline(always)]
 pub fn fn_802B1A04(c: &mut Ctx) {
+    runtime::prof(0x802B1A04);
     let mem = c.mem;
     let mut r11 = c.r[11]; let mut r25 = c.r[25]; 
     { let ea = r11.wrapping_add(0xFFFFFFE4); runtime::mw32(mem, ea, r25); }
@@ -4324,6 +4387,7 @@ pub fn fn_802B1A04(c: &mut Ctx) {
 // __save_gpr+0x4+0x8+0x4+0x4+0x4+0x4+0x4+0x4+0x4+0x4+0x4
 #[inline(always)]
 pub fn fn_802B1A08(c: &mut Ctx) {
+    runtime::prof(0x802B1A08);
     let mem = c.mem;
     let mut r11 = c.r[11]; let mut r26 = c.r[26]; 
     { let ea = r11.wrapping_add(0xFFFFFFE8); runtime::mw32(mem, ea, r26); }
@@ -4333,6 +4397,7 @@ pub fn fn_802B1A08(c: &mut Ctx) {
 // __save_gpr+0x4+0x8+0x4+0x4+0x4+0x4+0x4+0x4+0x4+0x4+0x4+0x4
 #[inline(always)]
 pub fn fn_802B1A0C(c: &mut Ctx) {
+    runtime::prof(0x802B1A0C);
     let mem = c.mem;
     let mut r11 = c.r[11]; let mut r27 = c.r[27]; let mut r28 = c.r[28]; let mut r29 = c.r[29]; let mut r30 = c.r[30]; let mut r31 = c.r[31]; 
     { let ea = r11.wrapping_add(0xFFFFFFEC); runtime::mw32(mem, ea, r27); }
@@ -4346,6 +4411,7 @@ pub fn fn_802B1A0C(c: &mut Ctx) {
 // __restore_gpr
 #[inline(always)]
 pub fn fn_802B1A24(c: &mut Ctx) {
+    runtime::prof(0x802B1A24);
     let mem = c.mem;
     let mut r11 = c.r[11]; let mut r14 = c.r[14]; 
     { let ea = r11.wrapping_add(0xFFFFFFB8); r14 = runtime::mr32(mem, ea); }
@@ -4355,6 +4421,7 @@ pub fn fn_802B1A24(c: &mut Ctx) {
 // __restore_gpr+0x4
 #[inline(always)]
 pub fn fn_802B1A28(c: &mut Ctx) {
+    runtime::prof(0x802B1A28);
     let mem = c.mem;
     let mut r11 = c.r[11]; let mut r15 = c.r[15]; let mut r16 = c.r[16]; 
     { let ea = r11.wrapping_add(0xFFFFFFBC); r15 = runtime::mr32(mem, ea); }
@@ -4365,6 +4432,7 @@ pub fn fn_802B1A28(c: &mut Ctx) {
 // __restore_gpr+0x4+0x8
 #[inline(always)]
 pub fn fn_802B1A30(c: &mut Ctx) {
+    runtime::prof(0x802B1A30);
     let mem = c.mem;
     let mut r11 = c.r[11]; let mut r17 = c.r[17]; 
     { let ea = r11.wrapping_add(0xFFFFFFC4); r17 = runtime::mr32(mem, ea); }
@@ -4374,6 +4442,7 @@ pub fn fn_802B1A30(c: &mut Ctx) {
 // __restore_gpr+0x4+0x8+0x4
 #[inline(always)]
 pub fn fn_802B1A34(c: &mut Ctx) {
+    runtime::prof(0x802B1A34);
     let mem = c.mem;
     let mut r11 = c.r[11]; let mut r18 = c.r[18]; 
     { let ea = r11.wrapping_add(0xFFFFFFC8); r18 = runtime::mr32(mem, ea); }
@@ -4383,6 +4452,7 @@ pub fn fn_802B1A34(c: &mut Ctx) {
 // __restore_gpr+0x4+0x8+0x4+0x4
 #[inline(always)]
 pub fn fn_802B1A38(c: &mut Ctx) {
+    runtime::prof(0x802B1A38);
     let mem = c.mem;
     let mut r11 = c.r[11]; let mut r19 = c.r[19]; 
     { let ea = r11.wrapping_add(0xFFFFFFCC); r19 = runtime::mr32(mem, ea); }
@@ -4392,6 +4462,7 @@ pub fn fn_802B1A38(c: &mut Ctx) {
 // __restore_gpr+0x4+0x8+0x4+0x4+0x4
 #[inline(always)]
 pub fn fn_802B1A3C(c: &mut Ctx) {
+    runtime::prof(0x802B1A3C);
     let mem = c.mem;
     let mut r11 = c.r[11]; let mut r20 = c.r[20]; 
     { let ea = r11.wrapping_add(0xFFFFFFD0); r20 = runtime::mr32(mem, ea); }
@@ -4401,6 +4472,7 @@ pub fn fn_802B1A3C(c: &mut Ctx) {
 // __restore_gpr+0x4+0x8+0x4+0x4+0x4+0x4
 #[inline(always)]
 pub fn fn_802B1A40(c: &mut Ctx) {
+    runtime::prof(0x802B1A40);
     let mem = c.mem;
     let mut r11 = c.r[11]; let mut r21 = c.r[21]; 
     { let ea = r11.wrapping_add(0xFFFFFFD4); r21 = runtime::mr32(mem, ea); }
@@ -4410,6 +4482,7 @@ pub fn fn_802B1A40(c: &mut Ctx) {
 // __restore_gpr+0x4+0x8+0x4+0x4+0x4+0x4+0x4
 #[inline(always)]
 pub fn fn_802B1A44(c: &mut Ctx) {
+    runtime::prof(0x802B1A44);
     let mem = c.mem;
     let mut r11 = c.r[11]; let mut r22 = c.r[22]; 
     { let ea = r11.wrapping_add(0xFFFFFFD8); r22 = runtime::mr32(mem, ea); }
@@ -4419,6 +4492,7 @@ pub fn fn_802B1A44(c: &mut Ctx) {
 // __restore_gpr+0x4+0x8+0x4+0x4+0x4+0x4+0x4+0x4
 #[inline(always)]
 pub fn fn_802B1A48(c: &mut Ctx) {
+    runtime::prof(0x802B1A48);
     let mem = c.mem;
     let mut r11 = c.r[11]; let mut r23 = c.r[23]; 
     { let ea = r11.wrapping_add(0xFFFFFFDC); r23 = runtime::mr32(mem, ea); }
@@ -4428,6 +4502,7 @@ pub fn fn_802B1A48(c: &mut Ctx) {
 // __restore_gpr+0x4+0x8+0x4+0x4+0x4+0x4+0x4+0x4+0x4
 #[inline(always)]
 pub fn fn_802B1A4C(c: &mut Ctx) {
+    runtime::prof(0x802B1A4C);
     let mem = c.mem;
     let mut r11 = c.r[11]; let mut r24 = c.r[24]; 
     { let ea = r11.wrapping_add(0xFFFFFFE0); r24 = runtime::mr32(mem, ea); }
@@ -4437,6 +4512,7 @@ pub fn fn_802B1A4C(c: &mut Ctx) {
 // __restore_gpr+0x4+0x8+0x4+0x4+0x4+0x4+0x4+0x4+0x4+0x4
 #[inline(always)]
 pub fn fn_802B1A50(c: &mut Ctx) {
+    runtime::prof(0x802B1A50);
     let mem = c.mem;
     let mut r11 = c.r[11]; let mut r25 = c.r[25]; 
     { let ea = r11.wrapping_add(0xFFFFFFE4); r25 = runtime::mr32(mem, ea); }
@@ -4446,6 +4522,7 @@ pub fn fn_802B1A50(c: &mut Ctx) {
 // __restore_gpr+0x4+0x8+0x4+0x4+0x4+0x4+0x4+0x4+0x4+0x4+0x4
 #[inline(always)]
 pub fn fn_802B1A54(c: &mut Ctx) {
+    runtime::prof(0x802B1A54);
     let mem = c.mem;
     let mut r11 = c.r[11]; let mut r26 = c.r[26]; 
     { let ea = r11.wrapping_add(0xFFFFFFE8); r26 = runtime::mr32(mem, ea); }
@@ -4455,6 +4532,7 @@ pub fn fn_802B1A54(c: &mut Ctx) {
 // __restore_gpr+0x4+0x8+0x4+0x4+0x4+0x4+0x4+0x4+0x4+0x4+0x4+0x4
 #[inline(always)]
 pub fn fn_802B1A58(c: &mut Ctx) {
+    runtime::prof(0x802B1A58);
     let mem = c.mem;
     let mut r11 = c.r[11]; let mut r27 = c.r[27]; let mut r28 = c.r[28]; let mut r29 = c.r[29]; let mut r30 = c.r[30]; let mut r31 = c.r[31]; 
     { let ea = r11.wrapping_add(0xFFFFFFEC); r27 = runtime::mr32(mem, ea); }
@@ -4467,6 +4545,7 @@ pub fn fn_802B1A58(c: &mut Ctx) {
 
 // __div2u
 pub fn fn_802B1A70(c: &mut Ctx) {
+    runtime::prof(0x802B1A70);
     if c.hle(105) { return; }
     let mut r0 = c.r[0]; let mut r3 = c.r[3]; let mut r4 = c.r[4]; let mut r5 = c.r[5]; let mut r6 = c.r[6]; let mut r7 = c.r[7]; let mut r8 = c.r[8]; let mut r9 = c.r[9]; let mut r10 = c.r[10]; 
     let mut cr0 = c.cr[0]; 
@@ -4565,6 +4644,7 @@ pub fn fn_802B1A70(c: &mut Ctx) {
 
 // __div2i
 pub fn fn_802B1B5C(c: &mut Ctx) {
+    runtime::prof(0x802B1B5C);
     if c.hle(106) { return; }
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r1 = c.r[1]; let mut r3 = c.r[3]; let mut r4 = c.r[4]; let mut r5 = c.r[5]; let mut r6 = c.r[6]; let mut r7 = c.r[7]; let mut r8 = c.r[8]; let mut r9 = c.r[9]; let mut r10 = c.r[10]; 
@@ -4692,6 +4772,7 @@ pub fn fn_802B1B5C(c: &mut Ctx) {
 
 // __mod2u
 pub fn fn_802B1C94(c: &mut Ctx) {
+    runtime::prof(0x802B1C94);
     if c.hle(107) { return; }
     let mut r0 = c.r[0]; let mut r3 = c.r[3]; let mut r4 = c.r[4]; let mut r5 = c.r[5]; let mut r6 = c.r[6]; let mut r7 = c.r[7]; let mut r8 = c.r[8]; let mut r9 = c.r[9]; let mut r10 = c.r[10]; 
     let mut cr0 = c.cr[0]; 
@@ -4791,6 +4872,7 @@ pub fn fn_802B1C94(c: &mut Ctx) {
 
 // __mod2i
 pub fn fn_802B1D78(c: &mut Ctx) {
+    runtime::prof(0x802B1D78);
     if c.hle(108) { return; }
     let mut r0 = c.r[0]; let mut r3 = c.r[3]; let mut r4 = c.r[4]; let mut r5 = c.r[5]; let mut r6 = c.r[6]; let mut r7 = c.r[7]; let mut r8 = c.r[8]; let mut r9 = c.r[9]; let mut r10 = c.r[10]; 
     let mut cr0 = c.cr[0]; let mut cr7 = c.cr[7]; 
@@ -4908,6 +4990,7 @@ pub fn fn_802B1D78(c: &mut Ctx) {
 // __shl2i
 #[inline]
 pub fn fn_802B1E84(c: &mut Ctx) {
+    runtime::prof(0x802B1E84);
     let mut r3 = c.r[3]; let mut r4 = c.r[4]; let mut r5 = c.r[5]; let mut r8 = c.r[8]; let mut r9 = c.r[9]; let mut r10 = c.r[10]; 
     let mut ca = c.ca;
     (r8, ca) = runtime::add3_val(!r5, 0x20, 1);
@@ -4924,6 +5007,7 @@ pub fn fn_802B1E84(c: &mut Ctx) {
 // __shr2u
 #[inline]
 pub fn fn_802B1EA8(c: &mut Ctx) {
+    runtime::prof(0x802B1EA8);
     let mut r3 = c.r[3]; let mut r4 = c.r[4]; let mut r5 = c.r[5]; let mut r8 = c.r[8]; let mut r9 = c.r[9]; let mut r10 = c.r[10]; 
     let mut ca = c.ca;
     (r8, ca) = runtime::add3_val(!r5, 0x20, 1);
@@ -4939,6 +5023,7 @@ pub fn fn_802B1EA8(c: &mut Ctx) {
 
 // __shr2i
 pub fn fn_802B1ECC(c: &mut Ctx) {
+    runtime::prof(0x802B1ECC);
     let mut r3 = c.r[3]; let mut r4 = c.r[4]; let mut r5 = c.r[5]; let mut r8 = c.r[8]; let mut r9 = c.r[9]; let mut r10 = c.r[10]; 
     let mut cr0 = c.cr[0]; 
     let mut ca = c.ca;
@@ -4965,6 +5050,7 @@ pub fn fn_802B1ECC(c: &mut Ctx) {
 
 // __cvt_sll_flt
 pub fn fn_802B1EF4(c: &mut Ctx) {
+    runtime::prof(0x802B1EF4);
     let mem = c.mem;
     let mut r1 = c.r[1]; let mut r3 = c.r[3]; let mut r4 = c.r[4]; let mut r5 = c.r[5]; let mut r6 = c.r[6]; let mut r7 = c.r[7]; let mut r8 = c.r[8]; let mut r9 = c.r[9]; let mut r10 = c.r[10]; 
     let mut f1 = c.f[1]; 
@@ -5038,6 +5124,7 @@ pub fn fn_802B1EF4(c: &mut Ctx) {
 
 // __cvt_dbl_usll
 pub fn fn_802B1FA8(c: &mut Ctx) {
+    runtime::prof(0x802B1FA8);
     let mem = c.mem;
     let mut r1 = c.r[1]; let mut r3 = c.r[3]; let mut r4 = c.r[4]; let mut r5 = c.r[5]; let mut r6 = c.r[6]; let mut r8 = c.r[8]; let mut r9 = c.r[9]; let mut r10 = c.r[10]; 
     let mut f1 = c.f[1]; 
@@ -5119,6 +5206,7 @@ pub fn fn_802B1FA8(c: &mut Ctx) {
 // GetR2__Fv
 #[inline]
 pub fn fn_802B2074(c: &mut Ctx) {
+    runtime::prof(0x802B2074);
     let mut r2 = c.r[2]; let mut r3 = c.r[3]; 
     r3 = r2 | r2;
     { c.r[3] = r3; return; }
@@ -5126,6 +5214,7 @@ pub fn fn_802B2074(c: &mut Ctx) {
 
 // __fini_cpp_exceptions
 pub fn fn_802B207C(c: &mut Ctx) {
+    runtime::prof(0x802B207C);
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r1 = c.r[1]; let mut r3 = c.r[3]; let mut r13 = c.r[13]; 
     let mut cr0 = c.cr[0]; 
@@ -5138,7 +5227,7 @@ pub fn fn_802B207C(c: &mut Ctx) {
             { let ea = r13.wrapping_add(0xFFFF8530); r3 = runtime::mr32(mem, ea); }
             cr0 = runtime::cmps_val(r3 as i32, -2);
             if cr0 & 2 != 0 { { pc = 0x802B20A0; continue; } }
-            { c.lr = 0x802B2098; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.cr[0] = cr0; fn_802B34B4(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r13 = c.r[13]; cr0 = c.cr[0]; }
+            { c.lr = 0x802B2098; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.cr[0] = cr0; fn_802B34B4(c); runtime::prof(0x802B207C); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r13 = c.r[13]; cr0 = c.cr[0]; }
             r0 = 0xFFFFFFFEu32;
             { let ea = r13.wrapping_add(0xFFFF8530); runtime::mw32(mem, ea, r0); }
             pc = 0x802B20A0;
@@ -5155,6 +5244,7 @@ pub fn fn_802B207C(c: &mut Ctx) {
 
 // __init_cpp_exceptions
 pub fn fn_802B20B0(c: &mut Ctx) {
+    runtime::prof(0x802B20B0);
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r1 = c.r[1]; let mut r3 = c.r[3]; let mut r4 = c.r[4]; let mut r5 = c.r[5]; let mut r13 = c.r[13]; 
     let mut cr0 = c.cr[0]; 
@@ -5167,11 +5257,11 @@ pub fn fn_802B20B0(c: &mut Ctx) {
             { let ea = r13.wrapping_add(0xFFFF8530); r0 = runtime::mr32(mem, ea); }
             cr0 = runtime::cmps_val(r0 as i32, -2);
             if cr0 & 2 == 0 { { pc = 0x802B20E0; continue; } }
-            { c.lr = 0x802B20CC; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.cr[0] = cr0; fn_802B2074(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r13 = c.r[13]; cr0 = c.cr[0]; }
+            { c.lr = 0x802B20CC; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.cr[0] = cr0; fn_802B2074(c); runtime::prof(0x802B20B0); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r13 = c.r[13]; cr0 = c.cr[0]; }
             r5 = 0x80000000u32;
             r4 = r3 | r3;
             r3 = r5.wrapping_add(0x57C0);
-            { c.lr = 0x802B20DC; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.cr[0] = cr0; fn_802B34E8(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r13 = c.r[13]; cr0 = c.cr[0]; }
+            { c.lr = 0x802B20DC; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.cr[0] = cr0; fn_802B34E8(c); runtime::prof(0x802B20B0); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r13 = c.r[13]; cr0 = c.cr[0]; }
             { let ea = r13.wrapping_add(0xFFFF8530); runtime::mw32(mem, ea, r3); }
             pc = 0x802B20E0;
         }
@@ -5187,6 +5277,7 @@ pub fn fn_802B20B0(c: &mut Ctx) {
 
 // ExPPC_LongJump__FP12ThrowContextPvPv
 pub fn fn_802B20F0(c: &mut Ctx) {
+    runtime::prof(0x802B20F0);
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r1 = c.r[1]; let mut r2 = c.r[2]; let mut r3 = c.r[3]; let mut r4 = c.r[4]; let mut r5 = c.r[5]; let mut r7 = c.r[7]; let mut r8 = c.r[8]; let mut r13 = c.r[13]; let mut r14 = c.r[14]; let mut r15 = c.r[15]; let mut r16 = c.r[16]; let mut r17 = c.r[17]; let mut r18 = c.r[18]; let mut r19 = c.r[19]; let mut r20 = c.r[20]; let mut r21 = c.r[21]; let mut r22 = c.r[22]; let mut r23 = c.r[23]; let mut r24 = c.r[24]; let mut r25 = c.r[25]; let mut r26 = c.r[26]; let mut r27 = c.r[27]; let mut r28 = c.r[28]; let mut r29 = c.r[29]; let mut r30 = c.r[30]; let mut r31 = c.r[31]; 
     let mut f14 = c.f[14]; let mut f15 = c.f[15]; let mut f16 = c.f[16]; let mut f17 = c.f[17]; let mut f18 = c.f[18]; let mut f19 = c.f[19]; let mut f20 = c.f[20]; let mut f21 = c.f[21]; let mut f22 = c.f[22]; let mut f23 = c.f[23]; let mut f24 = c.f[24]; let mut f25 = c.f[25]; let mut f26 = c.f[26]; let mut f27 = c.f[27]; let mut f28 = c.f[28]; let mut f29 = c.f[29]; let mut f30 = c.f[30]; let mut f31 = c.f[31]; 
@@ -5261,6 +5352,7 @@ pub fn fn_802B20F0(c: &mut Ctx) {
 
 // __throw
 pub fn fn_802B21F4(c: &mut Ctx) {
+    runtime::prof(0x802B21F4);
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r1 = c.r[1]; let mut r3 = c.r[3]; let mut r4 = c.r[4]; let mut r5 = c.r[5]; let mut r13 = c.r[13]; let mut r14 = c.r[14]; let mut r15 = c.r[15]; let mut r16 = c.r[16]; let mut r17 = c.r[17]; let mut r18 = c.r[18]; let mut r19 = c.r[19]; let mut r20 = c.r[20]; let mut r21 = c.r[21]; let mut r22 = c.r[22]; let mut r23 = c.r[23]; let mut r24 = c.r[24]; let mut r25 = c.r[25]; let mut r26 = c.r[26]; let mut r27 = c.r[27]; let mut r28 = c.r[28]; let mut r29 = c.r[29]; let mut r30 = c.r[30]; let mut r31 = c.r[31]; 
     let mut f14 = c.f[14]; let mut f15 = c.f[15]; let mut f16 = c.f[16]; let mut f17 = c.f[17]; let mut f18 = c.f[18]; let mut f19 = c.f[19]; let mut f20 = c.f[20]; let mut f21 = c.f[21]; let mut f22 = c.f[22]; let mut f23 = c.f[23]; let mut f24 = c.f[24]; let mut f25 = c.f[25]; let mut f26 = c.f[26]; let mut f27 = c.f[27]; let mut f28 = c.f[28]; let mut f29 = c.f[29]; let mut f30 = c.f[30]; let mut f31 = c.f[31]; 
@@ -5341,7 +5433,7 @@ pub fn fn_802B21F4(c: &mut Ctx) {
     { let ea = r1.wrapping_add(0x10); r3 = runtime::mr32(mem, ea); }
     { let ea = r1.wrapping_add(0x2B4); runtime::mw32(mem, ea, r3); }
     r3 = r1.wrapping_add(0x18);
-    { c.lr = 0x802B2324; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; fn_802B237C(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r13 = c.r[13]; r14 = c.r[14]; r15 = c.r[15]; r16 = c.r[16]; r17 = c.r[17]; r18 = c.r[18]; r19 = c.r[19]; r20 = c.r[20]; r21 = c.r[21]; r22 = c.r[22]; r23 = c.r[23]; r24 = c.r[24]; r25 = c.r[25]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; f14 = c.f[14]; f15 = c.f[15]; f16 = c.f[16]; f17 = c.f[17]; f18 = c.f[18]; f19 = c.f[19]; f20 = c.f[20]; f21 = c.f[21]; f22 = c.f[22]; f23 = c.f[23]; f24 = c.f[24]; f25 = c.f[25]; f26 = c.f[26]; f27 = c.f[27]; f28 = c.f[28]; f29 = c.f[29]; f30 = c.f[30]; f31 = c.f[31]; ps14 = c.ps1[14]; ps15 = c.ps1[15]; ps16 = c.ps1[16]; ps17 = c.ps1[17]; ps18 = c.ps1[18]; ps19 = c.ps1[19]; ps20 = c.ps1[20]; ps21 = c.ps1[21]; ps22 = c.ps1[22]; ps23 = c.ps1[23]; ps24 = c.ps1[24]; ps25 = c.ps1[25]; ps26 = c.ps1[26]; ps27 = c.ps1[27]; ps28 = c.ps1[28]; ps29 = c.ps1[29]; ps30 = c.ps1[30]; ps31 = c.ps1[31]; cr0 = c.cr[0]; cr1 = c.cr[1]; cr2 = c.cr[2]; cr3 = c.cr[3]; cr4 = c.cr[4]; cr5 = c.cr[5]; cr6 = c.cr[6]; cr7 = c.cr[7]; }
+    { c.lr = 0x802B2324; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; fn_802B237C(c); runtime::prof(0x802B21F4); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r13 = c.r[13]; r14 = c.r[14]; r15 = c.r[15]; r16 = c.r[16]; r17 = c.r[17]; r18 = c.r[18]; r19 = c.r[19]; r20 = c.r[20]; r21 = c.r[21]; r22 = c.r[22]; r23 = c.r[23]; r24 = c.r[24]; r25 = c.r[25]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; f14 = c.f[14]; f15 = c.f[15]; f16 = c.f[16]; f17 = c.f[17]; f18 = c.f[18]; f19 = c.f[19]; f20 = c.f[20]; f21 = c.f[21]; f22 = c.f[22]; f23 = c.f[23]; f24 = c.f[24]; f25 = c.f[25]; f26 = c.f[26]; f27 = c.f[27]; f28 = c.f[28]; f29 = c.f[29]; f30 = c.f[30]; f31 = c.f[31]; ps14 = c.ps1[14]; ps15 = c.ps1[15]; ps16 = c.ps1[16]; ps17 = c.ps1[17]; ps18 = c.ps1[18]; ps19 = c.ps1[19]; ps20 = c.ps1[20]; ps21 = c.ps1[21]; ps22 = c.ps1[22]; ps23 = c.ps1[23]; ps24 = c.ps1[24]; ps25 = c.ps1[25]; ps26 = c.ps1[26]; ps27 = c.ps1[27]; ps28 = c.ps1[28]; ps29 = c.ps1[29]; ps30 = c.ps1[30]; ps31 = c.ps1[31]; cr0 = c.cr[0]; cr1 = c.cr[1]; cr2 = c.cr[2]; cr3 = c.cr[3]; cr4 = c.cr[4]; cr5 = c.cr[5]; cr6 = c.cr[6]; cr7 = c.cr[7]; }
     { let ea = r1.wrapping_add(0x2C4); r0 = runtime::mr32(mem, ea); }
     c.lr = r0;
     r1 = r1.wrapping_add(0x2C0);
@@ -5350,6 +5442,7 @@ pub fn fn_802B21F4(c: &mut Ctx) {
 
 // __end__catch
 pub fn fn_802B2338(c: &mut Ctx) {
+    runtime::prof(0x802B2338);
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r1 = c.r[1]; let mut r3 = c.r[3]; let mut r4 = c.r[4]; let mut r12 = c.r[12]; 
     let mut cr0 = c.cr[0]; 
@@ -5369,7 +5462,7 @@ pub fn fn_802B2338(c: &mut Ctx) {
             r3 = r0 | r0;
             r4 = 0xFFFFFFFFu32;
             ctr = r12;
-            { let t = ctr; c.lr = 0x802B236C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[12] = r12; c.cr[0] = cr0; c.ctr = ctr; c.call(t); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r12 = c.r[12]; cr0 = c.cr[0]; ctr = c.ctr; }
+            { let t = ctr; c.lr = 0x802B236C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[12] = r12; c.cr[0] = cr0; c.ctr = ctr; c.call(t); runtime::prof(0x802B2338); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r12 = c.r[12]; cr0 = c.cr[0]; ctr = c.ctr; }
             pc = 0x802B236C;
         }
         0x802B236C => {
@@ -5384,6 +5477,7 @@ pub fn fn_802B2338(c: &mut Ctx) {
 
 // ExPPC_ThrowHandler__FP12ThrowContext
 pub fn fn_802B237C(c: &mut Ctx) {
+    runtime::prof(0x802B237C);
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r1 = c.r[1]; let mut r3 = c.r[3]; let mut r4 = c.r[4]; let mut r5 = c.r[5]; let mut r6 = c.r[6]; let mut r7 = c.r[7]; let mut r26 = c.r[26]; let mut r27 = c.r[27]; let mut r28 = c.r[28]; let mut r29 = c.r[29]; let mut r30 = c.r[30]; let mut r31 = c.r[31]; 
     let mut cr0 = c.cr[0]; 
@@ -5398,11 +5492,11 @@ pub fn fn_802B237C(c: &mut Ctx) {
             { let ea = r1.wrapping_add(0x58); runtime::mw32(mem, ea.wrapping_add(0x0), r26); runtime::mw32(mem, ea.wrapping_add(0x4), r27); runtime::mw32(mem, ea.wrapping_add(0x8), r28); runtime::mw32(mem, ea.wrapping_add(0xC), r29); runtime::mw32(mem, ea.wrapping_add(0x10), r30); runtime::mw32(mem, ea.wrapping_add(0x14), r31);  }
             r30 = r3 | r3;
             { let ea = r3.wrapping_add(0x290); r3 = runtime::mr32(mem, ea); }
-            { c.lr = 0x802B239C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ctr = ctr; fn_802B32B0(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ctr = c.ctr; }
+            { c.lr = 0x802B239C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ctr = ctr; fn_802B32B0(c); runtime::prof(0x802B237C); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ctr = c.ctr; }
             { let ea = r1.wrapping_add(0x10); r0 = runtime::mr32(mem, ea); }
             cr0 = runtime::cmpu_val(r0, 0x0);
             if cr0 & 2 == 0 { { pc = 0x802B23AC; continue; } }
-            { c.lr = 0x802B23AC; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ctr = ctr; fn_802B1874(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ctr = c.ctr; }
+            { c.lr = 0x802B23AC; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.cr[0] = cr0; c.ctr = ctr; fn_802B1874(c); runtime::prof(0x802B237C); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; cr0 = c.cr[0]; ctr = c.ctr; }
             pc = 0x802B23AC;
         }
         0x802B23AC => {
@@ -5474,12 +5568,12 @@ pub fn fn_802B237C(c: &mut Ctx) {
             pc = 0x802B2474;
         }
         0x802B2474 => {
-            { c.lr = 0x802B2478; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ctr = ctr; fn_802B1874(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ctr = c.ctr; }
+            { c.lr = 0x802B2478; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.cr[0] = cr0; c.ctr = ctr; fn_802B1874(c); runtime::prof(0x802B237C); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; cr0 = c.cr[0]; ctr = c.ctr; }
             { pc = 0x802B2488; continue; }
         }
         0x802B247C => {
             r3 = r1.wrapping_add(0x28);
-            { c.lr = 0x802B2484; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ctr = ctr; fn_802B30F0(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ctr = c.ctr; }
+            { c.lr = 0x802B2484; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ctr = ctr; fn_802B30F0(c); runtime::prof(0x802B237C); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ctr = c.ctr; }
             { if runtime::PROFILE_DETAILED { c.sample_tick_pc(0x802B237C); } c.budget -= 1; if c.budget == 0 { c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ctr = ctr; c.poll(); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ctr = c.ctr; } pc = 0x802B243C; continue; }
         }
         0x802B2488 => {
@@ -5549,7 +5643,7 @@ pub fn fn_802B237C(c: &mut Ctx) {
             r5 = r1.wrapping_add(0xC);
             { let ea = r30.wrapping_add(0x294); r3 = runtime::mr32(mem, ea); }
             { let ea = r4.wrapping_add(0x4); r4 = runtime::mr32(mem, ea); }
-            { c.lr = 0x802B2558; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ctr = ctr; fn_802B1620(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ctr = c.ctr; }
+            { c.lr = 0x802B2558; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ctr = ctr; fn_802B1620(c); runtime::prof(0x802B237C); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ctr = c.ctr; }
             r0 = r3 as i8 as u32; cr0 = runtime::cmps_val(r0 as i32, 0);
             if cr0 & 2 == 0 { { pc = 0x802B2648; continue; } }
             { pc = 0x802B2638; continue; }
@@ -5559,7 +5653,7 @@ pub fn fn_802B237C(c: &mut Ctx) {
             r5 = r1.wrapping_add(0xC);
             { let ea = r30.wrapping_add(0x294); r3 = runtime::mr32(mem, ea); }
             { let ea = r4.wrapping_add(0x4); r4 = runtime::mr32(mem, ea); }
-            { c.lr = 0x802B2578; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ctr = ctr; fn_802B1620(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ctr = c.ctr; }
+            { c.lr = 0x802B2578; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ctr = ctr; fn_802B1620(c); runtime::prof(0x802B237C); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ctr = c.ctr; }
             r0 = r3 as i8 as u32; cr0 = runtime::cmps_val(r0 as i32, 0);
             if cr0 & 2 == 0 { { pc = 0x802B2648; continue; } }
             { pc = 0x802B2638; continue; }
@@ -5575,7 +5669,7 @@ pub fn fn_802B237C(c: &mut Ctx) {
             { let ea = r26.wrapping_add(0xC); r4 = runtime::mr32(mem, ea); }
             r3 = r28 | r28;
             r5 = r1.wrapping_add(0x8);
-            { c.lr = 0x802B25A8; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ctr = ctr; fn_802B1620(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ctr = c.ctr; }
+            { c.lr = 0x802B25A8; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ctr = ctr; fn_802B1620(c); runtime::prof(0x802B237C); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ctr = c.ctr; }
             r0 = r3 as i8 as u32; cr0 = runtime::cmps_val(r0 as i32, 0);
             if cr0 & 2 != 0 { { pc = 0x802B25B8; continue; } }
             r0 = 0x1u32;
@@ -5600,7 +5694,7 @@ pub fn fn_802B237C(c: &mut Ctx) {
             r3 = r30 | r30;
             r4 = r1.wrapping_add(0x10);
             r5 = r27 | r27;
-            { c.lr = 0x802B25EC; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ctr = ctr; fn_802B299C(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ctr = c.ctr; }
+            { c.lr = 0x802B25EC; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ctr = ctr; fn_802B299C(c); runtime::prof(0x802B237C); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ctr = c.ctr; }
             { let ea = r30.wrapping_add(0x288); r5 = runtime::mr32(mem, ea); }
             r3 = r30 | r30;
             { let ea = r27.wrapping_add(0x8); r4 = runtime::mr32(mem, ea); }
@@ -5616,16 +5710,16 @@ pub fn fn_802B237C(c: &mut Ctx) {
             { let ea = r27.wrapping_add(0x4); r0 = runtime::mr32(mem, ea); }
             { let ea = r1.wrapping_add(0x24); r4 = runtime::mr32(mem, ea); }
             r5 = r5.wrapping_add(r0);
-            { c.lr = 0x802B262C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ctr = ctr; fn_802B20F0(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ctr = c.ctr; }
+            { c.lr = 0x802B262C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ctr = ctr; fn_802B20F0(c); runtime::prof(0x802B237C); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ctr = c.ctr; }
             { pc = 0x802B2638; continue; }
         }
         0x802B2630 => {
-            { c.lr = 0x802B2634; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ctr = ctr; fn_802B1874(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ctr = c.ctr; }
+            { c.lr = 0x802B2634; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.cr[0] = cr0; c.ctr = ctr; fn_802B1874(c); runtime::prof(0x802B237C); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; cr0 = c.cr[0]; ctr = c.ctr; }
             { pc = 0x802B2648; continue; }
         }
         0x802B2638 => {
             r3 = r1.wrapping_add(0x28);
-            { c.lr = 0x802B2640; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ctr = ctr; fn_802B30F0(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ctr = c.ctr; }
+            { c.lr = 0x802B2640; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ctr = ctr; fn_802B30F0(c); runtime::prof(0x802B237C); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ctr = c.ctr; }
             r26 = r3 | r3;
             { if runtime::PROFILE_DETAILED { c.sample_tick_pc(0x802B237C); } c.budget -= 1; if c.budget == 0 { c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ctr = ctr; c.poll(); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ctr = c.ctr; } pc = 0x802B2528; continue; }
         }
@@ -5637,7 +5731,7 @@ pub fn fn_802B237C(c: &mut Ctx) {
             r3 = r30 | r30;
             r4 = r1.wrapping_add(0x10);
             r5 = r31 | r31;
-            { c.lr = 0x802B2668; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ctr = ctr; fn_802B299C(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ctr = c.ctr; }
+            { c.lr = 0x802B2668; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ctr = ctr; fn_802B299C(c); runtime::prof(0x802B237C); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ctr = c.ctr; }
             { let ea = r30.wrapping_add(0x288); r4 = runtime::mr32(mem, ea); }
             { let ea = r31.wrapping_add(0xC); r3 = runtime::mr32(mem, ea); }
             { let ea = r30.wrapping_add(0x298); r0 = runtime::mr32(mem, ea); }
@@ -5673,7 +5767,7 @@ pub fn fn_802B237C(c: &mut Ctx) {
             { let ea = r31.wrapping_add(0x8); r0 = runtime::mr32(mem, ea); }
             { let ea = r1.wrapping_add(0x24); r4 = runtime::mr32(mem, ea); }
             r5 = r5.wrapping_add(r0);
-            { c.lr = 0x802B26E4; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ctr = ctr; fn_802B20F0(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ctr = c.ctr; }
+            { c.lr = 0x802B26E4; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ctr = ctr; fn_802B20F0(c); runtime::prof(0x802B237C); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ctr = c.ctr; }
             { pc = 0x802B2778; continue; }
         }
         0x802B26E8 => {
@@ -5681,7 +5775,7 @@ pub fn fn_802B237C(c: &mut Ctx) {
             r3 = r30 | r30;
             r4 = r1.wrapping_add(0x10);
             r5 = r31 | r31;
-            { c.lr = 0x802B26FC; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ctr = ctr; fn_802B299C(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ctr = c.ctr; }
+            { c.lr = 0x802B26FC; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ctr = ctr; fn_802B299C(c); runtime::prof(0x802B237C); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ctr = c.ctr; }
             { let ea = r30.wrapping_add(0x288); r4 = runtime::mr32(mem, ea); }
             { let ea = r31.wrapping_add(0xA); r3 = runtime::mr16(mem, ea) as i16 as u32; }
             { let ea = r30.wrapping_add(0x298); r0 = runtime::mr32(mem, ea); }
@@ -5717,7 +5811,7 @@ pub fn fn_802B237C(c: &mut Ctx) {
             { let ea = r31.wrapping_add(0x8); r0 = runtime::mr16(mem, ea) as u32; }
             { let ea = r1.wrapping_add(0x24); r4 = runtime::mr32(mem, ea); }
             r5 = r5.wrapping_add(r0);
-            { c.lr = 0x802B2778; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ctr = ctr; fn_802B20F0(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ctr = c.ctr; }
+            { c.lr = 0x802B2778; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ctr = ctr; fn_802B20F0(c); runtime::prof(0x802B237C); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ctr = c.ctr; }
             pc = 0x802B2778;
         }
         0x802B2778 => {
@@ -5733,6 +5827,7 @@ pub fn fn_802B237C(c: &mut Ctx) {
 
 // __unexpected
 pub fn fn_802B278C(c: &mut Ctx) {
+    runtime::prof(0x802B278C);
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r1 = c.r[1]; let mut r3 = c.r[3]; let mut r4 = c.r[4]; let mut r5 = c.r[5]; let mut r10 = c.r[10]; let mut r26 = c.r[26]; let mut r27 = c.r[27]; let mut r28 = c.r[28]; let mut r29 = c.r[29]; let mut r30 = c.r[30]; let mut r31 = c.r[31]; 
     let mut cr0 = c.cr[0]; 
@@ -5748,7 +5843,7 @@ pub fn fn_802B278C(c: &mut Ctx) {
             r3 = 0x80380000u32;
             r30 = r3.wrapping_add(0xFFFFE6B8);
             { let ea = r1.wrapping_add(0x30); runtime::mw32(mem, ea, r1); }
-            { c.lr = 0x802B27B4; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[10] = r10; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; fn_802B184C(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r10 = c.r[10]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; }
+            { c.lr = 0x802B27B4; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[10] = r10; c.cr[0] = cr0; fn_802B184C(c); runtime::prof(0x802B278C); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r10 = c.r[10]; cr0 = c.cr[0]; }
             { pc = 0x802B2920; continue; }
         }
         0x802B27B8 => {
@@ -5761,7 +5856,7 @@ pub fn fn_802B278C(c: &mut Ctx) {
             { let ea = r26.wrapping_add(0xC); r4 = runtime::mr32(mem, ea); }
             r3 = r27 | r27;
             r5 = r31.wrapping_add(0x10);
-            { c.lr = 0x802B27D8; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[10] = r10; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; fn_802B1620(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r10 = c.r[10]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; }
+            { c.lr = 0x802B27D8; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[10] = r10; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; fn_802B1620(c); runtime::prof(0x802B278C); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r10 = c.r[10]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; }
             r0 = r3 as i8 as u32; cr0 = runtime::cmps_val(r0 as i32, 0);
             if cr0 & 2 != 0 { { pc = 0x802B27E8; continue; } }
             r0 = 0x1u32;
@@ -5785,7 +5880,7 @@ pub fn fn_802B278C(c: &mut Ctx) {
             r3 = 0x0u32;
             r4 = 0x0u32;
             r5 = 0x0u32;
-            { c.lr = 0x802B2818; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[10] = r10; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; fn_802B21F4(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r10 = c.r[10]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; }
+            { c.lr = 0x802B2818; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[10] = r10; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; fn_802B21F4(c); runtime::prof(0x802B278C); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r10 = c.r[10]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; }
             pc = 0x802B2818;
         }
         0x802B2818 => {
@@ -5797,7 +5892,7 @@ pub fn fn_802B278C(c: &mut Ctx) {
             { let ea = r26.wrapping_add(0xC); r4 = runtime::mr32(mem, ea); }
             r3 = r30;
             r5 = r31.wrapping_add(0xC);
-            { c.lr = 0x802B2834; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[10] = r10; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; fn_802B1620(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r10 = c.r[10]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; }
+            { c.lr = 0x802B2834; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[10] = r10; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; fn_802B1620(c); runtime::prof(0x802B278C); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r10 = c.r[10]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; }
             r0 = r3 as i8 as u32; cr0 = runtime::cmps_val(r0 as i32, 0);
             if cr0 & 2 != 0 { { pc = 0x802B2844; continue; } }
             r0 = 0x1u32;
@@ -5828,7 +5923,7 @@ pub fn fn_802B278C(c: &mut Ctx) {
             { let ea = r31.wrapping_add(0x18); runtime::mw32(mem, ea, r0); }
             r5 = r3.wrapping_add(0x2940);
             r3 = r30.wrapping_add(0x14);
-            { c.lr = 0x802B2890; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[10] = r10; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; fn_802B21F4(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r10 = c.r[10]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; }
+            { c.lr = 0x802B2890; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[10] = r10; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; fn_802B21F4(c); runtime::prof(0x802B278C); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r10 = c.r[10]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; }
             pc = 0x802B2890;
         }
         0x802B2890 => {
@@ -5840,7 +5935,7 @@ pub fn fn_802B278C(c: &mut Ctx) {
             { let ea = r26.wrapping_add(0xC); r4 = runtime::mr32(mem, ea); }
             r3 = r30.wrapping_add(0x3C);
             r5 = r31.wrapping_add(0x8);
-            { c.lr = 0x802B28AC; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[10] = r10; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; fn_802B1620(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r10 = c.r[10]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; }
+            { c.lr = 0x802B28AC; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[10] = r10; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; fn_802B1620(c); runtime::prof(0x802B278C); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r10 = c.r[10]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; }
             r0 = r3 as i8 as u32; cr0 = runtime::cmps_val(r0 as i32, 0);
             if cr0 & 2 != 0 { { pc = 0x802B28BC; continue; } }
             r0 = 0x1u32;
@@ -5871,19 +5966,19 @@ pub fn fn_802B278C(c: &mut Ctx) {
             { let ea = r31.wrapping_add(0x14); runtime::mw32(mem, ea, r0); }
             r5 = r3.wrapping_add(0x2940);
             r3 = r30.wrapping_add(0x14);
-            { c.lr = 0x802B2908; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[10] = r10; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; fn_802B21F4(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r10 = c.r[10]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; }
+            { c.lr = 0x802B2908; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[10] = r10; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; fn_802B21F4(c); runtime::prof(0x802B278C); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r10 = c.r[10]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; }
             pc = 0x802B2908;
         }
         0x802B2908 => {
             r3 = r31.wrapping_add(0x1C);
-            { c.lr = 0x802B2910; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[10] = r10; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; fn_802B2338(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r10 = c.r[10]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; }
+            { c.lr = 0x802B2910; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[10] = r10; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; fn_802B2338(c); runtime::prof(0x802B278C); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r10 = c.r[10]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; }
             { let ea = r1; r0 = runtime::mr32(mem, ea); }
             { let ea = r31.wrapping_add(0x30); r1 = runtime::mr32(mem, ea); }
             { let ea = r1; runtime::mw32(mem, ea, r0); }
             pc = 0x802B2920;
         }
         0x802B2920 => {
-            { c.lr = 0x802B2924; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[10] = r10; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; fn_802B1874(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r10 = c.r[10]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; }
+            { c.lr = 0x802B2924; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[10] = r10; c.cr[0] = cr0; fn_802B1874(c); runtime::prof(0x802B278C); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r10 = c.r[10]; cr0 = c.cr[0]; }
             r10 = r31 | r31;
             { let ea = r10.wrapping_add(0x38); r26 = runtime::mr32(mem, ea.wrapping_add(0x0)); r27 = runtime::mr32(mem, ea.wrapping_add(0x4)); r28 = runtime::mr32(mem, ea.wrapping_add(0x8)); r29 = runtime::mr32(mem, ea.wrapping_add(0xC)); r30 = runtime::mr32(mem, ea.wrapping_add(0x10)); r31 = runtime::mr32(mem, ea.wrapping_add(0x14));  }
             { let ea = r1; r10 = runtime::mr32(mem, ea); }
@@ -5898,6 +5993,7 @@ pub fn fn_802B278C(c: &mut Ctx) {
 
 // __dt__Q23std13bad_exceptionFv
 pub fn fn_802B2940(c: &mut Ctx) {
+    runtime::prof(0x802B2940);
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r1 = c.r[1]; let mut r3 = c.r[3]; let mut r4 = c.r[4]; let mut r31 = c.r[31]; 
     let mut cr0 = c.cr[0]; 
@@ -5923,7 +6019,7 @@ pub fn fn_802B2940(c: &mut Ctx) {
             r0 = r4 as i16 as u32; cr0 = runtime::cmps_val(r0 as i32, 0);
             if cr0 & 4 == 0 { { pc = 0x802B2984; continue; } }
             r3 = r31 | r31;
-            { c.lr = 0x802B2984; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[31] = r31; c.cr[0] = cr0; fn_802B131C(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r31 = c.r[31]; cr0 = c.cr[0]; }
+            { c.lr = 0x802B2984; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.cr[0] = cr0; fn_802B131C(c); runtime::prof(0x802B2940); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; cr0 = c.cr[0]; }
             pc = 0x802B2984;
         }
         0x802B2984 => {
@@ -5940,6 +6036,7 @@ pub fn fn_802B2940(c: &mut Ctx) {
 
 // ExPPC_UnwindStack__FP12ThrowContextP15MWExceptionInfoPv
 pub fn fn_802B299C(c: &mut Ctx) {
+    runtime::prof(0x802B299C);
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r1 = c.r[1]; let mut r3 = c.r[3]; let mut r4 = c.r[4]; let mut r5 = c.r[5]; let mut r12 = c.r[12]; let mut r24 = c.r[24]; let mut r25 = c.r[25]; let mut r26 = c.r[26]; let mut r27 = c.r[27]; let mut r28 = c.r[28]; let mut r29 = c.r[29]; let mut r30 = c.r[30]; let mut r31 = c.r[31]; 
     let mut cr0 = c.cr[0]; 
@@ -5963,13 +6060,13 @@ pub fn fn_802B299C(c: &mut Ctx) {
             if cr0 & 2 == 0 { { pc = 0x802B2A0C; continue; } }
             r3 = r27 | r27;
             r4 = r28 | r28;
-            { c.lr = 0x802B29D0; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[12] = r12; c.r[24] = r24; c.r[25] = r25; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ctr = ctr; c.ca = ca; fn_802B2EA8(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r12 = c.r[12]; r24 = c.r[24]; r25 = c.r[25]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ctr = c.ctr; ca = c.ca; }
+            { c.lr = 0x802B29D0; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[12] = r12; c.r[24] = r24; c.r[25] = r25; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ctr = ctr; c.ca = ca; fn_802B2EA8(c); runtime::prof(0x802B299C); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r12 = c.r[12]; r24 = c.r[24]; r25 = c.r[25]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ctr = c.ctr; ca = c.ca; }
             r4 = r28 | r28;
-            { c.lr = 0x802B29D8; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[12] = r12; c.r[24] = r24; c.r[25] = r25; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ctr = ctr; c.ca = ca; fn_802B32B0(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r12 = c.r[12]; r24 = c.r[24]; r25 = c.r[25]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ctr = c.ctr; ca = c.ca; }
+            { c.lr = 0x802B29D8; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[12] = r12; c.r[24] = r24; c.r[25] = r25; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ctr = ctr; c.ca = ca; fn_802B32B0(c); runtime::prof(0x802B299C); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r12 = c.r[12]; r24 = c.r[24]; r25 = c.r[25]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ctr = c.ctr; ca = c.ca; }
             { let ea = r28; r0 = runtime::mr32(mem, ea); }
             cr0 = runtime::cmpu_val(r0, 0x0);
             if cr0 & 2 == 0 { { pc = 0x802B29E8; continue; } }
-            { c.lr = 0x802B29E8; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[12] = r12; c.r[24] = r24; c.r[25] = r25; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ctr = ctr; c.ca = ca; fn_802B1874(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r12 = c.r[12]; r24 = c.r[24]; r25 = c.r[25]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ctr = c.ctr; ca = c.ca; }
+            { c.lr = 0x802B29E8; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[12] = r12; c.cr[0] = cr0; c.ctr = ctr; c.ca = ca; fn_802B1874(c); runtime::prof(0x802B299C); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r12 = c.r[12]; cr0 = c.cr[0]; ctr = c.ctr; ca = c.ca; }
             pc = 0x802B29E8;
         }
         0x802B29E8 => {
@@ -6014,7 +6111,7 @@ pub fn fn_802B299C(c: &mut Ctx) {
             { let ea = r31.wrapping_add(0x4); r12 = runtime::mr32(mem, ea); }
             r3 = r3.wrapping_add(r0);
             ctr = r12;
-            { let t = ctr; c.lr = 0x802B2A64; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[12] = r12; c.r[24] = r24; c.r[25] = r25; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ctr = ctr; c.ca = ca; c.call(t); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r12 = c.r[12]; r24 = c.r[24]; r25 = c.r[25]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ctr = c.ctr; ca = c.ca; }
+            { let t = ctr; c.lr = 0x802B2A64; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[12] = r12; c.r[24] = r24; c.r[25] = r25; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ctr = ctr; c.ca = ca; c.call(t); runtime::prof(0x802B299C); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r12 = c.r[12]; r24 = c.r[24]; r25 = c.r[25]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ctr = c.ctr; ca = c.ca; }
             { let ea = r28.wrapping_add(0x8); r3 = runtime::mr32(mem, ea); }
             r0 = r3.wrapping_add(0x8);
             { let ea = r28.wrapping_add(0x8); runtime::mw32(mem, ea, r0); }
@@ -6046,7 +6143,7 @@ pub fn fn_802B299C(c: &mut Ctx) {
             { let ea = r31.wrapping_add(0x8); r12 = runtime::mr32(mem, ea); }
             r3 = r3.wrapping_add(r0);
             ctr = r12;
-            { let t = ctr; c.lr = 0x802B2AC8; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[12] = r12; c.r[24] = r24; c.r[25] = r25; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ctr = ctr; c.ca = ca; c.call(t); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r12 = c.r[12]; r24 = c.r[24]; r25 = c.r[25]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ctr = c.ctr; ca = c.ca; }
+            { let t = ctr; c.lr = 0x802B2AC8; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[12] = r12; c.r[24] = r24; c.r[25] = r25; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ctr = ctr; c.ca = ca; c.call(t); runtime::prof(0x802B299C); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r12 = c.r[12]; r24 = c.r[24]; r25 = c.r[25]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ctr = c.ctr; ca = c.ca; }
             pc = 0x802B2AC8;
         }
         0x802B2AC8 => {
@@ -6075,7 +6172,7 @@ pub fn fn_802B299C(c: &mut Ctx) {
             { let ea = r31.wrapping_add(0x4); r12 = runtime::mr32(mem, ea); }
             r4 = 0xFFFFFFFFu32;
             ctr = r12;
-            { let t = ctr; c.lr = 0x802B2B14; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[12] = r12; c.r[24] = r24; c.r[25] = r25; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ctr = ctr; c.ca = ca; c.call(t); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r12 = c.r[12]; r24 = c.r[24]; r25 = c.r[25]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ctr = c.ctr; ca = c.ca; }
+            { let t = ctr; c.lr = 0x802B2B14; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[12] = r12; c.r[24] = r24; c.r[25] = r25; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ctr = ctr; c.ca = ca; c.call(t); runtime::prof(0x802B299C); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r12 = c.r[12]; r24 = c.r[24]; r25 = c.r[25]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ctr = c.ctr; ca = c.ca; }
             { let ea = r28.wrapping_add(0x8); r3 = runtime::mr32(mem, ea); }
             r0 = r3.wrapping_add(0x8);
             { let ea = r28.wrapping_add(0x8); runtime::mw32(mem, ea, r0); }
@@ -6097,7 +6194,7 @@ pub fn fn_802B299C(c: &mut Ctx) {
             r3 = r24 | r24;
             r4 = 0xFFFFFFFFu32;
             ctr = r12;
-            { let t = ctr; c.lr = 0x802B2B5C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[12] = r12; c.r[24] = r24; c.r[25] = r25; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ctr = ctr; c.ca = ca; c.call(t); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r12 = c.r[12]; r24 = c.r[24]; r25 = c.r[25]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ctr = c.ctr; ca = c.ca; }
+            { let t = ctr; c.lr = 0x802B2B5C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[12] = r12; c.r[24] = r24; c.r[25] = r25; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ctr = ctr; c.ca = ca; c.call(t); runtime::prof(0x802B299C); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r12 = c.r[12]; r24 = c.r[24]; r25 = c.r[25]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ctr = c.ctr; ca = c.ca; }
             r25 = r25.wrapping_add(0xFFFFFFFF);
             pc = 0x802B2B60;
         }
@@ -6131,7 +6228,7 @@ pub fn fn_802B299C(c: &mut Ctx) {
             { let ea = r31.wrapping_add(0x8); r12 = runtime::mr32(mem, ea); }
             r3 = r3.wrapping_add(r0);
             ctr = r12;
-            { let t = ctr; c.lr = 0x802B2BBC; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[12] = r12; c.r[24] = r24; c.r[25] = r25; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ctr = ctr; c.ca = ca; c.call(t); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r12 = c.r[12]; r24 = c.r[24]; r25 = c.r[25]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ctr = c.ctr; ca = c.ca; }
+            { let t = ctr; c.lr = 0x802B2BBC; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[12] = r12; c.r[24] = r24; c.r[25] = r25; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ctr = ctr; c.ca = ca; c.call(t); runtime::prof(0x802B299C); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r12 = c.r[12]; r24 = c.r[24]; r25 = c.r[25]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ctr = c.ctr; ca = c.ca; }
             { let ea = r28.wrapping_add(0x8); r3 = runtime::mr32(mem, ea); }
             r0 = r3.wrapping_add(0xC);
             { let ea = r28.wrapping_add(0x8); runtime::mw32(mem, ea, r0); }
@@ -6159,7 +6256,7 @@ pub fn fn_802B299C(c: &mut Ctx) {
             { let ea = r31.wrapping_add(0x8); r12 = runtime::mr32(mem, ea); }
             r3 = r3.wrapping_add(r0);
             ctr = r12;
-            { let t = ctr; c.lr = 0x802B2C10; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[12] = r12; c.r[24] = r24; c.r[25] = r25; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ctr = ctr; c.ca = ca; c.call(t); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r12 = c.r[12]; r24 = c.r[24]; r25 = c.r[25]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ctr = c.ctr; ca = c.ca; }
+            { let t = ctr; c.lr = 0x802B2C10; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[12] = r12; c.r[24] = r24; c.r[25] = r25; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ctr = ctr; c.ca = ca; c.call(t); runtime::prof(0x802B299C); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r12 = c.r[12]; r24 = c.r[24]; r25 = c.r[25]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ctr = c.ctr; ca = c.ca; }
             { let ea = r28.wrapping_add(0x8); r3 = runtime::mr32(mem, ea); }
             r0 = r3.wrapping_add(0xC);
             { let ea = r28.wrapping_add(0x8); runtime::mw32(mem, ea, r0); }
@@ -6205,7 +6302,7 @@ pub fn fn_802B299C(c: &mut Ctx) {
             { let ea = r31.wrapping_add(0xC); r12 = runtime::mr32(mem, ea); }
             r3 = r5.wrapping_add(r0);
             ctr = r12;
-            { let t = ctr; c.lr = 0x802B2C98; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[12] = r12; c.r[24] = r24; c.r[25] = r25; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ctr = ctr; c.ca = ca; c.call(t); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r12 = c.r[12]; r24 = c.r[24]; r25 = c.r[25]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ctr = c.ctr; ca = c.ca; }
+            { let t = ctr; c.lr = 0x802B2C98; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[12] = r12; c.r[24] = r24; c.r[25] = r25; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ctr = ctr; c.ca = ca; c.call(t); runtime::prof(0x802B299C); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r12 = c.r[12]; r24 = c.r[24]; r25 = c.r[25]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ctr = c.ctr; ca = c.ca; }
             pc = 0x802B2C98;
         }
         0x802B2C98 => {
@@ -6245,7 +6342,7 @@ pub fn fn_802B299C(c: &mut Ctx) {
             r3 = r26 | r26;
             r4 = 0xFFFFFFFFu32;
             ctr = r12;
-            { let t = ctr; c.lr = 0x802B2D08; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[12] = r12; c.r[24] = r24; c.r[25] = r25; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ctr = ctr; c.ca = ca; c.call(t); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r12 = c.r[12]; r24 = c.r[24]; r25 = c.r[25]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ctr = c.ctr; ca = c.ca; }
+            { let t = ctr; c.lr = 0x802B2D08; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[12] = r12; c.r[24] = r24; c.r[25] = r25; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ctr = ctr; c.ca = ca; c.call(t); runtime::prof(0x802B299C); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r12 = c.r[12]; r24 = c.r[24]; r25 = c.r[25]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ctr = c.ctr; ca = c.ca; }
             r25 = r25.wrapping_add(0xFFFFFFFF);
             pc = 0x802B2D0C;
         }
@@ -6276,7 +6373,7 @@ pub fn fn_802B299C(c: &mut Ctx) {
         0x802B2D50 => {
             { let ea = r31.wrapping_add(0x4); r12 = runtime::mr32(mem, ea); }
             ctr = r12;
-            { let t = ctr; c.lr = 0x802B2D5C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[12] = r12; c.r[24] = r24; c.r[25] = r25; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ctr = ctr; c.ca = ca; c.call(t); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r12 = c.r[12]; r24 = c.r[24]; r25 = c.r[25]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ctr = c.ctr; ca = c.ca; }
+            { let t = ctr; c.lr = 0x802B2D5C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[12] = r12; c.r[24] = r24; c.r[25] = r25; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ctr = ctr; c.ca = ca; c.call(t); runtime::prof(0x802B299C); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r12 = c.r[12]; r24 = c.r[24]; r25 = c.r[25]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ctr = c.ctr; ca = c.ca; }
             { let ea = r28.wrapping_add(0x8); r3 = runtime::mr32(mem, ea); }
             r0 = r3.wrapping_add(0x8);
             { let ea = r28.wrapping_add(0x8); runtime::mw32(mem, ea, r0); }
@@ -6319,7 +6416,7 @@ pub fn fn_802B299C(c: &mut Ctx) {
             if cr0 & 2 != 0 { { pc = 0x802B2DD8; continue; } }
             { let ea = r31.wrapping_add(0x8); r12 = runtime::mr32(mem, ea); }
             ctr = r12;
-            { let t = ctr; c.lr = 0x802B2DD8; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[12] = r12; c.r[24] = r24; c.r[25] = r25; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ctr = ctr; c.ca = ca; c.call(t); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r12 = c.r[12]; r24 = c.r[24]; r25 = c.r[25]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ctr = c.ctr; ca = c.ca; }
+            { let t = ctr; c.lr = 0x802B2DD8; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[12] = r12; c.r[24] = r24; c.r[25] = r25; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ctr = ctr; c.ca = ca; c.call(t); runtime::prof(0x802B299C); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r12 = c.r[12]; r24 = c.r[24]; r25 = c.r[25]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ctr = c.ctr; ca = c.ca; }
             pc = 0x802B2DD8;
         }
         0x802B2DD8 => {
@@ -6359,7 +6456,7 @@ pub fn fn_802B299C(c: &mut Ctx) {
         0x802B2E40 => {
             r4 = 0xFFFFFFFFu32;
             ctr = r12;
-            { let t = ctr; c.lr = 0x802B2E4C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[12] = r12; c.r[24] = r24; c.r[25] = r25; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ctr = ctr; c.ca = ca; c.call(t); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r12 = c.r[12]; r24 = c.r[24]; r25 = c.r[25]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ctr = c.ctr; ca = c.ca; }
+            { let t = ctr; c.lr = 0x802B2E4C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[12] = r12; c.r[24] = r24; c.r[25] = r25; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ctr = ctr; c.ca = ca; c.call(t); runtime::prof(0x802B299C); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r12 = c.r[12]; r24 = c.r[24]; r25 = c.r[25]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ctr = c.ctr; ca = c.ca; }
             pc = 0x802B2E4C;
         }
         0x802B2E4C => {
@@ -6379,7 +6476,7 @@ pub fn fn_802B299C(c: &mut Ctx) {
             { pc = 0x802B2E80; continue; }
         }
         0x802B2E7C => {
-            { c.lr = 0x802B2E80; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[12] = r12; c.r[24] = r24; c.r[25] = r25; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ctr = ctr; c.ca = ca; fn_802B1874(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r12 = c.r[12]; r24 = c.r[24]; r25 = c.r[25]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ctr = c.ctr; ca = c.ca; }
+            { c.lr = 0x802B2E80; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[12] = r12; c.cr[0] = cr0; c.ctr = ctr; c.ca = ca; fn_802B1874(c); runtime::prof(0x802B299C); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r12 = c.r[12]; cr0 = c.cr[0]; ctr = c.ctr; ca = c.ca; }
             pc = 0x802B2E80;
         }
         0x802B2E80 => {
@@ -6402,6 +6499,7 @@ pub fn fn_802B299C(c: &mut Ctx) {
 
 // ExPPC_PopStackFrame__FP12ThrowContextP15MWExceptionInfo
 pub fn fn_802B2EA8(c: &mut Ctx) {
+    runtime::prof(0x802B2EA8);
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r3 = c.r[3]; let mut r4 = c.r[4]; let mut r5 = c.r[5]; let mut r6 = c.r[6]; let mut r7 = c.r[7]; let mut r8 = c.r[8]; let mut r9 = c.r[9]; 
     let mut f0 = c.f[0]; 
@@ -6605,6 +6703,7 @@ pub fn fn_802B2EA8(c: &mut Ctx) {
 
 // ExPPC_NextAction__FP14ActionIterator
 pub fn fn_802B30F0(c: &mut Ctx) {
+    runtime::prof(0x802B30F0);
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r1 = c.r[1]; let mut r3 = c.r[3]; let mut r4 = c.r[4]; let mut r5 = c.r[5]; let mut r30 = c.r[30]; let mut r31 = c.r[31]; 
     let mut cr0 = c.cr[0]; 
@@ -6646,11 +6745,11 @@ pub fn fn_802B30F0(c: &mut Ctx) {
         0x802B3148 => {
             { let ea = r30.wrapping_add(0x4); r3 = runtime::mr32(mem, ea); }
             r4 = r31 | r31;
-            { c.lr = 0x802B3154; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ctr = ctr; c.ca = ca; fn_802B32B0(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ctr = c.ctr; ca = c.ca; }
+            { c.lr = 0x802B3154; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ctr = ctr; c.ca = ca; fn_802B32B0(c); runtime::prof(0x802B30F0); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ctr = c.ctr; ca = c.ca; }
             { let ea = r31; r0 = runtime::mr32(mem, ea); }
             cr0 = runtime::cmpu_val(r0, 0x0);
             if cr0 & 2 == 0 { { pc = 0x802B3164; continue; } }
-            { c.lr = 0x802B3164; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ctr = ctr; c.ca = ca; fn_802B1874(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ctr = c.ctr; ca = c.ca; }
+            { c.lr = 0x802B3164; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.cr[0] = cr0; c.ctr = ctr; c.ca = ca; fn_802B1874(c); runtime::prof(0x802B30F0); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; cr0 = c.cr[0]; ctr = c.ctr; ca = c.ca; }
             pc = 0x802B3164;
         }
         0x802B3164 => {
@@ -6753,7 +6852,7 @@ pub fn fn_802B30F0(c: &mut Ctx) {
             { pc = 0x802B3268; continue; }
         }
         0x802B3264 => {
-            { c.lr = 0x802B3268; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ctr = ctr; c.ca = ca; fn_802B1874(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ctr = c.ctr; ca = c.ca; }
+            { c.lr = 0x802B3268; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.cr[0] = cr0; c.ctr = ctr; c.ca = ca; fn_802B1874(c); runtime::prof(0x802B30F0); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; cr0 = c.cr[0]; ctr = c.ctr; ca = c.ca; }
             pc = 0x802B3268;
         }
         0x802B3268 => {
@@ -6785,6 +6884,7 @@ pub fn fn_802B30F0(c: &mut Ctx) {
 
 // ExPPC_FindExceptionRecord__FPcP15MWExceptionInfo
 pub fn fn_802B32B0(c: &mut Ctx) {
+    runtime::prof(0x802B32B0);
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r1 = c.r[1]; let mut r3 = c.r[3]; let mut r4 = c.r[4]; let mut r5 = c.r[5]; let mut r6 = c.r[6]; let mut r7 = c.r[7]; let mut r8 = c.r[8]; let mut r9 = c.r[9]; let mut r10 = c.r[10]; 
     let mut cr0 = c.cr[0]; 
@@ -6970,6 +7070,7 @@ pub fn fn_802B32B0(c: &mut Ctx) {
 // __unregister_fragment
 #[inline]
 pub fn fn_802B34B4(c: &mut Ctx) {
+    runtime::prof(0x802B34B4);
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r3 = c.r[3]; let mut r4 = c.r[4]; 
     let mut cr0 = c.cr[0]; 
@@ -6990,6 +7091,7 @@ pub fn fn_802B34B4(c: &mut Ctx) {
 
 // __register_fragment
 pub fn fn_802B34E8(c: &mut Ctx) {
+    runtime::prof(0x802B34E8);
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r3 = c.r[3]; let mut r4 = c.r[4]; let mut r5 = c.r[5]; 
     let mut cr0 = c.cr[0]; 
@@ -7019,6 +7121,7 @@ pub fn fn_802B34E8(c: &mut Ctx) {
 // what__Q23std13bad_exceptionCFv
 #[inline]
 pub fn fn_802B351C(c: &mut Ctx) {
+    runtime::prof(0x802B351C);
     let mut r3 = c.r[3]; 
     r3 = 0x80380000u32;
     r3 = r3.wrapping_add(0xFFFFE730);
@@ -7027,6 +7130,7 @@ pub fn fn_802B351C(c: &mut Ctx) {
 
 // __sys_free
 pub fn fn_802B3528(c: &mut Ctx) {
+    runtime::prof(0x802B3528);
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r1 = c.r[1]; let mut r3 = c.r[3]; let mut r4 = c.r[4]; let mut r5 = c.r[5]; let mut r13 = c.r[13]; let mut r29 = c.r[29]; let mut r30 = c.r[30]; let mut r31 = c.r[31]; 
     let mut cr0 = c.cr[0]; let mut cr1 = c.cr[1]; 
@@ -7046,35 +7150,35 @@ pub fn fn_802B3528(c: &mut Ctx) {
             r3 = 0x80380000u32;
             r3 = r3.wrapping_add(0xFFFFE750);
             { let v = (cr1 & 2 != 0) ^ (cr1 & 2 != 0); cr1 = if v { cr1 | 2 } else { cr1 & 0xFD }; }
-            { c.lr = 0x802B3560; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.cr[1] = cr1; fn_802F4E44(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r13 = c.r[13]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
+            { c.lr = 0x802B3560; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.cr[0] = cr0; c.cr[1] = cr1; fn_802F4E44(c); runtime::prof(0x802B3528); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r13 = c.r[13]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
             r3 = 0x80380000u32;
             r3 = r3.wrapping_add(0xFFFFE788);
             { let v = (cr1 & 2 != 0) ^ (cr1 & 2 != 0); cr1 = if v { cr1 | 2 } else { cr1 & 0xFD }; }
-            { c.lr = 0x802B3570; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.cr[1] = cr1; fn_802F4E44(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r13 = c.r[13]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
-            { c.lr = 0x802B3574; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.cr[1] = cr1; fn_802F3EC4(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r13 = c.r[13]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
+            { c.lr = 0x802B3570; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.cr[0] = cr0; c.cr[1] = cr1; fn_802F4E44(c); runtime::prof(0x802B3528); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r13 = c.r[13]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
+            { c.lr = 0x802B3574; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.cr[0] = cr0; c.cr[1] = cr1; fn_802F3EC4(c); runtime::prof(0x802B3528); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r13 = c.r[13]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
             r31 = r3 | r3;
-            { c.lr = 0x802B357C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.cr[1] = cr1; fn_802F3EBC(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r13 = c.r[13]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
+            { c.lr = 0x802B357C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.cr[0] = cr0; c.cr[1] = cr1; fn_802F3EBC(c); runtime::prof(0x802B3528); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r13 = c.r[13]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
             r30 = r3 | r3;
             r3 = r31 | r31;
             r5 = 0x1u32;
             r4 = r30 | r30;
-            { c.lr = 0x802B3590; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.cr[1] = cr1; fn_802F3DE0(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r13 = c.r[13]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
+            { c.lr = 0x802B3590; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.cr[0] = cr0; c.cr[1] = cr1; fn_802F3DE0(c); runtime::prof(0x802B3528); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r13 = c.r[13]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
             r31 = r3 | r3;
-            { c.lr = 0x802B3598; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.cr[1] = cr1; fn_802F3ED4(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r13 = c.r[13]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
+            { c.lr = 0x802B3598; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.cr[0] = cr0; c.cr[1] = cr1; fn_802F3ED4(c); runtime::prof(0x802B3528); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r13 = c.r[13]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
             r0 = r31.wrapping_add(0x1F);
             r30 = r30.rotate_left(0) & 0xFFFFFFE0;
             r3 = r0.rotate_left(0) & 0xFFFFFFE0;
             r4 = r30 | r30;
-            { c.lr = 0x802B35AC; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.cr[1] = cr1; fn_802F3E50(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r13 = c.r[13]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
-            { c.lr = 0x802B35B0; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.cr[1] = cr1; fn_802F3DD0(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r13 = c.r[13]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
+            { c.lr = 0x802B35AC; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.cr[0] = cr0; c.cr[1] = cr1; fn_802F3E50(c); runtime::prof(0x802B3528); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r13 = c.r[13]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
+            { c.lr = 0x802B35B0; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.cr[0] = cr0; c.cr[1] = cr1; fn_802F3DD0(c); runtime::prof(0x802B3528); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r13 = c.r[13]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
             r3 = r30 | r30;
-            { c.lr = 0x802B35B8; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.cr[1] = cr1; fn_802F3ED4(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r13 = c.r[13]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
+            { c.lr = 0x802B35B8; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.cr[0] = cr0; c.cr[1] = cr1; fn_802F3ED4(c); runtime::prof(0x802B3528); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r13 = c.r[13]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
             pc = 0x802B35B8;
         }
         0x802B35B8 => {
             { let ea = r13.wrapping_add(0xFFFF8688); r3 = runtime::mr32(mem, ea); }
             r4 = r29 | r29;
-            { c.lr = 0x802B35C4; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.cr[1] = cr1; fn_802F3D54(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r13 = c.r[13]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
+            { c.lr = 0x802B35C4; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.cr[0] = cr0; c.cr[1] = cr1; fn_802F3D54(c); runtime::prof(0x802B3528); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r13 = c.r[13]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
             { let ea = r1.wrapping_add(0x24); r0 = runtime::mr32(mem, ea); }
             { let ea = r1.wrapping_add(0x1C); r31 = runtime::mr32(mem, ea); }
             { let ea = r1.wrapping_add(0x18); r30 = runtime::mr32(mem, ea); }
@@ -7089,6 +7193,7 @@ pub fn fn_802B3528(c: &mut Ctx) {
 
 // __sys_alloc
 pub fn fn_802B35E0(c: &mut Ctx) {
+    runtime::prof(0x802B35E0);
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r1 = c.r[1]; let mut r3 = c.r[3]; let mut r4 = c.r[4]; let mut r5 = c.r[5]; let mut r13 = c.r[13]; let mut r29 = c.r[29]; let mut r30 = c.r[30]; let mut r31 = c.r[31]; 
     let mut cr0 = c.cr[0]; let mut cr1 = c.cr[1]; 
@@ -7108,35 +7213,35 @@ pub fn fn_802B35E0(c: &mut Ctx) {
             r3 = 0x80380000u32;
             r3 = r3.wrapping_add(0xFFFFE750);
             { let v = (cr1 & 2 != 0) ^ (cr1 & 2 != 0); cr1 = if v { cr1 | 2 } else { cr1 & 0xFD }; }
-            { c.lr = 0x802B3618; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.cr[1] = cr1; fn_802F4E44(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r13 = c.r[13]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
+            { c.lr = 0x802B3618; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.cr[0] = cr0; c.cr[1] = cr1; fn_802F4E44(c); runtime::prof(0x802B35E0); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r13 = c.r[13]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
             r3 = 0x80380000u32;
             r3 = r3.wrapping_add(0xFFFFE788);
             { let v = (cr1 & 2 != 0) ^ (cr1 & 2 != 0); cr1 = if v { cr1 | 2 } else { cr1 & 0xFD }; }
-            { c.lr = 0x802B3628; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.cr[1] = cr1; fn_802F4E44(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r13 = c.r[13]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
-            { c.lr = 0x802B362C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.cr[1] = cr1; fn_802F3EC4(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r13 = c.r[13]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
+            { c.lr = 0x802B3628; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.cr[0] = cr0; c.cr[1] = cr1; fn_802F4E44(c); runtime::prof(0x802B35E0); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r13 = c.r[13]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
+            { c.lr = 0x802B362C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.cr[0] = cr0; c.cr[1] = cr1; fn_802F3EC4(c); runtime::prof(0x802B35E0); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r13 = c.r[13]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
             r31 = r3 | r3;
-            { c.lr = 0x802B3634; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.cr[1] = cr1; fn_802F3EBC(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r13 = c.r[13]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
+            { c.lr = 0x802B3634; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.cr[0] = cr0; c.cr[1] = cr1; fn_802F3EBC(c); runtime::prof(0x802B35E0); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r13 = c.r[13]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
             r30 = r3 | r3;
             r3 = r31 | r31;
             r5 = 0x1u32;
             r4 = r30 | r30;
-            { c.lr = 0x802B3648; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.cr[1] = cr1; fn_802F3DE0(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r13 = c.r[13]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
+            { c.lr = 0x802B3648; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.cr[0] = cr0; c.cr[1] = cr1; fn_802F3DE0(c); runtime::prof(0x802B35E0); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r13 = c.r[13]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
             r31 = r3 | r3;
-            { c.lr = 0x802B3650; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.cr[1] = cr1; fn_802F3ED4(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r13 = c.r[13]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
+            { c.lr = 0x802B3650; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.cr[0] = cr0; c.cr[1] = cr1; fn_802F3ED4(c); runtime::prof(0x802B35E0); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r13 = c.r[13]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
             r0 = r31.wrapping_add(0x1F);
             r30 = r30.rotate_left(0) & 0xFFFFFFE0;
             r3 = r0.rotate_left(0) & 0xFFFFFFE0;
             r4 = r30 | r30;
-            { c.lr = 0x802B3664; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.cr[1] = cr1; fn_802F3E50(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r13 = c.r[13]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
-            { c.lr = 0x802B3668; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.cr[1] = cr1; fn_802F3DD0(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r13 = c.r[13]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
+            { c.lr = 0x802B3664; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.cr[0] = cr0; c.cr[1] = cr1; fn_802F3E50(c); runtime::prof(0x802B35E0); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r13 = c.r[13]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
+            { c.lr = 0x802B3668; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.cr[0] = cr0; c.cr[1] = cr1; fn_802F3DD0(c); runtime::prof(0x802B35E0); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r13 = c.r[13]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
             r3 = r30 | r30;
-            { c.lr = 0x802B3670; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.cr[1] = cr1; fn_802F3ED4(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r13 = c.r[13]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
+            { c.lr = 0x802B3670; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.cr[0] = cr0; c.cr[1] = cr1; fn_802F3ED4(c); runtime::prof(0x802B35E0); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r13 = c.r[13]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
             pc = 0x802B3670;
         }
         0x802B3670 => {
             { let ea = r13.wrapping_add(0xFFFF8688); r3 = runtime::mr32(mem, ea); }
             r4 = r29 | r29;
-            { c.lr = 0x802B367C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.cr[1] = cr1; fn_802F3C58(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r13 = c.r[13]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
+            { c.lr = 0x802B367C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.cr[0] = cr0; c.cr[1] = cr1; fn_802F3C58(c); runtime::prof(0x802B35E0); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r13 = c.r[13]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
             { let ea = r1.wrapping_add(0x24); r0 = runtime::mr32(mem, ea); }
             { let ea = r1.wrapping_add(0x1C); r31 = runtime::mr32(mem, ea); }
             { let ea = r1.wrapping_add(0x18); r30 = runtime::mr32(mem, ea); }
@@ -7151,6 +7256,7 @@ pub fn fn_802B35E0(c: &mut Ctx) {
 
 // TRKNubMainLoop
 pub fn fn_802B3698(c: &mut Ctx) {
+    runtime::prof(0x802B3698);
     if c.hle(109) { return; }
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r1 = c.r[1]; let mut r3 = c.r[3]; let mut r30 = c.r[30]; let mut r31 = c.r[31]; 
@@ -7169,7 +7275,7 @@ pub fn fn_802B3698(c: &mut Ctx) {
         }
         0x802B36B8 => {
             r3 = r1.wrapping_add(0x8);
-            { c.lr = 0x802B36C0; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; fn_802B38AC(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; }
+            { c.lr = 0x802B36C0; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.cr[0] = cr0; fn_802B38AC(c); runtime::prof(0x802B3698); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; cr0 = c.cr[0]; }
             cr0 = runtime::cmps_val(r3 as i32, 0);
             if cr0 & 2 != 0 { { pc = 0x802B3730; continue; } }
             { let ea = r1.wrapping_add(0x8); r0 = runtime::mr32(mem, ea); }
@@ -7190,8 +7296,8 @@ pub fn fn_802B3698(c: &mut Ctx) {
         }
         0x802B36FC => {
             { let ea = r1.wrapping_add(0x10); r3 = runtime::mr32(mem, ea); }
-            { c.lr = 0x802B3704; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; fn_802B4268(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; }
-            { c.lr = 0x802B3708; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; fn_802B4714(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; }
+            { c.lr = 0x802B3704; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.cr[0] = cr0; fn_802B4268(c); runtime::prof(0x802B3698); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; cr0 = c.cr[0]; }
+            { c.lr = 0x802B3708; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.cr[0] = cr0; fn_802B4714(c); runtime::prof(0x802B3698); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; cr0 = c.cr[0]; }
             { pc = 0x802B3724; continue; }
         }
         0x802B370C => {
@@ -7200,16 +7306,16 @@ pub fn fn_802B3698(c: &mut Ctx) {
         }
         0x802B3714 => {
             r3 = r1.wrapping_add(0x8);
-            { c.lr = 0x802B371C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; fn_802B6B1C(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; }
+            { c.lr = 0x802B371C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.cr[0] = cr0; fn_802B6B1C(c); runtime::prof(0x802B3698); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; cr0 = c.cr[0]; }
             { pc = 0x802B3724; continue; }
         }
         0x802B3720 => {
-            { c.lr = 0x802B3724; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; fn_802B6698(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; }
+            { c.lr = 0x802B3724; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.cr[0] = cr0; fn_802B6698(c); runtime::prof(0x802B3698); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; cr0 = c.cr[0]; }
             pc = 0x802B3724;
         }
         0x802B3724 => {
             r3 = r1.wrapping_add(0x8);
-            { c.lr = 0x802B372C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; fn_802B3790(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; }
+            { c.lr = 0x802B372C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.cr[0] = cr0; fn_802B3790(c); runtime::prof(0x802B3698); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; cr0 = c.cr[0]; }
             { pc = 0x802B3770; continue; }
         }
         0x802B3730 => {
@@ -7225,14 +7331,14 @@ pub fn fn_802B3698(c: &mut Ctx) {
         }
         0x802B3750 => {
             r30 = 0x1u32;
-            { c.lr = 0x802B3758; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; fn_802B44EC(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; }
+            { c.lr = 0x802B3758; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.cr[0] = cr0; fn_802B44EC(c); runtime::prof(0x802B3698); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; cr0 = c.cr[0]; }
             { pc = 0x802B3770; continue; }
         }
         0x802B375C => {
-            { c.lr = 0x802B3760; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; fn_802B6688(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; }
+            { c.lr = 0x802B3760; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.cr[0] = cr0; fn_802B6688(c); runtime::prof(0x802B3698); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; cr0 = c.cr[0]; }
             cr0 = runtime::cmps_val(r3 as i32, 0);
             if cr0 & 2 == 0 { { pc = 0x802B376C; continue; } }
-            { c.lr = 0x802B376C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; fn_802B8CBC(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; }
+            { c.lr = 0x802B376C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.cr[0] = cr0; fn_802B8CBC(c); runtime::prof(0x802B3698); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; cr0 = c.cr[0]; }
             pc = 0x802B376C;
         }
         0x802B376C => {
@@ -7256,6 +7362,7 @@ pub fn fn_802B3698(c: &mut Ctx) {
 // TRKDestructEvent
 #[inline]
 pub fn fn_802B3790(c: &mut Ctx) {
+    runtime::prof(0x802B3790);
     if c.hle(110) { return; }
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r1 = c.r[1]; let mut r3 = c.r[3]; 
@@ -7263,7 +7370,7 @@ pub fn fn_802B3790(c: &mut Ctx) {
     r0 = c.lr;
     { let ea = r1.wrapping_add(0x14); runtime::mw32(mem, ea, r0); }
     { let ea = r3.wrapping_add(0x8); r3 = runtime::mr32(mem, ea); }
-    { c.lr = 0x802B37A4; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; fn_802B4204(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; }
+    { c.lr = 0x802B37A4; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; fn_802B4204(c); runtime::prof(0x802B3790); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; }
     { let ea = r1.wrapping_add(0x14); r0 = runtime::mr32(mem, ea); }
     c.lr = r0;
     r1 = r1.wrapping_add(0x10);
@@ -7273,6 +7380,7 @@ pub fn fn_802B3790(c: &mut Ctx) {
 // TRKConstructEvent
 #[inline]
 pub fn fn_802B37B4(c: &mut Ctx) {
+    runtime::prof(0x802B37B4);
     if c.hle(111) { return; }
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r3 = c.r[3]; let mut r4 = c.r[4]; 
@@ -7286,6 +7394,7 @@ pub fn fn_802B37B4(c: &mut Ctx) {
 
 // TRKPostEvent
 pub fn fn_802B37CC(c: &mut Ctx) {
+    runtime::prof(0x802B37CC);
     if c.hle(112) { return; }
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r1 = c.r[1]; let mut r3 = c.r[3]; let mut r4 = c.r[4]; let mut r5 = c.r[5]; let mut r29 = c.r[29]; let mut r30 = c.r[30]; let mut r31 = c.r[31]; 
@@ -7303,7 +7412,7 @@ pub fn fn_802B37CC(c: &mut Ctx) {
             { let ea = r1.wrapping_add(0x14); runtime::mw32(mem, ea, r29); }
             r29 = r3 | r3;
             r3 = r4.wrapping_add(0x2158);
-            { c.lr = 0x802B37F8; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; fn_802B6018(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; }
+            { c.lr = 0x802B37F8; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.cr[0] = cr0; fn_802B6018(c); runtime::prof(0x802B37CC); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; cr0 = c.cr[0]; }
             r3 = 0x80460000u32;
             r30 = r3.wrapping_add(0x2158);
             { let ea = r30.wrapping_add(0x4); r3 = runtime::mr32(mem, ea); }
@@ -7324,7 +7433,7 @@ pub fn fn_802B37CC(c: &mut Ctx) {
             r29 = (r0 as i32).wrapping_mul(12) as u32;
             r3 = r30.wrapping_add(r29);
             r3 = r3.wrapping_add(0xC);
-            { c.lr = 0x802B3844; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; fn_80003268(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; }
+            { c.lr = 0x802B3844; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.cr[0] = cr0; fn_80003268(c); runtime::prof(0x802B37CC); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; cr0 = c.cr[0]; }
             r3 = 0x80460000u32;
             r4 = r3.wrapping_add(0x2158);
             { let ea = r4.wrapping_add(0x24); r0 = runtime::mr32(mem, ea); }
@@ -7348,7 +7457,7 @@ pub fn fn_802B37CC(c: &mut Ctx) {
         0x802B3880 => {
             r3 = 0x80460000u32;
             r3 = r3.wrapping_add(0x2158);
-            { c.lr = 0x802B388C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; fn_802B6010(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; }
+            { c.lr = 0x802B388C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.cr[0] = cr0; fn_802B6010(c); runtime::prof(0x802B37CC); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; cr0 = c.cr[0]; }
             { let ea = r1.wrapping_add(0x24); r0 = runtime::mr32(mem, ea); }
             r3 = r31 | r31;
             { let ea = r1.wrapping_add(0x1C); r31 = runtime::mr32(mem, ea); }
@@ -7364,6 +7473,7 @@ pub fn fn_802B37CC(c: &mut Ctx) {
 
 // TRKGetNextEvent
 pub fn fn_802B38AC(c: &mut Ctx) {
+    runtime::prof(0x802B38AC);
     if c.hle(113) { return; }
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r1 = c.r[1]; let mut r3 = c.r[3]; let mut r4 = c.r[4]; let mut r5 = c.r[5]; let mut r29 = c.r[29]; let mut r30 = c.r[30]; let mut r31 = c.r[31]; 
@@ -7381,7 +7491,7 @@ pub fn fn_802B38AC(c: &mut Ctx) {
             { let ea = r1.wrapping_add(0x14); runtime::mw32(mem, ea, r29); }
             r29 = r3 | r3;
             r3 = r4.wrapping_add(0x2158);
-            { c.lr = 0x802B38D8; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; fn_802B6018(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; }
+            { c.lr = 0x802B38D8; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.cr[0] = cr0; fn_802B6018(c); runtime::prof(0x802B38AC); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; cr0 = c.cr[0]; }
             r3 = 0x80460000u32;
             r31 = r3.wrapping_add(0x2158);
             { let ea = r31.wrapping_add(0x4); r0 = runtime::mr32(mem, ea); }
@@ -7393,7 +7503,7 @@ pub fn fn_802B38AC(c: &mut Ctx) {
             r0 = (r0 as i32).wrapping_mul(12) as u32;
             r4 = r31.wrapping_add(r0);
             r4 = r4.wrapping_add(0xC);
-            { c.lr = 0x802B3908; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; fn_80003268(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; }
+            { c.lr = 0x802B3908; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.cr[0] = cr0; fn_80003268(c); runtime::prof(0x802B38AC); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; cr0 = c.cr[0]; }
             { let ea = r31.wrapping_add(0x8); r3 = runtime::mr32(mem, ea); }
             { let ea = r31.wrapping_add(0x4); r4 = runtime::mr32(mem, ea); }
             r0 = r3.wrapping_add(0x1);
@@ -7413,7 +7523,7 @@ pub fn fn_802B38AC(c: &mut Ctx) {
         0x802B3934 => {
             r3 = 0x80460000u32;
             r3 = r3.wrapping_add(0x2158);
-            { c.lr = 0x802B3940; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; fn_802B6010(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; }
+            { c.lr = 0x802B3940; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.cr[0] = cr0; fn_802B6010(c); runtime::prof(0x802B38AC); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; cr0 = c.cr[0]; }
             { let ea = r1.wrapping_add(0x24); r0 = runtime::mr32(mem, ea); }
             r3 = r30 | r30;
             { let ea = r1.wrapping_add(0x1C); r31 = runtime::mr32(mem, ea); }
@@ -7429,6 +7539,7 @@ pub fn fn_802B38AC(c: &mut Ctx) {
 
 // TRKInitializeEventQueue
 pub fn fn_802B3960(c: &mut Ctx) {
+    runtime::prof(0x802B3960);
     if c.hle(114) { return; }
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r1 = c.r[1]; let mut r3 = c.r[3]; let mut r4 = c.r[4]; 
@@ -7437,10 +7548,10 @@ pub fn fn_802B3960(c: &mut Ctx) {
     r3 = 0x80460000u32;
     { let ea = r1.wrapping_add(0x14); runtime::mw32(mem, ea, r0); }
     r3 = r3.wrapping_add(0x2158);
-    { c.lr = 0x802B3978; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; fn_802B6020(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; }
+    { c.lr = 0x802B3978; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; fn_802B6020(c); runtime::prof(0x802B3960); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; }
     r3 = 0x80460000u32;
     r3 = r3.wrapping_add(0x2158);
-    { c.lr = 0x802B3984; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; fn_802B6018(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; }
+    { c.lr = 0x802B3984; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; fn_802B6018(c); runtime::prof(0x802B3960); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; }
     r3 = 0x80460000u32;
     r4 = 0x0u32;
     r3 = r3.wrapping_add(0x2158);
@@ -7448,7 +7559,7 @@ pub fn fn_802B3960(c: &mut Ctx) {
     { let ea = r3.wrapping_add(0x4); runtime::mw32(mem, ea, r4); }
     { let ea = r3.wrapping_add(0x8); runtime::mw32(mem, ea, r4); }
     { let ea = r3.wrapping_add(0x24); runtime::mw32(mem, ea, r0); }
-    { c.lr = 0x802B39A4; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; fn_802B6010(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; }
+    { c.lr = 0x802B39A4; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; fn_802B6010(c); runtime::prof(0x802B3960); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; }
     { let ea = r1.wrapping_add(0x14); r0 = runtime::mr32(mem, ea); }
     r3 = 0x0u32;
     c.lr = r0;
@@ -7459,6 +7570,7 @@ pub fn fn_802B3960(c: &mut Ctx) {
 // TRKNubWelcome
 #[inline]
 pub fn fn_802B39B8(c: &mut Ctx) {
+    runtime::prof(0x802B39B8);
     if c.hle(115) { return; }
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r1 = c.r[1]; let mut r3 = c.r[3]; 
@@ -7467,7 +7579,7 @@ pub fn fn_802B39B8(c: &mut Ctx) {
     r3 = 0x80380000u32;
     { let ea = r1.wrapping_add(0x14); runtime::mw32(mem, ea, r0); }
     r3 = r3.wrapping_add(0xFFFFE7C8);
-    { c.lr = 0x802B39D0; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; fn_802B8848(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; }
+    { c.lr = 0x802B39D0; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; fn_802B8848(c); runtime::prof(0x802B39B8); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; }
     { let ea = r1.wrapping_add(0x14); r0 = runtime::mr32(mem, ea); }
     c.lr = r0;
     r1 = r1.wrapping_add(0x10);
@@ -7477,13 +7589,14 @@ pub fn fn_802B39B8(c: &mut Ctx) {
 // TRKTerminateNub
 #[inline]
 pub fn fn_802B39E0(c: &mut Ctx) {
+    runtime::prof(0x802B39E0);
     if c.hle(116) { return; }
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r1 = c.r[1]; let mut r3 = c.r[3]; 
     { let ea = r1.wrapping_add(0xFFFFFFF0); runtime::mw32(mem, ea, r1); r1 = ea; }
     r0 = c.lr;
     { let ea = r1.wrapping_add(0x14); runtime::mw32(mem, ea, r0); }
-    { c.lr = 0x802B39F0; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; fn_802B43D0(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; }
+    { c.lr = 0x802B39F0; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; fn_802B43D0(c); runtime::prof(0x802B39E0); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; }
     { let ea = r1.wrapping_add(0x14); r0 = runtime::mr32(mem, ea); }
     r3 = 0x0u32;
     c.lr = r0;
@@ -7493,6 +7606,7 @@ pub fn fn_802B39E0(c: &mut Ctx) {
 
 // TRKInitializeNub
 pub fn fn_802B3A04(c: &mut Ctx) {
+    runtime::prof(0x802B3A04);
     if c.hle(117) { return; }
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r1 = c.r[1]; let mut r3 = c.r[3]; let mut r4 = c.r[4]; let mut r5 = c.r[5]; let mut r6 = c.r[6]; let mut r30 = c.r[30]; let mut r31 = c.r[31]; 
@@ -7540,45 +7654,45 @@ pub fn fn_802B3A04(c: &mut Ctx) {
             r4 = r3.wrapping_add(0xFFFFE7E4);
             r3 = 0x1u32;
             { let v = (cr1 & 2 != 0) ^ (cr1 & 2 != 0); cr1 = if v { cr1 | 2 } else { cr1 & 0xFD }; }
-            { c.lr = 0x802B3A8C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.cr[1] = cr1; fn_802B97C4(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
+            { c.lr = 0x802B3A8C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.cr[0] = cr0; c.cr[1] = cr1; fn_802B97C4(c); runtime::prof(0x802B3A04); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
             cr0 = runtime::cmps_val(r31 as i32, 0);
             if cr0 & 2 == 0 { { pc = 0x802B3A98; continue; } }
-            { c.lr = 0x802B3A98; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.cr[1] = cr1; fn_802B4688(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
+            { c.lr = 0x802B3A98; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.cr[0] = cr0; c.cr[1] = cr1; fn_802B4688(c); runtime::prof(0x802B3A04); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
             pc = 0x802B3A98;
         }
         0x802B3A98 => {
             cr0 = runtime::cmps_val(r31 as i32, 0);
             if cr0 & 2 == 0 { { pc = 0x802B3AA8; continue; } }
-            { c.lr = 0x802B3AA4; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.cr[1] = cr1; fn_802B3960(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
+            { c.lr = 0x802B3AA4; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.cr[0] = cr0; c.cr[1] = cr1; fn_802B3960(c); runtime::prof(0x802B3A04); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
             r31 = r3 | r3;
             pc = 0x802B3AA8;
         }
         0x802B3AA8 => {
             cr0 = runtime::cmps_val(r31 as i32, 0);
             if cr0 & 2 == 0 { { pc = 0x802B3AB8; continue; } }
-            { c.lr = 0x802B3AB4; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.cr[1] = cr1; fn_802B435C(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
+            { c.lr = 0x802B3AB4; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.cr[0] = cr0; c.cr[1] = cr1; fn_802B435C(c); runtime::prof(0x802B3A04); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
             r31 = r3 | r3;
             pc = 0x802B3AB8;
         }
         0x802B3AB8 => {
             cr0 = runtime::cmps_val(r31 as i32, 0);
             if cr0 & 2 == 0 { { pc = 0x802B3AC8; continue; } }
-            { c.lr = 0x802B3AC4; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.cr[1] = cr1; fn_802B4884(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
+            { c.lr = 0x802B3AC4; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.cr[0] = cr0; c.cr[1] = cr1; fn_802B4884(c); runtime::prof(0x802B3A04); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
             r31 = r3 | r3;
             pc = 0x802B3AC8;
         }
         0x802B3AC8 => {
-            { c.lr = 0x802B3ACC; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.cr[1] = cr1; fn_802B87F0(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
+            { c.lr = 0x802B3ACC; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.cr[0] = cr0; c.cr[1] = cr1; fn_802B87F0(c); runtime::prof(0x802B3A04); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
             cr0 = runtime::cmps_val(r31 as i32, 0);
             if cr0 & 2 == 0 { { pc = 0x802B3ADC; continue; } }
-            { c.lr = 0x802B3AD8; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.cr[1] = cr1; fn_802B43D8(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
+            { c.lr = 0x802B3AD8; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.cr[0] = cr0; c.cr[1] = cr1; fn_802B43D8(c); runtime::prof(0x802B3A04); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
             r31 = r3 | r3;
             pc = 0x802B3ADC;
         }
         0x802B3ADC => {
             cr0 = runtime::cmps_val(r31 as i32, 0);
             if cr0 & 2 == 0 { { pc = 0x802B3AEC; continue; } }
-            { c.lr = 0x802B3AE8; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.cr[1] = cr1; fn_802B851C(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
+            { c.lr = 0x802B3AE8; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.cr[0] = cr0; c.cr[1] = cr1; fn_802B851C(c); runtime::prof(0x802B3A04); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
             r31 = r3 | r3;
             pc = 0x802B3AEC;
         }
@@ -7591,13 +7705,13 @@ pub fn fn_802B3A04(c: &mut Ctx) {
             r4 = 0x1u32;
             r3 = r5.wrapping_add(0xFFFFE100);
             r5 = 0x0u32;
-            { c.lr = 0x802B3B10; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.cr[1] = cr1; fn_802B89C8(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
+            { c.lr = 0x802B3B10; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.cr[0] = cr0; c.cr[1] = cr1; fn_802B89C8(c); runtime::prof(0x802B3A04); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
             r4 = 0x804B0000u32;
             r0 = r3 | r3;
             r3 = r4.wrapping_add(0x1C58);
             { let ea = r3; r3 = runtime::mr32(mem, ea); }
             r30 = r0 | r0;
-            { c.lr = 0x802B3B28; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.cr[1] = cr1; fn_802B6650(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
+            { c.lr = 0x802B3B28; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.cr[0] = cr0; c.cr[1] = cr1; fn_802B6650(c); runtime::prof(0x802B3A04); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
             cr0 = runtime::cmps_val(r30 as i32, 0);
             if cr0 & 2 != 0 { { pc = 0x802B3B34; continue; } }
             r31 = r30 | r30;
@@ -7618,6 +7732,7 @@ pub fn fn_802B3A04(c: &mut Ctx) {
 
 // TRKMessageSend
 pub fn fn_802B3B50(c: &mut Ctx) {
+    runtime::prof(0x802B3B50);
     if c.hle(118) { return; }
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r1 = c.r[1]; let mut r3 = c.r[3]; let mut r4 = c.r[4]; let mut r5 = c.r[5]; 
@@ -7627,13 +7742,13 @@ pub fn fn_802B3B50(c: &mut Ctx) {
     { let ea = r1.wrapping_add(0x14); runtime::mw32(mem, ea, r0); }
     { let ea = r3.wrapping_add(0x8); r4 = runtime::mr32(mem, ea); }
     r3 = r3.wrapping_add(0x10);
-    { c.lr = 0x802B3B68; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.cr[1] = cr1; fn_802B88D8(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; cr1 = c.cr[1]; }
+    { c.lr = 0x802B3B68; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.cr[1] = cr1; fn_802B88D8(c); runtime::prof(0x802B3B50); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; cr1 = c.cr[1]; }
     r4 = 0x80380000u32;
     r5 = r3 | r3;
     r3 = 0x1u32;
     r4 = r4.wrapping_add(0xFFFFE7F8);
     { let v = (cr1 & 2 != 0) ^ (cr1 & 2 != 0); cr1 = if v { cr1 | 2 } else { cr1 & 0xFD }; }
-    { c.lr = 0x802B3B80; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.cr[1] = cr1; fn_802B97C4(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; cr1 = c.cr[1]; }
+    { c.lr = 0x802B3B80; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.cr[1] = cr1; fn_802B97C4(c); runtime::prof(0x802B3B50); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; cr1 = c.cr[1]; }
     { let ea = r1.wrapping_add(0x14); r0 = runtime::mr32(mem, ea); }
     r3 = 0x0u32;
     c.lr = r0;
@@ -7643,6 +7758,7 @@ pub fn fn_802B3B50(c: &mut Ctx) {
 
 // TRKReadBuffer_ui32
 pub fn fn_802B3B94(c: &mut Ctx) {
+    runtime::prof(0x802B3B94);
     if c.hle(119) { return; }
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r1 = c.r[1]; let mut r3 = c.r[3]; let mut r4 = c.r[4]; let mut r5 = c.r[5]; let mut r6 = c.r[6]; let mut r24 = c.r[24]; let mut r25 = c.r[25]; let mut r26 = c.r[26]; let mut r27 = c.r[27]; let mut r28 = c.r[28]; let mut r29 = c.r[29]; let mut r30 = c.r[30]; let mut r31 = c.r[31]; 
@@ -7691,7 +7807,7 @@ pub fn fn_802B3B94(c: &mut Ctx) {
             r3 = r25 | r25;
             r5 = r24 | r24;
             r4 = r28.wrapping_add(r4);
-            { c.lr = 0x802B3C14; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[24] = r24; c.r[25] = r25; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; fn_80003268(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r24 = c.r[24]; r25 = c.r[25]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; }
+            { c.lr = 0x802B3C14; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.cr[0] = cr0; fn_80003268(c); runtime::prof(0x802B3B94); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; cr0 = c.cr[0]; }
             { let ea = r28.wrapping_add(0xC); r0 = runtime::mr32(mem, ea); }
             r0 = r0.wrapping_add(r24);
             { let ea = r28.wrapping_add(0xC); runtime::mw32(mem, ea, r0); }
@@ -7736,6 +7852,7 @@ pub fn fn_802B3B94(c: &mut Ctx) {
 
 // TRKReadBuffer_ui8
 pub fn fn_802B3C84(c: &mut Ctx) {
+    runtime::prof(0x802B3C84);
     if c.hle(120) { return; }
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r1 = c.r[1]; let mut r3 = c.r[3]; let mut r4 = c.r[4]; let mut r5 = c.r[5]; let mut r26 = c.r[26]; let mut r27 = c.r[27]; let mut r28 = c.r[28]; let mut r29 = c.r[29]; let mut r30 = c.r[30]; let mut r31 = c.r[31]; 
@@ -7771,7 +7888,7 @@ pub fn fn_802B3C84(c: &mut Ctx) {
             r5 = r30 | r30;
             r3 = r27.wrapping_add(r29);
             r4 = r26.wrapping_add(r4);
-            { c.lr = 0x802B3CE4; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; fn_80003268(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; }
+            { c.lr = 0x802B3CE4; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.cr[0] = cr0; fn_80003268(c); runtime::prof(0x802B3C84); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; cr0 = c.cr[0]; }
             { let ea = r26.wrapping_add(0xC); r0 = runtime::mr32(mem, ea); }
             r3 = r31 | r31;
             r29 = r29.wrapping_add(0x1);
@@ -7799,6 +7916,7 @@ pub fn fn_802B3C84(c: &mut Ctx) {
 
 // TRKReadBuffer1_ui64
 pub fn fn_802B3D1C(c: &mut Ctx) {
+    runtime::prof(0x802B3D1C);
     if c.hle(121) { return; }
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r1 = c.r[1]; let mut r3 = c.r[3]; let mut r4 = c.r[4]; let mut r5 = c.r[5]; let mut r27 = c.r[27]; let mut r28 = c.r[28]; let mut r29 = c.r[29]; let mut r30 = c.r[30]; let mut r31 = c.r[31]; 
@@ -7840,7 +7958,7 @@ pub fn fn_802B3D1C(c: &mut Ctx) {
             r3 = r31 | r31;
             r5 = r28 | r28;
             r4 = r27.wrapping_add(r4);
-            { c.lr = 0x802B3D88; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; fn_80003268(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; }
+            { c.lr = 0x802B3D88; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.cr[0] = cr0; fn_80003268(c); runtime::prof(0x802B3D1C); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; cr0 = c.cr[0]; }
             { let ea = r27.wrapping_add(0xC); r0 = runtime::mr32(mem, ea); }
             r3 = 0x80460000u32;
             r0 = r0.wrapping_add(r28);
@@ -7882,6 +8000,7 @@ pub fn fn_802B3D1C(c: &mut Ctx) {
 
 // TRKAppendBuffer_ui32
 pub fn fn_802B3E04(c: &mut Ctx) {
+    runtime::prof(0x802B3E04);
     if c.hle(122) { return; }
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r1 = c.r[1]; let mut r3 = c.r[3]; let mut r4 = c.r[4]; let mut r5 = c.r[5]; let mut r6 = c.r[6]; let mut r25 = c.r[25]; let mut r26 = c.r[26]; let mut r27 = c.r[27]; let mut r28 = c.r[28]; let mut r29 = c.r[29]; let mut r30 = c.r[30]; let mut r31 = c.r[31]; 
@@ -7947,7 +8066,7 @@ pub fn fn_802B3E04(c: &mut Ctx) {
             r3 = r5.wrapping_add(0x10);
             r5 = r25 | r25;
             r3 = r27.wrapping_add(r3);
-            { c.lr = 0x802B3EBC; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[25] = r25; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ca = ca; fn_80003268(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r25 = c.r[25]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ca = c.ca; }
+            { c.lr = 0x802B3EBC; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.cr[0] = cr0; c.ca = ca; fn_80003268(c); runtime::prof(0x802B3E04); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; cr0 = c.cr[0]; ca = c.ca; }
             pc = 0x802B3EBC;
         }
         0x802B3EBC => {
@@ -7981,6 +8100,7 @@ pub fn fn_802B3E04(c: &mut Ctx) {
 
 // TRKAppendBuffer_ui8
 pub fn fn_802B3F00(c: &mut Ctx) {
+    runtime::prof(0x802B3F00);
     if c.hle(123) { return; }
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r3 = c.r[3]; let mut r4 = c.r[4]; let mut r5 = c.r[5]; let mut r6 = c.r[6]; let mut r7 = c.r[7]; let mut r8 = c.r[8]; let mut r9 = c.r[9]; 
@@ -8034,6 +8154,7 @@ pub fn fn_802B3F00(c: &mut Ctx) {
 
 // TRKAppendBuffer1_ui64
 pub fn fn_802B3F68(c: &mut Ctx) {
+    runtime::prof(0x802B3F68);
     if c.hle(124) { return; }
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r1 = c.r[1]; let mut r3 = c.r[3]; let mut r4 = c.r[4]; let mut r5 = c.r[5]; let mut r6 = c.r[6]; let mut r7 = c.r[7]; let mut r8 = c.r[8]; let mut r9 = c.r[9]; let mut r10 = c.r[10]; let mut r29 = c.r[29]; let mut r30 = c.r[30]; let mut r31 = c.r[31]; 
@@ -8101,7 +8222,7 @@ pub fn fn_802B3F68(c: &mut Ctx) {
             r3 = r3.wrapping_add(0x10);
             r5 = r29 | r29;
             r3 = r31.wrapping_add(r3);
-            { c.lr = 0x802B4030; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ca = ca; fn_80003268(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ca = c.ca; }
+            { c.lr = 0x802B4030; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.cr[0] = cr0; c.ca = ca; fn_80003268(c); runtime::prof(0x802B3F68); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; cr0 = c.cr[0]; ca = c.ca; }
             pc = 0x802B4030;
         }
         0x802B4030 => {
@@ -8125,6 +8246,7 @@ pub fn fn_802B3F68(c: &mut Ctx) {
 
 // TRKReadBuffer
 pub fn fn_802B4064(c: &mut Ctx) {
+    runtime::prof(0x802B4064);
     if c.hle(125) { return; }
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r1 = c.r[1]; let mut r3 = c.r[3]; let mut r4 = c.r[4]; let mut r5 = c.r[5]; let mut r29 = c.r[29]; let mut r30 = c.r[30]; let mut r31 = c.r[31]; 
@@ -8160,7 +8282,7 @@ pub fn fn_802B4064(c: &mut Ctx) {
             r4 = r4.wrapping_add(0x10);
             r5 = r30 | r30;
             r4 = r29.wrapping_add(r4);
-            { c.lr = 0x802B40C4; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; fn_80003268(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; }
+            { c.lr = 0x802B40C4; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.cr[0] = cr0; fn_80003268(c); runtime::prof(0x802B4064); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; cr0 = c.cr[0]; }
             { let ea = r29.wrapping_add(0xC); r0 = runtime::mr32(mem, ea); }
             r3 = r31 | r31;
             r0 = r0.wrapping_add(r30);
@@ -8182,6 +8304,7 @@ pub fn fn_802B4064(c: &mut Ctx) {
 
 // TRKAppendBuffer
 pub fn fn_802B40F0(c: &mut Ctx) {
+    runtime::prof(0x802B40F0);
     if c.hle(126) { return; }
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r1 = c.r[1]; let mut r3 = c.r[3]; let mut r4 = c.r[4]; let mut r5 = c.r[5]; let mut r29 = c.r[29]; let mut r30 = c.r[30]; let mut r31 = c.r[31]; 
@@ -8224,7 +8347,7 @@ pub fn fn_802B40F0(c: &mut Ctx) {
             r3 = r3.wrapping_add(0x10);
             r5 = r30 | r30;
             r3 = r29.wrapping_add(r3);
-            { c.lr = 0x802B4160; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[5] = r5; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ca = ca; fn_80003268(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ca = c.ca; }
+            { c.lr = 0x802B4160; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[5] = r5; c.cr[0] = cr0; c.ca = ca; fn_80003268(c); runtime::prof(0x802B40F0); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; cr0 = c.cr[0]; ca = c.ca; }
             pc = 0x802B4160;
         }
         0x802B4160 => {
@@ -8251,6 +8374,7 @@ pub fn fn_802B40F0(c: &mut Ctx) {
 
 // TRKSetBufferPosition
 pub fn fn_802B4194(c: &mut Ctx) {
+    runtime::prof(0x802B4194);
     if c.hle(127) { return; }
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r3 = c.r[3]; let mut r4 = c.r[4]; let mut r5 = c.r[5]; 
@@ -8282,6 +8406,7 @@ pub fn fn_802B4194(c: &mut Ctx) {
 
 // TRKResetBuffer
 pub fn fn_802B41C4(c: &mut Ctx) {
+    runtime::prof(0x802B41C4);
     if c.hle(128) { return; }
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r1 = c.r[1]; let mut r3 = c.r[3]; let mut r4 = c.r[4]; let mut r5 = c.r[5]; 
@@ -8300,7 +8425,7 @@ pub fn fn_802B41C4(c: &mut Ctx) {
             r3 = r3.wrapping_add(0x10);
             r4 = 0x0u32;
             r5 = 0x880u32;
-            { c.lr = 0x802B41F4; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.cr[0] = cr0; fn_80003238(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; cr0 = c.cr[0]; }
+            { c.lr = 0x802B41F4; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.cr[0] = cr0; fn_80003238(c); runtime::prof(0x802B41C4); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; cr0 = c.cr[0]; }
             pc = 0x802B41F4;
         }
         0x802B41F4 => {
@@ -8315,6 +8440,7 @@ pub fn fn_802B41C4(c: &mut Ctx) {
 
 // TRKReleaseBuffer
 pub fn fn_802B4204(c: &mut Ctx) {
+    runtime::prof(0x802B4204);
     if c.hle(129) { return; }
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r1 = c.r[1]; let mut r3 = c.r[3]; let mut r4 = c.r[4]; let mut r31 = c.r[31]; 
@@ -8337,11 +8463,11 @@ pub fn fn_802B4204(c: &mut Ctx) {
             r0 = r3.wrapping_add(0x2188);
             r31 = r0.wrapping_add(r4);
             r3 = r31 | r31;
-            { c.lr = 0x802B4244; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[31] = r31; c.cr[0] = cr0; fn_802B6018(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r31 = c.r[31]; cr0 = c.cr[0]; }
+            { c.lr = 0x802B4244; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.cr[0] = cr0; fn_802B6018(c); runtime::prof(0x802B4204); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; cr0 = c.cr[0]; }
             r0 = 0x0u32;
             r3 = r31 | r31;
             { let ea = r31.wrapping_add(0x4); runtime::mw32(mem, ea, r0); }
-            { c.lr = 0x802B4254; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[31] = r31; c.cr[0] = cr0; fn_802B6010(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r31 = c.r[31]; cr0 = c.cr[0]; }
+            { c.lr = 0x802B4254; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.cr[0] = cr0; fn_802B6010(c); runtime::prof(0x802B4204); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; cr0 = c.cr[0]; }
             pc = 0x802B4254;
         }
         0x802B4254 => {
@@ -8357,6 +8483,7 @@ pub fn fn_802B4204(c: &mut Ctx) {
 
 // TRKGetBuffer
 pub fn fn_802B4268(c: &mut Ctx) {
+    runtime::prof(0x802B4268);
     if c.hle(130) { return; }
     let mut r0 = c.r[0]; let mut r3 = c.r[3]; let mut r4 = c.r[4]; 
     let mut cr0 = c.cr[0]; 
@@ -8384,6 +8511,7 @@ pub fn fn_802B4268(c: &mut Ctx) {
 
 // TRKGetFreeBuffer
 pub fn fn_802B4294(c: &mut Ctx) {
+    runtime::prof(0x802B4294);
     if c.hle(131) { return; }
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r1 = c.r[1]; let mut r3 = c.r[3]; let mut r4 = c.r[4]; let mut r27 = c.r[27]; let mut r28 = c.r[28]; let mut r29 = c.r[29]; let mut r30 = c.r[30]; let mut r31 = c.r[31]; 
@@ -8417,7 +8545,7 @@ pub fn fn_802B4294(c: &mut Ctx) {
         }
         0x802B42E4 => {
             r3 = r31 | r31;
-            { c.lr = 0x802B42EC; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; fn_802B6018(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; }
+            { c.lr = 0x802B42EC; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.cr[0] = cr0; fn_802B6018(c); runtime::prof(0x802B4294); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; cr0 = c.cr[0]; }
             { let ea = r31.wrapping_add(0x4); r0 = runtime::mr32(mem, ea); }
             cr0 = runtime::cmps_val(r0 as i32, 0);
             if cr0 & 2 == 0 { { pc = 0x802B431C; continue; } }
@@ -8434,7 +8562,7 @@ pub fn fn_802B4294(c: &mut Ctx) {
         }
         0x802B431C => {
             r3 = r31 | r31;
-            { c.lr = 0x802B4324; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; fn_802B6010(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; }
+            { c.lr = 0x802B4324; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.cr[0] = cr0; fn_802B6010(c); runtime::prof(0x802B4294); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; cr0 = c.cr[0]; }
             r29 = r29.wrapping_add(0x1);
             pc = 0x802B4328;
         }
@@ -8445,7 +8573,7 @@ pub fn fn_802B4294(c: &mut Ctx) {
             if cr0 & 2 == 0 { { pc = 0x802B4344; continue; } }
             r3 = 0x80380000u32;
             r3 = r3.wrapping_add(0xFFFFE820);
-            { c.lr = 0x802B4344; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; fn_802B468C(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; }
+            { c.lr = 0x802B4344; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.cr[0] = cr0; fn_802B468C(c); runtime::prof(0x802B4294); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; cr0 = c.cr[0]; }
             pc = 0x802B4344;
         }
         0x802B4344 => {
@@ -8462,6 +8590,7 @@ pub fn fn_802B4294(c: &mut Ctx) {
 
 // TRKInitializeMessageBuffers
 pub fn fn_802B435C(c: &mut Ctx) {
+    runtime::prof(0x802B435C);
     if c.hle(132) { return; }
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r1 = c.r[1]; let mut r3 = c.r[3]; let mut r29 = c.r[29]; let mut r30 = c.r[30]; let mut r31 = c.r[31]; 
@@ -8483,12 +8612,12 @@ pub fn fn_802B435C(c: &mut Ctx) {
         }
         0x802B4384 => {
             r3 = r30 | r30;
-            { c.lr = 0x802B438C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; fn_802B6020(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; }
+            { c.lr = 0x802B438C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.cr[0] = cr0; fn_802B6020(c); runtime::prof(0x802B435C); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; cr0 = c.cr[0]; }
             r3 = r30 | r30;
-            { c.lr = 0x802B4394; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; fn_802B6018(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; }
+            { c.lr = 0x802B4394; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.cr[0] = cr0; fn_802B6018(c); runtime::prof(0x802B435C); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; cr0 = c.cr[0]; }
             { let ea = r30.wrapping_add(0x4); runtime::mw32(mem, ea, r31); }
             r3 = r30 | r30;
-            { c.lr = 0x802B43A0; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; fn_802B6010(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; }
+            { c.lr = 0x802B43A0; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.cr[0] = cr0; fn_802B6010(c); runtime::prof(0x802B435C); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; cr0 = c.cr[0]; }
             r29 = r29.wrapping_add(0x1);
             r30 = r30.wrapping_add(0x890);
             cr0 = runtime::cmps_val(r29 as i32, 3);
@@ -8509,6 +8638,7 @@ pub fn fn_802B435C(c: &mut Ctx) {
 // TRKTerminateSerialHandler
 #[inline]
 pub fn fn_802B43D0(c: &mut Ctx) {
+    runtime::prof(0x802B43D0);
     if c.hle(133) { return; }
     let mut r3 = c.r[3]; 
     r3 = 0x0u32;
@@ -8517,6 +8647,7 @@ pub fn fn_802B43D0(c: &mut Ctx) {
 
 // TRKInitializeSerialHandler
 pub fn fn_802B43D8(c: &mut Ctx) {
+    runtime::prof(0x802B43D8);
     if c.hle(134) { return; }
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r1 = c.r[1]; let mut r3 = c.r[3]; let mut r4 = c.r[4]; let mut r5 = c.r[5]; let mut r6 = c.r[6]; let mut r31 = c.r[31]; 
@@ -8538,32 +8669,32 @@ pub fn fn_802B43D8(c: &mut Ctx) {
     { let ea = r6.wrapping_add(0x8); runtime::mw32(mem, ea, r0); }
     { let ea = r6.wrapping_add(0xC); runtime::mw32(mem, ea, r0); }
     { let v = (cr1 & 2 != 0) ^ (cr1 & 2 != 0); cr1 = if v { cr1 | 2 } else { cr1 & 0xFD }; }
-    { c.lr = 0x802B4420; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[31] = r31; c.cr[1] = cr1; fn_802B97C4(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r31 = c.r[31]; cr1 = c.cr[1]; }
+    { c.lr = 0x802B4420; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.cr[1] = cr1; fn_802B97C4(c); runtime::prof(0x802B43D8); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; cr1 = c.cr[1]; }
     r4 = r31.wrapping_add(0x24);
     r3 = 0x1u32;
     r5 = 0x40u32;
     { let v = (cr1 & 2 != 0) ^ (cr1 & 2 != 0); cr1 = if v { cr1 | 2 } else { cr1 & 0xFD }; }
-    { c.lr = 0x802B4434; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[31] = r31; c.cr[1] = cr1; fn_802B97C4(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r31 = c.r[31]; cr1 = c.cr[1]; }
+    { c.lr = 0x802B4434; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.cr[1] = cr1; fn_802B97C4(c); runtime::prof(0x802B43D8); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; cr1 = c.cr[1]; }
     r4 = r31.wrapping_add(0x48);
     r3 = 0x1u32;
     r5 = 0x40u32;
     { let v = (cr1 & 2 != 0) ^ (cr1 & 2 != 0); cr1 = if v { cr1 | 2 } else { cr1 & 0xFD }; }
-    { c.lr = 0x802B4448; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[31] = r31; c.cr[1] = cr1; fn_802B97C4(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r31 = c.r[31]; cr1 = c.cr[1]; }
+    { c.lr = 0x802B4448; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.cr[1] = cr1; fn_802B97C4(c); runtime::prof(0x802B43D8); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; cr1 = c.cr[1]; }
     r4 = r31.wrapping_add(0x6C);
     r3 = 0x1u32;
     r5 = 0x40u32;
     { let v = (cr1 & 2 != 0) ^ (cr1 & 2 != 0); cr1 = if v { cr1 | 2 } else { cr1 & 0xFD }; }
-    { c.lr = 0x802B445C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[31] = r31; c.cr[1] = cr1; fn_802B97C4(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r31 = c.r[31]; cr1 = c.cr[1]; }
+    { c.lr = 0x802B445C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.cr[1] = cr1; fn_802B97C4(c); runtime::prof(0x802B43D8); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; cr1 = c.cr[1]; }
     r4 = r31.wrapping_add(0x8C);
     r3 = 0x1u32;
     r5 = 0x40u32;
     { let v = (cr1 & 2 != 0) ^ (cr1 & 2 != 0); cr1 = if v { cr1 | 2 } else { cr1 & 0xFD }; }
-    { c.lr = 0x802B4470; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[31] = r31; c.cr[1] = cr1; fn_802B97C4(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r31 = c.r[31]; cr1 = c.cr[1]; }
+    { c.lr = 0x802B4470; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.cr[1] = cr1; fn_802B97C4(c); runtime::prof(0x802B43D8); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; cr1 = c.cr[1]; }
     r4 = r31.wrapping_add(0xAC);
     r3 = 0x1u32;
     r5 = 0x40u32;
     { let v = (cr1 & 2 != 0) ^ (cr1 & 2 != 0); cr1 = if v { cr1 | 2 } else { cr1 & 0xFD }; }
-    { c.lr = 0x802B4484; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[31] = r31; c.cr[1] = cr1; fn_802B97C4(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r31 = c.r[31]; cr1 = c.cr[1]; }
+    { c.lr = 0x802B4484; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.cr[1] = cr1; fn_802B97C4(c); runtime::prof(0x802B43D8); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; cr1 = c.cr[1]; }
     { let ea = r1.wrapping_add(0x14); r0 = runtime::mr32(mem, ea); }
     r3 = 0x0u32;
     { let ea = r1.wrapping_add(0xC); r31 = runtime::mr32(mem, ea); }
@@ -8574,6 +8705,7 @@ pub fn fn_802B43D8(c: &mut Ctx) {
 
 // TRKProcessInput
 pub fn fn_802B449C(c: &mut Ctx) {
+    runtime::prof(0x802B449C);
     if c.hle(135) { return; }
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r1 = c.r[1]; let mut r3 = c.r[3]; let mut r4 = c.r[4]; let mut r31 = c.r[31]; 
@@ -8584,14 +8716,14 @@ pub fn fn_802B449C(c: &mut Ctx) {
     { let ea = r1.wrapping_add(0x1C); runtime::mw32(mem, ea, r31); }
     r31 = r3 | r3;
     r3 = r1.wrapping_add(0x8);
-    { c.lr = 0x802B44BC; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[31] = r31; fn_802B37B4(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r31 = c.r[31]; }
+    { c.lr = 0x802B44BC; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; fn_802B37B4(c); runtime::prof(0x802B449C); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; }
     r3 = 0x80460000u32;
     r0 = 0xFFFFFFFFu32;
     r4 = r3.wrapping_add(0x3B38);
     { let ea = r1.wrapping_add(0x10); runtime::mw32(mem, ea, r31); }
     r3 = r1.wrapping_add(0x8);
     { let ea = r4; runtime::mw32(mem, ea, r0); }
-    { c.lr = 0x802B44D8; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[31] = r31; fn_802B37CC(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r31 = c.r[31]; }
+    { c.lr = 0x802B44D8; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; fn_802B37CC(c); runtime::prof(0x802B449C); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; }
     { let ea = r1.wrapping_add(0x24); r0 = runtime::mr32(mem, ea); }
     { let ea = r1.wrapping_add(0x1C); r31 = runtime::mr32(mem, ea); }
     c.lr = r0;
@@ -8601,6 +8733,7 @@ pub fn fn_802B449C(c: &mut Ctx) {
 
 // TRKGetInput
 pub fn fn_802B44EC(c: &mut Ctx) {
+    runtime::prof(0x802B44EC);
     if c.hle(137) { return; }
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r1 = c.r[1]; let mut r3 = c.r[3]; let mut r4 = c.r[4]; let mut r31 = c.r[31]; 
@@ -8612,21 +8745,21 @@ pub fn fn_802B44EC(c: &mut Ctx) {
             r0 = c.lr;
             { let ea = r1.wrapping_add(0x24); runtime::mw32(mem, ea, r0); }
             { let ea = r1.wrapping_add(0x1C); runtime::mw32(mem, ea, r31); }
-            { c.lr = 0x802B4500; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[31] = r31; c.cr[0] = cr0; fn_802B454C(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r31 = c.r[31]; cr0 = c.cr[0]; }
+            { c.lr = 0x802B4500; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.cr[0] = cr0; fn_802B454C(c); runtime::prof(0x802B44EC); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; cr0 = c.cr[0]; }
             r31 = r3 | r3;
             cr0 = runtime::cmps_val(r31 as i32, -1);
             if cr0 & 2 != 0 { { pc = 0x802B4538; continue; } }
-            { c.lr = 0x802B4510; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[31] = r31; c.cr[0] = cr0; fn_802B4268(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r31 = c.r[31]; cr0 = c.cr[0]; }
+            { c.lr = 0x802B4510; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.cr[0] = cr0; fn_802B4268(c); runtime::prof(0x802B44EC); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; cr0 = c.cr[0]; }
             r3 = r1.wrapping_add(0x8);
             r4 = 0x2u32;
-            { c.lr = 0x802B451C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[31] = r31; c.cr[0] = cr0; fn_802B37B4(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r31 = c.r[31]; cr0 = c.cr[0]; }
+            { c.lr = 0x802B451C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.cr[0] = cr0; fn_802B37B4(c); runtime::prof(0x802B44EC); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; cr0 = c.cr[0]; }
             r3 = 0x80460000u32;
             r0 = 0xFFFFFFFFu32;
             r4 = r3.wrapping_add(0x3B38);
             { let ea = r1.wrapping_add(0x10); runtime::mw32(mem, ea, r31); }
             r3 = r1.wrapping_add(0x8);
             { let ea = r4; runtime::mw32(mem, ea, r0); }
-            { c.lr = 0x802B4538; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[31] = r31; c.cr[0] = cr0; fn_802B37CC(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r31 = c.r[31]; cr0 = c.cr[0]; }
+            { c.lr = 0x802B4538; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.cr[0] = cr0; fn_802B37CC(c); runtime::prof(0x802B44EC); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; cr0 = c.cr[0]; }
             pc = 0x802B4538;
         }
         0x802B4538 => {
@@ -8642,6 +8775,7 @@ pub fn fn_802B44EC(c: &mut Ctx) {
 
 // TRKTestForPacket
 pub fn fn_802B454C(c: &mut Ctx) {
+    runtime::prof(0x802B454C);
     if c.hle(136) { return; }
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r1 = c.r[1]; let mut r3 = c.r[3]; let mut r4 = c.r[4]; let mut r5 = c.r[5]; let mut r30 = c.r[30]; let mut r31 = c.r[31]; 
@@ -8657,7 +8791,7 @@ pub fn fn_802B454C(c: &mut Ctx) {
             { let ea = r1.wrapping_add(0x8DC); runtime::mw32(mem, ea, r31); }
             r31 = r3.wrapping_add(0xFFFFE840);
             { let ea = r1.wrapping_add(0x8D8); runtime::mw32(mem, ea, r30); }
-            { c.lr = 0x802B456C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.cr[1] = cr1; c.ca = ca; fn_802B8950(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; cr1 = c.cr[1]; ca = c.ca; }
+            { c.lr = 0x802B456C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.cr[0] = cr0; c.cr[1] = cr1; c.ca = ca; fn_802B8950(c); runtime::prof(0x802B454C); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; cr0 = c.cr[0]; cr1 = c.cr[1]; ca = c.ca; }
             cr0 = runtime::cmps_val(r3 as i32, 0);
             if cr0 & 4 != 0 { { pc = 0x802B457C; continue; } }
             r3 = 0xFFFFFFFFu32;
@@ -8666,25 +8800,25 @@ pub fn fn_802B454C(c: &mut Ctx) {
         0x802B457C => {
             r3 = r1.wrapping_add(0xC);
             r4 = r1.wrapping_add(0x8);
-            { c.lr = 0x802B4588; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.cr[1] = cr1; c.ca = ca; fn_802B4294(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; cr1 = c.cr[1]; ca = c.ca; }
+            { c.lr = 0x802B4588; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.cr[0] = cr0; c.cr[1] = cr1; c.ca = ca; fn_802B4294(c); runtime::prof(0x802B454C); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; cr0 = c.cr[0]; cr1 = c.cr[1]; ca = c.ca; }
             r30 = r3 | r3;
             r4 = r31.wrapping_add(0xD0);
             r3 = 0x4u32;
             r5 = r30 | r30;
             { let v = (cr1 & 2 != 0) ^ (cr1 & 2 != 0); cr1 = if v { cr1 | 2 } else { cr1 & 0xFD }; }
-            { c.lr = 0x802B45A0; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.cr[1] = cr1; c.ca = ca; fn_802B97C4(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; cr1 = c.cr[1]; ca = c.ca; }
+            { c.lr = 0x802B45A0; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.cr[0] = cr0; c.cr[1] = cr1; c.ca = ca; fn_802B97C4(c); runtime::prof(0x802B454C); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; cr0 = c.cr[0]; cr1 = c.cr[1]; ca = c.ca; }
             { let ea = r1.wrapping_add(0x8); r3 = runtime::mr32(mem, ea); }
             r4 = 0x0u32;
-            { c.lr = 0x802B45AC; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.cr[1] = cr1; c.ca = ca; fn_802B4194(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; cr1 = c.cr[1]; ca = c.ca; }
+            { c.lr = 0x802B45AC; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.cr[0] = cr0; c.cr[1] = cr1; c.ca = ca; fn_802B4194(c); runtime::prof(0x802B454C); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; cr0 = c.cr[0]; cr1 = c.cr[1]; ca = c.ca; }
             r3 = r1.wrapping_add(0x10);
             r4 = 0x40u32;
-            { c.lr = 0x802B45B8; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.cr[1] = cr1; c.ca = ca; fn_802B8914(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; cr1 = c.cr[1]; ca = c.ca; }
+            { c.lr = 0x802B45B8; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.cr[0] = cr0; c.cr[1] = cr1; c.ca = ca; fn_802B8914(c); runtime::prof(0x802B454C); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; cr0 = c.cr[0]; cr1 = c.cr[1]; ca = c.ca; }
             cr0 = runtime::cmps_val(r3 as i32, 0);
             if cr0 & 2 == 0 { { pc = 0x802B463C; continue; } }
             { let ea = r1.wrapping_add(0x8); r3 = runtime::mr32(mem, ea); }
             r4 = r1.wrapping_add(0x10);
             r5 = 0x40u32;
-            { c.lr = 0x802B45D0; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.cr[1] = cr1; c.ca = ca; fn_802B3F00(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; cr1 = c.cr[1]; ca = c.ca; }
+            { c.lr = 0x802B45D0; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.cr[0] = cr0; c.cr[1] = cr1; c.ca = ca; fn_802B3F00(c); runtime::prof(0x802B454C); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; cr0 = c.cr[0]; cr1 = c.cr[1]; ca = c.ca; }
             { let ea = r1.wrapping_add(0x10); r3 = runtime::mr32(mem, ea); }
             { let ea = r1.wrapping_add(0xC); r30 = runtime::mr32(mem, ea); }
             (r5, ca) = runtime::add3_val(r3, 0xFFFFFFC0, 0); cr0 = runtime::cmps_val(r5 as i32, 0);
@@ -8692,26 +8826,26 @@ pub fn fn_802B454C(c: &mut Ctx) {
             r4 = r31.wrapping_add(0xF4);
             r3 = 0x1u32;
             { let v = (cr1 & 2 != 0) ^ (cr1 & 2 != 0); cr1 = if v { cr1 | 2 } else { cr1 & 0xFD }; }
-            { c.lr = 0x802B45F0; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.cr[1] = cr1; c.ca = ca; fn_802B97C4(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; cr1 = c.cr[1]; ca = c.ca; }
+            { c.lr = 0x802B45F0; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.cr[0] = cr0; c.cr[1] = cr1; c.ca = ca; fn_802B97C4(c); runtime::prof(0x802B454C); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; cr0 = c.cr[0]; cr1 = c.cr[1]; ca = c.ca; }
             { let ea = r1.wrapping_add(0x10); r4 = runtime::mr32(mem, ea); }
             r3 = r1.wrapping_add(0x50);
             r4 = r4.wrapping_add(0xFFFFFFC0);
-            { c.lr = 0x802B4600; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.cr[1] = cr1; c.ca = ca; fn_802B8914(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; cr1 = c.cr[1]; ca = c.ca; }
+            { c.lr = 0x802B4600; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.cr[0] = cr0; c.cr[1] = cr1; c.ca = ca; fn_802B8914(c); runtime::prof(0x802B454C); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; cr0 = c.cr[0]; cr1 = c.cr[1]; ca = c.ca; }
             cr0 = runtime::cmps_val(r3 as i32, 0);
             if cr0 & 2 == 0 { { pc = 0x802B461C; continue; } }
             { let ea = r1.wrapping_add(0x8); r3 = runtime::mr32(mem, ea); }
             r4 = r1.wrapping_add(0x50);
             { let ea = r1.wrapping_add(0x10); r5 = runtime::mr32(mem, ea); }
-            { c.lr = 0x802B4618; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.cr[1] = cr1; c.ca = ca; fn_802B3F00(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; cr1 = c.cr[1]; ca = c.ca; }
+            { c.lr = 0x802B4618; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.cr[0] = cr0; c.cr[1] = cr1; c.ca = ca; fn_802B3F00(c); runtime::prof(0x802B454C); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; cr0 = c.cr[0]; cr1 = c.cr[1]; ca = c.ca; }
             { pc = 0x802B4658; continue; }
         }
         0x802B461C => {
             r4 = r31.wrapping_add(0x110);
             r3 = 0x8u32;
             { let v = (cr1 & 2 != 0) ^ (cr1 & 2 != 0); cr1 = if v { cr1 | 2 } else { cr1 & 0xFD }; }
-            { c.lr = 0x802B462C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.cr[1] = cr1; c.ca = ca; fn_802B97C4(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; cr1 = c.cr[1]; ca = c.ca; }
+            { c.lr = 0x802B462C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.cr[0] = cr0; c.cr[1] = cr1; c.ca = ca; fn_802B97C4(c); runtime::prof(0x802B454C); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; cr0 = c.cr[0]; cr1 = c.cr[1]; ca = c.ca; }
             r3 = r30 | r30;
-            { c.lr = 0x802B4634; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.cr[1] = cr1; c.ca = ca; fn_802B4204(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; cr1 = c.cr[1]; ca = c.ca; }
+            { c.lr = 0x802B4634; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.cr[0] = cr0; c.cr[1] = cr1; c.ca = ca; fn_802B4204(c); runtime::prof(0x802B454C); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; cr0 = c.cr[0]; cr1 = c.cr[1]; ca = c.ca; }
             r30 = 0xFFFFFFFFu32;
             { pc = 0x802B4658; continue; }
         }
@@ -8719,9 +8853,9 @@ pub fn fn_802B454C(c: &mut Ctx) {
             r4 = r31.wrapping_add(0x144);
             r3 = 0x8u32;
             { let v = (cr1 & 2 != 0) ^ (cr1 & 2 != 0); cr1 = if v { cr1 | 2 } else { cr1 & 0xFD }; }
-            { c.lr = 0x802B464C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.cr[1] = cr1; c.ca = ca; fn_802B97C4(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; cr1 = c.cr[1]; ca = c.ca; }
+            { c.lr = 0x802B464C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.cr[0] = cr0; c.cr[1] = cr1; c.ca = ca; fn_802B97C4(c); runtime::prof(0x802B454C); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; cr0 = c.cr[0]; cr1 = c.cr[1]; ca = c.ca; }
             r3 = r30 | r30;
-            { c.lr = 0x802B4654; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.cr[1] = cr1; c.ca = ca; fn_802B4204(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; cr1 = c.cr[1]; ca = c.ca; }
+            { c.lr = 0x802B4654; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.cr[0] = cr0; c.cr[1] = cr1; c.ca = ca; fn_802B4204(c); runtime::prof(0x802B454C); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; cr0 = c.cr[0]; cr1 = c.cr[1]; ca = c.ca; }
             r30 = 0xFFFFFFFFu32;
             pc = 0x802B4658;
         }
@@ -8730,7 +8864,7 @@ pub fn fn_802B454C(c: &mut Ctx) {
             r4 = r31.wrapping_add(0x16C);
             r3 = 0x1u32;
             { let v = (cr1 & 2 != 0) ^ (cr1 & 2 != 0); cr1 = if v { cr1 | 2 } else { cr1 & 0xFD }; }
-            { c.lr = 0x802B466C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.cr[1] = cr1; c.ca = ca; fn_802B97C4(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; cr1 = c.cr[1]; ca = c.ca; }
+            { c.lr = 0x802B466C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.cr[0] = cr0; c.cr[1] = cr1; c.ca = ca; fn_802B97C4(c); runtime::prof(0x802B454C); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; cr0 = c.cr[0]; cr1 = c.cr[1]; ca = c.ca; }
             r3 = r30 | r30;
             pc = 0x802B4670;
         }
@@ -8749,11 +8883,13 @@ pub fn fn_802B454C(c: &mut Ctx) {
 // usr_put_initialize
 #[inline]
 pub fn fn_802B4688(c: &mut Ctx) {
+    runtime::prof(0x802B4688);
     { return; }
 }
 
 // usr_puts_serial
 pub fn fn_802B468C(c: &mut Ctx) {
+    runtime::prof(0x802B468C);
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r1 = c.r[1]; let mut r3 = c.r[3]; let mut r29 = c.r[29]; let mut r30 = c.r[30]; let mut r31 = c.r[31]; 
     let mut cr0 = c.cr[0]; 
@@ -8772,16 +8908,16 @@ pub fn fn_802B468C(c: &mut Ctx) {
             { pc = 0x802B46E0; continue; }
         }
         0x802B46B4 => {
-            { c.lr = 0x802B46B8; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; fn_802B5844(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; }
+            { c.lr = 0x802B46B8; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.cr[0] = cr0; fn_802B5844(c); runtime::prof(0x802B468C); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; cr0 = c.cr[0]; }
             { let ea = r1.wrapping_add(0x8); runtime::mw8(mem, ea, r30 as u8); }
             r30 = r3 | r3;
             r3 = 0x0u32;
             { let ea = r1.wrapping_add(0x9); runtime::mw8(mem, ea, r31 as u8); }
-            { c.lr = 0x802B46CC; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; fn_802B5838(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; }
+            { c.lr = 0x802B46CC; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.cr[0] = cr0; fn_802B5838(c); runtime::prof(0x802B468C); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; cr0 = c.cr[0]; }
             r3 = r1.wrapping_add(0x8);
-            { c.lr = 0x802B46D4; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; fn_802F4E44(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; }
+            { c.lr = 0x802B46D4; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.cr[0] = cr0; fn_802F4E44(c); runtime::prof(0x802B468C); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; cr0 = c.cr[0]; }
             r3 = r30 | r30;
-            { c.lr = 0x802B46DC; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; fn_802B5838(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; }
+            { c.lr = 0x802B46DC; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.cr[0] = cr0; fn_802B5838(c); runtime::prof(0x802B468C); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; cr0 = c.cr[0]; }
             r3 = 0x0u32;
             pc = 0x802B46E0;
         }
@@ -8809,6 +8945,7 @@ pub fn fn_802B468C(c: &mut Ctx) {
 
 // TRKDispatchMessage
 pub fn fn_802B4714(c: &mut Ctx) {
+    runtime::prof(0x802B4714);
     if c.hle(138) { return; }
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r1 = c.r[1]; let mut r3 = c.r[3]; let mut r4 = c.r[4]; let mut r5 = c.r[5]; let mut r30 = c.r[30]; let mut r31 = c.r[31]; 
@@ -8825,13 +8962,13 @@ pub fn fn_802B4714(c: &mut Ctx) {
             r31 = 0x500u32;
             { let ea = r1.wrapping_add(0x8); runtime::mw32(mem, ea, r30); }
             r30 = r3 | r3;
-            { c.lr = 0x802B4738; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.cr[1] = cr1; c.ctr = ctr; fn_802B4194(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; cr1 = c.cr[1]; ctr = c.ctr; }
+            { c.lr = 0x802B4738; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.cr[0] = cr0; c.cr[1] = cr1; c.ctr = ctr; fn_802B4194(c); runtime::prof(0x802B4714); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; cr0 = c.cr[0]; cr1 = c.cr[1]; ctr = c.ctr; }
             r3 = 0x80380000u32;
             { let ea = r30.wrapping_add(0x14); r5 = runtime::mr8(mem, ea) as u32; }
             r4 = r3.wrapping_add(0xFFFFE9D0);
             r3 = 0x1u32;
             { let v = (cr1 & 2 != 0) ^ (cr1 & 2 != 0); cr1 = if v { cr1 | 2 } else { cr1 & 0xFD }; }
-            { c.lr = 0x802B4750; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.cr[1] = cr1; c.ctr = ctr; fn_802B97C4(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; cr1 = c.cr[1]; ctr = c.ctr; }
+            { c.lr = 0x802B4750; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.cr[0] = cr0; c.cr[1] = cr1; c.ctr = ctr; fn_802B97C4(c); runtime::prof(0x802B4714); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; cr0 = c.cr[0]; cr1 = c.cr[1]; ctr = c.ctr; }
             { let ea = r30.wrapping_add(0x14); r0 = runtime::mr8(mem, ea) as u32; }
             cr0 = runtime::cmpu_val(r0, 0x1A);
             if cr0 & 4 != 0 { { pc = 0x802B4850; continue; } }
@@ -8844,85 +8981,85 @@ pub fn fn_802B4714(c: &mut Ctx) {
         }
         0x802B4774 => {
             r3 = r30 | r30;
-            { c.lr = 0x802B477C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.cr[1] = cr1; c.ctr = ctr; fn_802B57D4(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; cr1 = c.cr[1]; ctr = c.ctr; }
+            { c.lr = 0x802B477C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.cr[0] = cr0; c.cr[1] = cr1; c.ctr = ctr; fn_802B57D4(c); runtime::prof(0x802B4714); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; cr0 = c.cr[0]; cr1 = c.cr[1]; ctr = c.ctr; }
             r31 = r3 | r3;
             { pc = 0x802B4850; continue; }
         }
         0x802B4784 => {
             r3 = r30 | r30;
-            { c.lr = 0x802B478C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.cr[1] = cr1; c.ctr = ctr; fn_802B575C(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; cr1 = c.cr[1]; ctr = c.ctr; }
+            { c.lr = 0x802B478C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.cr[0] = cr0; c.cr[1] = cr1; c.ctr = ctr; fn_802B575C(c); runtime::prof(0x802B4714); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; cr0 = c.cr[0]; cr1 = c.cr[1]; ctr = c.ctr; }
             r31 = r3 | r3;
             { pc = 0x802B4850; continue; }
         }
         0x802B4794 => {
             r3 = r30 | r30;
-            { c.lr = 0x802B479C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.cr[1] = cr1; c.ctr = ctr; fn_802B5704(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; cr1 = c.cr[1]; ctr = c.ctr; }
+            { c.lr = 0x802B479C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.cr[0] = cr0; c.cr[1] = cr1; c.ctr = ctr; fn_802B5704(c); runtime::prof(0x802B4714); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; cr0 = c.cr[0]; cr1 = c.cr[1]; ctr = c.ctr; }
             r31 = r3 | r3;
             { pc = 0x802B4850; continue; }
         }
         0x802B47A4 => {
             r3 = r30 | r30;
-            { c.lr = 0x802B47AC; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.cr[1] = cr1; c.ctr = ctr; fn_802B56AC(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; cr1 = c.cr[1]; ctr = c.ctr; }
+            { c.lr = 0x802B47AC; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.cr[0] = cr0; c.cr[1] = cr1; c.ctr = ctr; fn_802B56AC(c); runtime::prof(0x802B4714); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; cr0 = c.cr[0]; cr1 = c.cr[1]; ctr = c.ctr; }
             r31 = r3 | r3;
             { pc = 0x802B4850; continue; }
         }
         0x802B47B4 => {
             r3 = r30 | r30;
-            { c.lr = 0x802B47BC; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.cr[1] = cr1; c.ctr = ctr; fn_802B56A4(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; cr1 = c.cr[1]; ctr = c.ctr; }
+            { c.lr = 0x802B47BC; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.cr[0] = cr0; c.cr[1] = cr1; c.ctr = ctr; fn_802B56A4(c); runtime::prof(0x802B4714); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; cr0 = c.cr[0]; cr1 = c.cr[1]; ctr = c.ctr; }
             r31 = r3 | r3;
             { pc = 0x802B4850; continue; }
         }
         0x802B47C4 => {
             r3 = r30 | r30;
-            { c.lr = 0x802B47CC; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.cr[1] = cr1; c.ctr = ctr; fn_802B569C(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; cr1 = c.cr[1]; ctr = c.ctr; }
+            { c.lr = 0x802B47CC; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.cr[0] = cr0; c.cr[1] = cr1; c.ctr = ctr; fn_802B569C(c); runtime::prof(0x802B4714); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; cr0 = c.cr[0]; cr1 = c.cr[1]; ctr = c.ctr; }
             r31 = r3 | r3;
             { pc = 0x802B4850; continue; }
         }
         0x802B47D4 => {
             r3 = r30 | r30;
-            { c.lr = 0x802B47DC; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.cr[1] = cr1; c.ctr = ctr; fn_802B5458(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; cr1 = c.cr[1]; ctr = c.ctr; }
+            { c.lr = 0x802B47DC; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.cr[0] = cr0; c.cr[1] = cr1; c.ctr = ctr; fn_802B5458(c); runtime::prof(0x802B4714); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; cr0 = c.cr[0]; cr1 = c.cr[1]; ctr = c.ctr; }
             r31 = r3 | r3;
             { pc = 0x802B4850; continue; }
         }
         0x802B47E4 => {
             r3 = r30 | r30;
-            { c.lr = 0x802B47EC; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.cr[1] = cr1; c.ctr = ctr; fn_802B521C(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; cr1 = c.cr[1]; ctr = c.ctr; }
+            { c.lr = 0x802B47EC; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.cr[0] = cr0; c.cr[1] = cr1; c.ctr = ctr; fn_802B521C(c); runtime::prof(0x802B4714); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; cr0 = c.cr[0]; cr1 = c.cr[1]; ctr = c.ctr; }
             r31 = r3 | r3;
             { pc = 0x802B4850; continue; }
         }
         0x802B47F4 => {
             r3 = r30 | r30;
-            { c.lr = 0x802B47FC; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.cr[1] = cr1; c.ctr = ctr; fn_802B4F3C(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; cr1 = c.cr[1]; ctr = c.ctr; }
+            { c.lr = 0x802B47FC; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.cr[0] = cr0; c.cr[1] = cr1; c.ctr = ctr; fn_802B4F3C(c); runtime::prof(0x802B4714); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; cr0 = c.cr[0]; cr1 = c.cr[1]; ctr = c.ctr; }
             r31 = r3 | r3;
             { pc = 0x802B4850; continue; }
         }
         0x802B4804 => {
             r3 = r30 | r30;
-            { c.lr = 0x802B480C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.cr[1] = cr1; c.ctr = ctr; fn_802B4CAC(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; cr1 = c.cr[1]; ctr = c.ctr; }
+            { c.lr = 0x802B480C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.cr[0] = cr0; c.cr[1] = cr1; c.ctr = ctr; fn_802B4CAC(c); runtime::prof(0x802B4714); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; cr0 = c.cr[0]; cr1 = c.cr[1]; ctr = c.ctr; }
             r31 = r3 | r3;
             { pc = 0x802B4850; continue; }
         }
         0x802B4814 => {
             r3 = r30 | r30;
-            { c.lr = 0x802B481C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.cr[1] = cr1; c.ctr = ctr; fn_802B4BFC(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; cr1 = c.cr[1]; ctr = c.ctr; }
+            { c.lr = 0x802B481C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.cr[0] = cr0; c.cr[1] = cr1; c.ctr = ctr; fn_802B4BFC(c); runtime::prof(0x802B4714); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; cr0 = c.cr[0]; cr1 = c.cr[1]; ctr = c.ctr; }
             r31 = r3 | r3;
             { pc = 0x802B4850; continue; }
         }
         0x802B4824 => {
             r3 = r30 | r30;
-            { c.lr = 0x802B482C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.cr[1] = cr1; c.ctr = ctr; fn_802B49DC(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; cr1 = c.cr[1]; ctr = c.ctr; }
+            { c.lr = 0x802B482C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.cr[0] = cr0; c.cr[1] = cr1; c.ctr = ctr; fn_802B49DC(c); runtime::prof(0x802B4714); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; cr0 = c.cr[0]; cr1 = c.cr[1]; ctr = c.ctr; }
             r31 = r3 | r3;
             { pc = 0x802B4850; continue; }
         }
         0x802B4834 => {
             r3 = r30 | r30;
-            { c.lr = 0x802B483C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.cr[1] = cr1; c.ctr = ctr; fn_802B4934(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; cr1 = c.cr[1]; ctr = c.ctr; }
+            { c.lr = 0x802B483C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.cr[0] = cr0; c.cr[1] = cr1; c.ctr = ctr; fn_802B4934(c); runtime::prof(0x802B4714); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; cr0 = c.cr[0]; cr1 = c.cr[1]; ctr = c.ctr; }
             r31 = r3 | r3;
             { pc = 0x802B4850; continue; }
         }
         0x802B4844 => {
             r3 = r30 | r30;
-            { c.lr = 0x802B484C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.cr[1] = cr1; c.ctr = ctr; fn_802B488C(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; cr1 = c.cr[1]; ctr = c.ctr; }
+            { c.lr = 0x802B484C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.cr[0] = cr0; c.cr[1] = cr1; c.ctr = ctr; fn_802B488C(c); runtime::prof(0x802B4714); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; cr0 = c.cr[0]; cr1 = c.cr[1]; ctr = c.ctr; }
             r31 = r3 | r3;
             pc = 0x802B4850;
         }
@@ -8932,7 +9069,7 @@ pub fn fn_802B4714(c: &mut Ctx) {
             r4 = r3.wrapping_add(0xFFFFE9EC);
             r3 = 0x1u32;
             { let v = (cr1 & 2 != 0) ^ (cr1 & 2 != 0); cr1 = if v { cr1 | 2 } else { cr1 & 0xFD }; }
-            { c.lr = 0x802B4868; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.cr[1] = cr1; c.ctr = ctr; fn_802B97C4(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; cr1 = c.cr[1]; ctr = c.ctr; }
+            { c.lr = 0x802B4868; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.cr[0] = cr0; c.cr[1] = cr1; c.ctr = ctr; fn_802B97C4(c); runtime::prof(0x802B4714); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; cr0 = c.cr[0]; cr1 = c.cr[1]; ctr = c.ctr; }
             { let ea = r1.wrapping_add(0x14); r0 = runtime::mr32(mem, ea); }
             r3 = r31 | r31;
             { let ea = r1.wrapping_add(0xC); r31 = runtime::mr32(mem, ea); }
@@ -8948,6 +9085,7 @@ pub fn fn_802B4714(c: &mut Ctx) {
 // TRKInitializeDispatcher
 #[inline]
 pub fn fn_802B4884(c: &mut Ctx) {
+    runtime::prof(0x802B4884);
     if c.hle(139) { return; }
     let mut r3 = c.r[3]; 
     r3 = 0x0u32;
@@ -8956,6 +9094,7 @@ pub fn fn_802B4884(c: &mut Ctx) {
 
 // TRKDoSetOption
 pub fn fn_802B488C(c: &mut Ctx) {
+    runtime::prof(0x802B488C);
     if c.hle(140) { return; }
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r1 = c.r[1]; let mut r3 = c.r[3]; let mut r4 = c.r[4]; let mut r5 = c.r[5]; let mut r30 = c.r[30]; let mut r31 = c.r[31]; 
@@ -8975,28 +9114,28 @@ pub fn fn_802B488C(c: &mut Ctx) {
             cr0 = runtime::cmpu_val(r0, 0x1);
             if cr0 & 2 == 0 { { pc = 0x802B48E4; continue; } }
             r3 = r31;
-            { c.lr = 0x802B48C0; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; fn_802B468C(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; }
+            { c.lr = 0x802B48C0; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.cr[0] = cr0; fn_802B468C(c); runtime::prof(0x802B488C); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; cr0 = c.cr[0]; }
             cr0 = runtime::cmpu_val(r30, 0x0);
             if cr0 & 2 != 0 { { pc = 0x802B48D4; continue; } }
             r3 = r31.wrapping_add(0x20);
-            { c.lr = 0x802B48D0; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; fn_802B468C(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; }
+            { c.lr = 0x802B48D0; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.cr[0] = cr0; fn_802B468C(c); runtime::prof(0x802B488C); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; cr0 = c.cr[0]; }
             { pc = 0x802B48DC; continue; }
         }
         0x802B48D4 => {
             r3 = r31.wrapping_add(0x28);
-            { c.lr = 0x802B48DC; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; fn_802B468C(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; }
+            { c.lr = 0x802B48DC; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.cr[0] = cr0; fn_802B468C(c); runtime::prof(0x802B488C); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; cr0 = c.cr[0]; }
             pc = 0x802B48DC;
         }
         0x802B48DC => {
             r3 = r30 | r30;
-            { c.lr = 0x802B48E4; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; fn_802B8D00(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; }
+            { c.lr = 0x802B48E4; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.cr[0] = cr0; fn_802B8D00(c); runtime::prof(0x802B488C); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; cr0 = c.cr[0]; }
             pc = 0x802B48E4;
         }
         0x802B48E4 => {
             r3 = r1.wrapping_add(0x8);
             r4 = 0x0u32;
             r5 = 0x40u32;
-            { c.lr = 0x802B48F4; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; fn_80003100(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; }
+            { c.lr = 0x802B48F4; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.cr[0] = cr0; fn_80003100(c); runtime::prof(0x802B488C); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; cr0 = c.cr[0]; }
             r3 = 0x80u32;
             r5 = 0x40u32;
             r0 = 0x0u32;
@@ -9005,7 +9144,7 @@ pub fn fn_802B488C(c: &mut Ctx) {
             r4 = 0x40u32;
             { let ea = r1.wrapping_add(0x8); runtime::mw32(mem, ea, r5); }
             { let ea = r1.wrapping_add(0x10); runtime::mw8(mem, ea, r0 as u8); }
-            { c.lr = 0x802B4918; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; fn_802B88D8(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; }
+            { c.lr = 0x802B4918; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.cr[0] = cr0; fn_802B88D8(c); runtime::prof(0x802B488C); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; cr0 = c.cr[0]; }
             { let ea = r1.wrapping_add(0x54); r0 = runtime::mr32(mem, ea); }
             r3 = 0x0u32;
             { let ea = r1.wrapping_add(0x4C); r31 = runtime::mr32(mem, ea); }
@@ -9020,6 +9159,7 @@ pub fn fn_802B488C(c: &mut Ctx) {
 
 // TRKDoStop
 pub fn fn_802B4934(c: &mut Ctx) {
+    runtime::prof(0x802B4934);
     if c.hle(141) { return; }
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r1 = c.r[1]; let mut r3 = c.r[3]; let mut r4 = c.r[4]; let mut r5 = c.r[5]; let mut r31 = c.r[31]; 
@@ -9031,7 +9171,7 @@ pub fn fn_802B4934(c: &mut Ctx) {
             r0 = c.lr;
             { let ea = r1.wrapping_add(0x54); runtime::mw32(mem, ea, r0); }
             { let ea = r1.wrapping_add(0x4C); runtime::mw32(mem, ea, r31); }
-            { c.lr = 0x802B4948; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[31] = r31; c.cr[0] = cr0; fn_802B6660(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r31 = c.r[31]; cr0 = c.cr[0]; }
+            { c.lr = 0x802B4948; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.cr[0] = cr0; fn_802B6660(c); runtime::prof(0x802B4934); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; cr0 = c.cr[0]; }
             cr0 = runtime::cmps_val(r3 as i32, 1796);
             if cr0 & 2 != 0 { { pc = 0x802B4978; continue; } }
             if cr0 & 8 == 0 { { pc = 0x802B4960; continue; } }
@@ -9069,7 +9209,7 @@ pub fn fn_802B4934(c: &mut Ctx) {
             r3 = r1.wrapping_add(0x8);
             r4 = 0x0u32;
             r5 = 0x40u32;
-            { c.lr = 0x802B49A4; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[31] = r31; c.cr[0] = cr0; fn_80003100(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r31 = c.r[31]; cr0 = c.cr[0]; }
+            { c.lr = 0x802B49A4; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.cr[0] = cr0; fn_80003100(c); runtime::prof(0x802B4934); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; cr0 = c.cr[0]; }
             r3 = 0x80u32;
             r0 = 0x40u32;
             { let ea = r1.wrapping_add(0xC); runtime::mw8(mem, ea, r3 as u8); }
@@ -9077,7 +9217,7 @@ pub fn fn_802B4934(c: &mut Ctx) {
             r4 = 0x40u32;
             { let ea = r1.wrapping_add(0x8); runtime::mw32(mem, ea, r0); }
             { let ea = r1.wrapping_add(0x10); runtime::mw8(mem, ea, r31 as u8); }
-            { c.lr = 0x802B49C4; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[31] = r31; c.cr[0] = cr0; fn_802B88D8(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r31 = c.r[31]; cr0 = c.cr[0]; }
+            { c.lr = 0x802B49C4; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.cr[0] = cr0; fn_802B88D8(c); runtime::prof(0x802B4934); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; cr0 = c.cr[0]; }
             { let ea = r1.wrapping_add(0x54); r0 = runtime::mr32(mem, ea); }
             r3 = 0x0u32;
             { let ea = r1.wrapping_add(0x4C); r31 = runtime::mr32(mem, ea); }
@@ -9091,6 +9231,7 @@ pub fn fn_802B4934(c: &mut Ctx) {
 
 // TRKDoStep
 pub fn fn_802B49DC(c: &mut Ctx) {
+    runtime::prof(0x802B49DC);
     if c.hle(142) { return; }
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r1 = c.r[1]; let mut r3 = c.r[3]; let mut r4 = c.r[4]; let mut r5 = c.r[5]; let mut r27 = c.r[27]; let mut r28 = c.r[28]; let mut r29 = c.r[29]; let mut r30 = c.r[30]; let mut r31 = c.r[31]; 
@@ -9105,7 +9246,7 @@ pub fn fn_802B49DC(c: &mut Ctx) {
             { let ea = r1.wrapping_add(0x164); runtime::mw32(mem, ea, r0); }
             { let ea = r1.wrapping_add(0x14C); runtime::mw32(mem, ea.wrapping_add(0x0), r27); runtime::mw32(mem, ea.wrapping_add(0x4), r28); runtime::mw32(mem, ea.wrapping_add(0x8), r29); runtime::mw32(mem, ea.wrapping_add(0xC), r30); runtime::mw32(mem, ea.wrapping_add(0x10), r31);  }
             r27 = r3 | r3;
-            { c.lr = 0x802B49F8; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ca = ca; fn_802B4194(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ca = c.ca; }
+            { c.lr = 0x802B49F8; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.cr[0] = cr0; c.ca = ca; fn_802B4194(c); runtime::prof(0x802B49DC); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; cr0 = c.cr[0]; ca = c.ca; }
             { let ea = r27.wrapping_add(0x18); r31 = runtime::mr8(mem, ea) as u32; }
             { let ea = r27.wrapping_add(0x20); r29 = runtime::mr32(mem, ea); }
             cr0 = runtime::cmps_val(r31 as i32, 16);
@@ -9131,7 +9272,7 @@ pub fn fn_802B49DC(c: &mut Ctx) {
             r3 = r1.wrapping_add(0x108);
             r4 = 0x0u32;
             r5 = 0x40u32;
-            { c.lr = 0x802B4A50; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ca = ca; fn_80003100(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ca = c.ca; }
+            { c.lr = 0x802B4A50; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.cr[0] = cr0; c.ca = ca; fn_80003100(c); runtime::prof(0x802B49DC); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; cr0 = c.cr[0]; ca = c.ca; }
             r3 = 0x80u32;
             r5 = 0x40u32;
             r0 = 0x11u32;
@@ -9140,12 +9281,12 @@ pub fn fn_802B49DC(c: &mut Ctx) {
             r4 = 0x40u32;
             { let ea = r1.wrapping_add(0x108); runtime::mw32(mem, ea, r5); }
             { let ea = r1.wrapping_add(0x110); runtime::mw8(mem, ea, r0 as u8); }
-            { c.lr = 0x802B4A74; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ca = ca; fn_802B88D8(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ca = c.ca; }
+            { c.lr = 0x802B4A74; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.cr[0] = cr0; c.ca = ca; fn_802B88D8(c); runtime::prof(0x802B49DC); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; cr0 = c.cr[0]; ca = c.ca; }
             r3 = 0x0u32;
             { pc = 0x802B4BE8; continue; }
         }
         0x802B4A7C => {
-            { c.lr = 0x802B4A80; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ca = ca; fn_802B6898(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ca = c.ca; }
+            { c.lr = 0x802B4A80; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.cr[0] = cr0; c.ca = ca; fn_802B6898(c); runtime::prof(0x802B49DC); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; cr0 = c.cr[0]; ca = c.ca; }
             cr0 = runtime::cmpu_val(r3, r29);
             if cr0 & 8 != 0 { { pc = 0x802B4A90; continue; } }
             cr0 = runtime::cmpu_val(r3, r28);
@@ -9156,7 +9297,7 @@ pub fn fn_802B49DC(c: &mut Ctx) {
             r3 = r1.wrapping_add(0xC8);
             r4 = 0x0u32;
             r5 = 0x40u32;
-            { c.lr = 0x802B4AA0; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ca = ca; fn_80003100(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ca = c.ca; }
+            { c.lr = 0x802B4AA0; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.cr[0] = cr0; c.ca = ca; fn_80003100(c); runtime::prof(0x802B49DC); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; cr0 = c.cr[0]; ca = c.ca; }
             r3 = 0x80u32;
             r5 = 0x40u32;
             r0 = 0x11u32;
@@ -9165,7 +9306,7 @@ pub fn fn_802B49DC(c: &mut Ctx) {
             r4 = 0x40u32;
             { let ea = r1.wrapping_add(0xC8); runtime::mw32(mem, ea, r5); }
             { let ea = r1.wrapping_add(0xD0); runtime::mw8(mem, ea, r0 as u8); }
-            { c.lr = 0x802B4AC4; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ca = ca; fn_802B88D8(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ca = c.ca; }
+            { c.lr = 0x802B4AC4; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.cr[0] = cr0; c.ca = ca; fn_802B88D8(c); runtime::prof(0x802B49DC); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; cr0 = c.cr[0]; ca = c.ca; }
             r3 = 0x0u32;
             { pc = 0x802B4BE8; continue; }
         }
@@ -9173,7 +9314,7 @@ pub fn fn_802B49DC(c: &mut Ctx) {
             r3 = r1.wrapping_add(0x88);
             r4 = 0x0u32;
             r5 = 0x40u32;
-            { c.lr = 0x802B4ADC; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ca = ca; fn_80003100(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ca = c.ca; }
+            { c.lr = 0x802B4ADC; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.cr[0] = cr0; c.ca = ca; fn_80003100(c); runtime::prof(0x802B49DC); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; cr0 = c.cr[0]; ca = c.ca; }
             r3 = 0x80u32;
             r5 = 0x40u32;
             r0 = 0x12u32;
@@ -9182,18 +9323,18 @@ pub fn fn_802B49DC(c: &mut Ctx) {
             r4 = 0x40u32;
             { let ea = r1.wrapping_add(0x88); runtime::mw32(mem, ea, r5); }
             { let ea = r1.wrapping_add(0x90); runtime::mw8(mem, ea, r0 as u8); }
-            { c.lr = 0x802B4B00; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ca = ca; fn_802B88D8(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ca = c.ca; }
+            { c.lr = 0x802B4B00; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.cr[0] = cr0; c.ca = ca; fn_802B88D8(c); runtime::prof(0x802B49DC); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; cr0 = c.cr[0]; ca = c.ca; }
             r3 = 0x0u32;
             { pc = 0x802B4BE8; continue; }
         }
         0x802B4B08 => {
-            { c.lr = 0x802B4B0C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ca = ca; fn_802B6688(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ca = c.ca; }
+            { c.lr = 0x802B4B0C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.cr[0] = cr0; c.ca = ca; fn_802B6688(c); runtime::prof(0x802B49DC); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; cr0 = c.cr[0]; ca = c.ca; }
             cr0 = runtime::cmps_val(r3 as i32, 0);
             if cr0 & 2 == 0 { { pc = 0x802B4B50; continue; } }
             r3 = r1.wrapping_add(0x48);
             r4 = 0x0u32;
             r5 = 0x40u32;
-            { c.lr = 0x802B4B24; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ca = ca; fn_80003100(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ca = c.ca; }
+            { c.lr = 0x802B4B24; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.cr[0] = cr0; c.ca = ca; fn_80003100(c); runtime::prof(0x802B49DC); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; cr0 = c.cr[0]; ca = c.ca; }
             r3 = 0x80u32;
             r5 = 0x40u32;
             r0 = 0x16u32;
@@ -9202,7 +9343,7 @@ pub fn fn_802B49DC(c: &mut Ctx) {
             r4 = 0x40u32;
             { let ea = r1.wrapping_add(0x48); runtime::mw32(mem, ea, r5); }
             { let ea = r1.wrapping_add(0x50); runtime::mw8(mem, ea, r0 as u8); }
-            { c.lr = 0x802B4B48; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ca = ca; fn_802B88D8(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ca = c.ca; }
+            { c.lr = 0x802B4B48; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.cr[0] = cr0; c.ca = ca; fn_802B88D8(c); runtime::prof(0x802B49DC); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; cr0 = c.cr[0]; ca = c.ca; }
             r3 = 0x0u32;
             { pc = 0x802B4BE8; continue; }
         }
@@ -9210,7 +9351,7 @@ pub fn fn_802B49DC(c: &mut Ctx) {
             r3 = r1.wrapping_add(0x8);
             r4 = 0x0u32;
             r5 = 0x40u32;
-            { c.lr = 0x802B4B60; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ca = ca; fn_80003100(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ca = c.ca; }
+            { c.lr = 0x802B4B60; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.cr[0] = cr0; c.ca = ca; fn_80003100(c); runtime::prof(0x802B49DC); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; cr0 = c.cr[0]; ca = c.ca; }
             r3 = 0x80u32;
             r5 = 0x40u32;
             r0 = 0x0u32;
@@ -9219,7 +9360,7 @@ pub fn fn_802B49DC(c: &mut Ctx) {
             r4 = 0x40u32;
             { let ea = r1.wrapping_add(0x8); runtime::mw32(mem, ea, r5); }
             { let ea = r1.wrapping_add(0x10); runtime::mw8(mem, ea, r0 as u8); }
-            { c.lr = 0x802B4B84; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ca = ca; fn_802B88D8(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ca = c.ca; }
+            { c.lr = 0x802B4B84; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.cr[0] = cr0; c.ca = ca; fn_802B88D8(c); runtime::prof(0x802B49DC); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; cr0 = c.cr[0]; ca = c.ca; }
             cr0 = runtime::cmps_val(r31 as i32, 16);
             r3 = 0x0u32;
             if cr0 & 2 != 0 { { pc = 0x802B4BB8; continue; } }
@@ -9241,7 +9382,7 @@ pub fn fn_802B49DC(c: &mut Ctx) {
             r3 = r30 | r30;
             r0 = r0.leading_zeros();
             r4 = r0.rotate_left(27) & 0x7FFFFFF;
-            { c.lr = 0x802B4BCC; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ca = ca; fn_802B6960(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ca = c.ca; }
+            { c.lr = 0x802B4BCC; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.cr[0] = cr0; c.ca = ca; fn_802B6960(c); runtime::prof(0x802B49DC); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; cr0 = c.cr[0]; ca = c.ca; }
             { pc = 0x802B4BE8; continue; }
         }
         0x802B4BD0 => {
@@ -9250,7 +9391,7 @@ pub fn fn_802B49DC(c: &mut Ctx) {
             r0 = r0.leading_zeros();
             r4 = r28 | r28;
             r5 = r0.rotate_left(27) & 0x7FFFFFF;
-            { c.lr = 0x802B4BE8; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ca = ca; fn_802B68A8(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ca = c.ca; }
+            { c.lr = 0x802B4BE8; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.cr[0] = cr0; c.ca = ca; fn_802B68A8(c); runtime::prof(0x802B49DC); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; cr0 = c.cr[0]; ca = c.ca; }
             pc = 0x802B4BE8;
         }
         0x802B4BE8 => {
@@ -9266,6 +9407,7 @@ pub fn fn_802B49DC(c: &mut Ctx) {
 
 // TRKDoContinue
 pub fn fn_802B4BFC(c: &mut Ctx) {
+    runtime::prof(0x802B4BFC);
     if c.hle(143) { return; }
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r1 = c.r[1]; let mut r3 = c.r[3]; let mut r4 = c.r[4]; let mut r5 = c.r[5]; 
@@ -9280,14 +9422,14 @@ pub fn fn_802B4BFC(c: &mut Ctx) {
             { let ea = r1.wrapping_add(0x94); runtime::mw32(mem, ea, r0); }
             r4 = r4.wrapping_add(0xFFFFEA44);
             { let v = (cr1 & 2 != 0) ^ (cr1 & 2 != 0); cr1 = if v { cr1 | 2 } else { cr1 & 0xFD }; }
-            { c.lr = 0x802B4C1C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.cr[0] = cr0; c.cr[1] = cr1; fn_802B97C4(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
-            { c.lr = 0x802B4C20; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.cr[0] = cr0; c.cr[1] = cr1; fn_802B6688(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
+            { c.lr = 0x802B4C1C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.cr[0] = cr0; c.cr[1] = cr1; fn_802B97C4(c); runtime::prof(0x802B4BFC); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
+            { c.lr = 0x802B4C20; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.cr[0] = cr0; c.cr[1] = cr1; fn_802B6688(c); runtime::prof(0x802B4BFC); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
             cr0 = runtime::cmps_val(r3 as i32, 0);
             if cr0 & 2 == 0 { { pc = 0x802B4C64; continue; } }
             r3 = r1.wrapping_add(0x48);
             r4 = 0x0u32;
             r5 = 0x40u32;
-            { c.lr = 0x802B4C38; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.cr[0] = cr0; c.cr[1] = cr1; fn_80003100(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
+            { c.lr = 0x802B4C38; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.cr[0] = cr0; c.cr[1] = cr1; fn_80003100(c); runtime::prof(0x802B4BFC); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
             r3 = 0x80u32;
             r5 = 0x40u32;
             r0 = 0x16u32;
@@ -9296,7 +9438,7 @@ pub fn fn_802B4BFC(c: &mut Ctx) {
             r4 = 0x40u32;
             { let ea = r1.wrapping_add(0x48); runtime::mw32(mem, ea, r5); }
             { let ea = r1.wrapping_add(0x50); runtime::mw8(mem, ea, r0 as u8); }
-            { c.lr = 0x802B4C5C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.cr[0] = cr0; c.cr[1] = cr1; fn_802B88D8(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
+            { c.lr = 0x802B4C5C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.cr[0] = cr0; c.cr[1] = cr1; fn_802B88D8(c); runtime::prof(0x802B4BFC); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
             r3 = 0x0u32;
             { pc = 0x802B4C9C; continue; }
         }
@@ -9304,7 +9446,7 @@ pub fn fn_802B4BFC(c: &mut Ctx) {
             r3 = r1.wrapping_add(0x8);
             r4 = 0x0u32;
             r5 = 0x40u32;
-            { c.lr = 0x802B4C74; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.cr[0] = cr0; c.cr[1] = cr1; fn_80003100(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
+            { c.lr = 0x802B4C74; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.cr[0] = cr0; c.cr[1] = cr1; fn_80003100(c); runtime::prof(0x802B4BFC); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
             r3 = 0x80u32;
             r5 = 0x40u32;
             r0 = 0x0u32;
@@ -9313,8 +9455,8 @@ pub fn fn_802B4BFC(c: &mut Ctx) {
             r4 = 0x40u32;
             { let ea = r1.wrapping_add(0x8); runtime::mw32(mem, ea, r5); }
             { let ea = r1.wrapping_add(0x10); runtime::mw8(mem, ea, r0 as u8); }
-            { c.lr = 0x802B4C98; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.cr[0] = cr0; c.cr[1] = cr1; fn_802B88D8(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
-            { c.lr = 0x802B4C9C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.cr[0] = cr0; c.cr[1] = cr1; fn_802B8CBC(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
+            { c.lr = 0x802B4C98; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.cr[0] = cr0; c.cr[1] = cr1; fn_802B88D8(c); runtime::prof(0x802B4BFC); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
+            { c.lr = 0x802B4C9C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.cr[0] = cr0; c.cr[1] = cr1; fn_802B8CBC(c); runtime::prof(0x802B4BFC); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
             pc = 0x802B4C9C;
         }
         0x802B4C9C => {
@@ -9329,6 +9471,7 @@ pub fn fn_802B4BFC(c: &mut Ctx) {
 
 // TRKDoWriteRegisters
 pub fn fn_802B4CAC(c: &mut Ctx) {
+    runtime::prof(0x802B4CAC);
     if c.hle(144) { return; }
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r1 = c.r[1]; let mut r3 = c.r[3]; let mut r4 = c.r[4]; let mut r5 = c.r[5]; let mut r6 = c.r[6]; let mut r7 = c.r[7]; let mut r28 = c.r[28]; let mut r29 = c.r[29]; let mut r30 = c.r[30]; let mut r31 = c.r[31]; 
@@ -9348,13 +9491,13 @@ pub fn fn_802B4CAC(c: &mut Ctx) {
             { let ea = r3.wrapping_add(0x18); r31 = runtime::mr8(mem, ea) as u32; }
             { let ea = r3.wrapping_add(0x1C); r30 = runtime::mr16(mem, ea) as u32; }
             { let ea = r3.wrapping_add(0x20); r29 = runtime::mr16(mem, ea) as u32; }
-            { c.lr = 0x802B4CE0; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.cr[1] = cr1; fn_802B4194(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
+            { c.lr = 0x802B4CE0; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.cr[0] = cr0; c.cr[1] = cr1; fn_802B4194(c); runtime::prof(0x802B4CAC); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
             cr0 = runtime::cmpu_val(r30, r29);
             if cr0 & 4 == 0 { { pc = 0x802B4D24; continue; } }
             r3 = r1.wrapping_add(0x4C);
             r4 = 0x0u32;
             r5 = 0x40u32;
-            { c.lr = 0x802B4CF8; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.cr[1] = cr1; fn_80003100(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
+            { c.lr = 0x802B4CF8; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.cr[0] = cr0; c.cr[1] = cr1; fn_80003100(c); runtime::prof(0x802B4CAC); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
             r3 = 0x80u32;
             r5 = 0x40u32;
             r0 = 0x14u32;
@@ -9363,14 +9506,14 @@ pub fn fn_802B4CAC(c: &mut Ctx) {
             r4 = 0x40u32;
             { let ea = r1.wrapping_add(0x4C); runtime::mw32(mem, ea, r5); }
             { let ea = r1.wrapping_add(0x54); runtime::mw8(mem, ea, r0 as u8); }
-            { c.lr = 0x802B4D1C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.cr[1] = cr1; fn_802B88D8(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
+            { c.lr = 0x802B4D1C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.cr[0] = cr0; c.cr[1] = cr1; fn_802B88D8(c); runtime::prof(0x802B4CAC); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
             r3 = 0x0u32;
             { pc = 0x802B4F1C; continue; }
         }
         0x802B4D24 => {
             r3 = r28 | r28;
             r4 = 0x40u32;
-            { c.lr = 0x802B4D30; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.cr[1] = cr1; fn_802B4194(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
+            { c.lr = 0x802B4D30; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.cr[0] = cr0; c.cr[1] = cr1; fn_802B4194(c); runtime::prof(0x802B4CAC); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
             cr0 = runtime::cmps_val(r31 as i32, 2);
             if cr0 & 2 != 0 { { pc = 0x802B4D98; continue; } }
             if cr0 & 8 == 0 { { pc = 0x802B4D4C; continue; } }
@@ -9390,7 +9533,7 @@ pub fn fn_802B4CAC(c: &mut Ctx) {
             r5 = r28 | r28;
             r6 = r1.wrapping_add(0x8);
             r7 = 0x0u32;
-            { c.lr = 0x802B4D70; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.cr[1] = cr1; fn_802B780C(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
+            { c.lr = 0x802B4D70; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.cr[0] = cr0; c.cr[1] = cr1; fn_802B780C(c); runtime::prof(0x802B4CAC); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
             r31 = r3 | r3;
             { pc = 0x802B4DDC; continue; }
         }
@@ -9400,7 +9543,7 @@ pub fn fn_802B4CAC(c: &mut Ctx) {
             r5 = r28 | r28;
             r6 = r1.wrapping_add(0x8);
             r7 = 0x0u32;
-            { c.lr = 0x802B4D90; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.cr[1] = cr1; fn_802B7300(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
+            { c.lr = 0x802B4D90; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.cr[0] = cr0; c.cr[1] = cr1; fn_802B7300(c); runtime::prof(0x802B4CAC); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
             r31 = r3 | r3;
             { pc = 0x802B4DDC; continue; }
         }
@@ -9410,7 +9553,7 @@ pub fn fn_802B4CAC(c: &mut Ctx) {
             r5 = r28 | r28;
             r6 = r1.wrapping_add(0x8);
             r7 = 0x0u32;
-            { c.lr = 0x802B4DB0; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.cr[1] = cr1; fn_802B7190(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
+            { c.lr = 0x802B4DB0; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.cr[0] = cr0; c.cr[1] = cr1; fn_802B7190(c); runtime::prof(0x802B4CAC); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
             r31 = r3 | r3;
             { pc = 0x802B4DDC; continue; }
         }
@@ -9420,7 +9563,7 @@ pub fn fn_802B4CAC(c: &mut Ctx) {
             r5 = r28 | r28;
             r6 = r1.wrapping_add(0x8);
             r7 = 0x0u32;
-            { c.lr = 0x802B4DD0; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.cr[1] = cr1; fn_802B6D58(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
+            { c.lr = 0x802B4DD0; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.cr[0] = cr0; c.cr[1] = cr1; fn_802B6D58(c); runtime::prof(0x802B4CAC); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
             r31 = r3 | r3;
             { pc = 0x802B4DDC; continue; }
         }
@@ -9431,13 +9574,13 @@ pub fn fn_802B4CAC(c: &mut Ctx) {
         0x802B4DDC => {
             r3 = r28 | r28;
             r4 = 0x0u32;
-            { c.lr = 0x802B4DE8; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.cr[1] = cr1; fn_802B41C4(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
+            { c.lr = 0x802B4DE8; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.cr[0] = cr0; c.cr[1] = cr1; fn_802B41C4(c); runtime::prof(0x802B4CAC); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
             cr0 = runtime::cmps_val(r31 as i32, 0);
             if cr0 & 2 == 0 { { pc = 0x802B4E28; continue; } }
             r3 = r1.wrapping_add(0x8C);
             r4 = 0x0u32;
             r5 = 0x40u32;
-            { c.lr = 0x802B4E00; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.cr[1] = cr1; fn_80003100(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
+            { c.lr = 0x802B4E00; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.cr[0] = cr0; c.cr[1] = cr1; fn_80003100(c); runtime::prof(0x802B4CAC); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
             r3 = 0x40u32;
             r0 = 0x80u32;
             { let ea = r1.wrapping_add(0x8C); runtime::mw32(mem, ea, r3); }
@@ -9446,7 +9589,7 @@ pub fn fn_802B4CAC(c: &mut Ctx) {
             r5 = 0x40u32;
             { let ea = r1.wrapping_add(0x90); runtime::mw8(mem, ea, r0 as u8); }
             { let ea = r1.wrapping_add(0x94); runtime::mw8(mem, ea, r31 as u8); }
-            { c.lr = 0x802B4E24; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.cr[1] = cr1; fn_802B40F0(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
+            { c.lr = 0x802B4E24; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.cr[0] = cr0; c.cr[1] = cr1; fn_802B40F0(c); runtime::prof(0x802B4CAC); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
             r31 = r3 | r3;
             pc = 0x802B4E28;
         }
@@ -9507,7 +9650,7 @@ pub fn fn_802B4CAC(c: &mut Ctx) {
             r3 = r1.wrapping_add(0xC);
             r4 = 0x0u32;
             r5 = 0x40u32;
-            { c.lr = 0x802B4EB8; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.cr[1] = cr1; fn_80003100(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
+            { c.lr = 0x802B4EB8; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.cr[0] = cr0; c.cr[1] = cr1; fn_80003100(c); runtime::prof(0x802B4CAC); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
             r3 = 0x80u32;
             r0 = 0x40u32;
             { let ea = r1.wrapping_add(0x10); runtime::mw8(mem, ea, r3 as u8); }
@@ -9515,7 +9658,7 @@ pub fn fn_802B4CAC(c: &mut Ctx) {
             r4 = 0x40u32;
             { let ea = r1.wrapping_add(0xC); runtime::mw32(mem, ea, r0); }
             { let ea = r1.wrapping_add(0x14); runtime::mw8(mem, ea, r31 as u8); }
-            { c.lr = 0x802B4ED8; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.cr[1] = cr1; fn_802B88D8(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
+            { c.lr = 0x802B4ED8; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.cr[0] = cr0; c.cr[1] = cr1; fn_802B88D8(c); runtime::prof(0x802B4CAC); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
             r3 = 0x0u32;
             { pc = 0x802B4F1C; continue; }
         }
@@ -9524,16 +9667,16 @@ pub fn fn_802B4CAC(c: &mut Ctx) {
             r3 = 0x1u32;
             r4 = r4.wrapping_add(0xFFFFEA70);
             { let v = (cr1 & 2 != 0) ^ (cr1 & 2 != 0); cr1 = if v { cr1 | 2 } else { cr1 & 0xFD }; }
-            { c.lr = 0x802B4EF4; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.cr[1] = cr1; fn_802B97C4(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
+            { c.lr = 0x802B4EF4; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.cr[0] = cr0; c.cr[1] = cr1; fn_802B97C4(c); runtime::prof(0x802B4CAC); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
             r3 = r28 | r28;
-            { c.lr = 0x802B4EFC; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.cr[1] = cr1; fn_802B3B50(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
+            { c.lr = 0x802B4EFC; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.cr[0] = cr0; c.cr[1] = cr1; fn_802B3B50(c); runtime::prof(0x802B4CAC); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
             r31 = r3 | r3;
             r4 = 0x80380000u32;
             r3 = 0x1u32;
             r4 = r4.wrapping_add(0xFFFFEA90);
             r5 = r31 | r31;
             { let v = (cr1 & 2 != 0) ^ (cr1 & 2 != 0); cr1 = if v { cr1 | 2 } else { cr1 & 0xFD }; }
-            { c.lr = 0x802B4F18; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.cr[1] = cr1; fn_802B97C4(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
+            { c.lr = 0x802B4F18; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.cr[0] = cr0; c.cr[1] = cr1; fn_802B97C4(c); runtime::prof(0x802B4CAC); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
             r3 = r31 | r31;
             pc = 0x802B4F1C;
         }
@@ -9553,6 +9696,7 @@ pub fn fn_802B4CAC(c: &mut Ctx) {
 
 // TRKDoReadRegisters
 pub fn fn_802B4F3C(c: &mut Ctx) {
+    runtime::prof(0x802B4F3C);
     if c.hle(145) { return; }
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r1 = c.r[1]; let mut r3 = c.r[3]; let mut r4 = c.r[4]; let mut r5 = c.r[5]; let mut r6 = c.r[6]; let mut r7 = c.r[7]; let mut r29 = c.r[29]; let mut r30 = c.r[30]; let mut r31 = c.r[31]; 
@@ -9576,7 +9720,7 @@ pub fn fn_802B4F3C(c: &mut Ctx) {
             r3 = r1.wrapping_add(0x4C);
             r4 = 0x0u32;
             r5 = 0x40u32;
-            { c.lr = 0x802B4F80; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.cr[1] = cr1; fn_80003100(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
+            { c.lr = 0x802B4F80; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.cr[0] = cr0; c.cr[1] = cr1; fn_80003100(c); runtime::prof(0x802B4F3C); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
             r3 = 0x80u32;
             r5 = 0x40u32;
             r0 = 0x14u32;
@@ -9585,7 +9729,7 @@ pub fn fn_802B4F3C(c: &mut Ctx) {
             r4 = 0x40u32;
             { let ea = r1.wrapping_add(0x4C); runtime::mw32(mem, ea, r5); }
             { let ea = r1.wrapping_add(0x54); runtime::mw8(mem, ea, r0 as u8); }
-            { c.lr = 0x802B4FA4; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.cr[1] = cr1; fn_802B88D8(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
+            { c.lr = 0x802B4FA4; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.cr[0] = cr0; c.cr[1] = cr1; fn_802B88D8(c); runtime::prof(0x802B4F3C); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
             r3 = 0x0u32;
             { pc = 0x802B5200; continue; }
         }
@@ -9595,38 +9739,38 @@ pub fn fn_802B4F3C(c: &mut Ctx) {
             { let ea = r1.wrapping_add(0x90); runtime::mw8(mem, ea, r4 as u8); }
             r4 = 0x0u32;
             { let ea = r1.wrapping_add(0x8C); runtime::mw32(mem, ea, r0); }
-            { c.lr = 0x802B4FC4; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.cr[1] = cr1; fn_802B41C4(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
+            { c.lr = 0x802B4FC4; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.cr[0] = cr0; c.cr[1] = cr1; fn_802B41C4(c); runtime::prof(0x802B4F3C); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
             { let ea = r29.wrapping_add(0x8); r5 = runtime::mr32(mem, ea); }
             r4 = r31.wrapping_add(0x98);
             r3 = 0x4u32;
             { let v = (cr1 & 2 != 0) ^ (cr1 & 2 != 0); cr1 = if v { cr1 | 2 } else { cr1 & 0xFD }; }
-            { c.lr = 0x802B4FD8; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.cr[1] = cr1; fn_802B97C4(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
+            { c.lr = 0x802B4FD8; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.cr[0] = cr0; c.cr[1] = cr1; fn_802B97C4(c); runtime::prof(0x802B4F3C); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
             r3 = r29 | r29;
             r4 = r1.wrapping_add(0x8C);
             r5 = 0x40u32;
-            { c.lr = 0x802B4FE8; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.cr[1] = cr1; fn_802B3F00(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
+            { c.lr = 0x802B4FE8; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.cr[0] = cr0; c.cr[1] = cr1; fn_802B3F00(c); runtime::prof(0x802B4F3C); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
             { let ea = r29.wrapping_add(0x8); r5 = runtime::mr32(mem, ea); }
             r4 = r31.wrapping_add(0x98);
             r3 = 0x4u32;
             { let v = (cr1 & 2 != 0) ^ (cr1 & 2 != 0); cr1 = if v { cr1 | 2 } else { cr1 & 0xFD }; }
-            { c.lr = 0x802B4FFC; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.cr[1] = cr1; fn_802B97C4(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
+            { c.lr = 0x802B4FFC; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.cr[0] = cr0; c.cr[1] = cr1; fn_802B97C4(c); runtime::prof(0x802B4F3C); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
             r5 = r29 | r29;
             r6 = r1.wrapping_add(0x8);
             r3 = 0x0u32;
             r4 = 0x24u32;
             r7 = 0x1u32;
-            { c.lr = 0x802B5014; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.cr[1] = cr1; fn_802B780C(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
+            { c.lr = 0x802B5014; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.cr[0] = cr0; c.cr[1] = cr1; fn_802B780C(c); runtime::prof(0x802B4F3C); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
             r30 = r3 | r3;
             r4 = r31.wrapping_add(0xC0);
             r3 = 0x4u32;
             r5 = r30 | r30;
             { let v = (cr1 & 2 != 0) ^ (cr1 & 2 != 0); cr1 = if v { cr1 | 2 } else { cr1 & 0xFD }; }
-            { c.lr = 0x802B502C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.cr[1] = cr1; fn_802B97C4(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
+            { c.lr = 0x802B502C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.cr[0] = cr0; c.cr[1] = cr1; fn_802B97C4(c); runtime::prof(0x802B4F3C); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
             { let ea = r29.wrapping_add(0x8); r5 = runtime::mr32(mem, ea); }
             r4 = r31.wrapping_add(0x98);
             r3 = 0x4u32;
             { let v = (cr1 & 2 != 0) ^ (cr1 & 2 != 0); cr1 = if v { cr1 | 2 } else { cr1 & 0xFD }; }
-            { c.lr = 0x802B5040; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.cr[1] = cr1; fn_802B97C4(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
+            { c.lr = 0x802B5040; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.cr[0] = cr0; c.cr[1] = cr1; fn_802B97C4(c); runtime::prof(0x802B4F3C); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
             cr0 = runtime::cmps_val(r30 as i32, 0);
             if cr0 & 2 == 0 { { pc = 0x802B5064; continue; } }
             r5 = r29 | r29;
@@ -9634,7 +9778,7 @@ pub fn fn_802B4F3C(c: &mut Ctx) {
             r3 = 0x0u32;
             r4 = 0x21u32;
             r7 = 0x1u32;
-            { c.lr = 0x802B5060; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.cr[1] = cr1; fn_802B7300(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
+            { c.lr = 0x802B5060; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.cr[0] = cr0; c.cr[1] = cr1; fn_802B7300(c); runtime::prof(0x802B4F3C); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
             r30 = r3 | r3;
             pc = 0x802B5064;
         }
@@ -9643,12 +9787,12 @@ pub fn fn_802B4F3C(c: &mut Ctx) {
             r4 = r31.wrapping_add(0xF8);
             r3 = 0x4u32;
             { let v = (cr1 & 2 != 0) ^ (cr1 & 2 != 0); cr1 = if v { cr1 | 2 } else { cr1 & 0xFD }; }
-            { c.lr = 0x802B5078; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.cr[1] = cr1; fn_802B97C4(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
+            { c.lr = 0x802B5078; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.cr[0] = cr0; c.cr[1] = cr1; fn_802B97C4(c); runtime::prof(0x802B4F3C); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
             { let ea = r29.wrapping_add(0x8); r5 = runtime::mr32(mem, ea); }
             r4 = r31.wrapping_add(0x98);
             r3 = 0x4u32;
             { let v = (cr1 & 2 != 0) ^ (cr1 & 2 != 0); cr1 = if v { cr1 | 2 } else { cr1 & 0xFD }; }
-            { c.lr = 0x802B508C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.cr[1] = cr1; fn_802B97C4(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
+            { c.lr = 0x802B508C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.cr[0] = cr0; c.cr[1] = cr1; fn_802B97C4(c); runtime::prof(0x802B4F3C); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
             cr0 = runtime::cmps_val(r30 as i32, 0);
             if cr0 & 2 == 0 { { pc = 0x802B50B0; continue; } }
             r5 = r29 | r29;
@@ -9656,7 +9800,7 @@ pub fn fn_802B4F3C(c: &mut Ctx) {
             r3 = 0x0u32;
             r4 = 0x60u32;
             r7 = 0x1u32;
-            { c.lr = 0x802B50AC; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.cr[1] = cr1; fn_802B7190(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
+            { c.lr = 0x802B50AC; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.cr[0] = cr0; c.cr[1] = cr1; fn_802B7190(c); runtime::prof(0x802B4F3C); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
             r30 = r3 | r3;
             pc = 0x802B50B0;
         }
@@ -9665,12 +9809,12 @@ pub fn fn_802B4F3C(c: &mut Ctx) {
             r4 = r31.wrapping_add(0x120);
             r3 = 0x4u32;
             { let v = (cr1 & 2 != 0) ^ (cr1 & 2 != 0); cr1 = if v { cr1 | 2 } else { cr1 & 0xFD }; }
-            { c.lr = 0x802B50C4; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.cr[1] = cr1; fn_802B97C4(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
+            { c.lr = 0x802B50C4; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.cr[0] = cr0; c.cr[1] = cr1; fn_802B97C4(c); runtime::prof(0x802B4F3C); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
             { let ea = r29.wrapping_add(0x8); r5 = runtime::mr32(mem, ea); }
             r4 = r31.wrapping_add(0x98);
             r3 = 0x4u32;
             { let v = (cr1 & 2 != 0) ^ (cr1 & 2 != 0); cr1 = if v { cr1 | 2 } else { cr1 & 0xFD }; }
-            { c.lr = 0x802B50D8; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.cr[1] = cr1; fn_802B97C4(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
+            { c.lr = 0x802B50D8; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.cr[0] = cr0; c.cr[1] = cr1; fn_802B97C4(c); runtime::prof(0x802B4F3C); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
             cr0 = runtime::cmps_val(r30 as i32, 0);
             if cr0 & 2 == 0 { { pc = 0x802B50FC; continue; } }
             r5 = r29 | r29;
@@ -9678,7 +9822,7 @@ pub fn fn_802B4F3C(c: &mut Ctx) {
             r3 = 0x0u32;
             r4 = 0x1Fu32;
             r7 = 0x1u32;
-            { c.lr = 0x802B50F8; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.cr[1] = cr1; fn_802B6D58(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
+            { c.lr = 0x802B50F8; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.cr[0] = cr0; c.cr[1] = cr1; fn_802B6D58(c); runtime::prof(0x802B4F3C); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
             r30 = r3 | r3;
             pc = 0x802B50FC;
         }
@@ -9687,12 +9831,12 @@ pub fn fn_802B4F3C(c: &mut Ctx) {
             r4 = r31.wrapping_add(0x150);
             r3 = 0x4u32;
             { let v = (cr1 & 2 != 0) ^ (cr1 & 2 != 0); cr1 = if v { cr1 | 2 } else { cr1 & 0xFD }; }
-            { c.lr = 0x802B5110; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.cr[1] = cr1; fn_802B97C4(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
+            { c.lr = 0x802B5110; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.cr[0] = cr0; c.cr[1] = cr1; fn_802B97C4(c); runtime::prof(0x802B4F3C); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
             { let ea = r29.wrapping_add(0x8); r5 = runtime::mr32(mem, ea); }
             r4 = r31.wrapping_add(0x98);
             r3 = 0x4u32;
             { let v = (cr1 & 2 != 0) ^ (cr1 & 2 != 0); cr1 = if v { cr1 | 2 } else { cr1 & 0xFD }; }
-            { c.lr = 0x802B5124; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.cr[1] = cr1; fn_802B97C4(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
+            { c.lr = 0x802B5124; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.cr[0] = cr0; c.cr[1] = cr1; fn_802B97C4(c); runtime::prof(0x802B4F3C); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
             cr0 = runtime::cmps_val(r30 as i32, 0);
             if cr0 & 2 != 0 { { pc = 0x802B51CC; continue; } }
             cr0 = runtime::cmps_val(r30 as i32, 1796);
@@ -9743,7 +9887,7 @@ pub fn fn_802B4F3C(c: &mut Ctx) {
             r3 = r1.wrapping_add(0xC);
             r4 = 0x0u32;
             r5 = 0x40u32;
-            { c.lr = 0x802B51A4; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.cr[1] = cr1; fn_80003100(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
+            { c.lr = 0x802B51A4; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.cr[0] = cr0; c.cr[1] = cr1; fn_80003100(c); runtime::prof(0x802B4F3C); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
             r3 = 0x80u32;
             r0 = 0x40u32;
             { let ea = r1.wrapping_add(0x10); runtime::mw8(mem, ea, r3 as u8); }
@@ -9751,7 +9895,7 @@ pub fn fn_802B4F3C(c: &mut Ctx) {
             r4 = 0x40u32;
             { let ea = r1.wrapping_add(0xC); runtime::mw32(mem, ea, r0); }
             { let ea = r1.wrapping_add(0x14); runtime::mw8(mem, ea, r30 as u8); }
-            { c.lr = 0x802B51C4; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.cr[1] = cr1; fn_802B88D8(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
+            { c.lr = 0x802B51C4; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.cr[0] = cr0; c.cr[1] = cr1; fn_802B88D8(c); runtime::prof(0x802B4F3C); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
             r3 = 0x0u32;
             { pc = 0x802B5200; continue; }
         }
@@ -9759,15 +9903,15 @@ pub fn fn_802B4F3C(c: &mut Ctx) {
             r4 = r31.wrapping_add(0x60);
             r3 = 0x1u32;
             { let v = (cr1 & 2 != 0) ^ (cr1 & 2 != 0); cr1 = if v { cr1 | 2 } else { cr1 & 0xFD }; }
-            { c.lr = 0x802B51DC; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.cr[1] = cr1; fn_802B97C4(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
+            { c.lr = 0x802B51DC; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.cr[0] = cr0; c.cr[1] = cr1; fn_802B97C4(c); runtime::prof(0x802B4F3C); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
             r3 = r29 | r29;
-            { c.lr = 0x802B51E4; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.cr[1] = cr1; fn_802B3B50(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
+            { c.lr = 0x802B51E4; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.cr[0] = cr0; c.cr[1] = cr1; fn_802B3B50(c); runtime::prof(0x802B4F3C); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
             r4 = r31.wrapping_add(0x80);
             r31 = r3 | r3;
             r3 = 0x1u32;
             r5 = r31 | r31;
             { let v = (cr1 & 2 != 0) ^ (cr1 & 2 != 0); cr1 = if v { cr1 | 2 } else { cr1 & 0xFD }; }
-            { c.lr = 0x802B51FC; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.cr[1] = cr1; fn_802B97C4(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
+            { c.lr = 0x802B51FC; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.cr[0] = cr0; c.cr[1] = cr1; fn_802B97C4(c); runtime::prof(0x802B4F3C); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
             r3 = r31 | r31;
             pc = 0x802B5200;
         }
@@ -9786,6 +9930,7 @@ pub fn fn_802B4F3C(c: &mut Ctx) {
 
 // TRKDoWriteMemory
 pub fn fn_802B521C(c: &mut Ctx) {
+    runtime::prof(0x802B521C);
     if c.hle(146) { return; }
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r1 = c.r[1]; let mut r3 = c.r[3]; let mut r4 = c.r[4]; let mut r5 = c.r[5]; let mut r6 = c.r[6]; let mut r7 = c.r[7]; let mut r8 = c.r[8]; let mut r10 = c.r[10]; let mut r11 = c.r[11]; let mut r12 = c.r[12]; let mut r27 = c.r[27]; let mut r28 = c.r[28]; let mut r29 = c.r[29]; let mut r30 = c.r[30]; let mut r31 = c.r[31]; 
@@ -9815,13 +9960,13 @@ pub fn fn_802B521C(c: &mut Ctx) {
             r7 = r29 | r29;
             r8 = r30 | r30;
             { let v = (cr1 & 2 != 0) ^ (cr1 & 2 != 0); cr1 = if v { cr1 | 2 } else { cr1 & 0xFD }; }
-            { c.lr = 0x802B5270; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.cr[1] = cr1; c.ctr = ctr; c.ca = ca; fn_802B97C4(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; cr1 = c.cr[1]; ctr = c.ctr; ca = c.ca; }
+            { c.lr = 0x802B5270; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.cr[0] = cr0; c.cr[1] = cr1; c.ctr = ctr; c.ca = ca; fn_802B97C4(c); runtime::prof(0x802B521C); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; cr0 = c.cr[0]; cr1 = c.cr[1]; ctr = c.ctr; ca = c.ca; }
             r0 = r30.rotate_left(0) & 0x2; cr0 = runtime::cmps_val(r0 as i32, 0);
             if cr0 & 2 != 0 { { pc = 0x802B52B4; continue; } }
             r3 = r1.wrapping_add(0x64);
             r4 = 0x0u32;
             r5 = 0x40u32;
-            { c.lr = 0x802B5288; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.cr[1] = cr1; c.ctr = ctr; c.ca = ca; fn_80003100(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; cr1 = c.cr[1]; ctr = c.ctr; ca = c.ca; }
+            { c.lr = 0x802B5288; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.cr[0] = cr0; c.cr[1] = cr1; c.ctr = ctr; c.ca = ca; fn_80003100(c); runtime::prof(0x802B521C); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; cr0 = c.cr[0]; cr1 = c.cr[1]; ctr = c.ctr; ca = c.ca; }
             r3 = 0x80u32;
             r5 = 0x40u32;
             r0 = 0x12u32;
@@ -9830,7 +9975,7 @@ pub fn fn_802B521C(c: &mut Ctx) {
             r4 = 0x40u32;
             { let ea = r1.wrapping_add(0x64); runtime::mw32(mem, ea, r5); }
             { let ea = r1.wrapping_add(0x6C); runtime::mw8(mem, ea, r0 as u8); }
-            { c.lr = 0x802B52AC; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.cr[1] = cr1; c.ctr = ctr; c.ca = ca; fn_802B88D8(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; cr1 = c.cr[1]; ctr = c.ctr; ca = c.ca; }
+            { c.lr = 0x802B52AC; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.cr[0] = cr0; c.cr[1] = cr1; c.ctr = ctr; c.ca = ca; fn_802B88D8(c); runtime::prof(0x802B521C); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; cr0 = c.cr[0]; cr1 = c.cr[1]; ctr = c.ctr; ca = c.ca; }
             r3 = 0x0u32;
             { pc = 0x802B5440; continue; }
         }
@@ -9838,7 +9983,7 @@ pub fn fn_802B521C(c: &mut Ctx) {
             { let ea = r1.wrapping_add(0x20); runtime::mw32(mem, ea, r29); }
             r3 = r27 | r27;
             r4 = 0x40u32;
-            { c.lr = 0x802B52C4; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.cr[1] = cr1; c.ctr = ctr; c.ca = ca; fn_802B4194(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; cr1 = c.cr[1]; ctr = c.ctr; ca = c.ca; }
+            { c.lr = 0x802B52C4; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.cr[0] = cr0; c.cr[1] = cr1; c.ctr = ctr; c.ca = ca; fn_802B4194(c); runtime::prof(0x802B521C); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; cr0 = c.cr[0]; cr1 = c.cr[1]; ctr = c.ctr; ca = c.ca; }
             r0 = r30.rotate_left(0) & 0x40; cr0 = runtime::cmps_val(r0 as i32, 0);
             if cr0 & 2 != 0 { { pc = 0x802B5300; continue; } }
             r0 = r28.rotate_left(0) & 0x1F;
@@ -9846,12 +9991,12 @@ pub fn fn_802B521C(c: &mut Ctx) {
             { let ea = r1.wrapping_add(0x20); r5 = runtime::mr32(mem, ea); }
             r3 = r27 | r27;
             r4 = r4.wrapping_add(r0);
-            { c.lr = 0x802B52E4; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.cr[1] = cr1; c.ctr = ctr; c.ca = ca; fn_802B4064(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; cr1 = c.cr[1]; ctr = c.ctr; ca = c.ca; }
+            { c.lr = 0x802B52E4; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.cr[0] = cr0; c.cr[1] = cr1; c.ctr = ctr; c.ca = ca; fn_802B4064(c); runtime::prof(0x802B521C); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; cr0 = c.cr[0]; cr1 = c.cr[1]; ctr = c.ctr; ca = c.ca; }
             r4 = r28 | r28;
             r3 = r1.wrapping_add(0x100);
             r5 = r1.wrapping_add(0x20);
             r6 = 0x0u32;
-            { c.lr = 0x802B52F8; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.cr[1] = cr1; c.ctr = ctr; c.ca = ca; fn_802B658C(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; cr1 = c.cr[1]; ctr = c.ctr; ca = c.ca; }
+            { c.lr = 0x802B52F8; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.cr[0] = cr0; c.cr[1] = cr1; c.ctr = ctr; c.ca = ca; fn_802B658C(c); runtime::prof(0x802B521C); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; cr0 = c.cr[0]; cr1 = c.cr[1]; ctr = c.ctr; ca = c.ca; }
             r30 = r3 | r3;
             { pc = 0x802B5330; continue; }
         }
@@ -9859,27 +10004,27 @@ pub fn fn_802B521C(c: &mut Ctx) {
             { let ea = r1.wrapping_add(0x20); r5 = runtime::mr32(mem, ea); }
             r3 = r27 | r27;
             r4 = r1.wrapping_add(0x100);
-            { c.lr = 0x802B5310; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.cr[1] = cr1; c.ctr = ctr; c.ca = ca; fn_802B4064(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; cr1 = c.cr[1]; ctr = c.ctr; ca = c.ca; }
+            { c.lr = 0x802B5310; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.cr[0] = cr0; c.cr[1] = cr1; c.ctr = ctr; c.ca = ca; fn_802B4064(c); runtime::prof(0x802B521C); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; cr0 = c.cr[0]; cr1 = c.cr[1]; ctr = c.ctr; ca = c.ca; }
             r0 = r30.rotate_left(29) & 0x1;
             r4 = r28 | r28;
             r3 = r1.wrapping_add(0x100);
             r5 = r1.wrapping_add(0x20);
             r6 = r0 ^ 0x1;
             r7 = 0x0u32;
-            { c.lr = 0x802B532C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.cr[1] = cr1; c.ctr = ctr; c.ca = ca; fn_802B794C(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; cr1 = c.cr[1]; ctr = c.ctr; ca = c.ca; }
+            { c.lr = 0x802B532C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.cr[0] = cr0; c.cr[1] = cr1; c.ctr = ctr; c.ca = ca; fn_802B794C(c); runtime::prof(0x802B521C); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; cr0 = c.cr[0]; cr1 = c.cr[1]; ctr = c.ctr; ca = c.ca; }
             r30 = r3 | r3;
             pc = 0x802B5330;
         }
         0x802B5330 => {
             r3 = r27 | r27;
             r4 = 0x0u32;
-            { c.lr = 0x802B533C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.cr[1] = cr1; c.ctr = ctr; c.ca = ca; fn_802B41C4(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; cr1 = c.cr[1]; ctr = c.ctr; ca = c.ca; }
+            { c.lr = 0x802B533C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.cr[0] = cr0; c.cr[1] = cr1; c.ctr = ctr; c.ca = ca; fn_802B41C4(c); runtime::prof(0x802B521C); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; cr0 = c.cr[0]; cr1 = c.cr[1]; ctr = c.ctr; ca = c.ca; }
             cr0 = runtime::cmps_val(r30 as i32, 0);
             if cr0 & 2 == 0 { { pc = 0x802B537C; continue; } }
             r3 = r1.wrapping_add(0xA4);
             r4 = 0x0u32;
             r5 = 0x40u32;
-            { c.lr = 0x802B5354; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.cr[1] = cr1; c.ctr = ctr; c.ca = ca; fn_80003100(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; cr1 = c.cr[1]; ctr = c.ctr; ca = c.ca; }
+            { c.lr = 0x802B5354; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.cr[0] = cr0; c.cr[1] = cr1; c.ctr = ctr; c.ca = ca; fn_80003100(c); runtime::prof(0x802B521C); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; cr0 = c.cr[0]; cr1 = c.cr[1]; ctr = c.ctr; ca = c.ca; }
             r3 = 0x40u32;
             r0 = 0x80u32;
             { let ea = r1.wrapping_add(0xA4); runtime::mw32(mem, ea, r3); }
@@ -9888,7 +10033,7 @@ pub fn fn_802B521C(c: &mut Ctx) {
             r5 = 0x40u32;
             { let ea = r1.wrapping_add(0xA8); runtime::mw8(mem, ea, r0 as u8); }
             { let ea = r1.wrapping_add(0xAC); runtime::mw8(mem, ea, r30 as u8); }
-            { c.lr = 0x802B5378; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.cr[1] = cr1; c.ctr = ctr; c.ca = ca; fn_802B40F0(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; cr1 = c.cr[1]; ctr = c.ctr; ca = c.ca; }
+            { c.lr = 0x802B5378; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.cr[0] = cr0; c.cr[1] = cr1; c.ctr = ctr; c.ca = ca; fn_802B40F0(c); runtime::prof(0x802B521C); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; cr0 = c.cr[0]; cr1 = c.cr[1]; ctr = c.ctr; ca = c.ca; }
             r30 = r3 | r3;
             pc = 0x802B537C;
         }
@@ -9933,7 +10078,7 @@ pub fn fn_802B521C(c: &mut Ctx) {
             r3 = r1.wrapping_add(0x24);
             r4 = 0x0u32;
             r5 = 0x40u32;
-            { c.lr = 0x802B53E4; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.cr[1] = cr1; c.ctr = ctr; c.ca = ca; fn_80003100(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; cr1 = c.cr[1]; ctr = c.ctr; ca = c.ca; }
+            { c.lr = 0x802B53E4; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.cr[0] = cr0; c.cr[1] = cr1; c.ctr = ctr; c.ca = ca; fn_80003100(c); runtime::prof(0x802B521C); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; cr0 = c.cr[0]; cr1 = c.cr[1]; ctr = c.ctr; ca = c.ca; }
             r3 = 0x80u32;
             r0 = 0x40u32;
             { let ea = r1.wrapping_add(0x28); runtime::mw8(mem, ea, r3 as u8); }
@@ -9941,7 +10086,7 @@ pub fn fn_802B521C(c: &mut Ctx) {
             r4 = 0x40u32;
             { let ea = r1.wrapping_add(0x24); runtime::mw32(mem, ea, r0); }
             { let ea = r1.wrapping_add(0x2C); runtime::mw8(mem, ea, r30 as u8); }
-            { c.lr = 0x802B5404; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.cr[1] = cr1; c.ctr = ctr; c.ca = ca; fn_802B88D8(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; cr1 = c.cr[1]; ctr = c.ctr; ca = c.ca; }
+            { c.lr = 0x802B5404; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.cr[0] = cr0; c.cr[1] = cr1; c.ctr = ctr; c.ca = ca; fn_802B88D8(c); runtime::prof(0x802B521C); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; cr0 = c.cr[0]; cr1 = c.cr[1]; ctr = c.ctr; ca = c.ca; }
             r3 = 0x0u32;
             { pc = 0x802B5440; continue; }
         }
@@ -9949,15 +10094,15 @@ pub fn fn_802B521C(c: &mut Ctx) {
             r4 = r31.wrapping_add(0x60);
             r3 = 0x1u32;
             { let v = (cr1 & 2 != 0) ^ (cr1 & 2 != 0); cr1 = if v { cr1 | 2 } else { cr1 & 0xFD }; }
-            { c.lr = 0x802B541C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.cr[1] = cr1; c.ctr = ctr; c.ca = ca; fn_802B97C4(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; cr1 = c.cr[1]; ctr = c.ctr; ca = c.ca; }
+            { c.lr = 0x802B541C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.cr[0] = cr0; c.cr[1] = cr1; c.ctr = ctr; c.ca = ca; fn_802B97C4(c); runtime::prof(0x802B521C); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; cr0 = c.cr[0]; cr1 = c.cr[1]; ctr = c.ctr; ca = c.ca; }
             r3 = r27 | r27;
-            { c.lr = 0x802B5424; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.cr[1] = cr1; c.ctr = ctr; c.ca = ca; fn_802B3B50(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; cr1 = c.cr[1]; ctr = c.ctr; ca = c.ca; }
+            { c.lr = 0x802B5424; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.cr[0] = cr0; c.cr[1] = cr1; c.ctr = ctr; c.ca = ca; fn_802B3B50(c); runtime::prof(0x802B521C); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; cr0 = c.cr[0]; cr1 = c.cr[1]; ctr = c.ctr; ca = c.ca; }
             r4 = r31.wrapping_add(0x80);
             r31 = r3 | r3;
             r3 = 0x1u32;
             r5 = r31 | r31;
             { let v = (cr1 & 2 != 0) ^ (cr1 & 2 != 0); cr1 = if v { cr1 | 2 } else { cr1 & 0xFD }; }
-            { c.lr = 0x802B543C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.cr[1] = cr1; c.ctr = ctr; c.ca = ca; fn_802B97C4(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; cr1 = c.cr[1]; ctr = c.ctr; ca = c.ca; }
+            { c.lr = 0x802B543C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.cr[0] = cr0; c.cr[1] = cr1; c.ctr = ctr; c.ca = ca; fn_802B97C4(c); runtime::prof(0x802B521C); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; cr0 = c.cr[0]; cr1 = c.cr[1]; ctr = c.ctr; ca = c.ca; }
             r3 = r31 | r31;
             pc = 0x802B5440;
         }
@@ -9975,6 +10120,7 @@ pub fn fn_802B521C(c: &mut Ctx) {
 
 // TRKDoReadMemory
 pub fn fn_802B5458(c: &mut Ctx) {
+    runtime::prof(0x802B5458);
     if c.hle(147) { return; }
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r1 = c.r[1]; let mut r3 = c.r[3]; let mut r4 = c.r[4]; let mut r5 = c.r[5]; let mut r6 = c.r[6]; let mut r7 = c.r[7]; let mut r8 = c.r[8]; let mut r10 = c.r[10]; let mut r11 = c.r[11]; let mut r12 = c.r[12]; let mut r26 = c.r[26]; let mut r27 = c.r[27]; let mut r28 = c.r[28]; let mut r29 = c.r[29]; let mut r30 = c.r[30]; let mut r31 = c.r[31]; 
@@ -10004,13 +10150,13 @@ pub fn fn_802B5458(c: &mut Ctx) {
             r7 = r27 | r27;
             r8 = r30 | r30;
             { let v = (cr1 & 2 != 0) ^ (cr1 & 2 != 0); cr1 = if v { cr1 | 2 } else { cr1 & 0xFD }; }
-            { c.lr = 0x802B54AC; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.cr[1] = cr1; c.ctr = ctr; c.ca = ca; fn_802B97C4(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; cr1 = c.cr[1]; ctr = c.ctr; ca = c.ca; }
+            { c.lr = 0x802B54AC; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.cr[0] = cr0; c.cr[1] = cr1; c.ctr = ctr; c.ca = ca; fn_802B97C4(c); runtime::prof(0x802B5458); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; cr0 = c.cr[0]; cr1 = c.cr[1]; ctr = c.ctr; ca = c.ca; }
             r0 = r30.rotate_left(0) & 0x2; cr0 = runtime::cmps_val(r0 as i32, 0);
             if cr0 & 2 != 0 { { pc = 0x802B54F0; continue; } }
             r3 = r1.wrapping_add(0x64);
             r4 = 0x0u32;
             r5 = 0x40u32;
-            { c.lr = 0x802B54C4; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.cr[1] = cr1; c.ctr = ctr; c.ca = ca; fn_80003100(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; cr1 = c.cr[1]; ctr = c.ctr; ca = c.ca; }
+            { c.lr = 0x802B54C4; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.cr[0] = cr0; c.cr[1] = cr1; c.ctr = ctr; c.ca = ca; fn_80003100(c); runtime::prof(0x802B5458); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; cr0 = c.cr[0]; cr1 = c.cr[1]; ctr = c.ctr; ca = c.ca; }
             r3 = 0x80u32;
             r5 = 0x40u32;
             r0 = 0x12u32;
@@ -10019,7 +10165,7 @@ pub fn fn_802B5458(c: &mut Ctx) {
             r4 = 0x40u32;
             { let ea = r1.wrapping_add(0x64); runtime::mw32(mem, ea, r5); }
             { let ea = r1.wrapping_add(0x6C); runtime::mw8(mem, ea, r0 as u8); }
-            { c.lr = 0x802B54E8; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.cr[1] = cr1; c.ctr = ctr; c.ca = ca; fn_802B88D8(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; cr1 = c.cr[1]; ctr = c.ctr; ca = c.ca; }
+            { c.lr = 0x802B54E8; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.cr[0] = cr0; c.cr[1] = cr1; c.ctr = ctr; c.ca = ca; fn_802B88D8(c); runtime::prof(0x802B5458); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; cr0 = c.cr[0]; cr1 = c.cr[1]; ctr = c.ctr; ca = c.ca; }
             r3 = 0x0u32;
             { pc = 0x802B5684; continue; }
         }
@@ -10031,7 +10177,7 @@ pub fn fn_802B5458(c: &mut Ctx) {
             r3 = r1.wrapping_add(0x100);
             r5 = r1.wrapping_add(0x20);
             r6 = 0x1u32;
-            { c.lr = 0x802B5510; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.cr[1] = cr1; c.ctr = ctr; c.ca = ca; fn_802B658C(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; cr1 = c.cr[1]; ctr = c.ctr; ca = c.ca; }
+            { c.lr = 0x802B5510; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.cr[0] = cr0; c.cr[1] = cr1; c.ctr = ctr; c.ca = ca; fn_802B658C(c); runtime::prof(0x802B5458); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; cr0 = c.cr[0]; cr1 = c.cr[1]; ctr = c.ctr; ca = c.ca; }
             r30 = r3 | r3;
             { pc = 0x802B5538; continue; }
         }
@@ -10042,20 +10188,20 @@ pub fn fn_802B5458(c: &mut Ctx) {
             r5 = r1.wrapping_add(0x20);
             r6 = r0 ^ 0x1;
             r7 = 0x1u32;
-            { c.lr = 0x802B5534; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.cr[1] = cr1; c.ctr = ctr; c.ca = ca; fn_802B794C(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; cr1 = c.cr[1]; ctr = c.ctr; ca = c.ca; }
+            { c.lr = 0x802B5534; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.cr[0] = cr0; c.cr[1] = cr1; c.ctr = ctr; c.ca = ca; fn_802B794C(c); runtime::prof(0x802B5458); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; cr0 = c.cr[0]; cr1 = c.cr[1]; ctr = c.ctr; ca = c.ca; }
             r30 = r3 | r3;
             pc = 0x802B5538;
         }
         0x802B5538 => {
             r3 = r31 | r31;
             r4 = 0x0u32;
-            { c.lr = 0x802B5544; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.cr[1] = cr1; c.ctr = ctr; c.ca = ca; fn_802B41C4(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; cr1 = c.cr[1]; ctr = c.ctr; ca = c.ca; }
+            { c.lr = 0x802B5544; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.cr[0] = cr0; c.cr[1] = cr1; c.ctr = ctr; c.ca = ca; fn_802B41C4(c); runtime::prof(0x802B5458); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; cr0 = c.cr[0]; cr1 = c.cr[1]; ctr = c.ctr; ca = c.ca; }
             cr0 = runtime::cmps_val(r30 as i32, 0);
             if cr0 & 2 == 0 { { pc = 0x802B55C0; continue; } }
             r3 = r1.wrapping_add(0xA4);
             r4 = 0x0u32;
             r5 = 0x40u32;
-            { c.lr = 0x802B555C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.cr[1] = cr1; c.ctr = ctr; c.ca = ca; fn_80003100(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; cr1 = c.cr[1]; ctr = c.ctr; ca = c.ca; }
+            { c.lr = 0x802B555C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.cr[0] = cr0; c.cr[1] = cr1; c.ctr = ctr; c.ca = ca; fn_80003100(c); runtime::prof(0x802B5458); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; cr0 = c.cr[0]; cr1 = c.cr[1]; ctr = c.ctr; ca = c.ca; }
             { let ea = r1.wrapping_add(0x20); r4 = runtime::mr32(mem, ea); }
             r0 = 0x80u32;
             { let ea = r1.wrapping_add(0xAC); runtime::mw8(mem, ea, r30 as u8); }
@@ -10065,7 +10211,7 @@ pub fn fn_802B5458(c: &mut Ctx) {
             { let ea = r1.wrapping_add(0xA4); runtime::mw32(mem, ea, r4); }
             r4 = r1.wrapping_add(0xA4);
             { let ea = r1.wrapping_add(0xA8); runtime::mw8(mem, ea, r0 as u8); }
-            { c.lr = 0x802B5584; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.cr[1] = cr1; c.ctr = ctr; c.ca = ca; fn_802B40F0(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; cr1 = c.cr[1]; ctr = c.ctr; ca = c.ca; }
+            { c.lr = 0x802B5584; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.cr[0] = cr0; c.cr[1] = cr1; c.ctr = ctr; c.ca = ca; fn_802B40F0(c); runtime::prof(0x802B5458); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; cr0 = c.cr[0]; cr1 = c.cr[1]; ctr = c.ctr; ca = c.ca; }
             cr0 = runtime::cmps_val(r28 as i32, 0);
             if cr0 & 2 != 0 { { pc = 0x802B55AC; continue; } }
             r0 = r26.rotate_left(0) & 0x1F;
@@ -10073,7 +10219,7 @@ pub fn fn_802B5458(c: &mut Ctx) {
             { let ea = r1.wrapping_add(0x20); r5 = runtime::mr32(mem, ea); }
             r3 = r31 | r31;
             r4 = r4.wrapping_add(r0);
-            { c.lr = 0x802B55A4; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.cr[1] = cr1; c.ctr = ctr; c.ca = ca; fn_802B40F0(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; cr1 = c.cr[1]; ctr = c.ctr; ca = c.ca; }
+            { c.lr = 0x802B55A4; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.cr[0] = cr0; c.cr[1] = cr1; c.ctr = ctr; c.ca = ca; fn_802B40F0(c); runtime::prof(0x802B5458); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; cr0 = c.cr[0]; cr1 = c.cr[1]; ctr = c.ctr; ca = c.ca; }
             r30 = r3 | r3;
             { pc = 0x802B55C0; continue; }
         }
@@ -10081,7 +10227,7 @@ pub fn fn_802B5458(c: &mut Ctx) {
             { let ea = r1.wrapping_add(0x20); r5 = runtime::mr32(mem, ea); }
             r3 = r31 | r31;
             r4 = r1.wrapping_add(0x100);
-            { c.lr = 0x802B55BC; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.cr[1] = cr1; c.ctr = ctr; c.ca = ca; fn_802B40F0(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; cr1 = c.cr[1]; ctr = c.ctr; ca = c.ca; }
+            { c.lr = 0x802B55BC; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.cr[0] = cr0; c.cr[1] = cr1; c.ctr = ctr; c.ca = ca; fn_802B40F0(c); runtime::prof(0x802B5458); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; cr0 = c.cr[0]; cr1 = c.cr[1]; ctr = c.ctr; ca = c.ca; }
             r30 = r3 | r3;
             pc = 0x802B55C0;
         }
@@ -10126,7 +10272,7 @@ pub fn fn_802B5458(c: &mut Ctx) {
             r3 = r1.wrapping_add(0x24);
             r4 = 0x0u32;
             r5 = 0x40u32;
-            { c.lr = 0x802B5628; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.cr[1] = cr1; c.ctr = ctr; c.ca = ca; fn_80003100(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; cr1 = c.cr[1]; ctr = c.ctr; ca = c.ca; }
+            { c.lr = 0x802B5628; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.cr[0] = cr0; c.cr[1] = cr1; c.ctr = ctr; c.ca = ca; fn_80003100(c); runtime::prof(0x802B5458); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; cr0 = c.cr[0]; cr1 = c.cr[1]; ctr = c.ctr; ca = c.ca; }
             r3 = 0x80u32;
             r0 = 0x40u32;
             { let ea = r1.wrapping_add(0x28); runtime::mw8(mem, ea, r3 as u8); }
@@ -10134,7 +10280,7 @@ pub fn fn_802B5458(c: &mut Ctx) {
             r4 = 0x40u32;
             { let ea = r1.wrapping_add(0x24); runtime::mw32(mem, ea, r0); }
             { let ea = r1.wrapping_add(0x2C); runtime::mw8(mem, ea, r28 as u8); }
-            { c.lr = 0x802B5648; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.cr[1] = cr1; c.ctr = ctr; c.ca = ca; fn_802B88D8(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; cr1 = c.cr[1]; ctr = c.ctr; ca = c.ca; }
+            { c.lr = 0x802B5648; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.cr[0] = cr0; c.cr[1] = cr1; c.ctr = ctr; c.ca = ca; fn_802B88D8(c); runtime::prof(0x802B5458); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; cr0 = c.cr[0]; cr1 = c.cr[1]; ctr = c.ctr; ca = c.ca; }
             r3 = 0x0u32;
             { pc = 0x802B5684; continue; }
         }
@@ -10142,15 +10288,15 @@ pub fn fn_802B5458(c: &mut Ctx) {
             r4 = r29.wrapping_add(0x60);
             r3 = 0x1u32;
             { let v = (cr1 & 2 != 0) ^ (cr1 & 2 != 0); cr1 = if v { cr1 | 2 } else { cr1 & 0xFD }; }
-            { c.lr = 0x802B5660; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.cr[1] = cr1; c.ctr = ctr; c.ca = ca; fn_802B97C4(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; cr1 = c.cr[1]; ctr = c.ctr; ca = c.ca; }
+            { c.lr = 0x802B5660; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.cr[0] = cr0; c.cr[1] = cr1; c.ctr = ctr; c.ca = ca; fn_802B97C4(c); runtime::prof(0x802B5458); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; cr0 = c.cr[0]; cr1 = c.cr[1]; ctr = c.ctr; ca = c.ca; }
             r3 = r31 | r31;
-            { c.lr = 0x802B5668; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.cr[1] = cr1; c.ctr = ctr; c.ca = ca; fn_802B3B50(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; cr1 = c.cr[1]; ctr = c.ctr; ca = c.ca; }
+            { c.lr = 0x802B5668; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.cr[0] = cr0; c.cr[1] = cr1; c.ctr = ctr; c.ca = ca; fn_802B3B50(c); runtime::prof(0x802B5458); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; cr0 = c.cr[0]; cr1 = c.cr[1]; ctr = c.ctr; ca = c.ca; }
             r4 = r29.wrapping_add(0x80);
             r29 = r3 | r3;
             r3 = 0x1u32;
             r5 = r29 | r29;
             { let v = (cr1 & 2 != 0) ^ (cr1 & 2 != 0); cr1 = if v { cr1 | 2 } else { cr1 & 0xFD }; }
-            { c.lr = 0x802B5680; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.cr[1] = cr1; c.ctr = ctr; c.ca = ca; fn_802B97C4(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; cr1 = c.cr[1]; ctr = c.ctr; ca = c.ca; }
+            { c.lr = 0x802B5680; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.cr[0] = cr0; c.cr[1] = cr1; c.ctr = ctr; c.ca = ca; fn_802B97C4(c); runtime::prof(0x802B5458); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; cr0 = c.cr[0]; cr1 = c.cr[1]; ctr = c.ctr; ca = c.ca; }
             r3 = r29 | r29;
             pc = 0x802B5684;
         }
@@ -10169,6 +10315,7 @@ pub fn fn_802B5458(c: &mut Ctx) {
 // TRKDoSupportMask
 #[inline]
 pub fn fn_802B569C(c: &mut Ctx) {
+    runtime::prof(0x802B569C);
     if c.hle(148) { return; }
     let mut r3 = c.r[3]; 
     r3 = 0x0u32;
@@ -10178,6 +10325,7 @@ pub fn fn_802B569C(c: &mut Ctx) {
 // TRKDoVersions
 #[inline]
 pub fn fn_802B56A4(c: &mut Ctx) {
+    runtime::prof(0x802B56A4);
     if c.hle(149) { return; }
     let mut r3 = c.r[3]; 
     r3 = 0x0u32;
@@ -10186,6 +10334,7 @@ pub fn fn_802B56A4(c: &mut Ctx) {
 
 // TRKDoOverride
 pub fn fn_802B56AC(c: &mut Ctx) {
+    runtime::prof(0x802B56AC);
     if c.hle(150) { return; }
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r1 = c.r[1]; let mut r3 = c.r[3]; let mut r4 = c.r[4]; let mut r5 = c.r[5]; 
@@ -10195,7 +10344,7 @@ pub fn fn_802B56AC(c: &mut Ctx) {
     r5 = 0x40u32;
     { let ea = r1.wrapping_add(0x54); runtime::mw32(mem, ea, r0); }
     r3 = r1.wrapping_add(0x8);
-    { c.lr = 0x802B56C8; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; fn_80003100(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; }
+    { c.lr = 0x802B56C8; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; fn_80003100(c); runtime::prof(0x802B56AC); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; }
     r3 = 0x80u32;
     r5 = 0x40u32;
     r0 = 0x0u32;
@@ -10204,8 +10353,8 @@ pub fn fn_802B56AC(c: &mut Ctx) {
     r4 = 0x40u32;
     { let ea = r1.wrapping_add(0x8); runtime::mw32(mem, ea, r5); }
     { let ea = r1.wrapping_add(0x10); runtime::mw8(mem, ea, r0 as u8); }
-    { c.lr = 0x802B56EC; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; fn_802B88D8(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; }
-    { c.lr = 0x802B56F0; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; fn_802B8568(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; }
+    { c.lr = 0x802B56EC; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; fn_802B88D8(c); runtime::prof(0x802B56AC); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; }
+    { c.lr = 0x802B56F0; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; fn_802B8568(c); runtime::prof(0x802B56AC); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; }
     { let ea = r1.wrapping_add(0x54); r0 = runtime::mr32(mem, ea); }
     r3 = 0x0u32;
     c.lr = r0;
@@ -10215,6 +10364,7 @@ pub fn fn_802B56AC(c: &mut Ctx) {
 
 // TRKDoReset
 pub fn fn_802B5704(c: &mut Ctx) {
+    runtime::prof(0x802B5704);
     if c.hle(151) { return; }
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r1 = c.r[1]; let mut r3 = c.r[3]; let mut r4 = c.r[4]; let mut r5 = c.r[5]; 
@@ -10224,7 +10374,7 @@ pub fn fn_802B5704(c: &mut Ctx) {
     r5 = 0x40u32;
     { let ea = r1.wrapping_add(0x54); runtime::mw32(mem, ea, r0); }
     r3 = r1.wrapping_add(0x8);
-    { c.lr = 0x802B5720; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; fn_80003100(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; }
+    { c.lr = 0x802B5720; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; fn_80003100(c); runtime::prof(0x802B5704); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; }
     r3 = 0x80u32;
     r5 = 0x40u32;
     r0 = 0x0u32;
@@ -10233,8 +10383,8 @@ pub fn fn_802B5704(c: &mut Ctx) {
     r4 = 0x40u32;
     { let ea = r1.wrapping_add(0x8); runtime::mw32(mem, ea, r5); }
     { let ea = r1.wrapping_add(0x10); runtime::mw8(mem, ea, r0 as u8); }
-    { c.lr = 0x802B5744; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; fn_802B88D8(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; }
-    { c.lr = 0x802B5748; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; fn_800051C0(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; }
+    { c.lr = 0x802B5744; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; fn_802B88D8(c); runtime::prof(0x802B5704); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; }
+    { c.lr = 0x802B5748; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; fn_800051C0(c); runtime::prof(0x802B5704); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; }
     { let ea = r1.wrapping_add(0x54); r0 = runtime::mr32(mem, ea); }
     r3 = 0x0u32;
     c.lr = r0;
@@ -10244,6 +10394,7 @@ pub fn fn_802B5704(c: &mut Ctx) {
 
 // TRKDoDisconnect
 pub fn fn_802B575C(c: &mut Ctx) {
+    runtime::prof(0x802B575C);
     if c.hle(152) { return; }
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r1 = c.r[1]; let mut r3 = c.r[3]; let mut r4 = c.r[4]; let mut r5 = c.r[5]; 
@@ -10257,7 +10408,7 @@ pub fn fn_802B575C(c: &mut Ctx) {
     r3 = r1.wrapping_add(0x14);
     { let ea = r4; runtime::mw32(mem, ea, r0); }
     r4 = 0x0u32;
-    { c.lr = 0x802B5788; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; fn_80003100(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; }
+    { c.lr = 0x802B5788; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; fn_80003100(c); runtime::prof(0x802B575C); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; }
     r3 = 0x80u32;
     r5 = 0x40u32;
     r0 = 0x0u32;
@@ -10266,12 +10417,12 @@ pub fn fn_802B575C(c: &mut Ctx) {
     r4 = 0x40u32;
     { let ea = r1.wrapping_add(0x14); runtime::mw32(mem, ea, r5); }
     { let ea = r1.wrapping_add(0x1C); runtime::mw8(mem, ea, r0 as u8); }
-    { c.lr = 0x802B57AC; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; fn_802B88D8(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; }
+    { c.lr = 0x802B57AC; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; fn_802B88D8(c); runtime::prof(0x802B575C); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; }
     r3 = r1.wrapping_add(0x8);
     r4 = 0x1u32;
-    { c.lr = 0x802B57B8; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; fn_802B37B4(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; }
+    { c.lr = 0x802B57B8; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; fn_802B37B4(c); runtime::prof(0x802B575C); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; }
     r3 = r1.wrapping_add(0x8);
-    { c.lr = 0x802B57C0; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; fn_802B37CC(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; }
+    { c.lr = 0x802B57C0; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; fn_802B37CC(c); runtime::prof(0x802B575C); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; }
     { let ea = r1.wrapping_add(0x64); r0 = runtime::mr32(mem, ea); }
     r3 = 0x0u32;
     c.lr = r0;
@@ -10281,6 +10432,7 @@ pub fn fn_802B575C(c: &mut Ctx) {
 
 // TRKDoConnect
 pub fn fn_802B57D4(c: &mut Ctx) {
+    runtime::prof(0x802B57D4);
     if c.hle(153) { return; }
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r1 = c.r[1]; let mut r3 = c.r[3]; let mut r4 = c.r[4]; let mut r5 = c.r[5]; 
@@ -10294,7 +10446,7 @@ pub fn fn_802B57D4(c: &mut Ctx) {
     r3 = r1.wrapping_add(0x8);
     { let ea = r4; runtime::mw32(mem, ea, r0); }
     r4 = 0x0u32;
-    { c.lr = 0x802B5800; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; fn_80003100(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; }
+    { c.lr = 0x802B5800; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; fn_80003100(c); runtime::prof(0x802B57D4); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; }
     r3 = 0x80u32;
     r5 = 0x40u32;
     r0 = 0x0u32;
@@ -10303,7 +10455,7 @@ pub fn fn_802B57D4(c: &mut Ctx) {
     r4 = 0x40u32;
     { let ea = r1.wrapping_add(0x8); runtime::mw32(mem, ea, r5); }
     { let ea = r1.wrapping_add(0x10); runtime::mw8(mem, ea, r0 as u8); }
-    { c.lr = 0x802B5824; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; fn_802B88D8(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; }
+    { c.lr = 0x802B5824; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; fn_802B88D8(c); runtime::prof(0x802B57D4); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; }
     { let ea = r1.wrapping_add(0x54); r0 = runtime::mr32(mem, ea); }
     r3 = 0x0u32;
     c.lr = r0;
@@ -10314,6 +10466,7 @@ pub fn fn_802B57D4(c: &mut Ctx) {
 // SetTRKConnected
 #[inline]
 pub fn fn_802B5838(c: &mut Ctx) {
+    runtime::prof(0x802B5838);
     let mem = c.mem;
     let mut r3 = c.r[3]; let mut r4 = c.r[4]; 
     r4 = 0x80460000u32;
@@ -10324,6 +10477,7 @@ pub fn fn_802B5838(c: &mut Ctx) {
 // GetTRKConnected
 #[inline]
 pub fn fn_802B5844(c: &mut Ctx) {
+    runtime::prof(0x802B5844);
     let mem = c.mem;
     let mut r3 = c.r[3]; 
     r3 = 0x80460000u32;
@@ -10334,6 +10488,7 @@ pub fn fn_802B5844(c: &mut Ctx) {
 
 // OutputData
 pub fn fn_802B5854(c: &mut Ctx) {
+    runtime::prof(0x802B5854);
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r1 = c.r[1]; let mut r3 = c.r[3]; let mut r4 = c.r[4]; let mut r5 = c.r[5]; let mut r6 = c.r[6]; let mut r27 = c.r[27]; let mut r28 = c.r[28]; let mut r29 = c.r[29]; let mut r30 = c.r[30]; let mut r31 = c.r[31]; 
     let mut cr0 = c.cr[0]; let mut cr1 = c.cr[1]; 
@@ -10358,7 +10513,7 @@ pub fn fn_802B5854(c: &mut Ctx) {
             r4 = r29 | r29;
             r3 = 0x8u32;
             { let v = (cr1 & 2 != 0) ^ (cr1 & 2 != 0); cr1 = if v { cr1 | 2 } else { cr1 & 0xFD }; }
-            { c.lr = 0x802B5898; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.cr[1] = cr1; fn_802B97C4(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
+            { c.lr = 0x802B5898; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.cr[0] = cr0; c.cr[1] = cr1; fn_802B97C4(c); runtime::prof(0x802B5854); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
             r0 = r28.rotate_left(28) & 0xF0000000;
             r3 = r28.rotate_left(1) & 0x1;
             r0 = r0.wrapping_sub(r3);
@@ -10369,7 +10524,7 @@ pub fn fn_802B5854(c: &mut Ctx) {
             r4 = r30 | r30;
             r3 = 0x8u32;
             { let v = (cr1 & 2 != 0) ^ (cr1 & 2 != 0); cr1 = if v { cr1 | 2 } else { cr1 & 0xFD }; }
-            { c.lr = 0x802B58C4; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.cr[1] = cr1; fn_802B97C4(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
+            { c.lr = 0x802B58C4; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.cr[0] = cr0; c.cr[1] = cr1; fn_802B97C4(c); runtime::prof(0x802B5854); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
             pc = 0x802B58C4;
         }
         0x802B58C4 => {
@@ -10384,7 +10539,7 @@ pub fn fn_802B5854(c: &mut Ctx) {
             r3 = 0x8u32;
             r4 = r4.wrapping_add(0xFFFFEBF4);
             { let v = (cr1 & 2 != 0) ^ (cr1 & 2 != 0); cr1 = if v { cr1 | 2 } else { cr1 & 0xFD }; }
-            { c.lr = 0x802B58E8; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.cr[1] = cr1; fn_802B97C4(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
+            { c.lr = 0x802B58E8; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.cr[0] = cr0; c.cr[1] = cr1; fn_802B97C4(c); runtime::prof(0x802B5854); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
             { let ea = r1.wrapping_add(0xC); r27 = runtime::mr32(mem, ea.wrapping_add(0x0)); r28 = runtime::mr32(mem, ea.wrapping_add(0x4)); r29 = runtime::mr32(mem, ea.wrapping_add(0x8)); r30 = runtime::mr32(mem, ea.wrapping_add(0xC)); r31 = runtime::mr32(mem, ea.wrapping_add(0x10));  }
             { let ea = r1.wrapping_add(0x24); r0 = runtime::mr32(mem, ea); }
             c.lr = r0;
@@ -10397,6 +10552,7 @@ pub fn fn_802B5854(c: &mut Ctx) {
 
 // HandlePositionFileSupportRequest
 pub fn fn_802B58FC(c: &mut Ctx) {
+    runtime::prof(0x802B58FC);
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r1 = c.r[1]; let mut r3 = c.r[3]; let mut r4 = c.r[4]; let mut r5 = c.r[5]; let mut r6 = c.r[6]; let mut r7 = c.r[7]; let mut r28 = c.r[28]; let mut r29 = c.r[29]; let mut r30 = c.r[30]; let mut r31 = c.r[31]; 
     let mut cr0 = c.cr[0]; 
@@ -10417,7 +10573,7 @@ pub fn fn_802B58FC(c: &mut Ctx) {
             { let ea = r1.wrapping_add(0x60); runtime::mw32(mem, ea, r28); }
             r28 = r3 | r3;
             r3 = r1.wrapping_add(0x14);
-            { c.lr = 0x802B5938; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; fn_80003100(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; }
+            { c.lr = 0x802B5938; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.cr[0] = cr0; fn_80003100(c); runtime::prof(0x802B58FC); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; cr0 = c.cr[0]; }
             r3 = 0xD4u32;
             r0 = 0x40u32;
             { let ea = r1.wrapping_add(0x18); runtime::mw8(mem, ea, r3 as u8); }
@@ -10428,13 +10584,13 @@ pub fn fn_802B58FC(c: &mut Ctx) {
             { let ea = r29; r0 = runtime::mr32(mem, ea); }
             { let ea = r1.wrapping_add(0x20); runtime::mw32(mem, ea, r0); }
             { let ea = r1.wrapping_add(0x24); runtime::mw8(mem, ea, r31 as u8); }
-            { c.lr = 0x802B5964; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; fn_802B4294(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; }
+            { c.lr = 0x802B5964; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.cr[0] = cr0; fn_802B4294(c); runtime::prof(0x802B58FC); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; cr0 = c.cr[0]; }
             r31 = r3 | r3; cr0 = runtime::cmps_val(r31 as i32, 0);
             if cr0 & 2 == 0 { { pc = 0x802B5980; continue; } }
             { let ea = r1.wrapping_add(0x8); r3 = runtime::mr32(mem, ea); }
             r4 = r1.wrapping_add(0x14);
             r5 = 0x40u32;
-            { c.lr = 0x802B597C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; fn_802B3F00(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; }
+            { c.lr = 0x802B597C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.cr[0] = cr0; fn_802B3F00(c); runtime::prof(0x802B58FC); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; cr0 = c.cr[0]; }
             r31 = r3 | r3;
             pc = 0x802B5980;
         }
@@ -10450,11 +10606,11 @@ pub fn fn_802B58FC(c: &mut Ctx) {
             { let ea = r29; runtime::mw32(mem, ea, r0); }
             r7 = 0x0u32;
             { let ea = r1.wrapping_add(0x8); r3 = runtime::mr32(mem, ea); }
-            { c.lr = 0x802B59B0; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; fn_802B5C10(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; }
+            { c.lr = 0x802B59B0; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.cr[0] = cr0; fn_802B5C10(c); runtime::prof(0x802B58FC); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; cr0 = c.cr[0]; }
             r31 = r3 | r3; cr0 = runtime::cmps_val(r31 as i32, 0);
             if cr0 & 2 == 0 { { pc = 0x802B59D8; continue; } }
             { let ea = r1.wrapping_add(0x10); r3 = runtime::mr32(mem, ea); }
-            { c.lr = 0x802B59C0; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; fn_802B4268(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; }
+            { c.lr = 0x802B59C0; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.cr[0] = cr0; fn_802B4268(c); runtime::prof(0x802B58FC); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; cr0 = c.cr[0]; }
             cr0 = runtime::cmpu_val(r3, 0x0);
             if cr0 & 2 != 0 { { pc = 0x802B59D8; continue; } }
             { let ea = r3.wrapping_add(0x20); r0 = runtime::mr32(mem, ea); }
@@ -10465,12 +10621,12 @@ pub fn fn_802B58FC(c: &mut Ctx) {
         }
         0x802B59D8 => {
             { let ea = r1.wrapping_add(0x10); r3 = runtime::mr32(mem, ea); }
-            { c.lr = 0x802B59E0; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; fn_802B4204(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; }
+            { c.lr = 0x802B59E0; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.cr[0] = cr0; fn_802B4204(c); runtime::prof(0x802B58FC); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; cr0 = c.cr[0]; }
             pc = 0x802B59E0;
         }
         0x802B59E0 => {
             { let ea = r1.wrapping_add(0xC); r3 = runtime::mr32(mem, ea); }
-            { c.lr = 0x802B59E8; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; fn_802B4204(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; }
+            { c.lr = 0x802B59E8; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.cr[0] = cr0; fn_802B4204(c); runtime::prof(0x802B58FC); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; cr0 = c.cr[0]; }
             { let ea = r1.wrapping_add(0x74); r0 = runtime::mr32(mem, ea); }
             r3 = r31 | r31;
             { let ea = r1.wrapping_add(0x6C); r31 = runtime::mr32(mem, ea); }
@@ -10487,6 +10643,7 @@ pub fn fn_802B58FC(c: &mut Ctx) {
 
 // HandleCloseFileSupportRequest
 pub fn fn_802B5A0C(c: &mut Ctx) {
+    runtime::prof(0x802B5A0C);
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r1 = c.r[1]; let mut r3 = c.r[3]; let mut r4 = c.r[4]; let mut r5 = c.r[5]; let mut r6 = c.r[6]; let mut r7 = c.r[7]; let mut r29 = c.r[29]; let mut r30 = c.r[30]; let mut r31 = c.r[31]; 
     let mut cr0 = c.cr[0]; 
@@ -10504,7 +10661,7 @@ pub fn fn_802B5A0C(c: &mut Ctx) {
             { let ea = r1.wrapping_add(0x64); runtime::mw32(mem, ea, r29); }
             r29 = r4 | r4;
             r4 = 0x0u32;
-            { c.lr = 0x802B5A3C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; fn_80003100(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; }
+            { c.lr = 0x802B5A3C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.cr[0] = cr0; fn_80003100(c); runtime::prof(0x802B5A0C); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; cr0 = c.cr[0]; }
             r3 = 0xD3u32;
             r0 = 0x40u32;
             { let ea = r1.wrapping_add(0x18); runtime::mw8(mem, ea, r3 as u8); }
@@ -10512,13 +10669,13 @@ pub fn fn_802B5A0C(c: &mut Ctx) {
             r4 = r1.wrapping_add(0x8);
             { let ea = r1.wrapping_add(0x14); runtime::mw32(mem, ea, r0); }
             { let ea = r1.wrapping_add(0x1C); runtime::mw32(mem, ea, r31); }
-            { c.lr = 0x802B5A5C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; fn_802B4294(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; }
+            { c.lr = 0x802B5A5C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.cr[0] = cr0; fn_802B4294(c); runtime::prof(0x802B5A0C); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; cr0 = c.cr[0]; }
             r31 = r3 | r3; cr0 = runtime::cmps_val(r31 as i32, 0);
             if cr0 & 2 == 0 { { pc = 0x802B5A78; continue; } }
             { let ea = r1.wrapping_add(0x8); r3 = runtime::mr32(mem, ea); }
             r4 = r1.wrapping_add(0x14);
             r5 = 0x40u32;
-            { c.lr = 0x802B5A74; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; fn_802B3F00(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; }
+            { c.lr = 0x802B5A74; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.cr[0] = cr0; fn_802B3F00(c); runtime::prof(0x802B5A0C); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; cr0 = c.cr[0]; }
             r31 = r3 | r3;
             pc = 0x802B5A78;
         }
@@ -10532,11 +10689,11 @@ pub fn fn_802B5A0C(c: &mut Ctx) {
             r6 = 0x3u32;
             r7 = 0x0u32;
             { let ea = r1.wrapping_add(0x8); r3 = runtime::mr32(mem, ea); }
-            { c.lr = 0x802B5AA0; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; fn_802B5C10(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; }
+            { c.lr = 0x802B5AA0; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.cr[0] = cr0; fn_802B5C10(c); runtime::prof(0x802B5A0C); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; cr0 = c.cr[0]; }
             r31 = r3 | r3; cr0 = runtime::cmps_val(r31 as i32, 0);
             if cr0 & 2 == 0 { { pc = 0x802B5AB4; continue; } }
             { let ea = r1.wrapping_add(0x10); r3 = runtime::mr32(mem, ea); }
-            { c.lr = 0x802B5AB0; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; fn_802B4268(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; }
+            { c.lr = 0x802B5AB0; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.cr[0] = cr0; fn_802B4268(c); runtime::prof(0x802B5A0C); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; cr0 = c.cr[0]; }
             r30 = r3 | r3;
             pc = 0x802B5AB4;
         }
@@ -10549,12 +10706,12 @@ pub fn fn_802B5A0C(c: &mut Ctx) {
         }
         0x802B5AC4 => {
             { let ea = r1.wrapping_add(0x10); r3 = runtime::mr32(mem, ea); }
-            { c.lr = 0x802B5ACC; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; fn_802B4204(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; }
+            { c.lr = 0x802B5ACC; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.cr[0] = cr0; fn_802B4204(c); runtime::prof(0x802B5A0C); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; cr0 = c.cr[0]; }
             pc = 0x802B5ACC;
         }
         0x802B5ACC => {
             { let ea = r1.wrapping_add(0xC); r3 = runtime::mr32(mem, ea); }
-            { c.lr = 0x802B5AD4; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; fn_802B4204(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; }
+            { c.lr = 0x802B5AD4; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.cr[0] = cr0; fn_802B4204(c); runtime::prof(0x802B5A0C); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; cr0 = c.cr[0]; }
             { let ea = r1.wrapping_add(0x74); r0 = runtime::mr32(mem, ea); }
             r3 = r31 | r31;
             { let ea = r1.wrapping_add(0x6C); r31 = runtime::mr32(mem, ea); }
@@ -10570,6 +10727,7 @@ pub fn fn_802B5A0C(c: &mut Ctx) {
 
 // HandleOpenFileSupportRequest
 pub fn fn_802B5AF4(c: &mut Ctx) {
+    runtime::prof(0x802B5AF4);
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r1 = c.r[1]; let mut r3 = c.r[3]; let mut r4 = c.r[4]; let mut r5 = c.r[5]; let mut r6 = c.r[6]; let mut r7 = c.r[7]; let mut r27 = c.r[27]; let mut r28 = c.r[28]; let mut r29 = c.r[29]; let mut r30 = c.r[30]; let mut r31 = c.r[31]; 
     let mut cr0 = c.cr[0]; 
@@ -10587,36 +10745,36 @@ pub fn fn_802B5AF4(c: &mut Ctx) {
             r3 = r1.wrapping_add(0x14);
             r4 = 0x0u32;
             r5 = 0x40u32;
-            { c.lr = 0x802B5B24; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; fn_80003100(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; }
+            { c.lr = 0x802B5B24; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.cr[0] = cr0; fn_80003100(c); runtime::prof(0x802B5AF4); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; cr0 = c.cr[0]; }
             r3 = 0x0u32;
             r0 = 0xD2u32;
             { let ea = r28; runtime::mw32(mem, ea, r3); }
             r3 = r27 | r27;
             { let ea = r1.wrapping_add(0x18); runtime::mw8(mem, ea, r0 as u8); }
-            { c.lr = 0x802B5B3C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; fn_802ABB98(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; }
+            { c.lr = 0x802B5B3C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.cr[0] = cr0; fn_802ABB98(c); runtime::prof(0x802B5AF4); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; cr0 = c.cr[0]; }
             r0 = r3.wrapping_add(0x41);
             { let ea = r1.wrapping_add(0x1C); runtime::mw8(mem, ea, r31 as u8); }
             r3 = r27 | r27;
             { let ea = r1.wrapping_add(0x14); runtime::mw32(mem, ea, r0); }
-            { c.lr = 0x802B5B50; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; fn_802ABB98(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; }
+            { c.lr = 0x802B5B50; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.cr[0] = cr0; fn_802ABB98(c); runtime::prof(0x802B5AF4); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; cr0 = c.cr[0]; }
             r0 = r3.wrapping_add(0x1);
             r3 = r1.wrapping_add(0xC);
             { let ea = r1.wrapping_add(0x20); runtime::mw16(mem, ea, r0 as u16); }
             r4 = r1.wrapping_add(0x8);
-            { c.lr = 0x802B5B64; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; fn_802B4294(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; }
+            { c.lr = 0x802B5B64; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.cr[0] = cr0; fn_802B4294(c); runtime::prof(0x802B5AF4); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; cr0 = c.cr[0]; }
             { let ea = r1.wrapping_add(0x8); r3 = runtime::mr32(mem, ea); }
             r4 = r1.wrapping_add(0x14);
             r5 = 0x40u32;
-            { c.lr = 0x802B5B74; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; fn_802B3F00(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; }
+            { c.lr = 0x802B5B74; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.cr[0] = cr0; fn_802B3F00(c); runtime::prof(0x802B5AF4); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; cr0 = c.cr[0]; }
             r31 = r3 | r3; cr0 = runtime::cmps_val(r31 as i32, 0);
             if cr0 & 2 == 0 { { pc = 0x802B5B9C; continue; } }
             r3 = r27 | r27;
-            { c.lr = 0x802B5B84; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; fn_802ABB98(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; }
+            { c.lr = 0x802B5B84; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.cr[0] = cr0; fn_802ABB98(c); runtime::prof(0x802B5AF4); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; cr0 = c.cr[0]; }
             r5 = r3 | r3;
             { let ea = r1.wrapping_add(0x8); r3 = runtime::mr32(mem, ea); }
             r4 = r27 | r27;
             r5 = r5.wrapping_add(0x1);
-            { c.lr = 0x802B5B98; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; fn_802B3F00(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; }
+            { c.lr = 0x802B5B98; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.cr[0] = cr0; fn_802B3F00(c); runtime::prof(0x802B5AF4); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; cr0 = c.cr[0]; }
             r31 = r3 | r3;
             pc = 0x802B5B9C;
         }
@@ -10630,11 +10788,11 @@ pub fn fn_802B5AF4(c: &mut Ctx) {
             r6 = 0x3u32;
             r7 = 0x0u32;
             { let ea = r1.wrapping_add(0x8); r3 = runtime::mr32(mem, ea); }
-            { c.lr = 0x802B5BC4; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; fn_802B5C10(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; }
+            { c.lr = 0x802B5BC4; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.cr[0] = cr0; fn_802B5C10(c); runtime::prof(0x802B5AF4); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; cr0 = c.cr[0]; }
             r31 = r3 | r3; cr0 = runtime::cmps_val(r31 as i32, 0);
             if cr0 & 2 == 0 { { pc = 0x802B5BD8; continue; } }
             { let ea = r1.wrapping_add(0x10); r3 = runtime::mr32(mem, ea); }
-            { c.lr = 0x802B5BD4; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; fn_802B4268(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; }
+            { c.lr = 0x802B5BD4; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.cr[0] = cr0; fn_802B4268(c); runtime::prof(0x802B5AF4); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; cr0 = c.cr[0]; }
             r30 = r3 | r3;
             pc = 0x802B5BD8;
         }
@@ -10644,12 +10802,12 @@ pub fn fn_802B5AF4(c: &mut Ctx) {
             { let ea = r30.wrapping_add(0x18); r0 = runtime::mr32(mem, ea); }
             { let ea = r28; runtime::mw32(mem, ea, r0); }
             { let ea = r1.wrapping_add(0x10); r3 = runtime::mr32(mem, ea); }
-            { c.lr = 0x802B5BF0; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; fn_802B4204(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; }
+            { c.lr = 0x802B5BF0; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.cr[0] = cr0; fn_802B4204(c); runtime::prof(0x802B5AF4); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; cr0 = c.cr[0]; }
             pc = 0x802B5BF0;
         }
         0x802B5BF0 => {
             { let ea = r1.wrapping_add(0xC); r3 = runtime::mr32(mem, ea); }
-            { c.lr = 0x802B5BF8; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; fn_802B4204(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; }
+            { c.lr = 0x802B5BF8; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.cr[0] = cr0; fn_802B4204(c); runtime::prof(0x802B5AF4); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; cr0 = c.cr[0]; }
             r3 = r31 | r31;
             { let ea = r1.wrapping_add(0x5C); r27 = runtime::mr32(mem, ea.wrapping_add(0x0)); r28 = runtime::mr32(mem, ea.wrapping_add(0x4)); r29 = runtime::mr32(mem, ea.wrapping_add(0x8)); r30 = runtime::mr32(mem, ea.wrapping_add(0xC)); r31 = runtime::mr32(mem, ea.wrapping_add(0x10));  }
             { let ea = r1.wrapping_add(0x74); r0 = runtime::mr32(mem, ea); }
@@ -10663,6 +10821,7 @@ pub fn fn_802B5AF4(c: &mut Ctx) {
 
 // TRKRequestSend
 pub fn fn_802B5C10(c: &mut Ctx) {
+    runtime::prof(0x802B5C10);
     if c.hle(154) { return; }
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r1 = c.r[1]; let mut r3 = c.r[3]; let mut r4 = c.r[4]; let mut r5 = c.r[5]; let mut r6 = c.r[6]; let mut r7 = c.r[7]; let mut r21 = c.r[21]; let mut r22 = c.r[22]; let mut r23 = c.r[23]; let mut r24 = c.r[24]; let mut r25 = c.r[25]; let mut r26 = c.r[26]; let mut r27 = c.r[27]; let mut r28 = c.r[28]; let mut r29 = c.r[29]; let mut r30 = c.r[30]; let mut r31 = c.r[31]; 
@@ -10690,9 +10849,9 @@ pub fn fn_802B5C10(c: &mut Ctx) {
             r4 = r31;
             r3 = 0x1u32;
             { let v = (cr1 & 2 != 0) ^ (cr1 & 2 != 0); cr1 = if v { cr1 | 2 } else { cr1 & 0xFD }; }
-            { c.lr = 0x802B5C5C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[21] = r21; c.r[22] = r22; c.r[23] = r23; c.r[24] = r24; c.r[25] = r25; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.cr[1] = cr1; fn_802B97C4(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r21 = c.r[21]; r22 = c.r[22]; r23 = c.r[23]; r24 = c.r[24]; r25 = c.r[25]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
+            { c.lr = 0x802B5C5C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.cr[0] = cr0; c.cr[1] = cr1; fn_802B97C4(c); runtime::prof(0x802B5C10); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
             r3 = r21 | r21;
-            { c.lr = 0x802B5C64; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[21] = r21; c.r[22] = r22; c.r[23] = r23; c.r[24] = r24; c.r[25] = r25; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.cr[1] = cr1; fn_802B3B50(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r21 = c.r[21]; r22 = c.r[22]; r23 = c.r[23]; r24 = c.r[24]; r25 = c.r[25]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
+            { c.lr = 0x802B5C64; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.cr[0] = cr0; c.cr[1] = cr1; fn_802B3B50(c); runtime::prof(0x802B5C10); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
             r30 = r3 | r3; cr0 = runtime::cmps_val(r30 as i32, 0);
             if cr0 & 2 == 0 { { pc = 0x802B5DA8; continue; } }
             cr0 = runtime::cmps_val(r23 as i32, 0);
@@ -10701,7 +10860,7 @@ pub fn fn_802B5C10(c: &mut Ctx) {
             pc = 0x802B5C78;
         }
         0x802B5C78 => {
-            { c.lr = 0x802B5C7C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[21] = r21; c.r[22] = r22; c.r[23] = r23; c.r[24] = r24; c.r[25] = r25; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.cr[1] = cr1; fn_802B454C(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r21 = c.r[21]; r22 = c.r[22]; r23 = c.r[23]; r24 = c.r[24]; r25 = c.r[25]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
+            { c.lr = 0x802B5C7C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.cr[0] = cr0; c.cr[1] = cr1; fn_802B454C(c); runtime::prof(0x802B5C10); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
             { let ea = r22; runtime::mw32(mem, ea, r3); }
             { let ea = r22; r3 = runtime::mr32(mem, ea); }
             cr0 = runtime::cmps_val(r3 as i32, -1);
@@ -10719,24 +10878,24 @@ pub fn fn_802B5C10(c: &mut Ctx) {
             cr0 = runtime::cmps_val(r3 as i32, -1);
             if cr0 & 2 != 0 { { pc = 0x802B5D08; continue; } }
             r24 = 0x0u32;
-            { c.lr = 0x802B5CB8; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[21] = r21; c.r[22] = r22; c.r[23] = r23; c.r[24] = r24; c.r[25] = r25; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.cr[1] = cr1; fn_802B4268(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r21 = c.r[21]; r22 = c.r[22]; r23 = c.r[23]; r24 = c.r[24]; r25 = c.r[25]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
+            { c.lr = 0x802B5CB8; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.cr[0] = cr0; c.cr[1] = cr1; fn_802B4268(c); runtime::prof(0x802B5C10); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
             r4 = 0x0u32;
             r29 = r3 | r3;
-            { c.lr = 0x802B5CC4; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[21] = r21; c.r[22] = r22; c.r[23] = r23; c.r[24] = r24; c.r[25] = r25; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.cr[1] = cr1; fn_802B4194(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r21 = c.r[21]; r22 = c.r[22]; r23 = c.r[23]; r24 = c.r[24]; r25 = c.r[25]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
+            { c.lr = 0x802B5CC4; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.cr[0] = cr0; c.cr[1] = cr1; fn_802B4194(c); runtime::prof(0x802B5C10); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
             { let ea = r29.wrapping_add(0x8); r4 = runtime::mr32(mem, ea); }
             r3 = r29.wrapping_add(0x10);
-            { c.lr = 0x802B5CD0; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[21] = r21; c.r[22] = r22; c.r[23] = r23; c.r[24] = r24; c.r[25] = r25; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.cr[1] = cr1; fn_802B5854(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r21 = c.r[21]; r22 = c.r[22]; r23 = c.r[23]; r24 = c.r[24]; r25 = c.r[25]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
+            { c.lr = 0x802B5CD0; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.cr[0] = cr0; c.cr[1] = cr1; fn_802B5854(c); runtime::prof(0x802B5C10); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
             { let ea = r29.wrapping_add(0x14); r26 = runtime::mr8(mem, ea) as u32; }
             r4 = r31.wrapping_add(0x18);
             r3 = 0x1u32;
             r5 = r26 | r26;
             r6 = r26 | r26;
             { let v = (cr1 & 2 != 0) ^ (cr1 & 2 != 0); cr1 = if v { cr1 | 2 } else { cr1 & 0xFD }; }
-            { c.lr = 0x802B5CEC; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[21] = r21; c.r[22] = r22; c.r[23] = r23; c.r[24] = r24; c.r[25] = r25; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.cr[1] = cr1; fn_802B97C4(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r21 = c.r[21]; r22 = c.r[22]; r23 = c.r[23]; r24 = c.r[24]; r25 = c.r[25]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
+            { c.lr = 0x802B5CEC; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.cr[0] = cr0; c.cr[1] = cr1; fn_802B97C4(c); runtime::prof(0x802B5C10); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
             cr0 = runtime::cmpu_val(r26, 0x80);
             if cr0 & 8 == 0 { { pc = 0x802B5D08; continue; } }
             { let ea = r22; r3 = runtime::mr32(mem, ea); }
-            { c.lr = 0x802B5CFC; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[21] = r21; c.r[22] = r22; c.r[23] = r23; c.r[24] = r24; c.r[25] = r25; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.cr[1] = cr1; fn_802B449C(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r21 = c.r[21]; r22 = c.r[22]; r23 = c.r[23]; r24 = c.r[24]; r25 = c.r[25]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
+            { c.lr = 0x802B5CFC; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.cr[0] = cr0; c.cr[1] = cr1; fn_802B449C(c); runtime::prof(0x802B5C10); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
             r0 = 0xFFFFFFFFu32;
             { let ea = r22; runtime::mw32(mem, ea, r0); }
             { if runtime::PROFILE_DETAILED { c.sample_tick_pc(0x802B5C10); } c.budget -= 1; if c.budget == 0 { c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[21] = r21; c.r[22] = r22; c.r[23] = r23; c.r[24] = r24; c.r[25] = r25; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.cr[1] = cr1; c.poll(); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r21 = c.r[21]; r22 = c.r[22]; r23 = c.r[23]; r24 = c.r[24]; r25 = c.r[25]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; cr1 = c.cr[1]; } pc = 0x802B5C78; continue; }
@@ -10761,7 +10920,7 @@ pub fn fn_802B5C10(c: &mut Ctx) {
             r3 = 0x1u32;
             r5 = r25 | r25;
             { let v = (cr1 & 2 != 0) ^ (cr1 & 2 != 0); cr1 = if v { cr1 | 2 } else { cr1 & 0xFD }; }
-            { c.lr = 0x802B5D4C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[21] = r21; c.r[22] = r22; c.r[23] = r23; c.r[24] = r24; c.r[25] = r25; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.cr[1] = cr1; fn_802B97C4(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r21 = c.r[21]; r22 = c.r[22]; r23 = c.r[23]; r24 = c.r[24]; r25 = c.r[25]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
+            { c.lr = 0x802B5D4C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.cr[0] = cr0; c.cr[1] = cr1; fn_802B97C4(c); runtime::prof(0x802B5C10); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
             pc = 0x802B5D4C;
         }
         0x802B5D4C => {
@@ -10781,7 +10940,7 @@ pub fn fn_802B5C10(c: &mut Ctx) {
             r4 = r31.wrapping_add(0x54);
             r3 = 0x8u32;
             { let v = (cr1 & 2 != 0) ^ (cr1 & 2 != 0); cr1 = if v { cr1 | 2 } else { cr1 & 0xFD }; }
-            { c.lr = 0x802B5D84; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[21] = r21; c.r[22] = r22; c.r[23] = r23; c.r[24] = r24; c.r[25] = r25; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.cr[1] = cr1; fn_802B97C4(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r21 = c.r[21]; r22 = c.r[22]; r23 = c.r[23]; r24 = c.r[24]; r25 = c.r[25]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
+            { c.lr = 0x802B5D84; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.cr[0] = cr0; c.cr[1] = cr1; fn_802B97C4(c); runtime::prof(0x802B5C10); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
             r24 = 0x1u32;
             pc = 0x802B5D88;
         }
@@ -10794,7 +10953,7 @@ pub fn fn_802B5C10(c: &mut Ctx) {
         }
         0x802B5D98 => {
             { let ea = r22; r3 = runtime::mr32(mem, ea); }
-            { c.lr = 0x802B5DA0; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[21] = r21; c.r[22] = r22; c.r[23] = r23; c.r[24] = r24; c.r[25] = r25; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.cr[1] = cr1; fn_802B4204(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r21 = c.r[21]; r22 = c.r[22]; r23 = c.r[23]; r24 = c.r[24]; r25 = c.r[25]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
+            { c.lr = 0x802B5DA0; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.cr[0] = cr0; c.cr[1] = cr1; fn_802B4204(c); runtime::prof(0x802B5C10); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
             r0 = 0xFFFFFFFFu32;
             { let ea = r22; runtime::mw32(mem, ea, r0); }
             pc = 0x802B5DA8;
@@ -10834,6 +10993,7 @@ pub fn fn_802B5C10(c: &mut Ctx) {
 
 // TRKSuppAccessFile
 pub fn fn_802B5DF0(c: &mut Ctx) {
+    runtime::prof(0x802B5DF0);
     if c.hle(155) { return; }
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r1 = c.r[1]; let mut r3 = c.r[3]; let mut r4 = c.r[4]; let mut r5 = c.r[5]; let mut r6 = c.r[6]; let mut r7 = c.r[7]; let mut r8 = c.r[8]; let mut r19 = c.r[19]; let mut r20 = c.r[20]; let mut r21 = c.r[21]; let mut r22 = c.r[22]; let mut r23 = c.r[23]; let mut r24 = c.r[24]; let mut r25 = c.r[25]; let mut r26 = c.r[26]; let mut r27 = c.r[27]; let mut r28 = c.r[28]; let mut r29 = c.r[29]; let mut r30 = c.r[30]; let mut r31 = c.r[31]; 
@@ -10873,7 +11033,7 @@ pub fn fn_802B5DF0(c: &mut Ctx) {
             r3 = r1.wrapping_add(0x14);
             r4 = 0x0u32;
             r5 = 0x40u32;
-            { c.lr = 0x802B5E58; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[19] = r19; c.r[20] = r20; c.r[21] = r21; c.r[22] = r22; c.r[23] = r23; c.r[24] = r24; c.r[25] = r25; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; fn_80003100(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r19 = c.r[19]; r20 = c.r[20]; r21 = c.r[21]; r22 = c.r[22]; r23 = c.r[23]; r24 = c.r[24]; r25 = c.r[25]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; }
+            { c.lr = 0x802B5E58; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.cr[0] = cr0; fn_80003100(c); runtime::prof(0x802B5DF0); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; cr0 = c.cr[0]; }
             { let ea = r25; r0 = runtime::mr32(mem, ea); }
             r3 = 0x800u32;
             r0 = r0.wrapping_sub(r30);
@@ -10904,11 +11064,11 @@ pub fn fn_802B5DF0(c: &mut Ctx) {
             r4 = r1.wrapping_add(0x8);
             { let ea = r1.wrapping_add(0x1C); runtime::mw32(mem, ea, r23); }
             { let ea = r1.wrapping_add(0x20); runtime::mw16(mem, ea, r31 as u16); }
-            { c.lr = 0x802B5EB0; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[19] = r19; c.r[20] = r20; c.r[21] = r21; c.r[22] = r22; c.r[23] = r23; c.r[24] = r24; c.r[25] = r25; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; fn_802B4294(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r19 = c.r[19]; r20 = c.r[20]; r21 = c.r[21]; r22 = c.r[22]; r23 = c.r[23]; r24 = c.r[24]; r25 = c.r[25]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; }
+            { c.lr = 0x802B5EB0; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.cr[0] = cr0; fn_802B4294(c); runtime::prof(0x802B5DF0); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; cr0 = c.cr[0]; }
             { let ea = r1.wrapping_add(0x8); r3 = runtime::mr32(mem, ea); }
             r4 = r1.wrapping_add(0x14);
             r5 = 0x40u32;
-            { c.lr = 0x802B5EC0; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[19] = r19; c.r[20] = r20; c.r[21] = r21; c.r[22] = r22; c.r[23] = r23; c.r[24] = r24; c.r[25] = r25; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; fn_802B3F00(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r19 = c.r[19]; r20 = c.r[20]; r21 = c.r[21]; r22 = c.r[22]; r23 = c.r[23]; r24 = c.r[24]; r25 = c.r[25]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; }
+            { c.lr = 0x802B5EC0; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.cr[0] = cr0; fn_802B3F00(c); runtime::prof(0x802B5DF0); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; cr0 = c.cr[0]; }
             cr0 = runtime::cmps_val(r28 as i32, 0);
             r21 = r3 | r3;
             if cr0 & 2 == 0 { { pc = 0x802B5EE8; continue; } }
@@ -10917,7 +11077,7 @@ pub fn fn_802B5DF0(c: &mut Ctx) {
             { let ea = r1.wrapping_add(0x8); r3 = runtime::mr32(mem, ea); }
             r5 = r31 | r31;
             r4 = r24.wrapping_add(r30);
-            { c.lr = 0x802B5EE4; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[19] = r19; c.r[20] = r20; c.r[21] = r21; c.r[22] = r22; c.r[23] = r23; c.r[24] = r24; c.r[25] = r25; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; fn_802B3F00(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r19 = c.r[19]; r20 = c.r[20]; r21 = c.r[21]; r22 = c.r[22]; r23 = c.r[23]; r24 = c.r[24]; r25 = c.r[25]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; }
+            { c.lr = 0x802B5EE4; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.cr[0] = cr0; fn_802B3F00(c); runtime::prof(0x802B5DF0); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; cr0 = c.cr[0]; }
             r21 = r3 | r3;
             pc = 0x802B5EE8;
         }
@@ -10942,11 +11102,11 @@ pub fn fn_802B5DF0(c: &mut Ctx) {
             r0 = r0.leading_zeros();
             r6 = 0x3u32;
             r7 = r0.rotate_left(27) & 0x7FFFFFF;
-            { c.lr = 0x802B5F30; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[19] = r19; c.r[20] = r20; c.r[21] = r21; c.r[22] = r22; c.r[23] = r23; c.r[24] = r24; c.r[25] = r25; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; fn_802B5C10(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r19 = c.r[19]; r20 = c.r[20]; r21 = c.r[21]; r22 = c.r[22]; r23 = c.r[23]; r24 = c.r[24]; r25 = c.r[25]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; }
+            { c.lr = 0x802B5F30; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.cr[0] = cr0; fn_802B5C10(c); runtime::prof(0x802B5DF0); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; cr0 = c.cr[0]; }
             r21 = r3 | r3; cr0 = runtime::cmps_val(r21 as i32, 0);
             if cr0 & 2 == 0 { { pc = 0x802B5F44; continue; } }
             { let ea = r1.wrapping_add(0x10); r3 = runtime::mr32(mem, ea); }
-            { c.lr = 0x802B5F40; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[19] = r19; c.r[20] = r20; c.r[21] = r21; c.r[22] = r22; c.r[23] = r23; c.r[24] = r24; c.r[25] = r25; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; fn_802B4268(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r19 = c.r[19]; r20 = c.r[20]; r21 = c.r[21]; r22 = c.r[22]; r23 = c.r[23]; r24 = c.r[24]; r25 = c.r[25]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; }
+            { c.lr = 0x802B5F40; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.cr[0] = cr0; fn_802B4268(c); runtime::prof(0x802B5DF0); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; cr0 = c.cr[0]; }
             r22 = r3 | r3;
             pc = 0x802B5F44;
         }
@@ -10962,11 +11122,11 @@ pub fn fn_802B5DF0(c: &mut Ctx) {
             if cr0 & 4 != 0 { { pc = 0x802B5F94; continue; } }
             r3 = r22 | r22;
             r4 = 0x40u32;
-            { c.lr = 0x802B5F74; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[19] = r19; c.r[20] = r20; c.r[21] = r21; c.r[22] = r22; c.r[23] = r23; c.r[24] = r24; c.r[25] = r25; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; fn_802B4194(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r19 = c.r[19]; r20 = c.r[20]; r21 = c.r[21]; r22 = c.r[22]; r23 = c.r[23]; r24 = c.r[24]; r25 = c.r[25]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; }
+            { c.lr = 0x802B5F74; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.cr[0] = cr0; fn_802B4194(c); runtime::prof(0x802B5DF0); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; cr0 = c.cr[0]; }
             r3 = r22 | r22;
             r5 = r19 | r19;
             r4 = r24.wrapping_add(r30);
-            { c.lr = 0x802B5F84; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[19] = r19; c.r[20] = r20; c.r[21] = r21; c.r[22] = r22; c.r[23] = r23; c.r[24] = r24; c.r[25] = r25; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; fn_802B3C84(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r19 = c.r[19]; r20 = c.r[20]; r21 = c.r[21]; r22 = c.r[22]; r23 = c.r[23]; r24 = c.r[24]; r25 = c.r[25]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; }
+            { c.lr = 0x802B5F84; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.cr[0] = cr0; fn_802B3C84(c); runtime::prof(0x802B5DF0); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; cr0 = c.cr[0]; }
             r21 = r3 | r3;
             cr0 = runtime::cmps_val(r21 as i32, 770);
             if cr0 & 2 == 0 { { pc = 0x802B5F94; continue; } }
@@ -10983,18 +11143,18 @@ pub fn fn_802B5DF0(c: &mut Ctx) {
         0x802B5FA4 => {
             { let ea = r26; runtime::mw32(mem, ea, r20); }
             { let ea = r1.wrapping_add(0x10); r3 = runtime::mr32(mem, ea); }
-            { c.lr = 0x802B5FB0; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[19] = r19; c.r[20] = r20; c.r[21] = r21; c.r[22] = r22; c.r[23] = r23; c.r[24] = r24; c.r[25] = r25; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; fn_802B4204(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r19 = c.r[19]; r20 = c.r[20]; r21 = c.r[21]; r22 = c.r[22]; r23 = c.r[23]; r24 = c.r[24]; r25 = c.r[25]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; }
+            { c.lr = 0x802B5FB0; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.cr[0] = cr0; fn_802B4204(c); runtime::prof(0x802B5DF0); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; cr0 = c.cr[0]; }
             { pc = 0x802B5FC0; continue; }
         }
         0x802B5FB4 => {
             { let ea = r1.wrapping_add(0x8); r3 = runtime::mr32(mem, ea); }
-            { c.lr = 0x802B5FBC; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[19] = r19; c.r[20] = r20; c.r[21] = r21; c.r[22] = r22; c.r[23] = r23; c.r[24] = r24; c.r[25] = r25; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; fn_802B3B50(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r19 = c.r[19]; r20 = c.r[20]; r21 = c.r[21]; r22 = c.r[22]; r23 = c.r[23]; r24 = c.r[24]; r25 = c.r[25]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; }
+            { c.lr = 0x802B5FBC; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.cr[0] = cr0; fn_802B3B50(c); runtime::prof(0x802B5DF0); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; cr0 = c.cr[0]; }
             r21 = r3 | r3;
             pc = 0x802B5FC0;
         }
         0x802B5FC0 => {
             { let ea = r1.wrapping_add(0xC); r3 = runtime::mr32(mem, ea); }
-            { c.lr = 0x802B5FC8; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[19] = r19; c.r[20] = r20; c.r[21] = r21; c.r[22] = r22; c.r[23] = r23; c.r[24] = r24; c.r[25] = r25; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; fn_802B4204(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r19 = c.r[19]; r20 = c.r[20]; r21 = c.r[21]; r22 = c.r[22]; r23 = c.r[23]; r24 = c.r[24]; r25 = c.r[25]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; }
+            { c.lr = 0x802B5FC8; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.cr[0] = cr0; fn_802B4204(c); runtime::prof(0x802B5DF0); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; cr0 = c.cr[0]; }
             r30 = r30.wrapping_add(r31);
             pc = 0x802B5FCC;
         }
@@ -11030,6 +11190,7 @@ pub fn fn_802B5DF0(c: &mut Ctx) {
 // TRKReleaseMutex
 #[inline]
 pub fn fn_802B6010(c: &mut Ctx) {
+    runtime::prof(0x802B6010);
     if c.hle(156) { return; }
     let mut r3 = c.r[3]; 
     r3 = 0x0u32;
@@ -11039,6 +11200,7 @@ pub fn fn_802B6010(c: &mut Ctx) {
 // TRKAcquireMutex
 #[inline]
 pub fn fn_802B6018(c: &mut Ctx) {
+    runtime::prof(0x802B6018);
     if c.hle(157) { return; }
     let mut r3 = c.r[3]; 
     r3 = 0x0u32;
@@ -11048,6 +11210,7 @@ pub fn fn_802B6018(c: &mut Ctx) {
 // TRKInitializeMutex
 #[inline]
 pub fn fn_802B6020(c: &mut Ctx) {
+    runtime::prof(0x802B6020);
     if c.hle(158) { return; }
     let mut r3 = c.r[3]; 
     r3 = 0x0u32;
@@ -11056,6 +11219,7 @@ pub fn fn_802B6020(c: &mut Ctx) {
 
 // TRKDoNotifyStopped
 pub fn fn_802B6028(c: &mut Ctx) {
+    runtime::prof(0x802B6028);
     if c.hle(159) { return; }
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r1 = c.r[1]; let mut r3 = c.r[3]; let mut r4 = c.r[4]; let mut r5 = c.r[5]; let mut r6 = c.r[6]; let mut r7 = c.r[7]; let mut r30 = c.r[30]; let mut r31 = c.r[31]; 
@@ -11071,19 +11235,19 @@ pub fn fn_802B6028(c: &mut Ctx) {
             { let ea = r1.wrapping_add(0x18); runtime::mw32(mem, ea, r30); }
             r30 = r3 | r3;
             r3 = r1.wrapping_add(0xC);
-            { c.lr = 0x802B604C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; fn_802B4294(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; }
+            { c.lr = 0x802B604C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.cr[0] = cr0; fn_802B4294(c); runtime::prof(0x802B6028); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; cr0 = c.cr[0]; }
             r31 = r3 | r3; cr0 = runtime::cmps_val(r31 as i32, 0);
             if cr0 & 2 == 0 { { pc = 0x802B60A4; continue; } }
             if cr0 & 2 == 0 { { pc = 0x802B6074; continue; } }
             cr0 = runtime::cmps_val(r30 as i32, 144);
             if cr0 & 2 == 0 { { pc = 0x802B606C; continue; } }
             { let ea = r1.wrapping_add(0x8); r3 = runtime::mr32(mem, ea); }
-            { c.lr = 0x802B6068; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; fn_802B6A90(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; }
+            { c.lr = 0x802B6068; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.cr[0] = cr0; fn_802B6A90(c); runtime::prof(0x802B6028); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; cr0 = c.cr[0]; }
             { pc = 0x802B6074; continue; }
         }
         0x802B606C => {
             { let ea = r1.wrapping_add(0x8); r3 = runtime::mr32(mem, ea); }
-            { c.lr = 0x802B6074; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; fn_802B6A0C(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; }
+            { c.lr = 0x802B6074; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.cr[0] = cr0; fn_802B6A0C(c); runtime::prof(0x802B6028); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; cr0 = c.cr[0]; }
             pc = 0x802B6074;
         }
         0x802B6074 => {
@@ -11092,16 +11256,16 @@ pub fn fn_802B6028(c: &mut Ctx) {
             r5 = 0x2u32;
             r6 = 0x3u32;
             r7 = 0x1u32;
-            { c.lr = 0x802B608C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; fn_802B5C10(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; }
+            { c.lr = 0x802B608C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.cr[0] = cr0; fn_802B5C10(c); runtime::prof(0x802B6028); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; cr0 = c.cr[0]; }
             r31 = r3 | r3; cr0 = runtime::cmps_val(r31 as i32, 0);
             if cr0 & 2 == 0 { { pc = 0x802B609C; continue; } }
             { let ea = r1.wrapping_add(0x10); r3 = runtime::mr32(mem, ea); }
-            { c.lr = 0x802B609C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; fn_802B4204(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; }
+            { c.lr = 0x802B609C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.cr[0] = cr0; fn_802B4204(c); runtime::prof(0x802B6028); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; cr0 = c.cr[0]; }
             pc = 0x802B609C;
         }
         0x802B609C => {
             { let ea = r1.wrapping_add(0xC); r3 = runtime::mr32(mem, ea); }
-            { c.lr = 0x802B60A4; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; fn_802B4204(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; }
+            { c.lr = 0x802B60A4; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.cr[0] = cr0; fn_802B4204(c); runtime::prof(0x802B6028); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; cr0 = c.cr[0]; }
             pc = 0x802B60A4;
         }
         0x802B60A4 => {
@@ -11119,6 +11283,7 @@ pub fn fn_802B6028(c: &mut Ctx) {
 
 // TRK_flush_cache
 pub fn fn_802B60C0(c: &mut Ctx) {
+    runtime::prof(0x802B60C0);
     if c.hle(160) { return; }
     let mut r3 = c.r[3]; let mut r4 = c.r[4]; let mut r5 = c.r[5]; 
     let mut cr0 = c.cr[0]; 
@@ -11145,6 +11310,7 @@ pub fn fn_802B60C0(c: &mut Ctx) {
 
 // TRK_fill_mem
 pub fn fn_802B60F8(c: &mut Ctx) {
+    runtime::prof(0x802B60F8);
     if c.hle(2) { return; }
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r3 = c.r[3]; let mut r4 = c.r[4]; let mut r5 = c.r[5]; let mut r6 = c.r[6]; let mut r7 = c.r[7]; 
@@ -11234,6 +11400,7 @@ pub fn fn_802B60F8(c: &mut Ctx) {
 // __TRK_get_MSR
 #[inline]
 pub fn fn_802B61B0(c: &mut Ctx) {
+    runtime::prof(0x802B61B0);
     if c.hle(163) { return; }
     let mut r3 = c.r[3]; 
     r3 = c.msr;
@@ -11243,6 +11410,7 @@ pub fn fn_802B61B0(c: &mut Ctx) {
 // __TRK_set_MSR
 #[inline]
 pub fn fn_802B61B8(c: &mut Ctx) {
+    runtime::prof(0x802B61B8);
     if c.hle(164) { return; }
     let mut r3 = c.r[3]; 
     c.msr = r3;
@@ -11251,6 +11419,7 @@ pub fn fn_802B61B8(c: &mut Ctx) {
 
 // TRK_ppc_memcpy
 pub fn fn_802B61C0(c: &mut Ctx) {
+    runtime::prof(0x802B61C0);
     if c.hle(3) { return; }
     let mem = c.mem;
     let mut r3 = c.r[3]; let mut r4 = c.r[4]; let mut r5 = c.r[5]; let mut r6 = c.r[6]; let mut r7 = c.r[7]; let mut r8 = c.r[8]; let mut r9 = c.r[9]; let mut r10 = c.r[10]; 
@@ -11282,6 +11451,7 @@ pub fn fn_802B61C0(c: &mut Ctx) {
 
 // TRKInterruptHandler
 pub fn fn_802B61FC(c: &mut Ctx) {
+    runtime::prof(0x802B61FC);
     if c.hle(165) { return; }
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r1 = c.r[1]; let mut r2 = c.r[2]; let mut r3 = c.r[3]; let mut r4 = c.r[4]; let mut r5 = c.r[5]; let mut r6 = c.r[6]; let mut r7 = c.r[7]; let mut r8 = c.r[8]; let mut r9 = c.r[9]; let mut r10 = c.r[10]; let mut r11 = c.r[11]; let mut r12 = c.r[12]; let mut r13 = c.r[13]; let mut r14 = c.r[14]; let mut r15 = c.r[15]; let mut r16 = c.r[16]; let mut r17 = c.r[17]; let mut r18 = c.r[18]; let mut r19 = c.r[19]; let mut r20 = c.r[20]; let mut r21 = c.r[21]; let mut r22 = c.r[22]; let mut r23 = c.r[23]; let mut r24 = c.r[24]; let mut r25 = c.r[25]; let mut r26 = c.r[26]; let mut r27 = c.r[27]; let mut r28 = c.r[28]; let mut r29 = c.r[29]; let mut r30 = c.r[30]; let mut r31 = c.r[31]; 
@@ -11311,7 +11481,7 @@ pub fn fn_802B61FC(c: &mut Ctx) {
             r2 = r2 | 0x3C00;
             r3 = c.lr;
             { let ea = r2.wrapping_add(0x42C); runtime::mw32(mem, ea, r3); }
-            { c.lr = 0x802B6258; c.r[0] = r0; c.r[1] = r1; c.r[2] = r2; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.r[13] = r13; c.r[14] = r14; c.r[15] = r15; c.r[16] = r16; c.r[17] = r17; c.r[18] = r18; c.r[19] = r19; c.r[20] = r20; c.r[21] = r21; c.r[22] = r22; c.r[23] = r23; c.r[24] = r24; c.r[25] = r25; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.cr[1] = cr1; c.cr[2] = cr2; c.cr[3] = cr3; c.cr[4] = cr4; c.cr[5] = cr5; c.cr[6] = cr6; c.cr[7] = cr7; c.ctr = ctr; c.ca = ca; fn_802B87EC(c); r0 = c.r[0]; r1 = c.r[1]; r2 = c.r[2]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; r13 = c.r[13]; r14 = c.r[14]; r15 = c.r[15]; r16 = c.r[16]; r17 = c.r[17]; r18 = c.r[18]; r19 = c.r[19]; r20 = c.r[20]; r21 = c.r[21]; r22 = c.r[22]; r23 = c.r[23]; r24 = c.r[24]; r25 = c.r[25]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; cr1 = c.cr[1]; cr2 = c.cr[2]; cr3 = c.cr[3]; cr4 = c.cr[4]; cr5 = c.cr[5]; cr6 = c.cr[6]; cr7 = c.cr[7]; ctr = c.ctr; ca = c.ca; }
+            { c.lr = 0x802B6258; c.r[0] = r0; c.r[1] = r1; c.r[2] = r2; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.r[13] = r13; c.cr[0] = cr0; c.cr[1] = cr1; c.cr[2] = cr2; c.cr[3] = cr3; c.cr[4] = cr4; c.cr[5] = cr5; c.cr[6] = cr6; c.cr[7] = cr7; c.ctr = ctr; c.ca = ca; fn_802B87EC(c); runtime::prof(0x802B61FC); r0 = c.r[0]; r1 = c.r[1]; r2 = c.r[2]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; r13 = c.r[13]; cr0 = c.cr[0]; cr1 = c.cr[1]; cr2 = c.cr[2]; cr3 = c.cr[3]; cr4 = c.cr[4]; cr5 = c.cr[5]; cr6 = c.cr[6]; cr7 = c.cr[7]; ctr = c.ctr; ca = c.ca; }
             r2 = 0x80460000u32;
             r2 = r2 | 0x3C00;
             { let ea = r2.wrapping_add(0x42C); r3 = runtime::mr32(mem, ea); }
@@ -11369,7 +11539,7 @@ pub fn fn_802B61FC(c: &mut Ctx) {
             r30 = ctr;
             r31 = c.xer_rest | (ca << 29);
             { let ea = r2.wrapping_add(0x80); runtime::mw32(mem, ea.wrapping_add(0x0), r27); runtime::mw32(mem, ea.wrapping_add(0x4), r28); runtime::mw32(mem, ea.wrapping_add(0x8), r29); runtime::mw32(mem, ea.wrapping_add(0xC), r30); runtime::mw32(mem, ea.wrapping_add(0x10), r31);  }
-            { c.lr = 0x802B632C; c.r[0] = r0; c.r[1] = r1; c.r[2] = r2; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.r[13] = r13; c.r[14] = r14; c.r[15] = r15; c.r[16] = r16; c.r[17] = r17; c.r[18] = r18; c.r[19] = r19; c.r[20] = r20; c.r[21] = r21; c.r[22] = r22; c.r[23] = r23; c.r[24] = r24; c.r[25] = r25; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.cr[1] = cr1; c.cr[2] = cr2; c.cr[3] = cr3; c.cr[4] = cr4; c.cr[5] = cr5; c.cr[6] = cr6; c.cr[7] = cr7; c.ctr = ctr; c.ca = ca; fn_802B7D60(c); r0 = c.r[0]; r1 = c.r[1]; r2 = c.r[2]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; r13 = c.r[13]; r14 = c.r[14]; r15 = c.r[15]; r16 = c.r[16]; r17 = c.r[17]; r18 = c.r[18]; r19 = c.r[19]; r20 = c.r[20]; r21 = c.r[21]; r22 = c.r[22]; r23 = c.r[23]; r24 = c.r[24]; r25 = c.r[25]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; cr1 = c.cr[1]; cr2 = c.cr[2]; cr3 = c.cr[3]; cr4 = c.cr[4]; cr5 = c.cr[5]; cr6 = c.cr[6]; cr7 = c.cr[7]; ctr = c.ctr; ca = c.ca; }
+            { c.lr = 0x802B632C; c.r[0] = r0; c.r[1] = r1; c.r[2] = r2; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.r[13] = r13; c.cr[0] = cr0; c.cr[1] = cr1; c.cr[2] = cr2; c.cr[3] = cr3; c.cr[4] = cr4; c.cr[5] = cr5; c.cr[6] = cr6; c.cr[7] = cr7; c.ctr = ctr; c.ca = ca; fn_802B7D60(c); runtime::prof(0x802B61FC); r0 = c.r[0]; r1 = c.r[1]; r2 = c.r[2]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; r13 = c.r[13]; cr0 = c.cr[0]; cr1 = c.cr[1]; cr2 = c.cr[2]; cr3 = c.cr[3]; cr4 = c.cr[4]; cr5 = c.cr[5]; cr6 = c.cr[6]; cr7 = c.cr[7]; ctr = c.ctr; ca = c.ca; }
             r2 = 0x803B0000u32;
             r2 = r2 | 0xADCC;
             r3 = 0x1u32;
@@ -11400,6 +11570,7 @@ pub fn fn_802B61FC(c: &mut Ctx) {
 
 // TRKExceptionHandler
 pub fn fn_802B6390(c: &mut Ctx) {
+    runtime::prof(0x802B6390);
     if c.hle(166) { return; }
     let mem = c.mem;
     let mut r2 = c.r[2]; let mut r3 = c.r[3]; 
@@ -11459,6 +11630,7 @@ pub fn fn_802B6390(c: &mut Ctx) {
 
 // TRKSwapAndGo
 pub fn fn_802B642C(c: &mut Ctx) {
+    runtime::prof(0x802B642C);
     if c.hle(168) { return; }
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r1 = c.r[1]; let mut r2 = c.r[2]; let mut r3 = c.r[3]; let mut r4 = c.r[4]; let mut r5 = c.r[5]; let mut r6 = c.r[6]; let mut r7 = c.r[7]; let mut r8 = c.r[8]; let mut r9 = c.r[9]; let mut r10 = c.r[10]; let mut r11 = c.r[11]; let mut r12 = c.r[12]; let mut r13 = c.r[13]; let mut r14 = c.r[14]; let mut r15 = c.r[15]; let mut r16 = c.r[16]; let mut r17 = c.r[17]; let mut r18 = c.r[18]; let mut r19 = c.r[19]; let mut r20 = c.r[20]; let mut r21 = c.r[21]; let mut r22 = c.r[22]; let mut r23 = c.r[23]; let mut r24 = c.r[24]; let mut r25 = c.r[25]; let mut r26 = c.r[26]; let mut r27 = c.r[27]; let mut r28 = c.r[28]; let mut r29 = c.r[29]; let mut r30 = c.r[30]; let mut r31 = c.r[31]; 
@@ -11505,7 +11677,7 @@ pub fn fn_802B642C(c: &mut Ctx) {
             r2 = r2 | 0xADCC;
             r3 = 0x0u32;
             { let ea = r2.wrapping_add(0xC); runtime::mw8(mem, ea, r3 as u8); }
-            { c.lr = 0x802B64BC; c.r[0] = r0; c.r[1] = r1; c.r[2] = r2; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.r[13] = r13; c.r[14] = r14; c.r[15] = r15; c.r[16] = r16; c.r[17] = r17; c.r[18] = r18; c.r[19] = r19; c.r[20] = r20; c.r[21] = r21; c.r[22] = r22; c.r[23] = r23; c.r[24] = r24; c.r[25] = r25; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.cr[1] = cr1; c.cr[2] = cr2; c.cr[3] = cr3; c.cr[4] = cr4; c.cr[5] = cr5; c.cr[6] = cr6; c.cr[7] = cr7; c.ctr = ctr; c.ca = ca; fn_802B7F18(c); r0 = c.r[0]; r1 = c.r[1]; r2 = c.r[2]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; r13 = c.r[13]; r14 = c.r[14]; r15 = c.r[15]; r16 = c.r[16]; r17 = c.r[17]; r18 = c.r[18]; r19 = c.r[19]; r20 = c.r[20]; r21 = c.r[21]; r22 = c.r[22]; r23 = c.r[23]; r24 = c.r[24]; r25 = c.r[25]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; cr1 = c.cr[1]; cr2 = c.cr[2]; cr3 = c.cr[3]; cr4 = c.cr[4]; cr5 = c.cr[5]; cr6 = c.cr[6]; cr7 = c.cr[7]; ctr = c.ctr; ca = c.ca; }
+            { c.lr = 0x802B64BC; c.r[0] = r0; c.r[1] = r1; c.r[2] = r2; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.r[13] = r13; c.cr[0] = cr0; c.cr[1] = cr1; c.cr[2] = cr2; c.cr[3] = cr3; c.cr[4] = cr4; c.cr[5] = cr5; c.cr[6] = cr6; c.cr[7] = cr7; c.ctr = ctr; c.ca = ca; fn_802B7F18(c); runtime::prof(0x802B642C); r0 = c.r[0]; r1 = c.r[1]; r2 = c.r[2]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; r13 = c.r[13]; cr0 = c.cr[0]; cr1 = c.cr[1]; cr2 = c.cr[2]; cr3 = c.cr[3]; cr4 = c.cr[4]; cr5 = c.cr[5]; cr6 = c.cr[6]; cr7 = c.cr[7]; ctr = c.ctr; ca = c.ca; }
             r2 = 0x80460000u32;
             r2 = r2 | 0x3C00;
             { let ea = r2.wrapping_add(0x80); r27 = runtime::mr32(mem, ea.wrapping_add(0x0)); r28 = runtime::mr32(mem, ea.wrapping_add(0x4)); r29 = runtime::mr32(mem, ea.wrapping_add(0x8)); r30 = runtime::mr32(mem, ea.wrapping_add(0xC)); r31 = runtime::mr32(mem, ea.wrapping_add(0x10));  }
@@ -11527,6 +11699,7 @@ pub fn fn_802B642C(c: &mut Ctx) {
 
 // TRKInterruptHandlerEnableInterrupts
 pub fn fn_802B64F0(c: &mut Ctx) {
+    runtime::prof(0x802B64F0);
     if c.hle(169) { return; }
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r1 = c.r[1]; let mut r2 = c.r[2]; let mut r3 = c.r[3]; let mut r4 = c.r[4]; let mut r5 = c.r[5]; let mut r6 = c.r[6]; let mut r7 = c.r[7]; let mut r8 = c.r[8]; let mut r9 = c.r[9]; let mut r10 = c.r[10]; let mut r11 = c.r[11]; let mut r12 = c.r[12]; let mut r13 = c.r[13]; let mut r14 = c.r[14]; let mut r15 = c.r[15]; let mut r16 = c.r[16]; let mut r17 = c.r[17]; let mut r18 = c.r[18]; let mut r19 = c.r[19]; let mut r20 = c.r[20]; let mut r21 = c.r[21]; let mut r22 = c.r[22]; let mut r23 = c.r[23]; let mut r24 = c.r[24]; let mut r25 = c.r[25]; let mut r26 = c.r[26]; let mut r27 = c.r[27]; let mut r28 = c.r[28]; let mut r29 = c.r[29]; let mut r30 = c.r[30]; let mut r31 = c.r[31]; 
@@ -11556,6 +11729,7 @@ pub fn fn_802B64F0(c: &mut Ctx) {
 // ReadFPSCR
 #[inline]
 pub fn fn_802B6544(c: &mut Ctx) {
+    runtime::prof(0x802B6544);
     let mem = c.mem;
     let mut r1 = c.r[1]; let mut r3 = c.r[3]; 
     let mut f31 = c.f[31]; 
@@ -11574,6 +11748,7 @@ pub fn fn_802B6544(c: &mut Ctx) {
 // WriteFPSCR
 #[inline]
 pub fn fn_802B6568(c: &mut Ctx) {
+    runtime::prof(0x802B6568);
     let mem = c.mem;
     let mut r1 = c.r[1]; let mut r3 = c.r[3]; 
     let mut f31 = c.f[31]; 
@@ -11591,6 +11766,7 @@ pub fn fn_802B6568(c: &mut Ctx) {
 
 // TRKTargetAccessARAM
 pub fn fn_802B658C(c: &mut Ctx) {
+    runtime::prof(0x802B658C);
     if c.hle(170) { return; }
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r1 = c.r[1]; let mut r3 = c.r[3]; let mut r4 = c.r[4]; let mut r5 = c.r[5]; let mut r6 = c.r[6]; let mut r7 = c.r[7]; let mut r8 = c.r[8]; let mut r9 = c.r[9]; let mut r29 = c.r[29]; let mut r30 = c.r[30]; let mut r31 = c.r[31]; 
@@ -11620,11 +11796,11 @@ pub fn fn_802B658C(c: &mut Ctx) {
             { let ea = r1.wrapping_add(0x14); runtime::mw32(mem, ea, r6); }
             { let ea = r31.wrapping_add(0xD); runtime::mw8(mem, ea, r0 as u8); }
             if cr0 & 2 != 0 { { pc = 0x802B65EC; continue; } }
-            { c.lr = 0x802B65E8; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; fn_802B83E8(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; }
+            { c.lr = 0x802B65E8; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.cr[0] = cr0; fn_802B83E8(c); runtime::prof(0x802B658C); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; cr0 = c.cr[0]; }
             { pc = 0x802B65F0; continue; }
         }
         0x802B65EC => {
-            { c.lr = 0x802B65F0; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; fn_802B81FC(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; }
+            { c.lr = 0x802B65F0; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.cr[0] = cr0; fn_802B81FC(c); runtime::prof(0x802B658C); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; cr0 = c.cr[0]; }
             pc = 0x802B65F0;
         }
         0x802B65F0 => {
@@ -11663,6 +11839,7 @@ pub fn fn_802B658C(c: &mut Ctx) {
 // TRKTargetSetInputPendingPtr
 #[inline]
 pub fn fn_802B6650(c: &mut Ctx) {
+    runtime::prof(0x802B6650);
     if c.hle(171) { return; }
     let mem = c.mem;
     let mut r3 = c.r[3]; let mut r4 = c.r[4]; 
@@ -11675,6 +11852,7 @@ pub fn fn_802B6650(c: &mut Ctx) {
 // TRKTargetStop
 #[inline]
 pub fn fn_802B6660(c: &mut Ctx) {
+    runtime::prof(0x802B6660);
     if c.hle(172) { return; }
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r3 = c.r[3]; let mut r4 = c.r[4]; 
@@ -11689,6 +11867,7 @@ pub fn fn_802B6660(c: &mut Ctx) {
 // TRKTargetSetStopped
 #[inline]
 pub fn fn_802B6678(c: &mut Ctx) {
+    runtime::prof(0x802B6678);
     if c.hle(173) { return; }
     let mem = c.mem;
     let mut r3 = c.r[3]; let mut r4 = c.r[4]; 
@@ -11701,6 +11880,7 @@ pub fn fn_802B6678(c: &mut Ctx) {
 // TRKTargetStopped
 #[inline]
 pub fn fn_802B6688(c: &mut Ctx) {
+    runtime::prof(0x802B6688);
     if c.hle(174) { return; }
     let mem = c.mem;
     let mut r3 = c.r[3]; 
@@ -11712,6 +11892,7 @@ pub fn fn_802B6688(c: &mut Ctx) {
 
 // TRKTargetSupportRequest
 pub fn fn_802B6698(c: &mut Ctx) {
+    runtime::prof(0x802B6698);
     if c.hle(175) { return; }
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r1 = c.r[1]; let mut r3 = c.r[3]; let mut r4 = c.r[4]; let mut r5 = c.r[5]; let mut r6 = c.r[6]; let mut r7 = c.r[7]; let mut r8 = c.r[8]; let mut r27 = c.r[27]; let mut r28 = c.r[28]; let mut r29 = c.r[29]; let mut r30 = c.r[30]; let mut r31 = c.r[31]; 
@@ -11739,9 +11920,9 @@ pub fn fn_802B6698(c: &mut Ctx) {
             if cr0 & 2 != 0 { { pc = 0x802B66F8; continue; } }
             r3 = r1.wrapping_add(0x10);
             r4 = 0x4u32;
-            { c.lr = 0x802B66E8; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ca = ca; fn_802B37B4(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ca = c.ca; }
+            { c.lr = 0x802B66E8; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.cr[0] = cr0; c.ca = ca; fn_802B37B4(c); runtime::prof(0x802B6698); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; cr0 = c.cr[0]; ca = c.ca; }
             r3 = r1.wrapping_add(0x10);
-            { c.lr = 0x802B66F0; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ca = ca; fn_802B37CC(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ca = c.ca; }
+            { c.lr = 0x802B66F0; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.cr[0] = cr0; c.ca = ca; fn_802B37CC(c); runtime::prof(0x802B6698); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; cr0 = c.cr[0]; ca = c.ca; }
             r3 = 0x0u32;
             { pc = 0x802B6884; continue; }
         }
@@ -11755,7 +11936,7 @@ pub fn fn_802B6698(c: &mut Ctx) {
             { let ea = r4.wrapping_add(0x10); r3 = runtime::mr32(mem, ea); }
             { let ea = r4.wrapping_add(0x18); r5 = runtime::mr32(mem, ea); }
             r4 = r0.rotate_left(0) & 0xFF;
-            { c.lr = 0x802B6720; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ca = ca; fn_802B5AF4(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ca = c.ca; }
+            { c.lr = 0x802B6720; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.cr[0] = cr0; c.ca = ca; fn_802B5AF4(c); runtime::prof(0x802B6698); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; cr0 = c.cr[0]; ca = c.ca; }
             { let ea = r1.wrapping_add(0xC); r0 = runtime::mr32(mem, ea); }
             r30 = r3 | r3;
             cr0 = runtime::cmps_val(r0 as i32, 0);
@@ -11778,7 +11959,7 @@ pub fn fn_802B6698(c: &mut Ctx) {
             r4 = r1.wrapping_add(0xC);
             r3 = r3.wrapping_add(0x3C00);
             { let ea = r3.wrapping_add(0x10); r3 = runtime::mr32(mem, ea); }
-            { c.lr = 0x802B6768; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ca = ca; fn_802B5A0C(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ca = c.ca; }
+            { c.lr = 0x802B6768; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.cr[0] = cr0; c.ca = ca; fn_802B5A0C(c); runtime::prof(0x802B6698); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; cr0 = c.cr[0]; ca = c.ca; }
             { let ea = r1.wrapping_add(0xC); r0 = runtime::mr32(mem, ea); }
             r30 = r3 | r3;
             cr0 = runtime::cmps_val(r0 as i32, 0);
@@ -11807,7 +11988,7 @@ pub fn fn_802B6698(c: &mut Ctx) {
             { let ea = r29.wrapping_add(0x10); r3 = runtime::mr32(mem, ea); }
             r5 = r0.rotate_left(0) & 0xFF;
             { let ea = r1.wrapping_add(0x8); runtime::mw32(mem, ea, r7); }
-            { c.lr = 0x802B67C8; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ca = ca; fn_802B58FC(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ca = c.ca; }
+            { c.lr = 0x802B67C8; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.cr[0] = cr0; c.ca = ca; fn_802B58FC(c); runtime::prof(0x802B6698); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; cr0 = c.cr[0]; ca = c.ca; }
             { let ea = r1.wrapping_add(0xC); r0 = runtime::mr32(mem, ea); }
             r30 = r3 | r3;
             cr0 = runtime::cmps_val(r0 as i32, 0);
@@ -11838,7 +12019,7 @@ pub fn fn_802B6698(c: &mut Ctx) {
             { let ea = r29.wrapping_add(0x18); r4 = runtime::mr32(mem, ea); }
             r5 = r28 | r28;
             r7 = 0x1u32;
-            { c.lr = 0x802B6830; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ca = ca; fn_802B5DF0(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ca = c.ca; }
+            { c.lr = 0x802B6830; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.cr[0] = cr0; c.ca = ca; fn_802B5DF0(c); runtime::prof(0x802B6698); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; cr0 = c.cr[0]; ca = c.ca; }
             { let ea = r1.wrapping_add(0xC); r0 = runtime::mr32(mem, ea); }
             r30 = r3 | r3;
             cr0 = runtime::cmps_val(r0 as i32, 0);
@@ -11856,7 +12037,7 @@ pub fn fn_802B6698(c: &mut Ctx) {
             if cr0 & 2 == 0 { { pc = 0x802B686C; continue; } }
             { let ea = r29.wrapping_add(0x18); r3 = runtime::mr32(mem, ea); }
             { let ea = r28; r4 = runtime::mr32(mem, ea); }
-            { c.lr = 0x802B686C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ca = ca; fn_802B60C0(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ca = c.ca; }
+            { c.lr = 0x802B686C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.cr[0] = cr0; c.ca = ca; fn_802B60C0(c); runtime::prof(0x802B6698); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; cr0 = c.cr[0]; ca = c.ca; }
             pc = 0x802B686C;
         }
         0x802B686C => {
@@ -11882,6 +12063,7 @@ pub fn fn_802B6698(c: &mut Ctx) {
 // TRKTargetGetPC
 #[inline]
 pub fn fn_802B6898(c: &mut Ctx) {
+    runtime::prof(0x802B6898);
     if c.hle(176) { return; }
     let mem = c.mem;
     let mut r3 = c.r[3]; 
@@ -11893,6 +12075,7 @@ pub fn fn_802B6898(c: &mut Ctx) {
 
 // TRKTargetStepOutOfRange
 pub fn fn_802B68A8(c: &mut Ctx) {
+    runtime::prof(0x802B68A8);
     if c.hle(177) { return; }
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r1 = c.r[1]; let mut r3 = c.r[3]; let mut r4 = c.r[4]; let mut r5 = c.r[5]; let mut r6 = c.r[6]; let mut r31 = c.r[31]; 
@@ -11922,7 +12105,7 @@ pub fn fn_802B68A8(c: &mut Ctx) {
             { let ea = r31.wrapping_add(0x4); runtime::mw32(mem, ea, r6); }
             { let ea = r31; runtime::mw32(mem, ea, r6); }
             { let v = (cr1 & 2 != 0) ^ (cr1 & 2 != 0); cr1 = if v { cr1 | 2 } else { cr1 & 0xFD }; }
-            { c.lr = 0x802B68FC; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[31] = r31; c.cr[0] = cr0; c.cr[1] = cr1; fn_802B97C4(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r31 = c.r[31]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
+            { c.lr = 0x802B68FC; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.cr[0] = cr0; c.cr[1] = cr1; fn_802B97C4(c); runtime::prof(0x802B68A8); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
             r3 = 0x80460000u32;
             { let ea = r31.wrapping_add(0x4); r4 = runtime::mr32(mem, ea); }
             r3 = r3.wrapping_add(0x3C00);
@@ -11964,6 +12147,7 @@ pub fn fn_802B68A8(c: &mut Ctx) {
 
 // TRKTargetSingleStep
 pub fn fn_802B6960(c: &mut Ctx) {
+    runtime::prof(0x802B6960);
     if c.hle(178) { return; }
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r1 = c.r[1]; let mut r3 = c.r[3]; let mut r4 = c.r[4]; let mut r5 = c.r[5]; let mut r31 = c.r[31]; 
@@ -11992,7 +12176,7 @@ pub fn fn_802B6960(c: &mut Ctx) {
             { let ea = r31.wrapping_add(0x4); runtime::mw32(mem, ea, r5); }
             { let ea = r31; runtime::mw32(mem, ea, r0); }
             { let v = (cr1 & 2 != 0) ^ (cr1 & 2 != 0); cr1 = if v { cr1 | 2 } else { cr1 & 0xFD }; }
-            { c.lr = 0x802B69B0; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[31] = r31; c.cr[0] = cr0; c.cr[1] = cr1; fn_802B97C4(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r31 = c.r[31]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
+            { c.lr = 0x802B69B0; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.cr[0] = cr0; c.cr[1] = cr1; fn_802B97C4(c); runtime::prof(0x802B6960); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
             r3 = 0x80460000u32;
             { let ea = r31.wrapping_add(0x4); r4 = runtime::mr32(mem, ea); }
             r3 = r3.wrapping_add(0x3C00);
@@ -12032,6 +12216,7 @@ pub fn fn_802B6960(c: &mut Ctx) {
 
 // TRKTargetAddExceptionInfo
 pub fn fn_802B6A0C(c: &mut Ctx) {
+    runtime::prof(0x802B6A0C);
     if c.hle(180) { return; }
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r1 = c.r[1]; let mut r3 = c.r[3]; let mut r4 = c.r[4]; let mut r5 = c.r[5]; let mut r31 = c.r[31]; 
@@ -12043,7 +12228,7 @@ pub fn fn_802B6A0C(c: &mut Ctx) {
     { let ea = r1.wrapping_add(0x5C); runtime::mw32(mem, ea, r31); }
     r31 = r3 | r3;
     r3 = r1.wrapping_add(0xC);
-    { c.lr = 0x802B6A30; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[31] = r31; fn_80003100(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r31 = c.r[31]; }
+    { c.lr = 0x802B6A30; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; fn_80003100(c); runtime::prof(0x802B6A0C); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; }
     r3 = 0x803C0000u32;
     r5 = 0x40u32;
     { let ea = r3.wrapping_add(0xFFFFADCC); r4 = runtime::mr32(mem, ea); }
@@ -12052,7 +12237,7 @@ pub fn fn_802B6A0C(c: &mut Ctx) {
     r3 = r1.wrapping_add(0x8);
     { let ea = r1.wrapping_add(0x10); runtime::mw8(mem, ea, r0 as u8); }
     { let ea = r1.wrapping_add(0x14); runtime::mw32(mem, ea, r4); }
-    { c.lr = 0x802B6A54; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[31] = r31; fn_802B7900(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r31 = c.r[31]; }
+    { c.lr = 0x802B6A54; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; fn_802B7900(c); runtime::prof(0x802B6A0C); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; }
     r3 = 0x803C0000u32;
     { let ea = r1.wrapping_add(0x8); r5 = runtime::mr32(mem, ea); }
     r4 = r3.wrapping_add(0xFFFFADCC);
@@ -12062,7 +12247,7 @@ pub fn fn_802B6A0C(c: &mut Ctx) {
     { let ea = r1.wrapping_add(0x18); runtime::mw32(mem, ea, r5); }
     r5 = 0x40u32;
     { let ea = r1.wrapping_add(0x1C); runtime::mw32(mem, ea, r0); }
-    { c.lr = 0x802B6A7C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[31] = r31; fn_802B3F00(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r31 = c.r[31]; }
+    { c.lr = 0x802B6A7C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; fn_802B3F00(c); runtime::prof(0x802B6A0C); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; }
     { let ea = r1.wrapping_add(0x64); r0 = runtime::mr32(mem, ea); }
     { let ea = r1.wrapping_add(0x5C); r31 = runtime::mr32(mem, ea); }
     c.lr = r0;
@@ -12072,6 +12257,7 @@ pub fn fn_802B6A0C(c: &mut Ctx) {
 
 // TRKTargetAddStopInfo
 pub fn fn_802B6A90(c: &mut Ctx) {
+    runtime::prof(0x802B6A90);
     if c.hle(181) { return; }
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r1 = c.r[1]; let mut r3 = c.r[3]; let mut r4 = c.r[4]; let mut r5 = c.r[5]; let mut r31 = c.r[31]; 
@@ -12083,7 +12269,7 @@ pub fn fn_802B6A90(c: &mut Ctx) {
     { let ea = r1.wrapping_add(0x5C); runtime::mw32(mem, ea, r31); }
     r31 = r3 | r3;
     r3 = r1.wrapping_add(0xC);
-    { c.lr = 0x802B6AB4; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[31] = r31; fn_80003100(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r31 = c.r[31]; }
+    { c.lr = 0x802B6AB4; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; fn_80003100(c); runtime::prof(0x802B6A90); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; }
     r3 = 0x80460000u32;
     r5 = 0x40u32;
     r3 = r3.wrapping_add(0x3C00);
@@ -12093,7 +12279,7 @@ pub fn fn_802B6A90(c: &mut Ctx) {
     { let ea = r1.wrapping_add(0xC); runtime::mw32(mem, ea, r5); }
     { let ea = r1.wrapping_add(0x10); runtime::mw8(mem, ea, r0 as u8); }
     { let ea = r1.wrapping_add(0x14); runtime::mw32(mem, ea, r4); }
-    { c.lr = 0x802B6ADC; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[31] = r31; fn_802B7900(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r31 = c.r[31]; }
+    { c.lr = 0x802B6ADC; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; fn_802B7900(c); runtime::prof(0x802B6A90); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; }
     r3 = 0x80460000u32;
     { let ea = r1.wrapping_add(0x8); r5 = runtime::mr32(mem, ea); }
     r4 = r3.wrapping_add(0x3C00);
@@ -12104,7 +12290,7 @@ pub fn fn_802B6A90(c: &mut Ctx) {
     r5 = 0x40u32;
     r0 = r0.rotate_left(0) & 0xFFFF;
     { let ea = r1.wrapping_add(0x1C); runtime::mw32(mem, ea, r0); }
-    { c.lr = 0x802B6B08; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[31] = r31; fn_802B3F00(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r31 = c.r[31]; }
+    { c.lr = 0x802B6B08; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; fn_802B3F00(c); runtime::prof(0x802B6A90); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; }
     { let ea = r1.wrapping_add(0x64); r0 = runtime::mr32(mem, ea); }
     { let ea = r1.wrapping_add(0x5C); r31 = runtime::mr32(mem, ea); }
     c.lr = r0;
@@ -12114,6 +12300,7 @@ pub fn fn_802B6A90(c: &mut Ctx) {
 
 // TRKTargetInterrupt
 pub fn fn_802B6B1C(c: &mut Ctx) {
+    runtime::prof(0x802B6B1C);
     if c.hle(182) { return; }
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r1 = c.r[1]; let mut r3 = c.r[3]; let mut r4 = c.r[4]; let mut r5 = c.r[5]; let mut r30 = c.r[30]; let mut r31 = c.r[31]; 
@@ -12194,7 +12381,7 @@ pub fn fn_802B6B1C(c: &mut Ctx) {
             r4 = r3.wrapping_add(0xFFFFED28);
             r3 = 0x1u32;
             { let v = (cr1 & 2 != 0) ^ (cr1 & 2 != 0); cr1 = if v { cr1 | 2 } else { cr1 & 0xFD }; }
-            { c.lr = 0x802B6C18; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.cr[1] = cr1; fn_802B97C4(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
+            { c.lr = 0x802B6C18; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.cr[0] = cr0; c.cr[1] = cr1; fn_802B97C4(c); runtime::prof(0x802B6B1C); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
             r3 = 0x803C0000u32;
             { let ea = r31.wrapping_add(0x1F8); r0 = runtime::mr32(mem, ea); }
             r3 = r3.wrapping_add(0xFFFFADDC);
@@ -12232,7 +12419,7 @@ pub fn fn_802B6B1C(c: &mut Ctx) {
             r4 = r3.wrapping_add(0x3B5C);
             r3 = 0x90u32;
             { let ea = r4.wrapping_add(0x98); runtime::mw32(mem, ea, r0); }
-            { c.lr = 0x802B6C8C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.cr[1] = cr1; fn_802B6028(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
+            { c.lr = 0x802B6C8C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.cr[0] = cr0; c.cr[1] = cr1; fn_802B6028(c); runtime::prof(0x802B6B1C); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
             r30 = r3 | r3;
             pc = 0x802B6C90;
         }
@@ -12251,6 +12438,7 @@ pub fn fn_802B6B1C(c: &mut Ctx) {
 
 // TRKPostInterruptEvent
 pub fn fn_802B6CAC(c: &mut Ctx) {
+    runtime::prof(0x802B6CAC);
     if c.hle(167) { return; }
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r1 = c.r[1]; let mut r3 = c.r[3]; let mut r4 = c.r[4]; 
@@ -12287,7 +12475,7 @@ pub fn fn_802B6CAC(c: &mut Ctx) {
             r3 = r1.wrapping_add(0x8);
             r4 = r4.wrapping_add(0x3C00);
             { let ea = r4.wrapping_add(0x80); r4 = runtime::mr32(mem, ea); }
-            { c.lr = 0x802B6D14; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.cr[0] = cr0; fn_802B7900(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; cr0 = c.cr[0]; }
+            { c.lr = 0x802B6D14; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.cr[0] = cr0; fn_802B7900(c); runtime::prof(0x802B6CAC); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; cr0 = c.cr[0]; }
             { let ea = r1.wrapping_add(0x8); r3 = runtime::mr32(mem, ea); }
             r0 = r3.wrapping_add(0xF0200000);
             cr0 = runtime::cmpu_val(r0, 0x0);
@@ -12305,9 +12493,9 @@ pub fn fn_802B6CAC(c: &mut Ctx) {
         }
         0x802B6D38 => {
             r3 = r1.wrapping_add(0xC);
-            { c.lr = 0x802B6D40; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.cr[0] = cr0; fn_802B37B4(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; cr0 = c.cr[0]; }
+            { c.lr = 0x802B6D40; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.cr[0] = cr0; fn_802B37B4(c); runtime::prof(0x802B6CAC); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; cr0 = c.cr[0]; }
             r3 = r1.wrapping_add(0xC);
-            { c.lr = 0x802B6D48; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.cr[0] = cr0; fn_802B37CC(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; cr0 = c.cr[0]; }
+            { c.lr = 0x802B6D48; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.cr[0] = cr0; fn_802B37CC(c); runtime::prof(0x802B6CAC); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; cr0 = c.cr[0]; }
             pc = 0x802B6D48;
         }
         0x802B6D48 => {
@@ -12322,6 +12510,7 @@ pub fn fn_802B6CAC(c: &mut Ctx) {
 
 // TRKTargetAccessExtended2
 pub fn fn_802B6D58(c: &mut Ctx) {
+    runtime::prof(0x802B6D58);
     if c.hle(183) { return; }
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r1 = c.r[1]; let mut r3 = c.r[3]; let mut r4 = c.r[4]; let mut r5 = c.r[5]; let mut r6 = c.r[6]; let mut r7 = c.r[7]; let mut r8 = c.r[8]; let mut r9 = c.r[9]; let mut r10 = c.r[10]; let mut r11 = c.r[11]; let mut r12 = c.r[12]; let mut r19 = c.r[19]; let mut r20 = c.r[20]; let mut r21 = c.r[21]; let mut r22 = c.r[22]; let mut r23 = c.r[23]; let mut r24 = c.r[24]; let mut r25 = c.r[25]; let mut r26 = c.r[26]; let mut r27 = c.r[27]; let mut r28 = c.r[28]; let mut r29 = c.r[29]; let mut r30 = c.r[30]; let mut r31 = c.r[31]; 
@@ -12389,13 +12578,13 @@ pub fn fn_802B6D58(c: &mut Ctx) {
             { let ea = r1.wrapping_add(0xC4); runtime::mw32(mem, ea, r6); }
             { let ea = r1.wrapping_add(0xC8); runtime::mw32(mem, ea, r5); }
             { let ea = r1.wrapping_add(0xE8); runtime::mw32(mem, ea, r0); }
-            { c.lr = 0x802B6E40; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.r[19] = r19; c.r[20] = r20; c.r[21] = r21; c.r[22] = r22; c.r[23] = r23; c.r[24] = r24; c.r[25] = r25; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ctr = ctr; fn_802B60C0(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; r19 = c.r[19]; r20 = c.r[20]; r21 = c.r[21]; r22 = c.r[22]; r23 = c.r[23]; r24 = c.r[24]; r25 = c.r[25]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ctr = c.ctr; }
+            { c.lr = 0x802B6E40; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.cr[0] = cr0; c.ctr = ctr; fn_802B60C0(c); runtime::prof(0x802B6D58); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; cr0 = c.cr[0]; ctr = c.ctr; }
             r3 = 0x80460000u32;
             r12 = r1.wrapping_add(0xC4);
             r4 = r3.wrapping_add(0x40C4);
             r3 = r1.wrapping_add(0x8);
             ctr = r12;
-            { let t = ctr; c.lr = 0x802B6E58; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.r[19] = r19; c.r[20] = r20; c.r[21] = r21; c.r[22] = r22; c.r[23] = r23; c.r[24] = r24; c.r[25] = r25; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ctr = ctr; c.call(t); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; r19 = c.r[19]; r20 = c.r[20]; r21 = c.r[21]; r22 = c.r[22]; r23 = c.r[23]; r24 = c.r[24]; r25 = c.r[25]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ctr = c.ctr; }
+            { let t = ctr; c.lr = 0x802B6E58; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.r[19] = r19; c.r[20] = r20; c.r[21] = r21; c.r[22] = r22; c.r[23] = r23; c.r[24] = r24; c.r[25] = r25; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ctr = ctr; c.call(t); runtime::prof(0x802B6D58); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; r19 = c.r[19]; r20 = c.r[20]; r21 = c.r[21]; r22 = c.r[22]; r23 = c.r[23]; r24 = c.r[24]; r25 = c.r[25]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ctr = c.ctr; }
             r3 = 0x80380000u32;
             { let ea = r1.wrapping_add(0x8); r5 = runtime::mr32(mem, ea); }
             r29 = r3.wrapping_add(0xFFFFECB0);
@@ -12431,13 +12620,13 @@ pub fn fn_802B6D58(c: &mut Ctx) {
             { let ea = r1.wrapping_add(0x9C); runtime::mw32(mem, ea, r6); }
             { let ea = r1.wrapping_add(0xA0); runtime::mw32(mem, ea, r5); }
             { let ea = r1.wrapping_add(0xC0); runtime::mw32(mem, ea, r0); }
-            { c.lr = 0x802B6EE8; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.r[19] = r19; c.r[20] = r20; c.r[21] = r21; c.r[22] = r22; c.r[23] = r23; c.r[24] = r24; c.r[25] = r25; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ctr = ctr; fn_802B60C0(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; r19 = c.r[19]; r20 = c.r[20]; r21 = c.r[21]; r22 = c.r[22]; r23 = c.r[23]; r24 = c.r[24]; r25 = c.r[25]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ctr = c.ctr; }
+            { c.lr = 0x802B6EE8; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.cr[0] = cr0; c.ctr = ctr; fn_802B60C0(c); runtime::prof(0x802B6D58); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; cr0 = c.cr[0]; ctr = c.ctr; }
             r3 = 0x80460000u32;
             r12 = r1.wrapping_add(0x9C);
             r4 = r3.wrapping_add(0x40C4);
             r3 = r1.wrapping_add(0x8);
             ctr = r12;
-            { let t = ctr; c.lr = 0x802B6F00; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.r[19] = r19; c.r[20] = r20; c.r[21] = r21; c.r[22] = r22; c.r[23] = r23; c.r[24] = r24; c.r[25] = r25; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ctr = ctr; c.call(t); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; r19 = c.r[19]; r20 = c.r[20]; r21 = c.r[21]; r22 = c.r[22]; r23 = c.r[23]; r24 = c.r[24]; r25 = c.r[25]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ctr = c.ctr; }
+            { let t = ctr; c.lr = 0x802B6F00; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.r[19] = r19; c.r[20] = r20; c.r[21] = r21; c.r[22] = r22; c.r[23] = r23; c.r[24] = r24; c.r[25] = r25; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ctr = ctr; c.call(t); runtime::prof(0x802B6D58); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; r19 = c.r[19]; r20 = c.r[20]; r21 = c.r[21]; r22 = c.r[22]; r23 = c.r[23]; r24 = c.r[24]; r25 = c.r[25]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ctr = c.ctr; }
             r3 = 0x80380000u32;
             r4 = 0x7C910000u32;
             r29 = r3.wrapping_add(0xFFFFECB0);
@@ -12472,13 +12661,13 @@ pub fn fn_802B6D58(c: &mut Ctx) {
             { let ea = r1.wrapping_add(0x74); runtime::mw32(mem, ea, r6); }
             { let ea = r1.wrapping_add(0x78); runtime::mw32(mem, ea, r5); }
             { let ea = r1.wrapping_add(0x98); runtime::mw32(mem, ea, r0); }
-            { c.lr = 0x802B6F8C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.r[19] = r19; c.r[20] = r20; c.r[21] = r21; c.r[22] = r22; c.r[23] = r23; c.r[24] = r24; c.r[25] = r25; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ctr = ctr; fn_802B60C0(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; r19 = c.r[19]; r20 = c.r[20]; r21 = c.r[21]; r22 = c.r[22]; r23 = c.r[23]; r24 = c.r[24]; r25 = c.r[25]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ctr = c.ctr; }
+            { c.lr = 0x802B6F8C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.cr[0] = cr0; c.ctr = ctr; fn_802B60C0(c); runtime::prof(0x802B6D58); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; cr0 = c.cr[0]; ctr = c.ctr; }
             r3 = 0x80460000u32;
             r12 = r1.wrapping_add(0x74);
             r4 = r3.wrapping_add(0x40C4);
             r3 = r1.wrapping_add(0x8);
             ctr = r12;
-            { let t = ctr; c.lr = 0x802B6FA4; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.r[19] = r19; c.r[20] = r20; c.r[21] = r21; c.r[22] = r22; c.r[23] = r23; c.r[24] = r24; c.r[25] = r25; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ctr = ctr; c.call(t); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; r19 = c.r[19]; r20 = c.r[20]; r21 = c.r[21]; r22 = c.r[22]; r23 = c.r[23]; r24 = c.r[24]; r25 = c.r[25]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ctr = c.ctr; }
+            { let t = ctr; c.lr = 0x802B6FA4; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.r[19] = r19; c.r[20] = r20; c.r[21] = r21; c.r[22] = r22; c.r[23] = r23; c.r[24] = r24; c.r[25] = r25; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ctr = ctr; c.call(t); runtime::prof(0x802B6D58); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; r19 = c.r[19]; r20 = c.r[20]; r21 = c.r[21]; r22 = c.r[22]; r23 = c.r[23]; r24 = c.r[24]; r25 = c.r[25]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ctr = c.ctr; }
             r0 = 0x0u32;
             r30 = r27.rotate_left(21) & 0xFFE00000;
             { let ea = r25; runtime::mw32(mem, ea, r0); }
@@ -12523,23 +12712,23 @@ pub fn fn_802B6D58(c: &mut Ctx) {
             r3 = r29 | r29;
             { let ea = r1.wrapping_add(0x70); runtime::mw32(mem, ea, r0); }
             r4 = 0x28u32;
-            { c.lr = 0x802B7044; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.r[19] = r19; c.r[20] = r20; c.r[21] = r21; c.r[22] = r22; c.r[23] = r23; c.r[24] = r24; c.r[25] = r25; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ctr = ctr; fn_802B60C0(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; r19 = c.r[19]; r20 = c.r[20]; r21 = c.r[21]; r22 = c.r[22]; r23 = c.r[23]; r24 = c.r[24]; r25 = c.r[25]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ctr = c.ctr; }
+            { c.lr = 0x802B7044; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.cr[0] = cr0; c.ctr = ctr; fn_802B60C0(c); runtime::prof(0x802B6D58); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; cr0 = c.cr[0]; ctr = c.ctr; }
             r3 = 0x80460000u32;
             r12 = r1.wrapping_add(0x4C);
             r4 = r3.wrapping_add(0x40C4);
             r3 = r1.wrapping_add(0xC);
             ctr = r12;
-            { let t = ctr; c.lr = 0x802B705C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.r[19] = r19; c.r[20] = r20; c.r[21] = r21; c.r[22] = r22; c.r[23] = r23; c.r[24] = r24; c.r[25] = r25; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ctr = ctr; c.call(t); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; r19 = c.r[19]; r20 = c.r[20]; r21 = c.r[21]; r22 = c.r[22]; r23 = c.r[23]; r24 = c.r[24]; r25 = c.r[25]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ctr = c.ctr; }
+            { let t = ctr; c.lr = 0x802B705C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.r[19] = r19; c.r[20] = r20; c.r[21] = r21; c.r[22] = r22; c.r[23] = r23; c.r[24] = r24; c.r[25] = r25; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ctr = ctr; c.call(t); runtime::prof(0x802B6D58); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; r19 = c.r[19]; r20 = c.r[20]; r21 = c.r[21]; r22 = c.r[22]; r23 = c.r[23]; r24 = c.r[24]; r25 = c.r[25]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ctr = c.ctr; }
             { let ea = r1.wrapping_add(0xC); r5 = runtime::mr32(mem, ea); }
             r3 = r24 | r24;
             { let ea = r1.wrapping_add(0x10); r6 = runtime::mr32(mem, ea); }
-            { c.lr = 0x802B706C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.r[19] = r19; c.r[20] = r20; c.r[21] = r21; c.r[22] = r22; c.r[23] = r23; c.r[24] = r24; c.r[25] = r25; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ctr = ctr; fn_802B3F68(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; r19 = c.r[19]; r20 = c.r[20]; r21 = c.r[21]; r22 = c.r[22]; r23 = c.r[23]; r24 = c.r[24]; r25 = c.r[25]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ctr = c.ctr; }
+            { c.lr = 0x802B706C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.cr[0] = cr0; c.ctr = ctr; fn_802B3F68(c); runtime::prof(0x802B6D58); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; cr0 = c.cr[0]; ctr = c.ctr; }
             { pc = 0x802B7118; continue; }
         }
         0x802B7070 => {
             r3 = r24 | r24;
             r4 = r1.wrapping_add(0xC);
-            { c.lr = 0x802B707C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.r[19] = r19; c.r[20] = r20; c.r[21] = r21; c.r[22] = r22; c.r[23] = r23; c.r[24] = r24; c.r[25] = r25; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ctr = ctr; fn_802B3D1C(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; r19 = c.r[19]; r20 = c.r[20]; r21 = c.r[21]; r22 = c.r[22]; r23 = c.r[23]; r24 = c.r[24]; r25 = c.r[25]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ctr = c.ctr; }
+            { c.lr = 0x802B707C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.cr[0] = cr0; c.ctr = ctr; fn_802B3D1C(c); runtime::prof(0x802B6D58); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; cr0 = c.cr[0]; ctr = c.ctr; }
             r3 = 0x80380000u32;
             { let ea = r3.wrapping_add(0xFFFFECD8); r12 = runtime::mr32(mem, ea); r3 = ea; }
             cr0 = runtime::cmps_val(r26 as i32, 0);
@@ -12574,13 +12763,13 @@ pub fn fn_802B6D58(c: &mut Ctx) {
             r3 = r28 | r28;
             { let ea = r1.wrapping_add(0x48); runtime::mw32(mem, ea, r0); }
             r4 = 0x28u32;
-            { c.lr = 0x802B70FC; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.r[19] = r19; c.r[20] = r20; c.r[21] = r21; c.r[22] = r22; c.r[23] = r23; c.r[24] = r24; c.r[25] = r25; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ctr = ctr; fn_802B60C0(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; r19 = c.r[19]; r20 = c.r[20]; r21 = c.r[21]; r22 = c.r[22]; r23 = c.r[23]; r24 = c.r[24]; r25 = c.r[25]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ctr = c.ctr; }
+            { c.lr = 0x802B70FC; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.cr[0] = cr0; c.ctr = ctr; fn_802B60C0(c); runtime::prof(0x802B6D58); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; cr0 = c.cr[0]; ctr = c.ctr; }
             r3 = 0x80460000u32;
             r12 = r1.wrapping_add(0x24);
             r4 = r3.wrapping_add(0x40C4);
             r3 = r1.wrapping_add(0xC);
             ctr = r12;
-            { let t = ctr; c.lr = 0x802B7114; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.r[19] = r19; c.r[20] = r20; c.r[21] = r21; c.r[22] = r22; c.r[23] = r23; c.r[24] = r24; c.r[25] = r25; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ctr = ctr; c.call(t); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; r19 = c.r[19]; r20 = c.r[20]; r21 = c.r[21]; r22 = c.r[22]; r23 = c.r[23]; r24 = c.r[24]; r25 = c.r[25]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ctr = c.ctr; }
+            { let t = ctr; c.lr = 0x802B7114; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.r[19] = r19; c.r[20] = r20; c.r[21] = r21; c.r[22] = r22; c.r[23] = r23; c.r[24] = r24; c.r[25] = r25; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ctr = ctr; c.call(t); runtime::prof(0x802B6D58); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; r19 = c.r[19]; r20 = c.r[20]; r21 = c.r[21]; r22 = c.r[22]; r23 = c.r[23]; r24 = c.r[24]; r25 = c.r[25]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ctr = c.ctr; }
             r3 = 0x0u32;
             pc = 0x802B7118;
         }
@@ -12634,6 +12823,7 @@ pub fn fn_802B6D58(c: &mut Ctx) {
 
 // TRKTargetAccessExtended1
 pub fn fn_802B7190(c: &mut Ctx) {
+    runtime::prof(0x802B7190);
     if c.hle(184) { return; }
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r1 = c.r[1]; let mut r3 = c.r[3]; let mut r4 = c.r[4]; let mut r5 = c.r[5]; let mut r6 = c.r[6]; let mut r7 = c.r[7]; let mut r8 = c.r[8]; let mut r9 = c.r[9]; let mut r10 = c.r[10]; let mut r30 = c.r[30]; let mut r31 = c.r[31]; 
@@ -12683,7 +12873,7 @@ pub fn fn_802B7190(c: &mut Ctx) {
             if cr0 & 2 != 0 { { pc = 0x802B7238; continue; } }
             r3 = r5 | r5;
             r5 = r0 | r0;
-            { c.lr = 0x802B7234; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; fn_802B3E04(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; }
+            { c.lr = 0x802B7234; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.cr[0] = cr0; fn_802B3E04(c); runtime::prof(0x802B7190); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; cr0 = c.cr[0]; }
             { pc = 0x802B72A8; continue; }
         }
         0x802B7238 => {
@@ -12720,7 +12910,7 @@ pub fn fn_802B7190(c: &mut Ctx) {
         0x802B729C => {
             r3 = r5 | r5;
             r5 = r0 | r0;
-            { c.lr = 0x802B72A8; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; fn_802B3B94(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; }
+            { c.lr = 0x802B72A8; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.cr[0] = cr0; fn_802B3B94(c); runtime::prof(0x802B7190); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; cr0 = c.cr[0]; }
             pc = 0x802B72A8;
         }
         0x802B72A8 => {
@@ -12759,6 +12949,7 @@ pub fn fn_802B7190(c: &mut Ctx) {
 
 // TRKTargetAccessFP
 pub fn fn_802B7300(c: &mut Ctx) {
+    runtime::prof(0x802B7300);
     if c.hle(185) { return; }
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r1 = c.r[1]; let mut r3 = c.r[3]; let mut r4 = c.r[4]; let mut r5 = c.r[5]; let mut r6 = c.r[6]; let mut r7 = c.r[7]; let mut r8 = c.r[8]; let mut r9 = c.r[9]; let mut r10 = c.r[10]; let mut r11 = c.r[11]; let mut r12 = c.r[12]; let mut r20 = c.r[20]; let mut r21 = c.r[21]; let mut r22 = c.r[22]; let mut r23 = c.r[23]; let mut r24 = c.r[24]; let mut r25 = c.r[25]; let mut r26 = c.r[26]; let mut r27 = c.r[27]; let mut r28 = c.r[28]; let mut r29 = c.r[29]; let mut r30 = c.r[30]; let mut r31 = c.r[31]; 
@@ -12794,9 +12985,9 @@ pub fn fn_802B7300(c: &mut Ctx) {
             { let ea = r1.wrapping_add(0x18); runtime::mw32(mem, ea, r4); }
             { let ea = r1.wrapping_add(0x1C); runtime::mw32(mem, ea, r3); }
             { let ea = r27.wrapping_add(0xD); runtime::mw8(mem, ea, r0 as u8); }
-            { c.lr = 0x802B7368; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.r[20] = r20; c.r[21] = r21; c.r[22] = r22; c.r[23] = r23; c.r[24] = r24; c.r[25] = r25; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ctr = ctr; fn_802B61B0(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; r20 = c.r[20]; r21 = c.r[21]; r22 = c.r[22]; r23 = c.r[23]; r24 = c.r[24]; r25 = c.r[25]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ctr = c.ctr; }
+            { c.lr = 0x802B7368; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.cr[0] = cr0; c.ctr = ctr; fn_802B61B0(c); runtime::prof(0x802B7300); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; cr0 = c.cr[0]; ctr = c.ctr; }
             r3 = r3 | 0x2000;
-            { c.lr = 0x802B7370; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.r[20] = r20; c.r[21] = r21; c.r[22] = r22; c.r[23] = r23; c.r[24] = r24; c.r[25] = r25; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ctr = ctr; fn_802B61B8(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; r20 = c.r[20]; r21 = c.r[21]; r22 = c.r[22]; r23 = c.r[23]; r24 = c.r[24]; r25 = c.r[25]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ctr = c.ctr; }
+            { c.lr = 0x802B7370; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.cr[0] = cr0; c.ctr = ctr; fn_802B61B8(c); runtime::prof(0x802B7300); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; cr0 = c.cr[0]; ctr = c.ctr; }
             r0 = 0x0u32;
             r21 = r20 | r20;
             { let ea = r30; runtime::mw32(mem, ea, r0); }
@@ -12848,13 +13039,13 @@ pub fn fn_802B7300(c: &mut Ctx) {
             r3 = r25 | r25;
             { let ea = r1.wrapping_add(0xBC); runtime::mw32(mem, ea, r0); }
             r4 = 0x28u32;
-            { c.lr = 0x802B742C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.r[20] = r20; c.r[21] = r21; c.r[22] = r22; c.r[23] = r23; c.r[24] = r24; c.r[25] = r25; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ctr = ctr; fn_802B60C0(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; r20 = c.r[20]; r21 = c.r[21]; r22 = c.r[22]; r23 = c.r[23]; r24 = c.r[24]; r25 = c.r[25]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ctr = c.ctr; }
+            { c.lr = 0x802B742C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.cr[0] = cr0; c.ctr = ctr; fn_802B60C0(c); runtime::prof(0x802B7300); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; cr0 = c.cr[0]; ctr = c.ctr; }
             r3 = 0x80460000u32;
             r12 = r1.wrapping_add(0x98);
             r4 = r3.wrapping_add(0x40C4);
             r3 = r1.wrapping_add(0x8);
             ctr = r12;
-            { let t = ctr; c.lr = 0x802B7444; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.r[20] = r20; c.r[21] = r21; c.r[22] = r22; c.r[23] = r23; c.r[24] = r24; c.r[25] = r25; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ctr = ctr; c.call(t); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; r20 = c.r[20]; r21 = c.r[21]; r22 = c.r[22]; r23 = c.r[23]; r24 = c.r[24]; r25 = c.r[25]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ctr = c.ctr; }
+            { let t = ctr; c.lr = 0x802B7444; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.r[20] = r20; c.r[21] = r21; c.r[22] = r22; c.r[23] = r23; c.r[24] = r24; c.r[25] = r25; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ctr = ctr; c.call(t); runtime::prof(0x802B7300); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; r20 = c.r[20]; r21 = c.r[21]; r22 = c.r[22]; r23 = c.r[23]; r24 = c.r[24]; r25 = c.r[25]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ctr = c.ctr; }
             { pc = 0x802B7584; continue; }
         }
         0x802B7448 => {
@@ -12862,12 +13053,12 @@ pub fn fn_802B7300(c: &mut Ctx) {
             cr0 = runtime::cmps_val(r31 as i32, 0);
             if cr0 & 2 != 0 { { pc = 0x802B7460; continue; } }
             r3 = r1.wrapping_add(0x8);
-            { c.lr = 0x802B745C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.r[20] = r20; c.r[21] = r21; c.r[22] = r22; c.r[23] = r23; c.r[24] = r24; c.r[25] = r25; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ctr = ctr; fn_802B6544(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; r20 = c.r[20]; r21 = c.r[21]; r22 = c.r[22]; r23 = c.r[23]; r24 = c.r[24]; r25 = c.r[25]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ctr = c.ctr; }
+            { c.lr = 0x802B745C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.cr[0] = cr0; c.ctr = ctr; fn_802B6544(c); runtime::prof(0x802B7300); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; cr0 = c.cr[0]; ctr = c.ctr; }
             { pc = 0x802B7468; continue; }
         }
         0x802B7460 => {
             r3 = r1.wrapping_add(0x8);
-            { c.lr = 0x802B7468; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.r[20] = r20; c.r[21] = r21; c.r[22] = r22; c.r[23] = r23; c.r[24] = r24; c.r[25] = r25; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ctr = ctr; fn_802B6568(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; r20 = c.r[20]; r21 = c.r[21]; r22 = c.r[22]; r23 = c.r[23]; r24 = c.r[24]; r25 = c.r[25]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ctr = c.ctr; }
+            { c.lr = 0x802B7468; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.cr[0] = cr0; c.ctr = ctr; fn_802B6568(c); runtime::prof(0x802B7300); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; cr0 = c.cr[0]; ctr = c.ctr; }
             pc = 0x802B7468;
         }
         0x802B7468 => {
@@ -12936,13 +13127,13 @@ pub fn fn_802B7300(c: &mut Ctx) {
             r0 = r4.wrapping_add(0x20);
             r4 = 0x28u32;
             { let ea = r1.wrapping_add(0x6C); runtime::mw32(mem, ea, r0); }
-            { c.lr = 0x802B7548; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.r[20] = r20; c.r[21] = r21; c.r[22] = r22; c.r[23] = r23; c.r[24] = r24; c.r[25] = r25; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ctr = ctr; fn_802B60C0(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; r20 = c.r[20]; r21 = c.r[21]; r22 = c.r[22]; r23 = c.r[23]; r24 = c.r[24]; r25 = c.r[25]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ctr = c.ctr; }
+            { c.lr = 0x802B7548; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.cr[0] = cr0; c.ctr = ctr; fn_802B60C0(c); runtime::prof(0x802B7300); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; cr0 = c.cr[0]; ctr = c.ctr; }
             r3 = 0x80460000u32;
             r12 = r1.wrapping_add(0x48);
             r4 = r3.wrapping_add(0x40C4);
             r3 = r1.wrapping_add(0x8);
             ctr = r12;
-            { let t = ctr; c.lr = 0x802B7560; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.r[20] = r20; c.r[21] = r21; c.r[22] = r22; c.r[23] = r23; c.r[24] = r24; c.r[25] = r25; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ctr = ctr; c.call(t); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; r20 = c.r[20]; r21 = c.r[21]; r22 = c.r[22]; r23 = c.r[23]; r24 = c.r[24]; r25 = c.r[25]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ctr = c.ctr; }
+            { let t = ctr; c.lr = 0x802B7560; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.r[20] = r20; c.r[21] = r21; c.r[22] = r22; c.r[23] = r23; c.r[24] = r24; c.r[25] = r25; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ctr = ctr; c.call(t); runtime::prof(0x802B7300); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; r20 = c.r[20]; r21 = c.r[21]; r22 = c.r[22]; r23 = c.r[23]; r24 = c.r[24]; r25 = c.r[25]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ctr = c.ctr; }
             cr0 = runtime::cmps_val(r31 as i32, 0);
             if cr0 & 2 != 0 { { pc = 0x802B7584; continue; } }
             { let ea = r1.wrapping_add(0x8); r3 = runtime::mr32(mem, ea); }
@@ -12958,13 +13149,13 @@ pub fn fn_802B7300(c: &mut Ctx) {
             { let ea = r1.wrapping_add(0x8); r5 = runtime::mr32(mem, ea); }
             r3 = r29 | r29;
             { let ea = r1.wrapping_add(0xC); r6 = runtime::mr32(mem, ea); }
-            { c.lr = 0x802B7594; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.r[20] = r20; c.r[21] = r21; c.r[22] = r22; c.r[23] = r23; c.r[24] = r24; c.r[25] = r25; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ctr = ctr; fn_802B3F68(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; r20 = c.r[20]; r21 = c.r[21]; r22 = c.r[22]; r23 = c.r[23]; r24 = c.r[24]; r25 = c.r[25]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ctr = c.ctr; }
+            { c.lr = 0x802B7594; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.cr[0] = cr0; c.ctr = ctr; fn_802B3F68(c); runtime::prof(0x802B7300); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; cr0 = c.cr[0]; ctr = c.ctr; }
             { pc = 0x802B7794; continue; }
         }
         0x802B7598 => {
             r3 = r29 | r29;
             r4 = r1.wrapping_add(0x8);
-            { c.lr = 0x802B75A4; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.r[20] = r20; c.r[21] = r21; c.r[22] = r22; c.r[23] = r23; c.r[24] = r24; c.r[25] = r25; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ctr = ctr; fn_802B3D1C(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; r20 = c.r[20]; r21 = c.r[21]; r22 = c.r[22]; r23 = c.r[23]; r24 = c.r[24]; r25 = c.r[25]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ctr = c.ctr; }
+            { c.lr = 0x802B75A4; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.cr[0] = cr0; c.ctr = ctr; fn_802B3D1C(c); runtime::prof(0x802B7300); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; cr0 = c.cr[0]; ctr = c.ctr; }
             r3 = 0x80380000u32;
             cr0 = runtime::cmpu_val(r21, 0x20);
             r12 = r3.wrapping_add(0xFFFFED00);
@@ -13003,13 +13194,13 @@ pub fn fn_802B7300(c: &mut Ctx) {
             r3 = r23 | r23;
             { let ea = r1.wrapping_add(0x94); runtime::mw32(mem, ea, r0); }
             r4 = 0x28u32;
-            { c.lr = 0x802B7634; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.r[20] = r20; c.r[21] = r21; c.r[22] = r22; c.r[23] = r23; c.r[24] = r24; c.r[25] = r25; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ctr = ctr; fn_802B60C0(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; r20 = c.r[20]; r21 = c.r[21]; r22 = c.r[22]; r23 = c.r[23]; r24 = c.r[24]; r25 = c.r[25]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ctr = c.ctr; }
+            { c.lr = 0x802B7634; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.cr[0] = cr0; c.ctr = ctr; fn_802B60C0(c); runtime::prof(0x802B7300); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; cr0 = c.cr[0]; ctr = c.ctr; }
             r3 = 0x80460000u32;
             r12 = r1.wrapping_add(0x70);
             r4 = r3.wrapping_add(0x40C4);
             r3 = r1.wrapping_add(0x8);
             ctr = r12;
-            { let t = ctr; c.lr = 0x802B764C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.r[20] = r20; c.r[21] = r21; c.r[22] = r22; c.r[23] = r23; c.r[24] = r24; c.r[25] = r25; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ctr = ctr; c.call(t); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; r20 = c.r[20]; r21 = c.r[21]; r22 = c.r[22]; r23 = c.r[23]; r24 = c.r[24]; r25 = c.r[25]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ctr = c.ctr; }
+            { let t = ctr; c.lr = 0x802B764C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.r[20] = r20; c.r[21] = r21; c.r[22] = r22; c.r[23] = r23; c.r[24] = r24; c.r[25] = r25; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ctr = ctr; c.call(t); runtime::prof(0x802B7300); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; r20 = c.r[20]; r21 = c.r[21]; r22 = c.r[22]; r23 = c.r[23]; r24 = c.r[24]; r25 = c.r[25]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ctr = c.ctr; }
             r20 = 0x0u32;
             { pc = 0x802B7790; continue; }
         }
@@ -13018,12 +13209,12 @@ pub fn fn_802B7300(c: &mut Ctx) {
             cr0 = runtime::cmps_val(r31 as i32, 0);
             if cr0 & 2 != 0 { { pc = 0x802B766C; continue; } }
             r3 = r1.wrapping_add(0x8);
-            { c.lr = 0x802B7668; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.r[20] = r20; c.r[21] = r21; c.r[22] = r22; c.r[23] = r23; c.r[24] = r24; c.r[25] = r25; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ctr = ctr; fn_802B6544(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; r20 = c.r[20]; r21 = c.r[21]; r22 = c.r[22]; r23 = c.r[23]; r24 = c.r[24]; r25 = c.r[25]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ctr = c.ctr; }
+            { c.lr = 0x802B7668; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.cr[0] = cr0; c.ctr = ctr; fn_802B6544(c); runtime::prof(0x802B7300); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; cr0 = c.cr[0]; ctr = c.ctr; }
             { pc = 0x802B7674; continue; }
         }
         0x802B766C => {
             r3 = r1.wrapping_add(0x8);
-            { c.lr = 0x802B7674; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.r[20] = r20; c.r[21] = r21; c.r[22] = r22; c.r[23] = r23; c.r[24] = r24; c.r[25] = r25; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ctr = ctr; fn_802B6568(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; r20 = c.r[20]; r21 = c.r[21]; r22 = c.r[22]; r23 = c.r[23]; r24 = c.r[24]; r25 = c.r[25]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ctr = c.ctr; }
+            { c.lr = 0x802B7674; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.cr[0] = cr0; c.ctr = ctr; fn_802B6568(c); runtime::prof(0x802B7300); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; cr0 = c.cr[0]; ctr = c.ctr; }
             pc = 0x802B7674;
         }
         0x802B7674 => {
@@ -13092,13 +13283,13 @@ pub fn fn_802B7300(c: &mut Ctx) {
             r0 = r4.wrapping_add(0x20);
             r4 = 0x28u32;
             { let ea = r1.wrapping_add(0x44); runtime::mw32(mem, ea, r0); }
-            { c.lr = 0x802B7754; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.r[20] = r20; c.r[21] = r21; c.r[22] = r22; c.r[23] = r23; c.r[24] = r24; c.r[25] = r25; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ctr = ctr; fn_802B60C0(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; r20 = c.r[20]; r21 = c.r[21]; r22 = c.r[22]; r23 = c.r[23]; r24 = c.r[24]; r25 = c.r[25]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ctr = c.ctr; }
+            { c.lr = 0x802B7754; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.cr[0] = cr0; c.ctr = ctr; fn_802B60C0(c); runtime::prof(0x802B7300); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; cr0 = c.cr[0]; ctr = c.ctr; }
             r3 = 0x80460000u32;
             r12 = r1.wrapping_add(0x20);
             r4 = r3.wrapping_add(0x40C4);
             r3 = r1.wrapping_add(0x8);
             ctr = r12;
-            { let t = ctr; c.lr = 0x802B776C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.r[20] = r20; c.r[21] = r21; c.r[22] = r22; c.r[23] = r23; c.r[24] = r24; c.r[25] = r25; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ctr = ctr; c.call(t); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; r20 = c.r[20]; r21 = c.r[21]; r22 = c.r[22]; r23 = c.r[23]; r24 = c.r[24]; r25 = c.r[25]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ctr = c.ctr; }
+            { let t = ctr; c.lr = 0x802B776C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.r[20] = r20; c.r[21] = r21; c.r[22] = r22; c.r[23] = r23; c.r[24] = r24; c.r[25] = r25; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ctr = ctr; c.call(t); runtime::prof(0x802B7300); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; r20 = c.r[20]; r21 = c.r[21]; r22 = c.r[22]; r23 = c.r[23]; r24 = c.r[24]; r25 = c.r[25]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ctr = c.ctr; }
             cr0 = runtime::cmps_val(r31 as i32, 0);
             r20 = 0x0u32;
             if cr0 & 2 != 0 { { pc = 0x802B7790; continue; } }
@@ -13164,6 +13355,7 @@ pub fn fn_802B7300(c: &mut Ctx) {
 
 // TRKTargetAccessDefault
 pub fn fn_802B780C(c: &mut Ctx) {
+    runtime::prof(0x802B780C);
     if c.hle(186) { return; }
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r1 = c.r[1]; let mut r3 = c.r[3]; let mut r4 = c.r[4]; let mut r5 = c.r[5]; let mut r6 = c.r[6]; let mut r7 = c.r[7]; let mut r8 = c.r[8]; let mut r9 = c.r[9]; let mut r10 = c.r[10]; let mut r11 = c.r[11]; let mut r12 = c.r[12]; let mut r30 = c.r[30]; let mut r31 = c.r[31]; 
@@ -13207,13 +13399,13 @@ pub fn fn_802B780C(c: &mut Ctx) {
             if cr0 & 2 != 0 { { pc = 0x802B789C; continue; } }
             r3 = r5 | r5;
             r5 = r12 | r12;
-            { c.lr = 0x802B7898; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; fn_802B3E04(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; }
+            { c.lr = 0x802B7898; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.cr[0] = cr0; fn_802B3E04(c); runtime::prof(0x802B780C); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; cr0 = c.cr[0]; }
             { pc = 0x802B78A8; continue; }
         }
         0x802B789C => {
             r3 = r5 | r5;
             r5 = r12 | r12;
-            { c.lr = 0x802B78A8; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; fn_802B3B94(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; }
+            { c.lr = 0x802B78A8; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.cr[0] = cr0; fn_802B3B94(c); runtime::prof(0x802B780C); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; cr0 = c.cr[0]; }
             pc = 0x802B78A8;
         }
         0x802B78A8 => {
@@ -13252,6 +13444,7 @@ pub fn fn_802B780C(c: &mut Ctx) {
 
 // TRKTargetReadInstruction
 pub fn fn_802B7900(c: &mut Ctx) {
+    runtime::prof(0x802B7900);
     if c.hle(179) { return; }
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r1 = c.r[1]; let mut r3 = c.r[3]; let mut r5 = c.r[5]; let mut r6 = c.r[6]; let mut r7 = c.r[7]; 
@@ -13267,7 +13460,7 @@ pub fn fn_802B7900(c: &mut Ctx) {
             r0 = 0x4u32;
             r5 = r1.wrapping_add(0x8);
             { let ea = r1.wrapping_add(0x8); runtime::mw32(mem, ea, r0); }
-            { c.lr = 0x802B7924; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.cr[0] = cr0; fn_802B794C(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; cr0 = c.cr[0]; }
+            { c.lr = 0x802B7924; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.cr[0] = cr0; fn_802B794C(c); runtime::prof(0x802B7900); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; cr0 = c.cr[0]; }
             cr0 = runtime::cmps_val(r3 as i32, 0);
             if cr0 & 2 == 0 { { pc = 0x802B793C; continue; } }
             { let ea = r1.wrapping_add(0x8); r0 = runtime::mr32(mem, ea); }
@@ -13288,6 +13481,7 @@ pub fn fn_802B7900(c: &mut Ctx) {
 
 // TRKTargetAccessMemory
 pub fn fn_802B794C(c: &mut Ctx) {
+    runtime::prof(0x802B794C);
     if c.hle(187) { return; }
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r1 = c.r[1]; let mut r3 = c.r[3]; let mut r4 = c.r[4]; let mut r5 = c.r[5]; let mut r6 = c.r[6]; let mut r7 = c.r[7]; let mut r8 = c.r[8]; let mut r25 = c.r[25]; let mut r26 = c.r[26]; let mut r27 = c.r[27]; let mut r28 = c.r[28]; let mut r29 = c.r[29]; let mut r30 = c.r[30]; let mut r31 = c.r[31]; 
@@ -13316,12 +13510,12 @@ pub fn fn_802B794C(c: &mut Ctx) {
             { let ea = r1.wrapping_add(0x10); runtime::mw32(mem, ea, r5); }
             { let ea = r1.wrapping_add(0x14); runtime::mw32(mem, ea, r4); }
             { let ea = r31.wrapping_add(0xD); runtime::mw8(mem, ea, r0 as u8); }
-            { c.lr = 0x802B79A4; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[25] = r25; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; fn_802B8694(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r25 = c.r[25]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; }
+            { c.lr = 0x802B79A4; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.cr[0] = cr0; fn_802B8694(c); runtime::prof(0x802B794C); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; cr0 = c.cr[0]; }
             r0 = r29.leading_zeros();
             { let ea = r28; r4 = runtime::mr32(mem, ea); }
             r25 = r3 | r3;
             r5 = r0.rotate_left(27) & 0x7FFFFFF;
-            { c.lr = 0x802B79B8; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[25] = r25; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; fn_802B7A98(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r25 = c.r[25]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; }
+            { c.lr = 0x802B79B8; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.cr[0] = cr0; fn_802B7A98(c); runtime::prof(0x802B794C); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; cr0 = c.cr[0]; }
             r30 = r3 | r3; cr0 = runtime::cmps_val(r30 as i32, 0);
             if cr0 & 2 != 0 { { pc = 0x802B79CC; continue; } }
             r0 = 0x0u32;
@@ -13329,7 +13523,7 @@ pub fn fn_802B794C(c: &mut Ctx) {
             { pc = 0x802B7A40; continue; }
         }
         0x802B79CC => {
-            { c.lr = 0x802B79D0; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[25] = r25; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; fn_802B61B0(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r25 = c.r[25]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; }
+            { c.lr = 0x802B79D0; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.cr[0] = cr0; fn_802B61B0(c); runtime::prof(0x802B794C); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; cr0 = c.cr[0]; }
             r4 = 0x80460000u32;
             cr0 = runtime::cmps_val(r29 as i32, 0);
             r4 = r4.wrapping_add(0x3C00);
@@ -13342,7 +13536,7 @@ pub fn fn_802B794C(c: &mut Ctx) {
             r3 = r26 | r26;
             r4 = r25 | r25;
             r6 = r8 | r8;
-            { c.lr = 0x802B7A04; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[25] = r25; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; fn_802B61C0(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r25 = c.r[25]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; }
+            { c.lr = 0x802B7A04; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.cr[0] = cr0; fn_802B61C0(c); runtime::prof(0x802B794C); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; cr0 = c.cr[0]; }
             { pc = 0x802B7A40; continue; }
         }
         0x802B7A08 => {
@@ -13351,15 +13545,15 @@ pub fn fn_802B794C(c: &mut Ctx) {
             r4 = r26 | r26;
             r6 = r7 | r7;
             r7 = r8 | r8;
-            { c.lr = 0x802B7A20; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[25] = r25; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; fn_802B61C0(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r25 = c.r[25]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; }
+            { c.lr = 0x802B7A20; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.cr[0] = cr0; fn_802B61C0(c); runtime::prof(0x802B794C); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; cr0 = c.cr[0]; }
             { let ea = r28; r4 = runtime::mr32(mem, ea); }
             r3 = r25 | r25;
-            { c.lr = 0x802B7A2C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[25] = r25; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; fn_802B60C0(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r25 = c.r[25]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; }
+            { c.lr = 0x802B7A2C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.cr[0] = cr0; fn_802B60C0(c); runtime::prof(0x802B794C); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; cr0 = c.cr[0]; }
             cr0 = runtime::cmpu_val(r27, r25);
             if cr0 & 2 != 0 { { pc = 0x802B7A40; continue; } }
             { let ea = r28; r4 = runtime::mr32(mem, ea); }
             r3 = r27 | r27;
-            { c.lr = 0x802B7A40; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[25] = r25; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; fn_802B60C0(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r25 = c.r[25]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; }
+            { c.lr = 0x802B7A40; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.cr[0] = cr0; fn_802B60C0(c); runtime::prof(0x802B794C); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; cr0 = c.cr[0]; }
             pc = 0x802B7A40;
         }
         0x802B7A40 => {
@@ -13395,6 +13589,7 @@ pub fn fn_802B794C(c: &mut Ctx) {
 
 // TRKValidMemory32
 pub fn fn_802B7A98(c: &mut Ctx) {
+    runtime::prof(0x802B7A98);
     if c.hle(188) { return; }
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r1 = c.r[1]; let mut r3 = c.r[3]; let mut r4 = c.r[4]; let mut r5 = c.r[5]; let mut r6 = c.r[6]; let mut r26 = c.r[26]; let mut r27 = c.r[27]; let mut r28 = c.r[28]; let mut r29 = c.r[29]; let mut r30 = c.r[30]; let mut r31 = c.r[31]; 
@@ -13509,7 +13704,7 @@ pub fn fn_802B7A98(c: &mut Ctx) {
             if cr0 & 8 == 0 { { pc = 0x802B7BFC; continue; } }
             r5 = r26 | r26;
             r4 = r0.wrapping_sub(r3);
-            { c.lr = 0x802B7BF8; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; fn_802B7A98(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; }
+            { c.lr = 0x802B7BF8; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.cr[0] = cr0; fn_802B7A98(c); runtime::prof(0x802B7A98); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; cr0 = c.cr[0]; }
             r6 = r3 | r3;
             pc = 0x802B7BFC;
         }
@@ -13524,7 +13719,7 @@ pub fn fn_802B7A98(c: &mut Ctx) {
             if cr0 & 4 == 0 { { pc = 0x802B7C2C; continue; } }
             r5 = r26 | r26;
             r4 = r30.wrapping_sub(r3);
-            { c.lr = 0x802B7C28; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; fn_802B7A98(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; }
+            { c.lr = 0x802B7C28; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.cr[0] = cr0; fn_802B7A98(c); runtime::prof(0x802B7A98); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; cr0 = c.cr[0]; }
             r6 = r3 | r3;
             pc = 0x802B7C2C;
         }
@@ -13592,7 +13787,7 @@ pub fn fn_802B7A98(c: &mut Ctx) {
             if cr0 & 8 == 0 { { pc = 0x802B7CFC; continue; } }
             r5 = r26 | r26;
             r4 = r0.wrapping_sub(r3);
-            { c.lr = 0x802B7CF8; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; fn_802B7A98(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; }
+            { c.lr = 0x802B7CF8; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.cr[0] = cr0; fn_802B7A98(c); runtime::prof(0x802B7A98); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; cr0 = c.cr[0]; }
             r6 = r3 | r3;
             pc = 0x802B7CFC;
         }
@@ -13604,7 +13799,7 @@ pub fn fn_802B7A98(c: &mut Ctx) {
             if cr0 & 4 == 0 { { pc = 0x802B7D20; continue; } }
             r5 = r26 | r26;
             r4 = r30.wrapping_sub(r3);
-            { c.lr = 0x802B7D1C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; fn_802B7A98(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; }
+            { c.lr = 0x802B7D1C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.cr[0] = cr0; fn_802B7A98(c); runtime::prof(0x802B7A98); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; cr0 = c.cr[0]; }
             r6 = r3 | r3;
             pc = 0x802B7D20;
         }
@@ -13629,6 +13824,7 @@ pub fn fn_802B7A98(c: &mut Ctx) {
 
 // TRKSaveExtended1Block
 pub fn fn_802B7D60(c: &mut Ctx) {
+    runtime::prof(0x802B7D60);
     if c.hle(189) { return; }
     let mem = c.mem;
     let mut r2 = c.r[2]; let mut r10 = c.r[10]; let mut r11 = c.r[11]; let mut r12 = c.r[12]; let mut r13 = c.r[13]; let mut r14 = c.r[14]; let mut r15 = c.r[15]; let mut r16 = c.r[16]; let mut r17 = c.r[17]; let mut r18 = c.r[18]; let mut r19 = c.r[19]; let mut r20 = c.r[20]; let mut r21 = c.r[21]; let mut r22 = c.r[22]; let mut r23 = c.r[23]; let mut r24 = c.r[24]; let mut r25 = c.r[25]; let mut r26 = c.r[26]; let mut r27 = c.r[27]; let mut r28 = c.r[28]; let mut r29 = c.r[29]; let mut r30 = c.r[30]; let mut r31 = c.r[31]; 
@@ -13759,6 +13955,7 @@ pub fn fn_802B7D60(c: &mut Ctx) {
 
 // TRKRestoreExtended1Block
 pub fn fn_802B7F18(c: &mut Ctx) {
+    runtime::prof(0x802B7F18);
     if c.hle(190) { return; }
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r2 = c.r[2]; let mut r3 = c.r[3]; let mut r5 = c.r[5]; let mut r6 = c.r[6]; let mut r12 = c.r[12]; let mut r13 = c.r[13]; let mut r14 = c.r[14]; let mut r15 = c.r[15]; let mut r16 = c.r[16]; let mut r17 = c.r[17]; let mut r18 = c.r[18]; let mut r19 = c.r[19]; let mut r20 = c.r[20]; let mut r21 = c.r[21]; let mut r22 = c.r[22]; let mut r23 = c.r[23]; let mut r24 = c.r[24]; let mut r25 = c.r[25]; let mut r26 = c.r[26]; let mut r27 = c.r[27]; let mut r28 = c.r[28]; let mut r29 = c.r[29]; let mut r30 = c.r[30]; let mut r31 = c.r[31]; 
@@ -13883,6 +14080,7 @@ pub fn fn_802B7F18(c: &mut Ctx) {
 
 // InitMetroTRK
 pub fn fn_802B80D0(c: &mut Ctx) {
+    runtime::prof(0x802B80D0);
     if c.hle(191) { return; }
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r1 = c.r[1]; let mut r2 = c.r[2]; let mut r3 = c.r[3]; let mut r4 = c.r[4]; let mut r5 = c.r[5]; let mut r6 = c.r[6]; let mut r7 = c.r[7]; let mut r8 = c.r[8]; let mut r9 = c.r[9]; let mut r10 = c.r[10]; let mut r11 = c.r[11]; let mut r12 = c.r[12]; let mut r13 = c.r[13]; let mut r14 = c.r[14]; let mut r15 = c.r[15]; let mut r16 = c.r[16]; let mut r17 = c.r[17]; let mut r18 = c.r[18]; let mut r19 = c.r[19]; let mut r20 = c.r[20]; let mut r21 = c.r[21]; let mut r22 = c.r[22]; let mut r23 = c.r[23]; let mut r24 = c.r[24]; let mut r25 = c.r[25]; let mut r26 = c.r[26]; let mut r27 = c.r[27]; let mut r28 = c.r[28]; let mut r29 = c.r[29]; let mut r30 = c.r[30]; let mut r31 = c.r[31]; 
@@ -13909,7 +14107,7 @@ pub fn fn_802B80D0(c: &mut Ctx) {
             r3 = r3 ^ 0x8000;
             c.msr = r3;
             c.spr[27] = r4;
-            { c.lr = 0x802B8120; c.r[0] = r0; c.r[1] = r1; c.r[2] = r2; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.r[13] = r13; c.r[14] = r14; c.r[15] = r15; c.r[16] = r16; c.r[17] = r17; c.r[18] = r18; c.r[19] = r19; c.r[20] = r20; c.r[21] = r21; c.r[22] = r22; c.r[23] = r23; c.r[24] = r24; c.r[25] = r25; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; fn_802B7D60(c); r0 = c.r[0]; r1 = c.r[1]; r2 = c.r[2]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; r13 = c.r[13]; r14 = c.r[14]; r15 = c.r[15]; r16 = c.r[16]; r17 = c.r[17]; r18 = c.r[18]; r19 = c.r[19]; r20 = c.r[20]; r21 = c.r[21]; r22 = c.r[22]; r23 = c.r[23]; r24 = c.r[24]; r25 = c.r[25]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; cr1 = c.cr[1]; cr2 = c.cr[2]; cr3 = c.cr[3]; cr4 = c.cr[4]; cr5 = c.cr[5]; cr6 = c.cr[6]; cr7 = c.cr[7]; }
+            { c.lr = 0x802B8120; c.r[0] = r0; c.r[1] = r1; c.r[2] = r2; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.r[13] = r13; c.cr[0] = cr0; fn_802B7D60(c); runtime::prof(0x802B80D0); r0 = c.r[0]; r1 = c.r[1]; r2 = c.r[2]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; r13 = c.r[13]; cr0 = c.cr[0]; cr1 = c.cr[1]; cr2 = c.cr[2]; cr3 = c.cr[3]; cr4 = c.cr[4]; cr5 = c.cr[5]; cr6 = c.cr[6]; cr7 = c.cr[7]; }
             r3 = 0x80460000u32;
             r3 = r3 | 0x3C00;
             { let ea = r3; r0 = runtime::mr32(mem, ea.wrapping_add(0x0)); r1 = runtime::mr32(mem, ea.wrapping_add(0x4)); r2 = runtime::mr32(mem, ea.wrapping_add(0x8)); r3 = runtime::mr32(mem, ea.wrapping_add(0xC)); r4 = runtime::mr32(mem, ea.wrapping_add(0x10)); r5 = runtime::mr32(mem, ea.wrapping_add(0x14)); r6 = runtime::mr32(mem, ea.wrapping_add(0x18)); r7 = runtime::mr32(mem, ea.wrapping_add(0x1C)); r8 = runtime::mr32(mem, ea.wrapping_add(0x20)); r9 = runtime::mr32(mem, ea.wrapping_add(0x24)); r10 = runtime::mr32(mem, ea.wrapping_add(0x28)); r11 = runtime::mr32(mem, ea.wrapping_add(0x2C)); r12 = runtime::mr32(mem, ea.wrapping_add(0x30)); r13 = runtime::mr32(mem, ea.wrapping_add(0x34)); r14 = runtime::mr32(mem, ea.wrapping_add(0x38)); r15 = runtime::mr32(mem, ea.wrapping_add(0x3C)); r16 = runtime::mr32(mem, ea.wrapping_add(0x40)); r17 = runtime::mr32(mem, ea.wrapping_add(0x44)); r18 = runtime::mr32(mem, ea.wrapping_add(0x48)); r19 = runtime::mr32(mem, ea.wrapping_add(0x4C)); r20 = runtime::mr32(mem, ea.wrapping_add(0x50)); r21 = runtime::mr32(mem, ea.wrapping_add(0x54)); r22 = runtime::mr32(mem, ea.wrapping_add(0x58)); r23 = runtime::mr32(mem, ea.wrapping_add(0x5C)); r24 = runtime::mr32(mem, ea.wrapping_add(0x60)); r25 = runtime::mr32(mem, ea.wrapping_add(0x64)); r26 = runtime::mr32(mem, ea.wrapping_add(0x68)); r27 = runtime::mr32(mem, ea.wrapping_add(0x6C)); r28 = runtime::mr32(mem, ea.wrapping_add(0x70)); r29 = runtime::mr32(mem, ea.wrapping_add(0x74)); r30 = runtime::mr32(mem, ea.wrapping_add(0x78)); r31 = runtime::mr32(mem, ea.wrapping_add(0x7C));  }
@@ -13919,7 +14117,7 @@ pub fn fn_802B80D0(c: &mut Ctx) {
             r1 = 0x804D0000u32;
             r1 = r1 | 0x61A8;
             r3 = r5 | r5;
-            { c.lr = 0x802B8148; c.r[0] = r0; c.r[1] = r1; c.r[2] = r2; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.r[13] = r13; c.r[14] = r14; c.r[15] = r15; c.r[16] = r16; c.r[17] = r17; c.r[18] = r18; c.r[19] = r19; c.r[20] = r20; c.r[21] = r21; c.r[22] = r22; c.r[23] = r23; c.r[24] = r24; c.r[25] = r25; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; fn_802B8A18(c); r0 = c.r[0]; r1 = c.r[1]; r2 = c.r[2]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; r13 = c.r[13]; r14 = c.r[14]; r15 = c.r[15]; r16 = c.r[16]; r17 = c.r[17]; r18 = c.r[18]; r19 = c.r[19]; r20 = c.r[20]; r21 = c.r[21]; r22 = c.r[22]; r23 = c.r[23]; r24 = c.r[24]; r25 = c.r[25]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; cr1 = c.cr[1]; cr2 = c.cr[2]; cr3 = c.cr[3]; cr4 = c.cr[4]; cr5 = c.cr[5]; cr6 = c.cr[6]; cr7 = c.cr[7]; }
+            { c.lr = 0x802B8148; c.r[0] = r0; c.r[1] = r1; c.r[2] = r2; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.r[13] = r13; c.cr[0] = cr0; fn_802B8A18(c); runtime::prof(0x802B80D0); r0 = c.r[0]; r1 = c.r[1]; r2 = c.r[2]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; r13 = c.r[13]; cr0 = c.cr[0]; cr1 = c.cr[1]; cr2 = c.cr[2]; cr3 = c.cr[3]; cr4 = c.cr[4]; cr5 = c.cr[5]; cr6 = c.cr[6]; cr7 = c.cr[7]; }
             cr0 = runtime::cmps_val(r3 as i32, 1);
             if cr0 & 2 == 0 { { pc = 0x802B8160; continue; } }
             { let ea = r3.wrapping_add(0x84); r4 = runtime::mr32(mem, ea); }
@@ -13939,6 +14137,7 @@ pub fn fn_802B80D0(c: &mut Ctx) {
 
 // InitMetroTRK_BBA
 pub fn fn_802B8168(c: &mut Ctx) {
+    runtime::prof(0x802B8168);
     if c.hle(192) { return; }
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r1 = c.r[1]; let mut r2 = c.r[2]; let mut r3 = c.r[3]; let mut r4 = c.r[4]; let mut r5 = c.r[5]; let mut r6 = c.r[6]; let mut r7 = c.r[7]; let mut r8 = c.r[8]; let mut r9 = c.r[9]; let mut r10 = c.r[10]; let mut r11 = c.r[11]; let mut r12 = c.r[12]; let mut r13 = c.r[13]; let mut r14 = c.r[14]; let mut r15 = c.r[15]; let mut r16 = c.r[16]; let mut r17 = c.r[17]; let mut r18 = c.r[18]; let mut r19 = c.r[19]; let mut r20 = c.r[20]; let mut r21 = c.r[21]; let mut r22 = c.r[22]; let mut r23 = c.r[23]; let mut r24 = c.r[24]; let mut r25 = c.r[25]; let mut r26 = c.r[26]; let mut r27 = c.r[27]; let mut r28 = c.r[28]; let mut r29 = c.r[29]; let mut r30 = c.r[30]; let mut r31 = c.r[31]; 
@@ -13964,7 +14163,7 @@ pub fn fn_802B8168(c: &mut Ctx) {
             r3 = r4 | 0x8000;
             c.msr = r3;
             c.spr[27] = r4;
-            { c.lr = 0x802B81B4; c.r[0] = r0; c.r[1] = r1; c.r[2] = r2; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.r[13] = r13; c.r[14] = r14; c.r[15] = r15; c.r[16] = r16; c.r[17] = r17; c.r[18] = r18; c.r[19] = r19; c.r[20] = r20; c.r[21] = r21; c.r[22] = r22; c.r[23] = r23; c.r[24] = r24; c.r[25] = r25; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; fn_802B7D60(c); r0 = c.r[0]; r1 = c.r[1]; r2 = c.r[2]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; r13 = c.r[13]; r14 = c.r[14]; r15 = c.r[15]; r16 = c.r[16]; r17 = c.r[17]; r18 = c.r[18]; r19 = c.r[19]; r20 = c.r[20]; r21 = c.r[21]; r22 = c.r[22]; r23 = c.r[23]; r24 = c.r[24]; r25 = c.r[25]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; cr1 = c.cr[1]; cr2 = c.cr[2]; cr3 = c.cr[3]; cr4 = c.cr[4]; cr5 = c.cr[5]; cr6 = c.cr[6]; cr7 = c.cr[7]; }
+            { c.lr = 0x802B81B4; c.r[0] = r0; c.r[1] = r1; c.r[2] = r2; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.r[13] = r13; c.cr[0] = cr0; fn_802B7D60(c); runtime::prof(0x802B8168); r0 = c.r[0]; r1 = c.r[1]; r2 = c.r[2]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; r13 = c.r[13]; cr0 = c.cr[0]; cr1 = c.cr[1]; cr2 = c.cr[2]; cr3 = c.cr[3]; cr4 = c.cr[4]; cr5 = c.cr[5]; cr6 = c.cr[6]; cr7 = c.cr[7]; }
             r3 = 0x80460000u32;
             r3 = r3 | 0x3C00;
             { let ea = r3; r0 = runtime::mr32(mem, ea.wrapping_add(0x0)); r1 = runtime::mr32(mem, ea.wrapping_add(0x4)); r2 = runtime::mr32(mem, ea.wrapping_add(0x8)); r3 = runtime::mr32(mem, ea.wrapping_add(0xC)); r4 = runtime::mr32(mem, ea.wrapping_add(0x10)); r5 = runtime::mr32(mem, ea.wrapping_add(0x14)); r6 = runtime::mr32(mem, ea.wrapping_add(0x18)); r7 = runtime::mr32(mem, ea.wrapping_add(0x1C)); r8 = runtime::mr32(mem, ea.wrapping_add(0x20)); r9 = runtime::mr32(mem, ea.wrapping_add(0x24)); r10 = runtime::mr32(mem, ea.wrapping_add(0x28)); r11 = runtime::mr32(mem, ea.wrapping_add(0x2C)); r12 = runtime::mr32(mem, ea.wrapping_add(0x30)); r13 = runtime::mr32(mem, ea.wrapping_add(0x34)); r14 = runtime::mr32(mem, ea.wrapping_add(0x38)); r15 = runtime::mr32(mem, ea.wrapping_add(0x3C)); r16 = runtime::mr32(mem, ea.wrapping_add(0x40)); r17 = runtime::mr32(mem, ea.wrapping_add(0x44)); r18 = runtime::mr32(mem, ea.wrapping_add(0x48)); r19 = runtime::mr32(mem, ea.wrapping_add(0x4C)); r20 = runtime::mr32(mem, ea.wrapping_add(0x50)); r21 = runtime::mr32(mem, ea.wrapping_add(0x54)); r22 = runtime::mr32(mem, ea.wrapping_add(0x58)); r23 = runtime::mr32(mem, ea.wrapping_add(0x5C)); r24 = runtime::mr32(mem, ea.wrapping_add(0x60)); r25 = runtime::mr32(mem, ea.wrapping_add(0x64)); r26 = runtime::mr32(mem, ea.wrapping_add(0x68)); r27 = runtime::mr32(mem, ea.wrapping_add(0x6C)); r28 = runtime::mr32(mem, ea.wrapping_add(0x70)); r29 = runtime::mr32(mem, ea.wrapping_add(0x74)); r30 = runtime::mr32(mem, ea.wrapping_add(0x78)); r31 = runtime::mr32(mem, ea.wrapping_add(0x7C));  }
@@ -13974,7 +14173,7 @@ pub fn fn_802B8168(c: &mut Ctx) {
             r1 = 0x804D0000u32;
             r1 = r1 | 0x61A8;
             r3 = 0x2u32;
-            { c.lr = 0x802B81DC; c.r[0] = r0; c.r[1] = r1; c.r[2] = r2; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.r[13] = r13; c.r[14] = r14; c.r[15] = r15; c.r[16] = r16; c.r[17] = r17; c.r[18] = r18; c.r[19] = r19; c.r[20] = r20; c.r[21] = r21; c.r[22] = r22; c.r[23] = r23; c.r[24] = r24; c.r[25] = r25; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; fn_802B8A18(c); r0 = c.r[0]; r1 = c.r[1]; r2 = c.r[2]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; r13 = c.r[13]; r14 = c.r[14]; r15 = c.r[15]; r16 = c.r[16]; r17 = c.r[17]; r18 = c.r[18]; r19 = c.r[19]; r20 = c.r[20]; r21 = c.r[21]; r22 = c.r[22]; r23 = c.r[23]; r24 = c.r[24]; r25 = c.r[25]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; cr1 = c.cr[1]; cr2 = c.cr[2]; cr3 = c.cr[3]; cr4 = c.cr[4]; cr5 = c.cr[5]; cr6 = c.cr[6]; cr7 = c.cr[7]; }
+            { c.lr = 0x802B81DC; c.r[0] = r0; c.r[1] = r1; c.r[2] = r2; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.r[13] = r13; c.cr[0] = cr0; fn_802B8A18(c); runtime::prof(0x802B8168); r0 = c.r[0]; r1 = c.r[1]; r2 = c.r[2]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; r13 = c.r[13]; cr0 = c.cr[0]; cr1 = c.cr[1]; cr2 = c.cr[2]; cr3 = c.cr[3]; cr4 = c.cr[4]; cr5 = c.cr[5]; cr6 = c.cr[6]; cr7 = c.cr[7]; }
             cr0 = runtime::cmps_val(r3 as i32, 1);
             if cr0 & 2 == 0 { { pc = 0x802B81F4; continue; } }
             { let ea = r3.wrapping_add(0x84); r4 = runtime::mr32(mem, ea); }
@@ -13994,6 +14193,7 @@ pub fn fn_802B8168(c: &mut Ctx) {
 
 // TRK__write_aram
 pub fn fn_802B81FC(c: &mut Ctx) {
+    runtime::prof(0x802B81FC);
     if c.hle(193) { return; }
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r1 = c.r[1]; let mut r3 = c.r[3]; let mut r4 = c.r[4]; let mut r5 = c.r[5]; let mut r6 = c.r[6]; let mut r10 = c.r[10]; let mut r11 = c.r[11]; let mut r12 = c.r[12]; let mut r23 = c.r[23]; let mut r24 = c.r[24]; let mut r25 = c.r[25]; let mut r26 = c.r[26]; let mut r27 = c.r[27]; let mut r28 = c.r[28]; let mut r29 = c.r[29]; let mut r30 = c.r[30]; let mut r31 = c.r[31]; 
@@ -14062,32 +14262,32 @@ pub fn fn_802B81FC(c: &mut Ctx) {
             pc = 0x802B82D4;
         }
         0x802B82D4 => {
-            { c.lr = 0x802B82D8; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.r[23] = r23; c.r[24] = r24; c.r[25] = r25; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ctr = ctr; c.ca = ca; fn_802D40B4(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; r23 = c.r[23]; r24 = c.r[24]; r25 = c.r[25]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ctr = c.ctr; ca = c.ca; }
+            { c.lr = 0x802B82D8; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.cr[0] = cr0; c.ctr = ctr; c.ca = ca; fn_802D40B4(c); runtime::prof(0x802B81FC); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; cr0 = c.cr[0]; ctr = c.ctr; ca = c.ca; }
             cr0 = runtime::cmpu_val(r3, 0x0);
             if cr0 & 2 == 0 { { if runtime::PROFILE_DETAILED { c.sample_tick_pc(0x802B81FC); } c.budget -= 1; if c.budget == 0 { c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.r[23] = r23; c.r[24] = r24; c.r[25] = r25; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ctr = ctr; c.ca = ca; c.poll(); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; r23 = c.r[23]; r24 = c.r[24]; r25 = c.r[25]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ctr = c.ctr; ca = c.ca; } pc = 0x802B82D4; continue; } }
-            { c.lr = 0x802B82E4; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.r[23] = r23; c.r[24] = r24; c.r[25] = r25; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ctr = ctr; c.ca = ca; fn_802D434C(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; r23 = c.r[23]; r24 = c.r[24]; r25 = c.r[25]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ctr = c.ctr; ca = c.ca; }
+            { c.lr = 0x802B82E4; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.cr[0] = cr0; c.ctr = ctr; c.ca = ca; fn_802D434C(c); runtime::prof(0x802B81FC); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; cr0 = c.cr[0]; ctr = c.ctr; ca = c.ca; }
             r24 = r31.rotate_left(0) & 0x1F; cr0 = runtime::cmps_val(r24 as i32, 0);
             r29 = r3 | r3;
             r25 = 0x8000000u32;
             if cr0 & 2 != 0 { { pc = 0x802B8338; continue; } }
             r28 = r1.wrapping_add(0x20);
             r25 = r27 | r27;
-            { c.lr = 0x802B8304; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.r[23] = r23; c.r[24] = r24; c.r[25] = r25; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ctr = ctr; c.ca = ca; fn_802D432C(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; r23 = c.r[23]; r24 = c.r[24]; r25 = c.r[25]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ctr = c.ctr; ca = c.ca; }
+            { c.lr = 0x802B8304; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.cr[0] = cr0; c.ctr = ctr; c.ca = ca; fn_802D432C(c); runtime::prof(0x802B81FC); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; cr0 = c.cr[0]; ctr = c.ctr; ca = c.ca; }
             r4 = r28 | r28;
             r5 = r27 | r27;
             r3 = 0x1u32;
             r6 = 0x20u32;
-            { c.lr = 0x802B8318; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.r[23] = r23; c.r[24] = r24; c.r[25] = r25; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ctr = ctr; c.ca = ca; fn_802D40F0(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; r23 = c.r[23]; r24 = c.r[24]; r25 = c.r[25]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ctr = c.ctr; ca = c.ca; }
+            { c.lr = 0x802B8318; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.cr[0] = cr0; c.ctr = ctr; c.ca = ca; fn_802D40F0(c); runtime::prof(0x802B81FC); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; cr0 = c.cr[0]; ctr = c.ctr; ca = c.ca; }
             pc = 0x802B8318;
         }
         0x802B8318 => {
-            { c.lr = 0x802B831C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.r[23] = r23; c.r[24] = r24; c.r[25] = r25; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ctr = ctr; c.ca = ca; fn_802D434C(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; r23 = c.r[23]; r24 = c.r[24]; r25 = c.r[25]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ctr = c.ctr; ca = c.ca; }
+            { c.lr = 0x802B831C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.cr[0] = cr0; c.ctr = ctr; c.ca = ca; fn_802D434C(c); runtime::prof(0x802B81FC); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; cr0 = c.cr[0]; ctr = c.ctr; ca = c.ca; }
             r0 = r3.rotate_left(0) & 0xFFFF; cr0 = runtime::cmps_val(r0 as i32, 0);
             if cr0 & 2 != 0 { { if runtime::PROFILE_DETAILED { c.sample_tick_pc(0x802B81FC); } c.budget -= 1; if c.budget == 0 { c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.r[23] = r23; c.r[24] = r24; c.r[25] = r25; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ctr = ctr; c.ca = ca; c.poll(); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; r23 = c.r[23]; r24 = c.r[24]; r25 = c.r[25]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ctr = c.ctr; ca = c.ca; } pc = 0x802B8318; continue; } }
             r3 = r30 | r30;
             r5 = r24 | r24;
             r4 = r1.wrapping_add(0x20);
-            { c.lr = 0x802B8334; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.r[23] = r23; c.r[24] = r24; c.r[25] = r25; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ctr = ctr; c.ca = ca; fn_80003268(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; r23 = c.r[23]; r24 = c.r[24]; r25 = c.r[25]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ctr = c.ctr; ca = c.ca; }
+            { c.lr = 0x802B8334; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.cr[0] = cr0; c.ctr = ctr; c.ca = ca; fn_80003268(c); runtime::prof(0x802B81FC); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; cr0 = c.cr[0]; ctr = c.ctr; ca = c.ca; }
             pc = 0x802B8338;
         }
         0x802B8338 => {
@@ -14099,16 +14299,16 @@ pub fn fn_802B81FC(c: &mut Ctx) {
             cr0 = runtime::cmpu_val(r23, r25);
             if cr0 & 2 != 0 { { pc = 0x802B8380; continue; } }
             r28 = r1.wrapping_add(0x20);
-            { c.lr = 0x802B8360; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.r[23] = r23; c.r[24] = r24; c.r[25] = r25; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ctr = ctr; c.ca = ca; fn_802D432C(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; r23 = c.r[23]; r24 = c.r[24]; r25 = c.r[25]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ctr = c.ctr; ca = c.ca; }
+            { c.lr = 0x802B8360; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.cr[0] = cr0; c.ctr = ctr; c.ca = ca; fn_802D432C(c); runtime::prof(0x802B81FC); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; cr0 = c.cr[0]; ctr = c.ctr; ca = c.ca; }
             r4 = r28 | r28;
             r5 = r23 | r23;
             r3 = 0x1u32;
             r6 = 0x20u32;
-            { c.lr = 0x802B8374; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.r[23] = r23; c.r[24] = r24; c.r[25] = r25; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ctr = ctr; c.ca = ca; fn_802D40F0(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; r23 = c.r[23]; r24 = c.r[24]; r25 = c.r[25]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ctr = c.ctr; ca = c.ca; }
+            { c.lr = 0x802B8374; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.cr[0] = cr0; c.ctr = ctr; c.ca = ca; fn_802D40F0(c); runtime::prof(0x802B81FC); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; cr0 = c.cr[0]; ctr = c.ctr; ca = c.ca; }
             pc = 0x802B8374;
         }
         0x802B8374 => {
-            { c.lr = 0x802B8378; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.r[23] = r23; c.r[24] = r24; c.r[25] = r25; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ctr = ctr; c.ca = ca; fn_802D434C(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; r23 = c.r[23]; r24 = c.r[24]; r25 = c.r[25]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ctr = c.ctr; ca = c.ca; }
+            { c.lr = 0x802B8378; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.cr[0] = cr0; c.ctr = ctr; c.ca = ca; fn_802D434C(c); runtime::prof(0x802B81FC); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; cr0 = c.cr[0]; ctr = c.ctr; ca = c.ca; }
             r0 = r3.rotate_left(0) & 0xFFFF; cr0 = runtime::cmps_val(r0 as i32, 0);
             if cr0 & 2 != 0 { { if runtime::PROFILE_DETAILED { c.sample_tick_pc(0x802B81FC); } c.budget -= 1; if c.budget == 0 { c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.r[23] = r23; c.r[24] = r24; c.r[25] = r25; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ctr = ctr; c.ca = ca; c.poll(); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; r23 = c.r[23]; r24 = c.r[24]; r25 = c.r[25]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ctr = c.ctr; ca = c.ca; } pc = 0x802B8374; continue; } }
             pc = 0x802B8380;
@@ -14119,25 +14319,25 @@ pub fn fn_802B81FC(c: &mut Ctx) {
             r3 = r25 | r25;
             (r5, ca) = runtime::add3_val(!r24, 0x20, 1);
             r4 = r4.wrapping_add(r24);
-            { c.lr = 0x802B8398; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.r[23] = r23; c.r[24] = r24; c.r[25] = r25; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ctr = ctr; c.ca = ca; fn_80003268(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; r23 = c.r[23]; r24 = c.r[24]; r25 = c.r[25]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ctr = c.ctr; ca = c.ca; }
+            { c.lr = 0x802B8398; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.cr[0] = cr0; c.ctr = ctr; c.ca = ca; fn_80003268(c); runtime::prof(0x802B81FC); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; cr0 = c.cr[0]; ctr = c.ctr; ca = c.ca; }
             pc = 0x802B839C;
         }
         0x802B839C => {
-            { c.lr = 0x802B83A4; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.r[23] = r23; c.r[24] = r24; c.r[25] = r25; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ctr = ctr; c.ca = ca; fn_802D432C(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; r23 = c.r[23]; r24 = c.r[24]; r25 = c.r[25]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ctr = c.ctr; ca = c.ca; }
+            { c.lr = 0x802B83A4; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.cr[0] = cr0; c.ctr = ctr; c.ca = ca; fn_802D432C(c); runtime::prof(0x802B81FC); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; cr0 = c.cr[0]; ctr = c.ctr; ca = c.ca; }
             r4 = r30 | r30;
             r5 = r27 | r27;
             r6 = r26 | r26;
             r3 = 0x0u32;
-            { c.lr = 0x802B83B8; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.r[23] = r23; c.r[24] = r24; c.r[25] = r25; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ctr = ctr; c.ca = ca; fn_802D40F0(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; r23 = c.r[23]; r24 = c.r[24]; r25 = c.r[25]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ctr = c.ctr; ca = c.ca; }
+            { c.lr = 0x802B83B8; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.cr[0] = cr0; c.ctr = ctr; c.ca = ca; fn_802D40F0(c); runtime::prof(0x802B81FC); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; cr0 = c.cr[0]; ctr = c.ctr; ca = c.ca; }
             r0 = r29.rotate_left(0) & 0xFFFF; cr0 = runtime::cmps_val(r0 as i32, 0);
             if cr0 & 2 == 0 { { pc = 0x802B83D0; continue; } }
             pc = 0x802B83C0;
         }
         0x802B83C0 => {
-            { c.lr = 0x802B83C4; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.r[23] = r23; c.r[24] = r24; c.r[25] = r25; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ctr = ctr; c.ca = ca; fn_802D434C(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; r23 = c.r[23]; r24 = c.r[24]; r25 = c.r[25]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ctr = c.ctr; ca = c.ca; }
+            { c.lr = 0x802B83C4; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.cr[0] = cr0; c.ctr = ctr; c.ca = ca; fn_802D434C(c); runtime::prof(0x802B81FC); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; cr0 = c.cr[0]; ctr = c.ctr; ca = c.ca; }
             r0 = r3.rotate_left(0) & 0xFFFF; cr0 = runtime::cmps_val(r0 as i32, 0);
             if cr0 & 2 != 0 { { if runtime::PROFILE_DETAILED { c.sample_tick_pc(0x802B81FC); } c.budget -= 1; if c.budget == 0 { c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.r[23] = r23; c.r[24] = r24; c.r[25] = r25; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ctr = ctr; c.ca = ca; c.poll(); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; r23 = c.r[23]; r24 = c.r[24]; r25 = c.r[25]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ctr = c.ctr; ca = c.ca; } pc = 0x802B83C0; continue; } }
-            { c.lr = 0x802B83D0; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.r[23] = r23; c.r[24] = r24; c.r[25] = r25; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ctr = ctr; c.ca = ca; fn_802D432C(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; r23 = c.r[23]; r24 = c.r[24]; r25 = c.r[25]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ctr = c.ctr; ca = c.ca; }
+            { c.lr = 0x802B83D0; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.cr[0] = cr0; c.ctr = ctr; c.ca = ca; fn_802D432C(c); runtime::prof(0x802B81FC); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; cr0 = c.cr[0]; ctr = c.ctr; ca = c.ca; }
             pc = 0x802B83D0;
         }
         0x802B83D0 => {
@@ -14154,6 +14354,7 @@ pub fn fn_802B81FC(c: &mut Ctx) {
 
 // TRK__read_aram
 pub fn fn_802B83E8(c: &mut Ctx) {
+    runtime::prof(0x802B83E8);
     if c.hle(194) { return; }
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r1 = c.r[1]; let mut r3 = c.r[3]; let mut r4 = c.r[4]; let mut r5 = c.r[5]; let mut r6 = c.r[6]; let mut r28 = c.r[28]; let mut r29 = c.r[29]; let mut r30 = c.r[30]; let mut r31 = c.r[31]; 
@@ -14219,26 +14420,26 @@ pub fn fn_802B83E8(c: &mut Ctx) {
             pc = 0x802B84B8;
         }
         0x802B84B8 => {
-            { c.lr = 0x802B84BC; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ctr = ctr; fn_802D40B4(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ctr = c.ctr; }
+            { c.lr = 0x802B84BC; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.cr[0] = cr0; c.ctr = ctr; fn_802D40B4(c); runtime::prof(0x802B83E8); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; cr0 = c.cr[0]; ctr = c.ctr; }
             cr0 = runtime::cmpu_val(r3, 0x0);
             if cr0 & 2 == 0 { { if runtime::PROFILE_DETAILED { c.sample_tick_pc(0x802B83E8); } c.budget -= 1; if c.budget == 0 { c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ctr = ctr; c.poll(); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ctr = c.ctr; } pc = 0x802B84B8; continue; } }
-            { c.lr = 0x802B84C8; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ctr = ctr; fn_802D434C(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ctr = c.ctr; }
+            { c.lr = 0x802B84C8; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.cr[0] = cr0; c.ctr = ctr; fn_802D434C(c); runtime::prof(0x802B83E8); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; cr0 = c.cr[0]; ctr = c.ctr; }
             r31 = r3 | r3;
-            { c.lr = 0x802B84D0; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ctr = ctr; fn_802D432C(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ctr = c.ctr; }
+            { c.lr = 0x802B84D0; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.cr[0] = cr0; c.ctr = ctr; fn_802D432C(c); runtime::prof(0x802B83E8); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; cr0 = c.cr[0]; ctr = c.ctr; }
             r4 = r28 | r28;
             r5 = r30 | r30;
             r6 = r29 | r29;
             r3 = 0x1u32;
-            { c.lr = 0x802B84E4; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ctr = ctr; fn_802D40F0(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ctr = c.ctr; }
+            { c.lr = 0x802B84E4; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.cr[0] = cr0; c.ctr = ctr; fn_802D40F0(c); runtime::prof(0x802B83E8); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; cr0 = c.cr[0]; ctr = c.ctr; }
             pc = 0x802B84E4;
         }
         0x802B84E4 => {
-            { c.lr = 0x802B84E8; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ctr = ctr; fn_802D434C(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ctr = c.ctr; }
+            { c.lr = 0x802B84E8; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.cr[0] = cr0; c.ctr = ctr; fn_802D434C(c); runtime::prof(0x802B83E8); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; cr0 = c.cr[0]; ctr = c.ctr; }
             r0 = r3.rotate_left(0) & 0xFFFF; cr0 = runtime::cmps_val(r0 as i32, 0);
             if cr0 & 2 != 0 { { if runtime::PROFILE_DETAILED { c.sample_tick_pc(0x802B83E8); } c.budget -= 1; if c.budget == 0 { c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ctr = ctr; c.poll(); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ctr = c.ctr; } pc = 0x802B84E4; continue; } }
             r0 = r31.rotate_left(0) & 0xFFFF; cr0 = runtime::cmps_val(r0 as i32, 0);
             if cr0 & 2 == 0 { { pc = 0x802B84FC; continue; } }
-            { c.lr = 0x802B84FC; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ctr = ctr; fn_802D432C(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ctr = c.ctr; }
+            { c.lr = 0x802B84FC; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.cr[0] = cr0; c.ctr = ctr; fn_802D432C(c); runtime::prof(0x802B83E8); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; cr0 = c.cr[0]; ctr = c.ctr; }
             pc = 0x802B84FC;
         }
         0x802B84FC => {
@@ -14257,6 +14458,7 @@ pub fn fn_802B83E8(c: &mut Ctx) {
 
 // TRKInitializeTarget
 pub fn fn_802B851C(c: &mut Ctx) {
+    runtime::prof(0x802B851C);
     if c.hle(196) { return; }
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r1 = c.r[1]; let mut r3 = c.r[3]; let mut r4 = c.r[4]; let mut r5 = c.r[5]; 
@@ -14267,7 +14469,7 @@ pub fn fn_802B851C(c: &mut Ctx) {
     r0 = 0x1u32;
     r3 = r3.wrapping_add(0x3B5C);
     { let ea = r3.wrapping_add(0x98); runtime::mw32(mem, ea, r0); }
-    { c.lr = 0x802B853C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; fn_802B61B0(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; }
+    { c.lr = 0x802B853C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; fn_802B61B0(c); runtime::prof(0x802B851C); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; }
     r5 = 0x80460000u32;
     r4 = 0x80460000u32;
     r5 = r5.wrapping_add(0x3B5C);
@@ -14283,6 +14485,7 @@ pub fn fn_802B851C(c: &mut Ctx) {
 
 // __TRK_copy_vectors
 pub fn fn_802B8568(c: &mut Ctx) {
+    runtime::prof(0x802B8568);
     if c.hle(197) { return; }
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r1 = c.r[1]; let mut r3 = c.r[3]; let mut r4 = c.r[4]; let mut r5 = c.r[5]; let mut r6 = c.r[6]; let mut r27 = c.r[27]; let mut r28 = c.r[28]; let mut r29 = c.r[29]; let mut r30 = c.r[30]; let mut r31 = c.r[31]; 
@@ -14367,10 +14570,10 @@ pub fn fn_802B8568(c: &mut Ctx) {
             r0 = r4.wrapping_add(0x328C);
             r5 = 0x100u32;
             r4 = r0.wrapping_add(r6);
-            { c.lr = 0x802B8664; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; fn_80003268(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; }
+            { c.lr = 0x802B8664; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.cr[0] = cr0; fn_80003268(c); runtime::prof(0x802B8568); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; cr0 = c.cr[0]; }
             r3 = r27 | r27;
             r4 = 0x100u32;
-            { c.lr = 0x802B8670; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; fn_802B60C0(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; }
+            { c.lr = 0x802B8670; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.cr[0] = cr0; fn_802B60C0(c); runtime::prof(0x802B8568); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; cr0 = c.cr[0]; }
             pc = 0x802B8670;
         }
         0x802B8670 => {
@@ -14390,6 +14593,7 @@ pub fn fn_802B8568(c: &mut Ctx) {
 
 // TRKTargetTranslate
 pub fn fn_802B8694(c: &mut Ctx) {
+    runtime::prof(0x802B8694);
     if c.hle(198) { return; }
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r3 = c.r[3]; let mut r4 = c.r[4]; 
@@ -14433,13 +14637,14 @@ pub fn fn_802B8694(c: &mut Ctx) {
 // EnableMetroTRKInterrupts
 #[inline]
 pub fn fn_802B86EC(c: &mut Ctx) {
+    runtime::prof(0x802B86EC);
     if c.hle(199) { return; }
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r1 = c.r[1]; 
     { let ea = r1.wrapping_add(0xFFFFFFF0); runtime::mw32(mem, ea, r1); r1 = ea; }
     r0 = c.lr;
     { let ea = r1.wrapping_add(0x14); runtime::mw32(mem, ea, r0); }
-    { c.lr = 0x802B86FC; c.r[0] = r0; c.r[1] = r1; fn_802B8980(c); r0 = c.r[0]; r1 = c.r[1]; }
+    { c.lr = 0x802B86FC; c.r[0] = r0; c.r[1] = r1; fn_802B8980(c); runtime::prof(0x802B86EC); r0 = c.r[0]; r1 = c.r[1]; }
     { let ea = r1.wrapping_add(0x14); r0 = runtime::mr32(mem, ea); }
     c.lr = r0;
     r1 = r1.wrapping_add(0x10);
@@ -14448,6 +14653,7 @@ pub fn fn_802B86EC(c: &mut Ctx) {
 
 // TRK_main
 pub fn fn_802B870C(c: &mut Ctx) {
+    runtime::prof(0x802B870C);
     if c.hle(200) { return; }
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r1 = c.r[1]; let mut r3 = c.r[3]; let mut r4 = c.r[4]; 
@@ -14462,18 +14668,18 @@ pub fn fn_802B870C(c: &mut Ctx) {
             { let ea = r1.wrapping_add(0x14); runtime::mw32(mem, ea, r0); }
             r4 = r4.wrapping_add(0xFFFFED38);
             { let v = (cr1 & 2 != 0) ^ (cr1 & 2 != 0); cr1 = if v { cr1 | 2 } else { cr1 & 0xFD }; }
-            { c.lr = 0x802B872C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.cr[0] = cr0; c.cr[1] = cr1; fn_802B97C4(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
-            { c.lr = 0x802B8730; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.cr[0] = cr0; c.cr[1] = cr1; fn_802B3A04(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
+            { c.lr = 0x802B872C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.cr[0] = cr0; c.cr[1] = cr1; fn_802B97C4(c); runtime::prof(0x802B870C); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
+            { c.lr = 0x802B8730; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.cr[0] = cr0; c.cr[1] = cr1; fn_802B3A04(c); runtime::prof(0x802B870C); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
             r4 = 0x80460000u32;
             cr0 = runtime::cmps_val(r3 as i32, 0);
             { let ea = r4.wrapping_add(0x40E0); runtime::mw32(mem, ea, r3); }
             if cr0 & 2 == 0 { { pc = 0x802B8748; continue; } }
-            { c.lr = 0x802B8744; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.cr[0] = cr0; c.cr[1] = cr1; fn_802B39B8(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
-            { c.lr = 0x802B8748; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.cr[0] = cr0; c.cr[1] = cr1; fn_802B3698(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
+            { c.lr = 0x802B8744; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.cr[0] = cr0; c.cr[1] = cr1; fn_802B39B8(c); runtime::prof(0x802B870C); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
+            { c.lr = 0x802B8748; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.cr[0] = cr0; c.cr[1] = cr1; fn_802B3698(c); runtime::prof(0x802B870C); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
             pc = 0x802B8748;
         }
         0x802B8748 => {
-            { c.lr = 0x802B874C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.cr[0] = cr0; c.cr[1] = cr1; fn_802B39E0(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
+            { c.lr = 0x802B874C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.cr[0] = cr0; c.cr[1] = cr1; fn_802B39E0(c); runtime::prof(0x802B870C); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
             r4 = 0x80460000u32;
             { let ea = r4.wrapping_add(0x40E0); runtime::mw32(mem, ea, r3); }
             { let ea = r1.wrapping_add(0x14); r0 = runtime::mr32(mem, ea); }
@@ -14487,6 +14693,7 @@ pub fn fn_802B870C(c: &mut Ctx) {
 
 // TRKLoadContext
 pub fn fn_802B8764(c: &mut Ctx) {
+    runtime::prof(0x802B8764);
     if c.hle(201) { return; }
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r1 = c.r[1]; let mut r2 = c.r[2]; let mut r3 = c.r[3]; let mut r4 = c.r[4]; let mut r5 = c.r[5]; let mut r6 = c.r[6]; let mut r7 = c.r[7]; let mut r8 = c.r[8]; let mut r9 = c.r[9]; let mut r10 = c.r[10]; let mut r11 = c.r[11]; let mut r12 = c.r[12]; let mut r13 = c.r[13]; let mut r14 = c.r[14]; let mut r15 = c.r[15]; let mut r16 = c.r[16]; let mut r17 = c.r[17]; let mut r18 = c.r[18]; let mut r19 = c.r[19]; let mut r20 = c.r[20]; let mut r21 = c.r[21]; let mut r22 = c.r[22]; let mut r23 = c.r[23]; let mut r24 = c.r[24]; let mut r25 = c.r[25]; let mut r26 = c.r[26]; let mut r27 = c.r[27]; let mut r28 = c.r[28]; let mut r29 = c.r[29]; let mut r30 = c.r[30]; let mut r31 = c.r[31]; 
@@ -14543,12 +14750,14 @@ pub fn fn_802B8764(c: &mut Ctx) {
 // TRKUARTInterruptHandler
 #[inline]
 pub fn fn_802B87EC(c: &mut Ctx) {
+    runtime::prof(0x802B87EC);
     if c.hle(202) { return; }
     { return; }
 }
 
 // InitializeProgramEndTrap
 pub fn fn_802B87F0(c: &mut Ctx) {
+    runtime::prof(0x802B87F0);
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r1 = c.r[1]; let mut r3 = c.r[3]; let mut r4 = c.r[4]; let mut r5 = c.r[5]; let mut r31 = c.r[31]; 
     { let ea = r1.wrapping_add(0xFFFFFFF0); runtime::mw32(mem, ea, r1); r1 = ea; }
@@ -14561,13 +14770,13 @@ pub fn fn_802B87F0(c: &mut Ctx) {
     r31 = r4.wrapping_add(0xFFFFACA8);
     r4 = r3.wrapping_add(0xFFFFED48);
     r3 = r31.wrapping_add(0x4);
-    { c.lr = 0x802B881C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[31] = r31; fn_80003268(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r31 = c.r[31]; }
+    { c.lr = 0x802B881C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; fn_80003268(c); runtime::prof(0x802B87F0); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; }
     r3 = r31.wrapping_add(0x4);
     r4 = 0x4u32;
-    { c.lr = 0x802B8828; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[31] = r31; fn_802F4268(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r31 = c.r[31]; }
+    { c.lr = 0x802B8828; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; fn_802F4268(c); runtime::prof(0x802B87F0); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; }
     r3 = r31.wrapping_add(0x4);
     r4 = 0x4u32;
-    { c.lr = 0x802B8834; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[31] = r31; fn_802F41DC(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r31 = c.r[31]; }
+    { c.lr = 0x802B8834; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; fn_802F41DC(c); runtime::prof(0x802B87F0); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; }
     { let ea = r1.wrapping_add(0x14); r0 = runtime::mr32(mem, ea); }
     { let ea = r1.wrapping_add(0xC); r31 = runtime::mr32(mem, ea); }
     c.lr = r0;
@@ -14578,6 +14787,7 @@ pub fn fn_802B87F0(c: &mut Ctx) {
 // TRK_board_display
 #[inline]
 pub fn fn_802B8848(c: &mut Ctx) {
+    runtime::prof(0x802B8848);
     if c.hle(203) { return; }
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r1 = c.r[1]; let mut r3 = c.r[3]; let mut r4 = c.r[4]; let mut r5 = c.r[5]; 
@@ -14589,7 +14799,7 @@ pub fn fn_802B8848(c: &mut Ctx) {
     { let ea = r1.wrapping_add(0x14); runtime::mw32(mem, ea, r0); }
     r3 = r5.wrapping_add(0xFFFFED4C);
     { let v = (cr1 & 2 != 0) ^ (cr1 & 2 != 0); cr1 = if v { cr1 | 2 } else { cr1 & 0xFD }; }
-    { c.lr = 0x802B8868; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.cr[1] = cr1; fn_802F4E44(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; cr1 = c.cr[1]; }
+    { c.lr = 0x802B8868; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.cr[1] = cr1; fn_802F4E44(c); runtime::prof(0x802B8848); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; cr1 = c.cr[1]; }
     { let ea = r1.wrapping_add(0x14); r0 = runtime::mr32(mem, ea); }
     c.lr = r0;
     r1 = r1.wrapping_add(0x10);
@@ -14599,6 +14809,7 @@ pub fn fn_802B8848(c: &mut Ctx) {
 // UnreserveEXI2Port
 #[inline]
 pub fn fn_802B8878(c: &mut Ctx) {
+    runtime::prof(0x802B8878);
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r1 = c.r[1]; let mut r3 = c.r[3]; let mut r12 = c.r[12]; 
     let mut ctr = c.ctr;
@@ -14609,7 +14820,7 @@ pub fn fn_802B8878(c: &mut Ctx) {
     r3 = r3.wrapping_add(0xFFFFAE30);
     { let ea = r3.wrapping_add(0x20); r12 = runtime::mr32(mem, ea); }
     ctr = r12;
-    { let t = ctr; c.lr = 0x802B8898; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[12] = r12; c.ctr = ctr; c.call(t); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r12 = c.r[12]; ctr = c.ctr; }
+    { let t = ctr; c.lr = 0x802B8898; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[12] = r12; c.ctr = ctr; c.call(t); runtime::prof(0x802B8878); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r12 = c.r[12]; ctr = c.ctr; }
     { let ea = r1.wrapping_add(0x14); r0 = runtime::mr32(mem, ea); }
     c.lr = r0;
     r1 = r1.wrapping_add(0x10);
@@ -14619,6 +14830,7 @@ pub fn fn_802B8878(c: &mut Ctx) {
 // ReserveEXI2Port
 #[inline]
 pub fn fn_802B88A8(c: &mut Ctx) {
+    runtime::prof(0x802B88A8);
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r1 = c.r[1]; let mut r3 = c.r[3]; let mut r12 = c.r[12]; 
     let mut ctr = c.ctr;
@@ -14629,7 +14841,7 @@ pub fn fn_802B88A8(c: &mut Ctx) {
     r3 = r3.wrapping_add(0xFFFFAE30);
     { let ea = r3.wrapping_add(0x24); r12 = runtime::mr32(mem, ea); }
     ctr = r12;
-    { let t = ctr; c.lr = 0x802B88C8; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[12] = r12; c.ctr = ctr; c.call(t); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r12 = c.r[12]; ctr = c.ctr; }
+    { let t = ctr; c.lr = 0x802B88C8; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[12] = r12; c.ctr = ctr; c.call(t); runtime::prof(0x802B88A8); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r12 = c.r[12]; ctr = c.ctr; }
     { let ea = r1.wrapping_add(0x14); r0 = runtime::mr32(mem, ea); }
     c.lr = r0;
     r1 = r1.wrapping_add(0x10);
@@ -14639,6 +14851,7 @@ pub fn fn_802B88A8(c: &mut Ctx) {
 // TRKWriteUARTN
 #[inline]
 pub fn fn_802B88D8(c: &mut Ctx) {
+    runtime::prof(0x802B88D8);
     if c.hle(204) { return; }
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r1 = c.r[1]; let mut r3 = c.r[3]; let mut r5 = c.r[5]; let mut r12 = c.r[12]; 
@@ -14651,7 +14864,7 @@ pub fn fn_802B88D8(c: &mut Ctx) {
     r5 = r5.wrapping_add(0xFFFFAE30);
     { let ea = r5.wrapping_add(0x14); r12 = runtime::mr32(mem, ea); }
     ctr = r12;
-    { let t = ctr; c.lr = 0x802B88F8; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[5] = r5; c.r[12] = r12; c.ctr = ctr; c.ca = ca; c.call(t); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r5 = c.r[5]; r12 = c.r[12]; ctr = c.ctr; ca = c.ca; }
+    { let t = ctr; c.lr = 0x802B88F8; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[5] = r5; c.r[12] = r12; c.ctr = ctr; c.ca = ca; c.call(t); runtime::prof(0x802B88D8); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r5 = c.r[5]; r12 = c.r[12]; ctr = c.ctr; ca = c.ca; }
     r0 = r3.wrapping_neg();
     r0 = r0 | r3;
     (r3, ca) = runtime::sraw_val(r0, 31);
@@ -14664,6 +14877,7 @@ pub fn fn_802B88D8(c: &mut Ctx) {
 // TRKReadUARTN
 #[inline]
 pub fn fn_802B8914(c: &mut Ctx) {
+    runtime::prof(0x802B8914);
     if c.hle(205) { return; }
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r1 = c.r[1]; let mut r3 = c.r[3]; let mut r5 = c.r[5]; let mut r12 = c.r[12]; 
@@ -14676,7 +14890,7 @@ pub fn fn_802B8914(c: &mut Ctx) {
     r5 = r5.wrapping_add(0xFFFFAE30);
     { let ea = r5.wrapping_add(0x10); r12 = runtime::mr32(mem, ea); }
     ctr = r12;
-    { let t = ctr; c.lr = 0x802B8934; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[5] = r5; c.r[12] = r12; c.ctr = ctr; c.ca = ca; c.call(t); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r5 = c.r[5]; r12 = c.r[12]; ctr = c.ctr; ca = c.ca; }
+    { let t = ctr; c.lr = 0x802B8934; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[5] = r5; c.r[12] = r12; c.ctr = ctr; c.ca = ca; c.call(t); runtime::prof(0x802B8914); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r5 = c.r[5]; r12 = c.r[12]; ctr = c.ctr; ca = c.ca; }
     r0 = r3.wrapping_neg();
     r0 = r0 | r3;
     (r3, ca) = runtime::sraw_val(r0, 31);
@@ -14689,6 +14903,7 @@ pub fn fn_802B8914(c: &mut Ctx) {
 // TRKPollUART
 #[inline]
 pub fn fn_802B8950(c: &mut Ctx) {
+    runtime::prof(0x802B8950);
     if c.hle(206) { return; }
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r1 = c.r[1]; let mut r3 = c.r[3]; let mut r12 = c.r[12]; 
@@ -14700,7 +14915,7 @@ pub fn fn_802B8950(c: &mut Ctx) {
     r3 = r3.wrapping_add(0xFFFFAE30);
     { let ea = r3.wrapping_add(0xC); r12 = runtime::mr32(mem, ea); }
     ctr = r12;
-    { let t = ctr; c.lr = 0x802B8970; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[12] = r12; c.ctr = ctr; c.call(t); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r12 = c.r[12]; ctr = c.ctr; }
+    { let t = ctr; c.lr = 0x802B8970; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[12] = r12; c.ctr = ctr; c.call(t); runtime::prof(0x802B8950); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r12 = c.r[12]; ctr = c.ctr; }
     { let ea = r1.wrapping_add(0x14); r0 = runtime::mr32(mem, ea); }
     c.lr = r0;
     r1 = r1.wrapping_add(0x10);
@@ -14709,6 +14924,7 @@ pub fn fn_802B8950(c: &mut Ctx) {
 
 // EnableEXI2Interrupts
 pub fn fn_802B8980(c: &mut Ctx) {
+    runtime::prof(0x802B8980);
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r1 = c.r[1]; let mut r3 = c.r[3]; let mut r12 = c.r[12]; 
     let mut cr0 = c.cr[0]; 
@@ -14729,7 +14945,7 @@ pub fn fn_802B8980(c: &mut Ctx) {
             cr0 = runtime::cmpu_val(r12, 0x0);
             if cr0 & 2 != 0 { { pc = 0x802B89B8; continue; } }
             ctr = r12;
-            { let t = ctr; c.lr = 0x802B89B8; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[12] = r12; c.cr[0] = cr0; c.ctr = ctr; c.call(t); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r12 = c.r[12]; cr0 = c.cr[0]; ctr = c.ctr; }
+            { let t = ctr; c.lr = 0x802B89B8; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[12] = r12; c.cr[0] = cr0; c.ctr = ctr; c.call(t); runtime::prof(0x802B8980); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r12 = c.r[12]; cr0 = c.cr[0]; ctr = c.ctr; }
             pc = 0x802B89B8;
         }
         0x802B89B8 => {
@@ -14744,6 +14960,7 @@ pub fn fn_802B8980(c: &mut Ctx) {
 
 // TRKInitializeIntDrivenUART
 pub fn fn_802B89C8(c: &mut Ctx) {
+    runtime::prof(0x802B89C8);
     if c.hle(208) { return; }
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r1 = c.r[1]; let mut r3 = c.r[3]; let mut r4 = c.r[4]; let mut r6 = c.r[6]; let mut r12 = c.r[12]; 
@@ -14757,12 +14974,12 @@ pub fn fn_802B89C8(c: &mut Ctx) {
     { let ea = r3.wrapping_add(0xFFFFAE30); r12 = runtime::mr32(mem, ea); }
     r3 = r6 | r6;
     ctr = r12;
-    { let t = ctr; c.lr = 0x802B89F0; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[12] = r12; c.ctr = ctr; c.call(t); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r6 = c.r[6]; r12 = c.r[12]; ctr = c.ctr; }
+    { let t = ctr; c.lr = 0x802B89F0; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[12] = r12; c.ctr = ctr; c.call(t); runtime::prof(0x802B89C8); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r6 = c.r[6]; r12 = c.r[12]; ctr = c.ctr; }
     r3 = 0x803C0000u32;
     r3 = r3.wrapping_add(0xFFFFAE30);
     { let ea = r3.wrapping_add(0x18); r12 = runtime::mr32(mem, ea); }
     ctr = r12;
-    { let t = ctr; c.lr = 0x802B8A04; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[12] = r12; c.ctr = ctr; c.call(t); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r6 = c.r[6]; r12 = c.r[12]; ctr = c.ctr; }
+    { let t = ctr; c.lr = 0x802B8A04; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[12] = r12; c.ctr = ctr; c.call(t); runtime::prof(0x802B89C8); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r6 = c.r[6]; r12 = c.r[12]; ctr = c.ctr; }
     { let ea = r1.wrapping_add(0x14); r0 = runtime::mr32(mem, ea); }
     r3 = 0x0u32;
     c.lr = r0;
@@ -14772,6 +14989,7 @@ pub fn fn_802B89C8(c: &mut Ctx) {
 
 // InitMetroTRKCommTable
 pub fn fn_802B8A18(c: &mut Ctx) {
+    runtime::prof(0x802B8A18);
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r1 = c.r[1]; let mut r3 = c.r[3]; let mut r4 = c.r[4]; let mut r5 = c.r[5]; let mut r6 = c.r[6]; let mut r7 = c.r[7]; let mut r8 = c.r[8]; let mut r9 = c.r[9]; let mut r10 = c.r[10]; let mut r11 = c.r[11]; let mut r12 = c.r[12]; let mut r29 = c.r[29]; let mut r30 = c.r[30]; let mut r31 = c.r[31]; 
     let mut cr0 = c.cr[0]; let mut cr1 = c.cr[1]; 
@@ -14791,7 +15009,7 @@ pub fn fn_802B8A18(c: &mut Ctx) {
             r4 = r30 | r30;
             r3 = r29.wrapping_add(0x8);
             { let v = (cr1 & 2 != 0) ^ (cr1 & 2 != 0); cr1 = if v { cr1 | 2 } else { cr1 & 0xFD }; }
-            { c.lr = 0x802B8A50; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.cr[1] = cr1; fn_802F4E44(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
+            { c.lr = 0x802B8A50; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.cr[0] = cr0; c.cr[1] = cr1; fn_802F4E44(c); runtime::prof(0x802B8A18); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
             r3 = 0x80460000u32;
             r0 = 0x0u32;
             cr0 = runtime::cmps_val(r30 as i32, 2);
@@ -14799,7 +15017,7 @@ pub fn fn_802B8A18(c: &mut Ctx) {
             if cr0 & 2 == 0 { { pc = 0x802B8B04; continue; } }
             r3 = r29.wrapping_add(0x20);
             { let v = (cr1 & 2 != 0) ^ (cr1 & 2 != 0); cr1 = if v { cr1 | 2 } else { cr1 & 0xFD }; }
-            { c.lr = 0x802B8A70; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.cr[1] = cr1; fn_802F4E44(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
+            { c.lr = 0x802B8A70; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.cr[0] = cr0; c.cr[1] = cr1; fn_802F4E44(c); runtime::prof(0x802B8A18); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
             r30 = 0x80460000u32;
             r12 = 0x802C0000u32;
             r11 = 0x803C0000u32;
@@ -14843,8 +15061,8 @@ pub fn fn_802B8A18(c: &mut Ctx) {
             if cr0 & 2 == 0 { { pc = 0x802B8BA0; continue; } }
             r3 = r29.wrapping_add(0x38);
             { let v = (cr1 & 2 != 0) ^ (cr1 & 2 != 0); cr1 = if v { cr1 | 2 } else { cr1 & 0xFD }; }
-            { c.lr = 0x802B8B18; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.cr[1] = cr1; fn_802F4E44(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
-            { c.lr = 0x802B8B1C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.cr[1] = cr1; fn_802F2900(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
+            { c.lr = 0x802B8B18; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.cr[0] = cr0; c.cr[1] = cr1; fn_802F4E44(c); runtime::prof(0x802B8A18); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
+            { c.lr = 0x802B8B1C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.cr[0] = cr0; c.cr[1] = cr1; fn_802F2900(c); runtime::prof(0x802B8A18); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
             r31 = 0x802C0000u32;
             r12 = 0x802C0000u32;
             r31 = r31.wrapping_add(0xFFFF973C);
@@ -14884,8 +15102,8 @@ pub fn fn_802B8A18(c: &mut Ctx) {
             if cr0 & 2 == 0 { { pc = 0x802B8C3C; continue; } }
             r3 = r29.wrapping_add(0x5C);
             { let v = (cr1 & 2 != 0) ^ (cr1 & 2 != 0); cr1 = if v { cr1 | 2 } else { cr1 & 0xFD }; }
-            { c.lr = 0x802B8BB4; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.cr[1] = cr1; fn_802F4E44(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
-            { c.lr = 0x802B8BB8; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.cr[1] = cr1; fn_802D4068(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
+            { c.lr = 0x802B8BB4; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.cr[0] = cr0; c.cr[1] = cr1; fn_802F4E44(c); runtime::prof(0x802B8A18); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
+            { c.lr = 0x802B8BB8; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.cr[0] = cr0; c.cr[1] = cr1; fn_802D4068(c); runtime::prof(0x802B8A18); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
             r31 = 0x802C0000u32;
             r12 = 0x802C0000u32;
             r31 = r31.wrapping_add(0xFFFF9188);
@@ -14924,13 +15142,13 @@ pub fn fn_802B8A18(c: &mut Ctx) {
             r4 = r30 | r30;
             r3 = r29.wrapping_add(0x80);
             { let v = (cr1 & 2 != 0) ^ (cr1 & 2 != 0); cr1 = if v { cr1 | 2 } else { cr1 & 0xFD }; }
-            { c.lr = 0x802B8C4C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.cr[1] = cr1; fn_802F4E44(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
+            { c.lr = 0x802B8C4C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.cr[0] = cr0; c.cr[1] = cr1; fn_802F4E44(c); runtime::prof(0x802B8A18); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
             r3 = r29.wrapping_add(0xAC);
             { let v = (cr1 & 2 != 0) ^ (cr1 & 2 != 0); cr1 = if v { cr1 | 2 } else { cr1 & 0xFD }; }
-            { c.lr = 0x802B8C58; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.cr[1] = cr1; fn_802F4E44(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
+            { c.lr = 0x802B8C58; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.cr[0] = cr0; c.cr[1] = cr1; fn_802F4E44(c); runtime::prof(0x802B8A18); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
             r3 = r29.wrapping_add(0xDC);
             { let v = (cr1 & 2 != 0) ^ (cr1 & 2 != 0); cr1 = if v { cr1 | 2 } else { cr1 & 0xFD }; }
-            { c.lr = 0x802B8C64; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.cr[1] = cr1; fn_802F4E44(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
+            { c.lr = 0x802B8C64; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.cr[0] = cr0; c.cr[1] = cr1; fn_802F4E44(c); runtime::prof(0x802B8A18); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
             pc = 0x802B8C64;
         }
         0x802B8C64 => {
@@ -14953,6 +15171,7 @@ pub fn fn_802B8A18(c: &mut Ctx) {
 // TRKEXICallBack
 #[inline]
 pub fn fn_802B8C84(c: &mut Ctx) {
+    runtime::prof(0x802B8C84);
     if c.hle(207) { return; }
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r1 = c.r[1]; let mut r3 = c.r[3]; let mut r4 = c.r[4]; let mut r31 = c.r[31]; 
@@ -14961,10 +15180,10 @@ pub fn fn_802B8C84(c: &mut Ctx) {
     { let ea = r1.wrapping_add(0x14); runtime::mw32(mem, ea, r0); }
     { let ea = r1.wrapping_add(0xC); runtime::mw32(mem, ea, r31); }
     r31 = r4 | r4;
-    { c.lr = 0x802B8C9C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[31] = r31; fn_802F9150(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r31 = c.r[31]; }
+    { c.lr = 0x802B8C9C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; fn_802F9150(c); runtime::prof(0x802B8C84); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; }
     r3 = r31 | r31;
     r4 = 0x500u32;
-    { c.lr = 0x802B8CA8; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[31] = r31; fn_802B8764(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r31 = c.r[31]; }
+    { c.lr = 0x802B8CA8; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; fn_802B8764(c); runtime::prof(0x802B8C84); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; }
     { let ea = r1.wrapping_add(0x14); r0 = runtime::mr32(mem, ea); }
     { let ea = r1.wrapping_add(0xC); r31 = runtime::mr32(mem, ea); }
     c.lr = r0;
@@ -14975,6 +15194,7 @@ pub fn fn_802B8C84(c: &mut Ctx) {
 // TRKTargetContinue
 #[inline]
 pub fn fn_802B8CBC(c: &mut Ctx) {
+    runtime::prof(0x802B8CBC);
     if c.hle(209) { return; }
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r1 = c.r[1]; let mut r3 = c.r[3]; 
@@ -14982,10 +15202,10 @@ pub fn fn_802B8CBC(c: &mut Ctx) {
     r0 = c.lr;
     r3 = 0x0u32;
     { let ea = r1.wrapping_add(0x14); runtime::mw32(mem, ea, r0); }
-    { c.lr = 0x802B8CD0; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; fn_802B6678(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; }
-    { c.lr = 0x802B8CD4; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; fn_802B8878(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; }
-    { c.lr = 0x802B8CD8; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; fn_802B642C(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; }
-    { c.lr = 0x802B8CDC; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; fn_802B88A8(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; }
+    { c.lr = 0x802B8CD0; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; fn_802B6678(c); runtime::prof(0x802B8CBC); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; }
+    { c.lr = 0x802B8CD4; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; fn_802B8878(c); runtime::prof(0x802B8CBC); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; }
+    { c.lr = 0x802B8CD8; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; fn_802B642C(c); runtime::prof(0x802B8CBC); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; }
+    { c.lr = 0x802B8CDC; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; fn_802B88A8(c); runtime::prof(0x802B8CBC); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; }
     { let ea = r1.wrapping_add(0x14); r0 = runtime::mr32(mem, ea); }
     r3 = 0x0u32;
     c.lr = r0;
@@ -14996,6 +15216,7 @@ pub fn fn_802B8CBC(c: &mut Ctx) {
 // GetUseSerialIO
 #[inline]
 pub fn fn_802B8CF0(c: &mut Ctx) {
+    runtime::prof(0x802B8CF0);
     let mem = c.mem;
     let mut r3 = c.r[3]; 
     r3 = 0x80460000u32;
@@ -15007,6 +15228,7 @@ pub fn fn_802B8CF0(c: &mut Ctx) {
 // SetUseSerialIO
 #[inline]
 pub fn fn_802B8D00(c: &mut Ctx) {
+    runtime::prof(0x802B8D00);
     let mem = c.mem;
     let mut r3 = c.r[3]; let mut r4 = c.r[4]; 
     r4 = 0x80460000u32;
@@ -15016,6 +15238,7 @@ pub fn fn_802B8D00(c: &mut Ctx) {
 
 // __TRK_write_console
 pub fn fn_802B8D0C(c: &mut Ctx) {
+    runtime::prof(0x802B8D0C);
     if c.hle(210) { return; }
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r1 = c.r[1]; let mut r3 = c.r[3]; let mut r4 = c.r[4]; let mut r5 = c.r[5]; let mut r6 = c.r[6]; let mut r30 = c.r[30]; let mut r31 = c.r[31]; 
@@ -15030,14 +15253,14 @@ pub fn fn_802B8D0C(c: &mut Ctx) {
             r31 = r5 | r5;
             { let ea = r1.wrapping_add(0x18); runtime::mw32(mem, ea, r30); }
             r30 = r4 | r4;
-            { c.lr = 0x802B8D2C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; fn_802B8CF0(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; }
+            { c.lr = 0x802B8D2C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.cr[0] = cr0; fn_802B8CF0(c); runtime::prof(0x802B8D0C); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; cr0 = c.cr[0]; }
             r0 = r3.rotate_left(0) & 0xFF; cr0 = runtime::cmps_val(r0 as i32, 0);
             if cr0 & 2 == 0 { { pc = 0x802B8D3C; continue; } }
             r3 = 0x1u32;
             { pc = 0x802B8DB0; continue; }
         }
         0x802B8D3C => {
-            { c.lr = 0x802B8D40; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; fn_802B5844(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; }
+            { c.lr = 0x802B8D40; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.cr[0] = cr0; fn_802B5844(c); runtime::prof(0x802B8D0C); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; cr0 = c.cr[0]; }
             cr0 = runtime::cmps_val(r3 as i32, 0);
             if cr0 & 2 == 0 { { pc = 0x802B8D50; continue; } }
             r3 = 0x1u32;
@@ -15092,6 +15315,7 @@ pub fn fn_802B8D0C(c: &mut Ctx) {
 
 // __read_console
 pub fn fn_802B8DC8(c: &mut Ctx) {
+    runtime::prof(0x802B8DC8);
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r1 = c.r[1]; let mut r3 = c.r[3]; let mut r4 = c.r[4]; let mut r5 = c.r[5]; let mut r6 = c.r[6]; let mut r30 = c.r[30]; let mut r31 = c.r[31]; 
     let mut cr0 = c.cr[0]; 
@@ -15105,14 +15329,14 @@ pub fn fn_802B8DC8(c: &mut Ctx) {
             r31 = r5 | r5;
             { let ea = r1.wrapping_add(0x18); runtime::mw32(mem, ea, r30); }
             r30 = r4 | r4;
-            { c.lr = 0x802B8DE8; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; fn_802B8CF0(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; }
+            { c.lr = 0x802B8DE8; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.cr[0] = cr0; fn_802B8CF0(c); runtime::prof(0x802B8DC8); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; cr0 = c.cr[0]; }
             r0 = r3.rotate_left(0) & 0xFF; cr0 = runtime::cmps_val(r0 as i32, 0);
             if cr0 & 2 == 0 { { pc = 0x802B8DF8; continue; } }
             r3 = 0x1u32;
             { pc = 0x802B8E6C; continue; }
         }
         0x802B8DF8 => {
-            { c.lr = 0x802B8DFC; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; fn_802B5844(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; }
+            { c.lr = 0x802B8DFC; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.cr[0] = cr0; fn_802B5844(c); runtime::prof(0x802B8DC8); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; cr0 = c.cr[0]; }
             cr0 = runtime::cmps_val(r3 as i32, 0);
             if cr0 & 2 == 0 { { pc = 0x802B8E0C; continue; } }
             r3 = 0x1u32;
@@ -15168,6 +15392,7 @@ pub fn fn_802B8DC8(c: &mut Ctx) {
 // udp_cc_post_stop
 #[inline]
 pub fn fn_802B8E84(c: &mut Ctx) {
+    runtime::prof(0x802B8E84);
     let mut r3 = c.r[3]; 
     r3 = 0xFFFFFFFFu32;
     { c.r[3] = r3; return; }
@@ -15176,6 +15401,7 @@ pub fn fn_802B8E84(c: &mut Ctx) {
 // udp_cc_pre_continue
 #[inline]
 pub fn fn_802B8E8C(c: &mut Ctx) {
+    runtime::prof(0x802B8E8C);
     let mut r3 = c.r[3]; 
     r3 = 0xFFFFFFFFu32;
     { c.r[3] = r3; return; }
@@ -15184,6 +15410,7 @@ pub fn fn_802B8E8C(c: &mut Ctx) {
 // udp_cc_peek
 #[inline]
 pub fn fn_802B8E94(c: &mut Ctx) {
+    runtime::prof(0x802B8E94);
     let mut r3 = c.r[3]; 
     r3 = 0x0u32;
     { c.r[3] = r3; return; }
@@ -15192,6 +15419,7 @@ pub fn fn_802B8E94(c: &mut Ctx) {
 // udp_cc_write
 #[inline]
 pub fn fn_802B8E9C(c: &mut Ctx) {
+    runtime::prof(0x802B8E9C);
     let mut r3 = c.r[3]; 
     r3 = 0x0u32;
     { c.r[3] = r3; return; }
@@ -15200,6 +15428,7 @@ pub fn fn_802B8E9C(c: &mut Ctx) {
 // udp_cc_read
 #[inline]
 pub fn fn_802B8EA4(c: &mut Ctx) {
+    runtime::prof(0x802B8EA4);
     let mut r3 = c.r[3]; 
     r3 = 0x0u32;
     { c.r[3] = r3; return; }
@@ -15208,6 +15437,7 @@ pub fn fn_802B8EA4(c: &mut Ctx) {
 // udp_cc_close
 #[inline]
 pub fn fn_802B8EAC(c: &mut Ctx) {
+    runtime::prof(0x802B8EAC);
     let mut r3 = c.r[3]; 
     r3 = 0xFFFFFFFFu32;
     { c.r[3] = r3; return; }
@@ -15216,6 +15446,7 @@ pub fn fn_802B8EAC(c: &mut Ctx) {
 // udp_cc_open
 #[inline]
 pub fn fn_802B8EB4(c: &mut Ctx) {
+    runtime::prof(0x802B8EB4);
     let mut r3 = c.r[3]; 
     r3 = 0xFFFFFFFFu32;
     { c.r[3] = r3; return; }
@@ -15224,6 +15455,7 @@ pub fn fn_802B8EB4(c: &mut Ctx) {
 // udp_cc_shutdown
 #[inline]
 pub fn fn_802B8EBC(c: &mut Ctx) {
+    runtime::prof(0x802B8EBC);
     let mut r3 = c.r[3]; 
     r3 = 0xFFFFFFFFu32;
     { c.r[3] = r3; return; }
@@ -15232,6 +15464,7 @@ pub fn fn_802B8EBC(c: &mut Ctx) {
 // udp_cc_initialize
 #[inline]
 pub fn fn_802B8EC4(c: &mut Ctx) {
+    runtime::prof(0x802B8EC4);
     let mut r3 = c.r[3]; 
     r3 = 0xFFFFFFFFu32;
     { c.r[3] = r3; return; }
@@ -15240,12 +15473,13 @@ pub fn fn_802B8EC4(c: &mut Ctx) {
 // ddh_cc_initinterrupts
 #[inline]
 pub fn fn_802B8ECC(c: &mut Ctx) {
+    runtime::prof(0x802B8ECC);
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r1 = c.r[1]; let mut r3 = c.r[3]; 
     { let ea = r1.wrapping_add(0xFFFFFFF0); runtime::mw32(mem, ea, r1); r1 = ea; }
     r0 = c.lr;
     { let ea = r1.wrapping_add(0x14); runtime::mw32(mem, ea, r0); }
-    { c.lr = 0x802B8EDC; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; fn_802D4044(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; }
+    { c.lr = 0x802B8EDC; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; fn_802D4044(c); runtime::prof(0x802B8ECC); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; }
     { let ea = r1.wrapping_add(0x14); r0 = runtime::mr32(mem, ea); }
     r3 = 0x0u32;
     c.lr = r0;
@@ -15255,6 +15489,7 @@ pub fn fn_802B8ECC(c: &mut Ctx) {
 
 // ddh_cc_peek
 pub fn fn_802B8EF0(c: &mut Ctx) {
+    runtime::prof(0x802B8EF0);
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r1 = c.r[1]; let mut r3 = c.r[3]; let mut r4 = c.r[4]; let mut r5 = c.r[5]; let mut r31 = c.r[31]; 
     let mut cr0 = c.cr[0]; 
@@ -15265,7 +15500,7 @@ pub fn fn_802B8EF0(c: &mut Ctx) {
             r0 = c.lr;
             { let ea = r1.wrapping_add(0x814); runtime::mw32(mem, ea, r0); }
             { let ea = r1.wrapping_add(0x80C); runtime::mw32(mem, ea, r31); }
-            { c.lr = 0x802B8F04; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[31] = r31; c.cr[0] = cr0; fn_802D4048(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r31 = c.r[31]; cr0 = c.cr[0]; }
+            { c.lr = 0x802B8F04; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.cr[0] = cr0; fn_802D4048(c); runtime::prof(0x802B8EF0); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; cr0 = c.cr[0]; }
             r31 = r3 | r3; cr0 = runtime::cmps_val(r31 as i32, 0);
             if cr0 & 4 != 0 { { pc = 0x802B8F14; continue; } }
             r3 = 0x0u32;
@@ -15274,14 +15509,14 @@ pub fn fn_802B8EF0(c: &mut Ctx) {
         0x802B8F14 => {
             r4 = r31 | r31;
             r3 = r1.wrapping_add(0x8);
-            { c.lr = 0x802B8F20; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[31] = r31; c.cr[0] = cr0; fn_802D4050(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r31 = c.r[31]; cr0 = c.cr[0]; }
+            { c.lr = 0x802B8F20; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.cr[0] = cr0; fn_802D4050(c); runtime::prof(0x802B8EF0); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; cr0 = c.cr[0]; }
             cr0 = runtime::cmps_val(r3 as i32, 0);
             if cr0 & 2 == 0 { { pc = 0x802B8F40; continue; } }
             r3 = 0x80460000u32;
             r5 = r31 | r31;
             r3 = r3.wrapping_add(0x48F8);
             r4 = r1.wrapping_add(0x8);
-            { c.lr = 0x802B8F3C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[31] = r31; c.cr[0] = cr0; fn_802B9318(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r31 = c.r[31]; cr0 = c.cr[0]; }
+            { c.lr = 0x802B8F3C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.cr[0] = cr0; fn_802B9318(c); runtime::prof(0x802B8EF0); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; cr0 = c.cr[0]; }
             { pc = 0x802B8F48; continue; }
         }
         0x802B8F40 => {
@@ -15306,12 +15541,13 @@ pub fn fn_802B8EF0(c: &mut Ctx) {
 // ddh_cc_post_stop
 #[inline]
 pub fn fn_802B8F60(c: &mut Ctx) {
+    runtime::prof(0x802B8F60);
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r1 = c.r[1]; let mut r3 = c.r[3]; 
     { let ea = r1.wrapping_add(0xFFFFFFF0); runtime::mw32(mem, ea, r1); r1 = ea; }
     r0 = c.lr;
     { let ea = r1.wrapping_add(0x14); runtime::mw32(mem, ea, r0); }
-    { c.lr = 0x802B8F70; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; fn_802D4060(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; }
+    { c.lr = 0x802B8F70; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; fn_802D4060(c); runtime::prof(0x802B8F60); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; }
     { let ea = r1.wrapping_add(0x14); r0 = runtime::mr32(mem, ea); }
     r3 = 0x0u32;
     c.lr = r0;
@@ -15322,12 +15558,13 @@ pub fn fn_802B8F60(c: &mut Ctx) {
 // ddh_cc_pre_continue
 #[inline]
 pub fn fn_802B8F84(c: &mut Ctx) {
+    runtime::prof(0x802B8F84);
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r1 = c.r[1]; let mut r3 = c.r[3]; 
     { let ea = r1.wrapping_add(0xFFFFFFF0); runtime::mw32(mem, ea, r1); r1 = ea; }
     r0 = c.lr;
     { let ea = r1.wrapping_add(0x14); runtime::mw32(mem, ea, r0); }
-    { c.lr = 0x802B8F94; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; fn_802D4064(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; }
+    { c.lr = 0x802B8F94; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; fn_802D4064(c); runtime::prof(0x802B8F84); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; }
     { let ea = r1.wrapping_add(0x14); r0 = runtime::mr32(mem, ea); }
     r3 = 0x0u32;
     c.lr = r0;
@@ -15337,6 +15574,7 @@ pub fn fn_802B8F84(c: &mut Ctx) {
 
 // ddh_cc_write
 pub fn fn_802B8FA8(c: &mut Ctx) {
+    runtime::prof(0x802B8FA8);
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r1 = c.r[1]; let mut r3 = c.r[3]; let mut r4 = c.r[4]; let mut r5 = c.r[5]; let mut r6 = c.r[6]; let mut r13 = c.r[13]; let mut r29 = c.r[29]; let mut r30 = c.r[30]; let mut r31 = c.r[31]; 
     let mut cr0 = c.cr[0]; let mut cr1 = c.cr[1]; 
@@ -15359,7 +15597,7 @@ pub fn fn_802B8FA8(c: &mut Ctx) {
             r4 = r31;
             r3 = 0x8u32;
             { let v = (cr1 & 2 != 0) ^ (cr1 & 2 != 0); cr1 = if v { cr1 | 2 } else { cr1 & 0xFD }; }
-            { c.lr = 0x802B8FEC; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.cr[1] = cr1; fn_802B97C4(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r13 = c.r[13]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
+            { c.lr = 0x802B8FEC; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.cr[0] = cr0; c.cr[1] = cr1; fn_802B97C4(c); runtime::prof(0x802B8FA8); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r13 = c.r[13]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
             r3 = 0xFFFFD8EFu32;
             { pc = 0x802B904C; continue; }
         }
@@ -15369,7 +15607,7 @@ pub fn fn_802B8FA8(c: &mut Ctx) {
             r4 = r31.wrapping_add(0x14);
             r3 = 0x8u32;
             { let v = (cr1 & 2 != 0) ^ (cr1 & 2 != 0); cr1 = if v { cr1 | 2 } else { cr1 & 0xFD }; }
-            { c.lr = 0x802B900C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.cr[1] = cr1; fn_802B97C4(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r13 = c.r[13]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
+            { c.lr = 0x802B900C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.cr[0] = cr0; c.cr[1] = cr1; fn_802B97C4(c); runtime::prof(0x802B8FA8); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r13 = c.r[13]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
             { pc = 0x802B9040; continue; }
         }
         0x802B9010 => {
@@ -15377,10 +15615,10 @@ pub fn fn_802B8FA8(c: &mut Ctx) {
             r4 = r31.wrapping_add(0x40);
             r3 = 0x1u32;
             { let v = (cr1 & 2 != 0) ^ (cr1 & 2 != 0); cr1 = if v { cr1 | 2 } else { cr1 & 0xFD }; }
-            { c.lr = 0x802B9024; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.cr[1] = cr1; fn_802B97C4(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r13 = c.r[13]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
+            { c.lr = 0x802B9024; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.cr[0] = cr0; c.cr[1] = cr1; fn_802B97C4(c); runtime::prof(0x802B8FA8); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r13 = c.r[13]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
             r3 = r29 | r29;
             r4 = r30 | r30;
-            { c.lr = 0x802B9030; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.cr[1] = cr1; fn_802D4058(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r13 = c.r[13]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
+            { c.lr = 0x802B9030; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.cr[0] = cr0; c.cr[1] = cr1; fn_802D4058(c); runtime::prof(0x802B8FA8); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r13 = c.r[13]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
             cr0 = runtime::cmps_val(r3 as i32, 0);
             if cr0 & 2 != 0 { { pc = 0x802B9048; continue; } }
             r29 = r29.wrapping_add(r3);
@@ -15411,6 +15649,7 @@ pub fn fn_802B8FA8(c: &mut Ctx) {
 
 // ddh_cc_read
 pub fn fn_802B9068(c: &mut Ctx) {
+    runtime::prof(0x802B9068);
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r1 = c.r[1]; let mut r3 = c.r[3]; let mut r4 = c.r[4]; let mut r5 = c.r[5]; let mut r6 = c.r[6]; let mut r13 = c.r[13]; let mut r27 = c.r[27]; let mut r28 = c.r[28]; let mut r29 = c.r[29]; let mut r30 = c.r[30]; let mut r31 = c.r[31]; 
     let mut cr0 = c.cr[0]; let mut cr1 = c.cr[1]; 
@@ -15437,30 +15676,30 @@ pub fn fn_802B9068(c: &mut Ctx) {
             r6 = r30 | r30;
             r3 = 0x1u32;
             { let v = (cr1 & 2 != 0) ^ (cr1 & 2 != 0); cr1 = if v { cr1 | 2 } else { cr1 & 0xFD }; }
-            { c.lr = 0x802B90B4; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.cr[1] = cr1; fn_802B97C4(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r13 = c.r[13]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
+            { c.lr = 0x802B90B4; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.cr[0] = cr0; c.cr[1] = cr1; fn_802B97C4(c); runtime::prof(0x802B9068); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r13 = c.r[13]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
             r3 = 0x80460000u32;
             r31 = r3.wrapping_add(0x48F8);
             { pc = 0x802B90F4; continue; }
         }
         0x802B90C0 => {
             r29 = 0x0u32;
-            { c.lr = 0x802B90C8; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.cr[1] = cr1; fn_802D4048(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r13 = c.r[13]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
+            { c.lr = 0x802B90C8; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.cr[0] = cr0; c.cr[1] = cr1; fn_802D4048(c); runtime::prof(0x802B9068); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r13 = c.r[13]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
             r28 = r3 | r3; cr0 = runtime::cmps_val(r28 as i32, 0);
             if cr0 & 2 != 0 { { pc = 0x802B90F4; continue; } }
             r4 = r28 | r28;
             r3 = r1.wrapping_add(0x8);
-            { c.lr = 0x802B90DC; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.cr[1] = cr1; fn_802D4050(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r13 = c.r[13]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
+            { c.lr = 0x802B90DC; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.cr[0] = cr0; c.cr[1] = cr1; fn_802D4050(c); runtime::prof(0x802B9068); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r13 = c.r[13]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
             r29 = r3 | r3; cr0 = runtime::cmps_val(r29 as i32, 0);
             if cr0 & 2 == 0 { { pc = 0x802B90F4; continue; } }
             r3 = r31 | r31;
             r5 = r28 | r28;
             r4 = r1.wrapping_add(0x8);
-            { c.lr = 0x802B90F4; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.cr[1] = cr1; fn_802B9318(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r13 = c.r[13]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
+            { c.lr = 0x802B90F4; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.cr[0] = cr0; c.cr[1] = cr1; fn_802B9318(c); runtime::prof(0x802B9068); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r13 = c.r[13]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
             pc = 0x802B90F4;
         }
         0x802B90F4 => {
             r3 = r31 | r31;
-            { c.lr = 0x802B90FC; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.cr[1] = cr1; fn_802B9470(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r13 = c.r[13]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
+            { c.lr = 0x802B90FC; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.cr[0] = cr0; c.cr[1] = cr1; fn_802B9470(c); runtime::prof(0x802B9068); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r13 = c.r[13]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
             cr0 = runtime::cmpu_val(r3, r30);
             if cr0 & 8 != 0 { { if runtime::PROFILE_DETAILED { c.sample_tick_pc(0x802B9068); } c.budget -= 1; if c.budget == 0 { c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.cr[1] = cr1; c.poll(); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r13 = c.r[13]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; cr1 = c.cr[1]; } pc = 0x802B90C0; continue; } }
             cr0 = runtime::cmpu_val(r29, 0x0);
@@ -15469,7 +15708,7 @@ pub fn fn_802B9068(c: &mut Ctx) {
             r4 = r27 | r27;
             r3 = r3.wrapping_add(0x48F8);
             r5 = r30 | r30;
-            { c.lr = 0x802B9120; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.cr[1] = cr1; fn_802B9210(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r13 = c.r[13]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
+            { c.lr = 0x802B9120; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.cr[0] = cr0; c.cr[1] = cr1; fn_802B9210(c); runtime::prof(0x802B9068); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r13 = c.r[13]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
             { pc = 0x802B913C; continue; }
         }
         0x802B9124 => {
@@ -15478,7 +15717,7 @@ pub fn fn_802B9068(c: &mut Ctx) {
             r4 = r3.wrapping_add(0xFFFFEED4);
             r3 = 0x8u32;
             { let v = (cr1 & 2 != 0) ^ (cr1 & 2 != 0); cr1 = if v { cr1 | 2 } else { cr1 & 0xFD }; }
-            { c.lr = 0x802B913C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.cr[1] = cr1; fn_802B97C4(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r13 = c.r[13]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
+            { c.lr = 0x802B913C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.cr[0] = cr0; c.cr[1] = cr1; fn_802B97C4(c); runtime::prof(0x802B9068); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r13 = c.r[13]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
             pc = 0x802B913C;
         }
         0x802B913C => {
@@ -15499,6 +15738,7 @@ pub fn fn_802B9068(c: &mut Ctx) {
 // ddh_cc_close
 #[inline]
 pub fn fn_802B9154(c: &mut Ctx) {
+    runtime::prof(0x802B9154);
     let mut r3 = c.r[3]; 
     r3 = 0x0u32;
     { c.r[3] = r3; return; }
@@ -15506,6 +15746,7 @@ pub fn fn_802B9154(c: &mut Ctx) {
 
 // ddh_cc_open
 pub fn fn_802B915C(c: &mut Ctx) {
+    runtime::prof(0x802B915C);
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r3 = c.r[3]; let mut r13 = c.r[13]; 
     let mut cr0 = c.cr[0]; 
@@ -15531,6 +15772,7 @@ pub fn fn_802B915C(c: &mut Ctx) {
 // ddh_cc_shutdown
 #[inline]
 pub fn fn_802B9180(c: &mut Ctx) {
+    runtime::prof(0x802B9180);
     let mut r3 = c.r[3]; 
     r3 = 0x0u32;
     { c.r[3] = r3; return; }
@@ -15538,6 +15780,7 @@ pub fn fn_802B9180(c: &mut Ctx) {
 
 // ddh_cc_initialize
 pub fn fn_802B9188(c: &mut Ctx) {
+    runtime::prof(0x802B9188);
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r1 = c.r[1]; let mut r3 = c.r[3]; let mut r4 = c.r[4]; let mut r5 = c.r[5]; let mut r30 = c.r[30]; let mut r31 = c.r[31]; 
     let mut cr1 = c.cr[1]; 
@@ -15553,21 +15796,21 @@ pub fn fn_802B9188(c: &mut Ctx) {
     r30 = r3 | r3;
     r3 = 0x1u32;
     { let v = (cr1 & 2 != 0) ^ (cr1 & 2 != 0); cr1 = if v { cr1 | 2 } else { cr1 & 0xFD }; }
-    { c.lr = 0x802B91BC; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[30] = r30; c.r[31] = r31; c.cr[1] = cr1; fn_802B97C4(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r30 = c.r[30]; r31 = c.r[31]; cr1 = c.cr[1]; }
+    { c.lr = 0x802B91BC; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.cr[1] = cr1; fn_802B97C4(c); runtime::prof(0x802B9188); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; cr1 = c.cr[1]; }
     r3 = r30 | r30;
     r4 = r31 | r31;
-    { c.lr = 0x802B91C8; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[30] = r30; c.r[31] = r31; c.cr[1] = cr1; fn_802D4040(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r30 = c.r[30]; r31 = c.r[31]; cr1 = c.cr[1]; }
+    { c.lr = 0x802B91C8; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.cr[1] = cr1; fn_802D4040(c); runtime::prof(0x802B9188); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; cr1 = c.cr[1]; }
     r4 = 0x80380000u32;
     r3 = 0x1u32;
     r4 = r4.wrapping_add(0xFFFFEF18);
     { let v = (cr1 & 2 != 0) ^ (cr1 & 2 != 0); cr1 = if v { cr1 | 2 } else { cr1 & 0xFD }; }
-    { c.lr = 0x802B91DC; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[30] = r30; c.r[31] = r31; c.cr[1] = cr1; fn_802B97C4(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r30 = c.r[30]; r31 = c.r[31]; cr1 = c.cr[1]; }
+    { c.lr = 0x802B91DC; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.cr[1] = cr1; fn_802B97C4(c); runtime::prof(0x802B9188); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; cr1 = c.cr[1]; }
     r3 = 0x80460000u32;
     r4 = 0x80460000u32;
     r3 = r3.wrapping_add(0x48F8);
     r5 = 0x800u32;
     r4 = r4.wrapping_add(0x40F8);
-    { c.lr = 0x802B91F4; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[30] = r30; c.r[31] = r31; c.cr[1] = cr1; fn_802B9420(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r30 = c.r[30]; r31 = c.r[31]; cr1 = c.cr[1]; }
+    { c.lr = 0x802B91F4; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.cr[1] = cr1; fn_802B9420(c); runtime::prof(0x802B9188); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; cr1 = c.cr[1]; }
     { let ea = r1.wrapping_add(0x14); r0 = runtime::mr32(mem, ea); }
     r3 = 0x0u32;
     { let ea = r1.wrapping_add(0xC); r31 = runtime::mr32(mem, ea); }
@@ -15579,6 +15822,7 @@ pub fn fn_802B9188(c: &mut Ctx) {
 
 // CircleBufferReadBytes
 pub fn fn_802B9210(c: &mut Ctx) {
+    runtime::prof(0x802B9210);
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r1 = c.r[1]; let mut r3 = c.r[3]; let mut r4 = c.r[4]; let mut r5 = c.r[5]; let mut r28 = c.r[28]; let mut r29 = c.r[29]; let mut r30 = c.r[30]; let mut r31 = c.r[31]; 
     let mut cr0 = c.cr[0]; 
@@ -15603,7 +15847,7 @@ pub fn fn_802B9210(c: &mut Ctx) {
         }
         0x802B924C => {
             r3 = r30.wrapping_add(0x18);
-            { c.lr = 0x802B9254; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; fn_802B9838(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; }
+            { c.lr = 0x802B9254; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.cr[0] = cr0; fn_802B9838(c); runtime::prof(0x802B9210); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; cr0 = c.cr[0]; }
             { let ea = r30.wrapping_add(0x8); r3 = runtime::mr32(mem, ea); }
             { let ea = r30; r4 = runtime::mr32(mem, ea); }
             { let ea = r30.wrapping_add(0xC); r0 = runtime::mr32(mem, ea); }
@@ -15613,7 +15857,7 @@ pub fn fn_802B9210(c: &mut Ctx) {
             if cr0 & 8 == 0 { { pc = 0x802B928C; continue; } }
             r3 = r28 | r28;
             r5 = r31 | r31;
-            { c.lr = 0x802B927C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; fn_800031E8(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; }
+            { c.lr = 0x802B927C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.cr[0] = cr0; fn_800031E8(c); runtime::prof(0x802B9210); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; cr0 = c.cr[0]; }
             { let ea = r30; r0 = runtime::mr32(mem, ea); }
             r0 = r0.wrapping_add(r31);
             { let ea = r30; runtime::mw32(mem, ea, r0); }
@@ -15622,11 +15866,11 @@ pub fn fn_802B9210(c: &mut Ctx) {
         0x802B928C => {
             r3 = r28 | r28;
             r5 = r29 | r29;
-            { c.lr = 0x802B9298; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; fn_800031E8(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; }
+            { c.lr = 0x802B9298; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.cr[0] = cr0; fn_800031E8(c); runtime::prof(0x802B9210); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; cr0 = c.cr[0]; }
             { let ea = r30.wrapping_add(0x8); r4 = runtime::mr32(mem, ea); }
             r3 = r28.wrapping_add(r29);
             r5 = r31.wrapping_sub(r29);
-            { c.lr = 0x802B92A8; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; fn_800031E8(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; }
+            { c.lr = 0x802B92A8; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.cr[0] = cr0; fn_800031E8(c); runtime::prof(0x802B9210); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; cr0 = c.cr[0]; }
             { let ea = r30.wrapping_add(0x8); r0 = runtime::mr32(mem, ea); }
             r0 = r0.wrapping_add(r31);
             r0 = r0.wrapping_sub(r29);
@@ -15651,7 +15895,7 @@ pub fn fn_802B9210(c: &mut Ctx) {
             { let ea = r30.wrapping_add(0x10); r0 = runtime::mr32(mem, ea); }
             r0 = r0.wrapping_sub(r31);
             { let ea = r30.wrapping_add(0x10); runtime::mw32(mem, ea, r0); }
-            { c.lr = 0x802B92F4; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; fn_802B9814(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; }
+            { c.lr = 0x802B92F4; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.cr[0] = cr0; fn_802B9814(c); runtime::prof(0x802B9210); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; cr0 = c.cr[0]; }
             r3 = 0x0u32;
             pc = 0x802B92F8;
         }
@@ -15671,6 +15915,7 @@ pub fn fn_802B9210(c: &mut Ctx) {
 
 // CircleBufferWriteBytes
 pub fn fn_802B9318(c: &mut Ctx) {
+    runtime::prof(0x802B9318);
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r1 = c.r[1]; let mut r3 = c.r[3]; let mut r4 = c.r[4]; let mut r5 = c.r[5]; let mut r28 = c.r[28]; let mut r29 = c.r[29]; let mut r30 = c.r[30]; let mut r31 = c.r[31]; 
     let mut cr0 = c.cr[0]; 
@@ -15695,7 +15940,7 @@ pub fn fn_802B9318(c: &mut Ctx) {
         }
         0x802B9354 => {
             r3 = r30.wrapping_add(0x18);
-            { c.lr = 0x802B935C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; fn_802B9838(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; }
+            { c.lr = 0x802B935C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.cr[0] = cr0; fn_802B9838(c); runtime::prof(0x802B9318); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; cr0 = c.cr[0]; }
             { let ea = r30.wrapping_add(0x8); r4 = runtime::mr32(mem, ea); }
             { let ea = r30.wrapping_add(0x4); r3 = runtime::mr32(mem, ea); }
             { let ea = r30.wrapping_add(0xC); r0 = runtime::mr32(mem, ea); }
@@ -15705,7 +15950,7 @@ pub fn fn_802B9318(c: &mut Ctx) {
             if cr0 & 8 != 0 { { pc = 0x802B9394; continue; } }
             r4 = r28 | r28;
             r5 = r31 | r31;
-            { c.lr = 0x802B9384; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; fn_800031E8(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; }
+            { c.lr = 0x802B9384; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.cr[0] = cr0; fn_800031E8(c); runtime::prof(0x802B9318); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; cr0 = c.cr[0]; }
             { let ea = r30.wrapping_add(0x4); r0 = runtime::mr32(mem, ea); }
             r0 = r0.wrapping_add(r31);
             { let ea = r30.wrapping_add(0x4); runtime::mw32(mem, ea, r0); }
@@ -15714,11 +15959,11 @@ pub fn fn_802B9318(c: &mut Ctx) {
         0x802B9394 => {
             r4 = r28 | r28;
             r5 = r29 | r29;
-            { c.lr = 0x802B93A0; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; fn_800031E8(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; }
+            { c.lr = 0x802B93A0; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.cr[0] = cr0; fn_800031E8(c); runtime::prof(0x802B9318); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; cr0 = c.cr[0]; }
             { let ea = r30.wrapping_add(0x8); r3 = runtime::mr32(mem, ea); }
             r4 = r28.wrapping_add(r29);
             r5 = r31.wrapping_sub(r29);
-            { c.lr = 0x802B93B0; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; fn_800031E8(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; }
+            { c.lr = 0x802B93B0; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.cr[0] = cr0; fn_800031E8(c); runtime::prof(0x802B9318); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; cr0 = c.cr[0]; }
             { let ea = r30.wrapping_add(0x8); r0 = runtime::mr32(mem, ea); }
             r0 = r0.wrapping_add(r31);
             r0 = r0.wrapping_sub(r29);
@@ -15743,7 +15988,7 @@ pub fn fn_802B9318(c: &mut Ctx) {
             { let ea = r30.wrapping_add(0x10); r0 = runtime::mr32(mem, ea); }
             r0 = r0.wrapping_add(r31);
             { let ea = r30.wrapping_add(0x10); runtime::mw32(mem, ea, r0); }
-            { c.lr = 0x802B93FC; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; fn_802B9814(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; }
+            { c.lr = 0x802B93FC; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.cr[0] = cr0; fn_802B9814(c); runtime::prof(0x802B9318); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; cr0 = c.cr[0]; }
             r3 = 0x0u32;
             pc = 0x802B9400;
         }
@@ -15763,6 +16008,7 @@ pub fn fn_802B9318(c: &mut Ctx) {
 
 // CircleBufferInitialize
 pub fn fn_802B9420(c: &mut Ctx) {
+    runtime::prof(0x802B9420);
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r1 = c.r[1]; let mut r3 = c.r[3]; let mut r4 = c.r[4]; let mut r5 = c.r[5]; let mut r6 = c.r[6]; 
     { let ea = r1.wrapping_add(0xFFFFFFF0); runtime::mw32(mem, ea, r1); r1 = ea; }
@@ -15780,7 +16026,7 @@ pub fn fn_802B9420(c: &mut Ctx) {
     { let ea = r6.wrapping_add(0x10); runtime::mw32(mem, ea, r0); }
     { let ea = r6.wrapping_add(0xC); r0 = runtime::mr32(mem, ea); }
     { let ea = r6.wrapping_add(0x14); runtime::mw32(mem, ea, r0); }
-    { c.lr = 0x802B9460; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[6] = r6; fn_802B9868(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; }
+    { c.lr = 0x802B9460; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[6] = r6; fn_802B9868(c); runtime::prof(0x802B9420); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; }
     { let ea = r1.wrapping_add(0x14); r0 = runtime::mr32(mem, ea); }
     c.lr = r0;
     r1 = r1.wrapping_add(0x10);
@@ -15790,6 +16036,7 @@ pub fn fn_802B9420(c: &mut Ctx) {
 // CBGetBytesAvailableForRead
 #[inline]
 pub fn fn_802B9470(c: &mut Ctx) {
+    runtime::prof(0x802B9470);
     let mem = c.mem;
     let mut r3 = c.r[3]; 
     { let ea = r3.wrapping_add(0x10); r3 = runtime::mr32(mem, ea); }
@@ -15799,12 +16046,13 @@ pub fn fn_802B9470(c: &mut Ctx) {
 // gdev_cc_initinterrupts
 #[inline]
 pub fn fn_802B9478(c: &mut Ctx) {
+    runtime::prof(0x802B9478);
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r1 = c.r[1]; let mut r3 = c.r[3]; 
     { let ea = r1.wrapping_add(0xFFFFFFF0); runtime::mw32(mem, ea, r1); r1 = ea; }
     r0 = c.lr;
     { let ea = r1.wrapping_add(0x14); runtime::mw32(mem, ea, r0); }
-    { c.lr = 0x802B9488; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; fn_8030019C(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; }
+    { c.lr = 0x802B9488; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; fn_8030019C(c); runtime::prof(0x802B9478); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; }
     { let ea = r1.wrapping_add(0x14); r0 = runtime::mr32(mem, ea); }
     r3 = 0x0u32;
     c.lr = r0;
@@ -15814,6 +16062,7 @@ pub fn fn_802B9478(c: &mut Ctx) {
 
 // gdev_cc_peek
 pub fn fn_802B949C(c: &mut Ctx) {
+    runtime::prof(0x802B949C);
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r1 = c.r[1]; let mut r3 = c.r[3]; let mut r4 = c.r[4]; let mut r5 = c.r[5]; let mut r31 = c.r[31]; 
     let mut cr0 = c.cr[0]; 
@@ -15824,7 +16073,7 @@ pub fn fn_802B949C(c: &mut Ctx) {
             r0 = c.lr;
             { let ea = r1.wrapping_add(0x514); runtime::mw32(mem, ea, r0); }
             { let ea = r1.wrapping_add(0x50C); runtime::mw32(mem, ea, r31); }
-            { c.lr = 0x802B94B0; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[31] = r31; c.cr[0] = cr0; fn_80300100(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r31 = c.r[31]; cr0 = c.cr[0]; }
+            { c.lr = 0x802B94B0; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.cr[0] = cr0; fn_80300100(c); runtime::prof(0x802B949C); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; cr0 = c.cr[0]; }
             r31 = r3 | r3; cr0 = runtime::cmps_val(r31 as i32, 0);
             if cr0 & 4 != 0 { { pc = 0x802B94C0; continue; } }
             r3 = 0x0u32;
@@ -15833,14 +16082,14 @@ pub fn fn_802B949C(c: &mut Ctx) {
         0x802B94C0 => {
             r4 = r31 | r31;
             r3 = r1.wrapping_add(0x8);
-            { c.lr = 0x802B94CC; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[31] = r31; c.cr[0] = cr0; fn_80300074(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r31 = c.r[31]; cr0 = c.cr[0]; }
+            { c.lr = 0x802B94CC; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.cr[0] = cr0; fn_80300074(c); runtime::prof(0x802B949C); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; cr0 = c.cr[0]; }
             cr0 = runtime::cmps_val(r3 as i32, 0);
             if cr0 & 2 == 0 { { pc = 0x802B94EC; continue; } }
             r3 = 0x80460000u32;
             r5 = r31 | r31;
             r3 = r3.wrapping_add(0x4E18);
             r4 = r1.wrapping_add(0x8);
-            { c.lr = 0x802B94E8; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[31] = r31; c.cr[0] = cr0; fn_802B9318(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r31 = c.r[31]; cr0 = c.cr[0]; }
+            { c.lr = 0x802B94E8; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.cr[0] = cr0; fn_802B9318(c); runtime::prof(0x802B949C); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; cr0 = c.cr[0]; }
             { pc = 0x802B94F4; continue; }
         }
         0x802B94EC => {
@@ -15865,12 +16114,13 @@ pub fn fn_802B949C(c: &mut Ctx) {
 // gdev_cc_post_stop
 #[inline]
 pub fn fn_802B950C(c: &mut Ctx) {
+    runtime::prof(0x802B950C);
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r1 = c.r[1]; let mut r3 = c.r[3]; 
     { let ea = r1.wrapping_add(0xFFFFFFF0); runtime::mw32(mem, ea, r1); r1 = ea; }
     r0 = c.lr;
     { let ea = r1.wrapping_add(0x14); runtime::mw32(mem, ea, r0); }
-    { c.lr = 0x802B951C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; fn_802FFE10(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; }
+    { c.lr = 0x802B951C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; fn_802FFE10(c); runtime::prof(0x802B950C); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; }
     { let ea = r1.wrapping_add(0x14); r0 = runtime::mr32(mem, ea); }
     r3 = 0x0u32;
     c.lr = r0;
@@ -15881,12 +16131,13 @@ pub fn fn_802B950C(c: &mut Ctx) {
 // gdev_cc_pre_continue
 #[inline]
 pub fn fn_802B9530(c: &mut Ctx) {
+    runtime::prof(0x802B9530);
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r1 = c.r[1]; let mut r3 = c.r[3]; 
     { let ea = r1.wrapping_add(0xFFFFFFF0); runtime::mw32(mem, ea, r1); r1 = ea; }
     r0 = c.lr;
     { let ea = r1.wrapping_add(0x14); runtime::mw32(mem, ea, r0); }
-    { c.lr = 0x802B9540; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; fn_802FFE0C(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; }
+    { c.lr = 0x802B9540; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; fn_802FFE0C(c); runtime::prof(0x802B9530); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; }
     { let ea = r1.wrapping_add(0x14); r0 = runtime::mr32(mem, ea); }
     r3 = 0x0u32;
     c.lr = r0;
@@ -15896,6 +16147,7 @@ pub fn fn_802B9530(c: &mut Ctx) {
 
 // gdev_cc_write
 pub fn fn_802B9554(c: &mut Ctx) {
+    runtime::prof(0x802B9554);
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r1 = c.r[1]; let mut r3 = c.r[3]; let mut r4 = c.r[4]; let mut r5 = c.r[5]; let mut r6 = c.r[6]; let mut r13 = c.r[13]; let mut r29 = c.r[29]; let mut r30 = c.r[30]; let mut r31 = c.r[31]; 
     let mut cr0 = c.cr[0]; let mut cr1 = c.cr[1]; 
@@ -15918,7 +16170,7 @@ pub fn fn_802B9554(c: &mut Ctx) {
             r4 = r31;
             r3 = 0x8u32;
             { let v = (cr1 & 2 != 0) ^ (cr1 & 2 != 0); cr1 = if v { cr1 | 2 } else { cr1 & 0xFD }; }
-            { c.lr = 0x802B9598; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.cr[1] = cr1; fn_802B97C4(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r13 = c.r[13]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
+            { c.lr = 0x802B9598; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.cr[0] = cr0; c.cr[1] = cr1; fn_802B97C4(c); runtime::prof(0x802B9554); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r13 = c.r[13]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
             r3 = 0xFFFFD8EFu32;
             { pc = 0x802B95F8; continue; }
         }
@@ -15928,7 +16180,7 @@ pub fn fn_802B9554(c: &mut Ctx) {
             r4 = r31.wrapping_add(0x14);
             r3 = 0x8u32;
             { let v = (cr1 & 2 != 0) ^ (cr1 & 2 != 0); cr1 = if v { cr1 | 2 } else { cr1 & 0xFD }; }
-            { c.lr = 0x802B95B8; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.cr[1] = cr1; fn_802B97C4(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r13 = c.r[13]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
+            { c.lr = 0x802B95B8; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.cr[0] = cr0; c.cr[1] = cr1; fn_802B97C4(c); runtime::prof(0x802B9554); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r13 = c.r[13]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
             { pc = 0x802B95EC; continue; }
         }
         0x802B95BC => {
@@ -15936,10 +16188,10 @@ pub fn fn_802B9554(c: &mut Ctx) {
             r4 = r31.wrapping_add(0x40);
             r3 = 0x1u32;
             { let v = (cr1 & 2 != 0) ^ (cr1 & 2 != 0); cr1 = if v { cr1 | 2 } else { cr1 & 0xFD }; }
-            { c.lr = 0x802B95D0; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.cr[1] = cr1; fn_802B97C4(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r13 = c.r[13]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
+            { c.lr = 0x802B95D0; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.cr[0] = cr0; c.cr[1] = cr1; fn_802B97C4(c); runtime::prof(0x802B9554); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r13 = c.r[13]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
             r3 = r29 | r29;
             r4 = r30 | r30;
-            { c.lr = 0x802B95DC; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.cr[1] = cr1; fn_802FFE14(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r13 = c.r[13]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
+            { c.lr = 0x802B95DC; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.cr[0] = cr0; c.cr[1] = cr1; fn_802FFE14(c); runtime::prof(0x802B9554); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r13 = c.r[13]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
             cr0 = runtime::cmps_val(r3 as i32, 0);
             if cr0 & 2 != 0 { { pc = 0x802B95F4; continue; } }
             r29 = r29.wrapping_add(r3);
@@ -15970,6 +16222,7 @@ pub fn fn_802B9554(c: &mut Ctx) {
 
 // gdev_cc_read
 pub fn fn_802B9614(c: &mut Ctx) {
+    runtime::prof(0x802B9614);
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r1 = c.r[1]; let mut r3 = c.r[3]; let mut r4 = c.r[4]; let mut r5 = c.r[5]; let mut r6 = c.r[6]; let mut r13 = c.r[13]; let mut r26 = c.r[26]; let mut r27 = c.r[27]; let mut r28 = c.r[28]; let mut r29 = c.r[29]; let mut r30 = c.r[30]; let mut r31 = c.r[31]; 
     let mut cr0 = c.cr[0]; let mut cr1 = c.cr[1]; 
@@ -15996,7 +16249,7 @@ pub fn fn_802B9614(c: &mut Ctx) {
             r6 = r27 | r27;
             r3 = 0x1u32;
             { let v = (cr1 & 2 != 0) ^ (cr1 & 2 != 0); cr1 = if v { cr1 | 2 } else { cr1 & 0xFD }; }
-            { c.lr = 0x802B9660; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.cr[1] = cr1; fn_802B97C4(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r13 = c.r[13]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
+            { c.lr = 0x802B9660; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.cr[0] = cr0; c.cr[1] = cr1; fn_802B97C4(c); runtime::prof(0x802B9614); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r13 = c.r[13]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
             r3 = 0x80460000u32;
             r29 = r27 | r27;
             r31 = r3.wrapping_add(0x4E18);
@@ -16005,23 +16258,23 @@ pub fn fn_802B9614(c: &mut Ctx) {
         }
         0x802B9674 => {
             r28 = 0x0u32;
-            { c.lr = 0x802B967C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.cr[1] = cr1; fn_80300100(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r13 = c.r[13]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
+            { c.lr = 0x802B967C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.cr[0] = cr0; c.cr[1] = cr1; fn_80300100(c); runtime::prof(0x802B9614); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r13 = c.r[13]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
             r27 = r3 | r3; cr0 = runtime::cmps_val(r27 as i32, 0);
             if cr0 & 2 != 0 { { pc = 0x802B96A8; continue; } }
             r4 = r30 | r30;
             r3 = r1.wrapping_add(0x8);
-            { c.lr = 0x802B9690; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.cr[1] = cr1; fn_80300074(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r13 = c.r[13]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
+            { c.lr = 0x802B9690; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.cr[0] = cr0; c.cr[1] = cr1; fn_80300074(c); runtime::prof(0x802B9614); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r13 = c.r[13]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
             r28 = r3 | r3; cr0 = runtime::cmps_val(r28 as i32, 0);
             if cr0 & 2 == 0 { { pc = 0x802B96A8; continue; } }
             r3 = r31 | r31;
             r5 = r27 | r27;
             r4 = r1.wrapping_add(0x8);
-            { c.lr = 0x802B96A8; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.cr[1] = cr1; fn_802B9318(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r13 = c.r[13]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
+            { c.lr = 0x802B96A8; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.cr[0] = cr0; c.cr[1] = cr1; fn_802B9318(c); runtime::prof(0x802B9614); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r13 = c.r[13]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
             pc = 0x802B96A8;
         }
         0x802B96A8 => {
             r3 = r31 | r31;
-            { c.lr = 0x802B96B0; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.cr[1] = cr1; fn_802B9470(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r13 = c.r[13]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
+            { c.lr = 0x802B96B0; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.cr[0] = cr0; c.cr[1] = cr1; fn_802B9470(c); runtime::prof(0x802B9614); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r13 = c.r[13]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
             cr0 = runtime::cmpu_val(r3, r30);
             if cr0 & 8 != 0 { { if runtime::PROFILE_DETAILED { c.sample_tick_pc(0x802B9614); } c.budget -= 1; if c.budget == 0 { c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.cr[1] = cr1; c.poll(); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r13 = c.r[13]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; cr1 = c.cr[1]; } pc = 0x802B9674; continue; } }
             cr0 = runtime::cmpu_val(r28, 0x0);
@@ -16030,7 +16283,7 @@ pub fn fn_802B9614(c: &mut Ctx) {
             r4 = r26 | r26;
             r3 = r3.wrapping_add(0x4E18);
             r5 = r29 | r29;
-            { c.lr = 0x802B96D4; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.cr[1] = cr1; fn_802B9210(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r13 = c.r[13]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
+            { c.lr = 0x802B96D4; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.cr[0] = cr0; c.cr[1] = cr1; fn_802B9210(c); runtime::prof(0x802B9614); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r13 = c.r[13]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
             { pc = 0x802B96F0; continue; }
         }
         0x802B96D8 => {
@@ -16039,7 +16292,7 @@ pub fn fn_802B9614(c: &mut Ctx) {
             r4 = r3.wrapping_add(0xFFFFEFB4);
             r3 = 0x8u32;
             { let v = (cr1 & 2 != 0) ^ (cr1 & 2 != 0); cr1 = if v { cr1 | 2 } else { cr1 & 0xFD }; }
-            { c.lr = 0x802B96F0; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.cr[1] = cr1; fn_802B97C4(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r13 = c.r[13]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
+            { c.lr = 0x802B96F0; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.cr[0] = cr0; c.cr[1] = cr1; fn_802B97C4(c); runtime::prof(0x802B9614); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r13 = c.r[13]; cr0 = c.cr[0]; cr1 = c.cr[1]; }
             pc = 0x802B96F0;
         }
         0x802B96F0 => {
@@ -16060,6 +16313,7 @@ pub fn fn_802B9614(c: &mut Ctx) {
 // gdev_cc_close
 #[inline]
 pub fn fn_802B9708(c: &mut Ctx) {
+    runtime::prof(0x802B9708);
     let mut r3 = c.r[3]; 
     r3 = 0x0u32;
     { c.r[3] = r3; return; }
@@ -16067,6 +16321,7 @@ pub fn fn_802B9708(c: &mut Ctx) {
 
 // gdev_cc_open
 pub fn fn_802B9710(c: &mut Ctx) {
+    runtime::prof(0x802B9710);
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r3 = c.r[3]; let mut r13 = c.r[13]; 
     let mut cr0 = c.cr[0]; 
@@ -16092,6 +16347,7 @@ pub fn fn_802B9710(c: &mut Ctx) {
 // gdev_cc_shutdown
 #[inline]
 pub fn fn_802B9734(c: &mut Ctx) {
+    runtime::prof(0x802B9734);
     let mut r3 = c.r[3]; 
     r3 = 0x0u32;
     { c.r[3] = r3; return; }
@@ -16099,6 +16355,7 @@ pub fn fn_802B9734(c: &mut Ctx) {
 
 // gdev_cc_initialize
 pub fn fn_802B973C(c: &mut Ctx) {
+    runtime::prof(0x802B973C);
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r1 = c.r[1]; let mut r3 = c.r[3]; let mut r4 = c.r[4]; let mut r5 = c.r[5]; let mut r30 = c.r[30]; let mut r31 = c.r[31]; 
     let mut cr1 = c.cr[1]; 
@@ -16114,21 +16371,21 @@ pub fn fn_802B973C(c: &mut Ctx) {
     r30 = r3 | r3;
     r3 = 0x1u32;
     { let v = (cr1 & 2 != 0) ^ (cr1 & 2 != 0); cr1 = if v { cr1 | 2 } else { cr1 & 0xFD }; }
-    { c.lr = 0x802B9770; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[30] = r30; c.r[31] = r31; c.cr[1] = cr1; fn_802B97C4(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r30 = c.r[30]; r31 = c.r[31]; cr1 = c.cr[1]; }
+    { c.lr = 0x802B9770; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.cr[1] = cr1; fn_802B97C4(c); runtime::prof(0x802B973C); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; cr1 = c.cr[1]; }
     r3 = r30 | r30;
     r4 = r31 | r31;
-    { c.lr = 0x802B977C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[30] = r30; c.r[31] = r31; c.cr[1] = cr1; fn_803001F0(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r30 = c.r[30]; r31 = c.r[31]; cr1 = c.cr[1]; }
+    { c.lr = 0x802B977C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.cr[1] = cr1; fn_803001F0(c); runtime::prof(0x802B973C); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; cr1 = c.cr[1]; }
     r4 = 0x80380000u32;
     r3 = 0x1u32;
     r4 = r4.wrapping_add(0xFFFFEFF8);
     { let v = (cr1 & 2 != 0) ^ (cr1 & 2 != 0); cr1 = if v { cr1 | 2 } else { cr1 & 0xFD }; }
-    { c.lr = 0x802B9790; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[30] = r30; c.r[31] = r31; c.cr[1] = cr1; fn_802B97C4(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r30 = c.r[30]; r31 = c.r[31]; cr1 = c.cr[1]; }
+    { c.lr = 0x802B9790; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.cr[1] = cr1; fn_802B97C4(c); runtime::prof(0x802B973C); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; cr1 = c.cr[1]; }
     r3 = 0x80460000u32;
     r4 = 0x80460000u32;
     r3 = r3.wrapping_add(0x4E18);
     r5 = 0x500u32;
     r4 = r4.wrapping_add(0x4918);
-    { c.lr = 0x802B97A8; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[30] = r30; c.r[31] = r31; c.cr[1] = cr1; fn_802B9420(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r30 = c.r[30]; r31 = c.r[31]; cr1 = c.cr[1]; }
+    { c.lr = 0x802B97A8; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.cr[1] = cr1; fn_802B9420(c); runtime::prof(0x802B973C); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; cr1 = c.cr[1]; }
     { let ea = r1.wrapping_add(0x14); r0 = runtime::mr32(mem, ea); }
     r3 = 0x0u32;
     { let ea = r1.wrapping_add(0xC); r31 = runtime::mr32(mem, ea); }
@@ -16140,6 +16397,7 @@ pub fn fn_802B973C(c: &mut Ctx) {
 
 // MWTRACE
 pub fn fn_802B97C4(c: &mut Ctx) {
+    runtime::prof(0x802B97C4);
     let mem = c.mem;
     let mut r1 = c.r[1]; let mut r3 = c.r[3]; let mut r4 = c.r[4]; let mut r5 = c.r[5]; let mut r6 = c.r[6]; let mut r7 = c.r[7]; let mut r8 = c.r[8]; let mut r9 = c.r[9]; let mut r10 = c.r[10]; 
     let mut f1 = c.f[1]; let mut f2 = c.f[2]; let mut f3 = c.f[3]; let mut f4 = c.f[4]; let mut f5 = c.f[5]; let mut f6 = c.f[6]; let mut f7 = c.f[7]; let mut f8 = c.f[8]; 
@@ -16178,13 +16436,14 @@ pub fn fn_802B97C4(c: &mut Ctx) {
 // MWExitCriticalSection
 #[inline]
 pub fn fn_802B9814(c: &mut Ctx) {
+    runtime::prof(0x802B9814);
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r1 = c.r[1]; let mut r3 = c.r[3]; 
     { let ea = r1.wrapping_add(0xFFFFFFF0); runtime::mw32(mem, ea, r1); r1 = ea; }
     r0 = c.lr;
     { let ea = r1.wrapping_add(0x14); runtime::mw32(mem, ea, r0); }
     { let ea = r3; r3 = runtime::mr32(mem, ea); }
-    { c.lr = 0x802B9828; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; fn_802F6BD8(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; }
+    { c.lr = 0x802B9828; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; fn_802F6BD8(c); runtime::prof(0x802B9814); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; }
     { let ea = r1.wrapping_add(0x14); r0 = runtime::mr32(mem, ea); }
     c.lr = r0;
     r1 = r1.wrapping_add(0x10);
@@ -16194,6 +16453,7 @@ pub fn fn_802B9814(c: &mut Ctx) {
 // MWEnterCriticalSection
 #[inline]
 pub fn fn_802B9838(c: &mut Ctx) {
+    runtime::prof(0x802B9838);
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r1 = c.r[1]; let mut r3 = c.r[3]; let mut r31 = c.r[31]; 
     { let ea = r1.wrapping_add(0xFFFFFFF0); runtime::mw32(mem, ea, r1); r1 = ea; }
@@ -16201,7 +16461,7 @@ pub fn fn_802B9838(c: &mut Ctx) {
     { let ea = r1.wrapping_add(0x14); runtime::mw32(mem, ea, r0); }
     { let ea = r1.wrapping_add(0xC); runtime::mw32(mem, ea, r31); }
     r31 = r3 | r3;
-    { c.lr = 0x802B9850; c.r[0] = r0; c.r[1] = r1; c.r[31] = r31; fn_802F6BB0(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r31 = c.r[31]; }
+    { c.lr = 0x802B9850; c.r[0] = r0; c.r[1] = r1; fn_802F6BB0(c); runtime::prof(0x802B9838); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; }
     { let ea = r31; runtime::mw32(mem, ea, r3); }
     { let ea = r1.wrapping_add(0x14); r0 = runtime::mr32(mem, ea); }
     { let ea = r1.wrapping_add(0xC); r31 = runtime::mr32(mem, ea); }
@@ -16213,11 +16473,13 @@ pub fn fn_802B9838(c: &mut Ctx) {
 // MWInitializeCriticalSection
 #[inline]
 pub fn fn_802B9868(c: &mut Ctx) {
+    runtime::prof(0x802B9868);
     { return; }
 }
 
 // FMUSIC_GetOpenState
 pub fn fn_802B986C(c: &mut Ctx) {
+    runtime::prof(0x802B986C);
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r1 = c.r[1]; let mut r3 = c.r[3]; let mut r4 = c.r[4]; let mut r13 = c.r[13]; let mut r31 = c.r[31]; 
     let mut cr0 = c.cr[0]; 
@@ -16230,7 +16492,7 @@ pub fn fn_802B986C(c: &mut Ctx) {
             { let ea = r1.wrapping_add(0x14); runtime::mw32(mem, ea, r0); }
             { let ea = r1.wrapping_add(0xC); runtime::mw32(mem, ea, r31); }
             r31 = r3 | r3;
-            { c.lr = 0x802B9884; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[31] = r31; c.cr[0] = cr0; c.ca = ca; fn_802D3244(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r13 = c.r[13]; r31 = c.r[31]; cr0 = c.cr[0]; ca = c.ca; }
+            { c.lr = 0x802B9884; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.cr[0] = cr0; c.ca = ca; fn_802D3244(c); runtime::prof(0x802B986C); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r13 = c.r[13]; cr0 = c.cr[0]; ca = c.ca; }
             { let ea = r13.wrapping_add(0xFFFF8548); r4 = runtime::mr32(mem, ea); }
             { let ea = r4.wrapping_add(0x1C); r0 = runtime::mr32(mem, ea); }
             cr0 = runtime::cmpu_val(r0, r3);
@@ -16277,6 +16539,7 @@ pub fn fn_802B986C(c: &mut Ctx) {
 
 // FMUSIC_GetSample
 pub fn fn_802B98F8(c: &mut Ctx) {
+    runtime::prof(0x802B98F8);
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r1 = c.r[1]; let mut r3 = c.r[3]; let mut r4 = c.r[4]; let mut r13 = c.r[13]; let mut r30 = c.r[30]; let mut r31 = c.r[31]; 
     let mut cr0 = c.cr[0]; 
@@ -16290,7 +16553,7 @@ pub fn fn_802B98F8(c: &mut Ctx) {
             r31 = r4 | r4;
             { let ea = r1.wrapping_add(0x8); runtime::mw32(mem, ea, r30); }
             r30 = r3 | r3;
-            { c.lr = 0x802B9918; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; fn_802D3244(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r13 = c.r[13]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; }
+            { c.lr = 0x802B9918; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.cr[0] = cr0; fn_802D3244(c); runtime::prof(0x802B98F8); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r13 = c.r[13]; cr0 = c.cr[0]; }
             { let ea = r13.wrapping_add(0xFFFF8548); r4 = runtime::mr32(mem, ea); }
             { let ea = r4.wrapping_add(0x1C); r0 = runtime::mr32(mem, ea); }
             cr0 = runtime::cmpu_val(r0, r3);
@@ -16342,6 +16605,7 @@ pub fn fn_802B98F8(c: &mut Ctx) {
 
 // FMUSIC_StopAllSongs
 pub fn fn_802B9994(c: &mut Ctx) {
+    runtime::prof(0x802B9994);
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r1 = c.r[1]; let mut r3 = c.r[3]; let mut r4 = c.r[4]; let mut r13 = c.r[13]; let mut r27 = c.r[27]; let mut r28 = c.r[28]; let mut r29 = c.r[29]; let mut r30 = c.r[30]; let mut r31 = c.r[31]; 
     let mut cr0 = c.cr[0]; 
@@ -16357,7 +16621,7 @@ pub fn fn_802B9994(c: &mut Ctx) {
             { pc = 0x802B9A90; continue; }
         }
         0x802B99B0 => {
-            { c.lr = 0x802B99B4; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; fn_802D3244(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r13 = c.r[13]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; }
+            { c.lr = 0x802B99B4; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.cr[0] = cr0; fn_802D3244(c); runtime::prof(0x802B9994); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r13 = c.r[13]; cr0 = c.cr[0]; }
             { let ea = r13.wrapping_add(0xFFFF8548); r4 = runtime::mr32(mem, ea); }
             { let ea = r4.wrapping_add(0x1C); r0 = runtime::mr32(mem, ea); }
             cr0 = runtime::cmpu_val(r0, r3);
@@ -16380,7 +16644,7 @@ pub fn fn_802B9994(c: &mut Ctx) {
             { pc = 0x802B9A8C; continue; }
         }
         0x802B99EC => {
-            { c.lr = 0x802B99F0; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; fn_802D3244(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r13 = c.r[13]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; }
+            { c.lr = 0x802B99F0; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.cr[0] = cr0; fn_802D3244(c); runtime::prof(0x802B9994); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r13 = c.r[13]; cr0 = c.cr[0]; }
             { let ea = r13.wrapping_add(0xFFFF8548); r4 = runtime::mr32(mem, ea); }
             { let ea = r4.wrapping_add(0x1C); r0 = runtime::mr32(mem, ea); }
             cr0 = runtime::cmpu_val(r0, r3);
@@ -16389,7 +16653,7 @@ pub fn fn_802B9994(c: &mut Ctx) {
         }
         0x802B9A04 => {
             r3 = 0x1u32;
-            { c.lr = 0x802B9A0C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; fn_802D3264(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r13 = c.r[13]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; }
+            { c.lr = 0x802B9A0C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.cr[0] = cr0; fn_802D3264(c); runtime::prof(0x802B9994); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r13 = c.r[13]; cr0 = c.cr[0]; }
             pc = 0x802B9A0C;
         }
         0x802B9A0C => {
@@ -16423,7 +16687,7 @@ pub fn fn_802B9994(c: &mut Ctx) {
         0x802B9A60 => {
             { let ea = r27.wrapping_add(0x10); r3 = runtime::mr32(mem, ea); }
             { let ea = r3.wrapping_add(0x10); r3 = runtime::mr32(mem, ea); }
-            { c.lr = 0x802B9A6C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; fn_802BF860(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r13 = c.r[13]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; }
+            { c.lr = 0x802B9A6C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.cr[0] = cr0; fn_802BF860(c); runtime::prof(0x802B9994); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r13 = c.r[13]; cr0 = c.cr[0]; }
             { let ea = r27; r27 = runtime::mr32(mem, ea); }
             pc = 0x802B9A70;
         }
@@ -16464,6 +16728,7 @@ pub fn fn_802B9994(c: &mut Ctx) {
 
 // FMUSIC_StopSong
 pub fn fn_802B9AB4(c: &mut Ctx) {
+    runtime::prof(0x802B9AB4);
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r1 = c.r[1]; let mut r3 = c.r[3]; let mut r4 = c.r[4]; let mut r13 = c.r[13]; let mut r27 = c.r[27]; let mut r28 = c.r[28]; let mut r29 = c.r[29]; let mut r30 = c.r[30]; let mut r31 = c.r[31]; 
     let mut cr0 = c.cr[0]; 
@@ -16475,7 +16740,7 @@ pub fn fn_802B9AB4(c: &mut Ctx) {
             { let ea = r1.wrapping_add(0x24); runtime::mw32(mem, ea, r0); }
             { let ea = r1.wrapping_add(0xC); runtime::mw32(mem, ea.wrapping_add(0x0), r27); runtime::mw32(mem, ea.wrapping_add(0x4), r28); runtime::mw32(mem, ea.wrapping_add(0x8), r29); runtime::mw32(mem, ea.wrapping_add(0xC), r30); runtime::mw32(mem, ea.wrapping_add(0x10), r31);  }
             r31 = r3 | r3;
-            { c.lr = 0x802B9ACC; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; fn_802D3244(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r13 = c.r[13]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; }
+            { c.lr = 0x802B9ACC; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.cr[0] = cr0; fn_802D3244(c); runtime::prof(0x802B9AB4); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r13 = c.r[13]; cr0 = c.cr[0]; }
             { let ea = r13.wrapping_add(0xFFFF8548); r4 = runtime::mr32(mem, ea); }
             { let ea = r4.wrapping_add(0x1C); r0 = runtime::mr32(mem, ea); }
             cr0 = runtime::cmpu_val(r0, r3);
@@ -16499,7 +16764,7 @@ pub fn fn_802B9AB4(c: &mut Ctx) {
             { pc = 0x802B9BB0; continue; }
         }
         0x802B9B08 => {
-            { c.lr = 0x802B9B0C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; fn_802D3244(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r13 = c.r[13]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; }
+            { c.lr = 0x802B9B0C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.cr[0] = cr0; fn_802D3244(c); runtime::prof(0x802B9AB4); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r13 = c.r[13]; cr0 = c.cr[0]; }
             { let ea = r13.wrapping_add(0xFFFF8548); r4 = runtime::mr32(mem, ea); }
             { let ea = r4.wrapping_add(0x1C); r0 = runtime::mr32(mem, ea); }
             cr0 = runtime::cmpu_val(r0, r3);
@@ -16508,7 +16773,7 @@ pub fn fn_802B9AB4(c: &mut Ctx) {
         }
         0x802B9B20 => {
             r3 = 0x1u32;
-            { c.lr = 0x802B9B28; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; fn_802D3264(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r13 = c.r[13]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; }
+            { c.lr = 0x802B9B28; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.cr[0] = cr0; fn_802D3264(c); runtime::prof(0x802B9AB4); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r13 = c.r[13]; cr0 = c.cr[0]; }
             pc = 0x802B9B28;
         }
         0x802B9B28 => {
@@ -16543,7 +16808,7 @@ pub fn fn_802B9AB4(c: &mut Ctx) {
         0x802B9B80 => {
             { let ea = r27.wrapping_add(0x10); r3 = runtime::mr32(mem, ea); }
             { let ea = r3.wrapping_add(0x10); r3 = runtime::mr32(mem, ea); }
-            { c.lr = 0x802B9B8C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; fn_802BF860(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r13 = c.r[13]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; }
+            { c.lr = 0x802B9B8C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.cr[0] = cr0; fn_802BF860(c); runtime::prof(0x802B9AB4); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r13 = c.r[13]; cr0 = c.cr[0]; }
             { let ea = r27; r27 = runtime::mr32(mem, ea); }
             pc = 0x802B9B90;
         }
@@ -16580,6 +16845,7 @@ pub fn fn_802B9AB4(c: &mut Ctx) {
 
 // FMUSIC_FreeSong
 pub fn fn_802B9BC4(c: &mut Ctx) {
+    runtime::prof(0x802B9BC4);
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r1 = c.r[1]; let mut r3 = c.r[3]; let mut r4 = c.r[4]; let mut r5 = c.r[5]; let mut r6 = c.r[6]; let mut r13 = c.r[13]; let mut r27 = c.r[27]; let mut r28 = c.r[28]; let mut r29 = c.r[29]; let mut r30 = c.r[30]; let mut r31 = c.r[31]; 
     let mut cr0 = c.cr[0]; 
@@ -16591,7 +16857,7 @@ pub fn fn_802B9BC4(c: &mut Ctx) {
             { let ea = r1.wrapping_add(0x24); runtime::mw32(mem, ea, r0); }
             { let ea = r1.wrapping_add(0xC); runtime::mw32(mem, ea.wrapping_add(0x0), r27); runtime::mw32(mem, ea.wrapping_add(0x4), r28); runtime::mw32(mem, ea.wrapping_add(0x8), r29); runtime::mw32(mem, ea.wrapping_add(0xC), r30); runtime::mw32(mem, ea.wrapping_add(0x10), r31);  }
             r31 = r3 | r3;
-            { c.lr = 0x802B9BDC; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; fn_802D3244(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r13 = c.r[13]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; }
+            { c.lr = 0x802B9BDC; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.cr[0] = cr0; fn_802D3244(c); runtime::prof(0x802B9BC4); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r13 = c.r[13]; cr0 = c.cr[0]; }
             { let ea = r13.wrapping_add(0xFFFF8548); r4 = runtime::mr32(mem, ea); }
             { let ea = r4.wrapping_add(0x1C); r0 = runtime::mr32(mem, ea); }
             cr0 = runtime::cmpu_val(r0, r3);
@@ -16609,7 +16875,7 @@ pub fn fn_802B9BC4(c: &mut Ctx) {
             { pc = 0x802B9FB8; continue; }
         }
         0x802B9C0C => {
-            { c.lr = 0x802B9C10; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; fn_802D3244(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r13 = c.r[13]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; }
+            { c.lr = 0x802B9C10; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.cr[0] = cr0; fn_802D3244(c); runtime::prof(0x802B9BC4); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r13 = c.r[13]; cr0 = c.cr[0]; }
             { let ea = r13.wrapping_add(0xFFFF8548); r4 = runtime::mr32(mem, ea); }
             { let ea = r4.wrapping_add(0x1C); r0 = runtime::mr32(mem, ea); }
             cr0 = runtime::cmpu_val(r0, r3);
@@ -16618,7 +16884,7 @@ pub fn fn_802B9BC4(c: &mut Ctx) {
         }
         0x802B9C24 => {
             r3 = 0x1u32;
-            { c.lr = 0x802B9C2C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; fn_802D3264(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r13 = c.r[13]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; }
+            { c.lr = 0x802B9C2C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.cr[0] = cr0; fn_802D3264(c); runtime::prof(0x802B9BC4); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r13 = c.r[13]; cr0 = c.cr[0]; }
             pc = 0x802B9C2C;
         }
         0x802B9C2C => {
@@ -16637,7 +16903,7 @@ pub fn fn_802B9BC4(c: &mut Ctx) {
             { let ea = r3.wrapping_add(0x4); runtime::mw32(mem, ea, r0); }
             { let ea = r31.wrapping_add(0x4); runtime::mw32(mem, ea, r31); }
             { let ea = r31; runtime::mw32(mem, ea, r31); }
-            { c.lr = 0x802B9C60; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; fn_802D3244(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r13 = c.r[13]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; }
+            { c.lr = 0x802B9C60; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.cr[0] = cr0; fn_802D3244(c); runtime::prof(0x802B9BC4); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r13 = c.r[13]; cr0 = c.cr[0]; }
             { let ea = r13.wrapping_add(0xFFFF8548); r4 = runtime::mr32(mem, ea); }
             { let ea = r4.wrapping_add(0x1C); r0 = runtime::mr32(mem, ea); }
             cr0 = runtime::cmpu_val(r0, r3);
@@ -16660,7 +16926,7 @@ pub fn fn_802B9BC4(c: &mut Ctx) {
             { pc = 0x802B9D38; continue; }
         }
         0x802B9C98 => {
-            { c.lr = 0x802B9C9C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; fn_802D3244(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r13 = c.r[13]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; }
+            { c.lr = 0x802B9C9C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.cr[0] = cr0; fn_802D3244(c); runtime::prof(0x802B9BC4); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r13 = c.r[13]; cr0 = c.cr[0]; }
             { let ea = r13.wrapping_add(0xFFFF8548); r4 = runtime::mr32(mem, ea); }
             { let ea = r4.wrapping_add(0x1C); r0 = runtime::mr32(mem, ea); }
             cr0 = runtime::cmpu_val(r0, r3);
@@ -16669,7 +16935,7 @@ pub fn fn_802B9BC4(c: &mut Ctx) {
         }
         0x802B9CB0 => {
             r3 = 0x1u32;
-            { c.lr = 0x802B9CB8; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; fn_802D3264(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r13 = c.r[13]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; }
+            { c.lr = 0x802B9CB8; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.cr[0] = cr0; fn_802D3264(c); runtime::prof(0x802B9BC4); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r13 = c.r[13]; cr0 = c.cr[0]; }
             pc = 0x802B9CB8;
         }
         0x802B9CB8 => {
@@ -16703,7 +16969,7 @@ pub fn fn_802B9BC4(c: &mut Ctx) {
         0x802B9D0C => {
             { let ea = r27.wrapping_add(0x10); r3 = runtime::mr32(mem, ea); }
             { let ea = r3.wrapping_add(0x10); r3 = runtime::mr32(mem, ea); }
-            { c.lr = 0x802B9D18; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; fn_802BF860(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r13 = c.r[13]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; }
+            { c.lr = 0x802B9D18; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.cr[0] = cr0; fn_802BF860(c); runtime::prof(0x802B9BC4); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r13 = c.r[13]; cr0 = c.cr[0]; }
             { let ea = r27; r27 = runtime::mr32(mem, ea); }
             pc = 0x802B9D1C;
         }
@@ -16731,7 +16997,7 @@ pub fn fn_802B9BC4(c: &mut Ctx) {
             r6 = 0x323u32;
             r5 = r3.wrapping_add(0xFFFFF010);
             r3 = 0x0u32;
-            { c.lr = 0x802B9D58; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; fn_802D1724(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r13 = c.r[13]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; }
+            { c.lr = 0x802B9D58; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.cr[0] = cr0; fn_802D1724(c); runtime::prof(0x802B9BC4); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r13 = c.r[13]; cr0 = c.cr[0]; }
             pc = 0x802B9D58;
         }
         0x802B9D58 => {
@@ -16756,7 +17022,7 @@ pub fn fn_802B9BC4(c: &mut Ctx) {
             pc = 0x802B9D98;
         }
         0x802B9D98 => {
-            { c.lr = 0x802B9D9C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; fn_802C3F20(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r13 = c.r[13]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; }
+            { c.lr = 0x802B9D9C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.cr[0] = cr0; fn_802C3F20(c); runtime::prof(0x802B9BC4); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r13 = c.r[13]; cr0 = c.cr[0]; }
             pc = 0x802B9D9C;
         }
         0x802B9D9C => {
@@ -16773,7 +17039,7 @@ pub fn fn_802B9BC4(c: &mut Ctx) {
             r5 = r3.wrapping_add(0xFFFFF010);
             r6 = 0x333u32;
             r3 = 0x0u32;
-            { c.lr = 0x802B9DC8; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; fn_802D1724(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r13 = c.r[13]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; }
+            { c.lr = 0x802B9DC8; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.cr[0] = cr0; fn_802D1724(c); runtime::prof(0x802B9BC4); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r13 = c.r[13]; cr0 = c.cr[0]; }
             pc = 0x802B9DC8;
         }
         0x802B9DC8 => {
@@ -16784,7 +17050,7 @@ pub fn fn_802B9BC4(c: &mut Ctx) {
             r6 = 0x33Cu32;
             r5 = r3.wrapping_add(0xFFFFF010);
             r3 = 0x0u32;
-            { c.lr = 0x802B9DE8; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; fn_802D1724(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r13 = c.r[13]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; }
+            { c.lr = 0x802B9DE8; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.cr[0] = cr0; fn_802D1724(c); runtime::prof(0x802B9BC4); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r13 = c.r[13]; cr0 = c.cr[0]; }
             r0 = 0x0u32;
             { let ea = r31.wrapping_add(0x140); runtime::mw32(mem, ea, r0); }
             pc = 0x802B9DF0;
@@ -16808,7 +17074,7 @@ pub fn fn_802B9BC4(c: &mut Ctx) {
             r5 = r29 | r29;
             r3 = 0x0u32;
             r6 = 0x34Au32;
-            { c.lr = 0x802B9E34; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; fn_802D1724(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r13 = c.r[13]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; }
+            { c.lr = 0x802B9E34; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.cr[0] = cr0; fn_802D1724(c); runtime::prof(0x802B9BC4); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r13 = c.r[13]; cr0 = c.cr[0]; }
             pc = 0x802B9E34;
         }
         0x802B9E34 => {
@@ -16827,7 +17093,7 @@ pub fn fn_802B9BC4(c: &mut Ctx) {
             r6 = 0x350u32;
             r5 = r3.wrapping_add(0xFFFFF010);
             r3 = 0x0u32;
-            { c.lr = 0x802B9E68; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; fn_802D1724(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r13 = c.r[13]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; }
+            { c.lr = 0x802B9E68; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.cr[0] = cr0; fn_802D1724(c); runtime::prof(0x802B9BC4); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r13 = c.r[13]; cr0 = c.cr[0]; }
             pc = 0x802B9E68;
         }
         0x802B9E68 => {
@@ -16838,7 +17104,7 @@ pub fn fn_802B9BC4(c: &mut Ctx) {
             r6 = 0x360u32;
             r5 = r3.wrapping_add(0xFFFFF010);
             r3 = 0x0u32;
-            { c.lr = 0x802B9E88; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; fn_802D1724(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r13 = c.r[13]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; }
+            { c.lr = 0x802B9E88; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.cr[0] = cr0; fn_802D1724(c); runtime::prof(0x802B9BC4); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r13 = c.r[13]; cr0 = c.cr[0]; }
             r0 = 0x0u32;
             { let ea = r31.wrapping_add(0xA24); runtime::mw32(mem, ea, r0); }
             pc = 0x802B9E90;
@@ -16851,7 +17117,7 @@ pub fn fn_802B9BC4(c: &mut Ctx) {
             r6 = 0x369u32;
             r5 = r3.wrapping_add(0xFFFFF010);
             r3 = 0x0u32;
-            { c.lr = 0x802B9EB0; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; fn_802D1724(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r13 = c.r[13]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; }
+            { c.lr = 0x802B9EB0; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.cr[0] = cr0; fn_802D1724(c); runtime::prof(0x802B9BC4); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r13 = c.r[13]; cr0 = c.cr[0]; }
             r0 = 0x0u32;
             { let ea = r31.wrapping_add(0x61C); runtime::mw32(mem, ea, r0); }
             pc = 0x802B9EB8;
@@ -16864,7 +17130,7 @@ pub fn fn_802B9BC4(c: &mut Ctx) {
             r6 = 0x36Eu32;
             r5 = r3.wrapping_add(0xFFFFF010);
             r3 = 0x0u32;
-            { c.lr = 0x802B9ED8; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; fn_802D1724(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r13 = c.r[13]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; }
+            { c.lr = 0x802B9ED8; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.cr[0] = cr0; fn_802D1724(c); runtime::prof(0x802B9BC4); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r13 = c.r[13]; cr0 = c.cr[0]; }
             r0 = 0x0u32;
             { let ea = r31.wrapping_add(0x618); runtime::mw32(mem, ea, r0); }
             pc = 0x802B9EE0;
@@ -16877,7 +17143,7 @@ pub fn fn_802B9BC4(c: &mut Ctx) {
             r6 = 0x373u32;
             r5 = r3.wrapping_add(0xFFFFF010);
             r3 = 0x0u32;
-            { c.lr = 0x802B9F00; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; fn_802D1724(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r13 = c.r[13]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; }
+            { c.lr = 0x802B9F00; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.cr[0] = cr0; fn_802D1724(c); runtime::prof(0x802B9BC4); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r13 = c.r[13]; cr0 = c.cr[0]; }
             r0 = 0x0u32;
             { let ea = r31.wrapping_add(0x614); runtime::mw32(mem, ea, r0); }
             pc = 0x802B9F08;
@@ -16897,7 +17163,7 @@ pub fn fn_802B9BC4(c: &mut Ctx) {
             r5 = r29 | r29;
             r3 = 0x0u32;
             r6 = 0x37Au32;
-            { c.lr = 0x802B9F38; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; fn_802D1724(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r13 = c.r[13]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; }
+            { c.lr = 0x802B9F38; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.cr[0] = cr0; fn_802D1724(c); runtime::prof(0x802B9BC4); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r13 = c.r[13]; cr0 = c.cr[0]; }
             { let ea = r28.wrapping_add(0x620); runtime::mw32(mem, ea, r30); }
             pc = 0x802B9F3C;
         }
@@ -16913,7 +17179,7 @@ pub fn fn_802B9BC4(c: &mut Ctx) {
             r6 = 0x384u32;
             r5 = r3.wrapping_add(0xFFFFF010);
             r3 = 0x0u32;
-            { c.lr = 0x802B9F6C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; fn_802D1724(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r13 = c.r[13]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; }
+            { c.lr = 0x802B9F6C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.cr[0] = cr0; fn_802D1724(c); runtime::prof(0x802B9BC4); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r13 = c.r[13]; cr0 = c.cr[0]; }
             r0 = 0x0u32;
             { let ea = r31.wrapping_add(0x610); runtime::mw32(mem, ea, r0); }
             pc = 0x802B9F74;
@@ -16926,7 +17192,7 @@ pub fn fn_802B9BC4(c: &mut Ctx) {
             r6 = 0x38Au32;
             r5 = r3.wrapping_add(0xFFFFF010);
             r3 = 0x0u32;
-            { c.lr = 0x802B9F94; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; fn_802D1724(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r13 = c.r[13]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; }
+            { c.lr = 0x802B9F94; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.cr[0] = cr0; fn_802D1724(c); runtime::prof(0x802B9BC4); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r13 = c.r[13]; cr0 = c.cr[0]; }
             r0 = 0x0u32;
             { let ea = r31.wrapping_add(0xB3C); runtime::mw32(mem, ea, r0); }
             pc = 0x802B9F9C;
@@ -16937,7 +17203,7 @@ pub fn fn_802B9BC4(c: &mut Ctx) {
             r5 = r3.wrapping_add(0xFFFFF010);
             r6 = 0x391u32;
             r3 = 0x0u32;
-            { c.lr = 0x802B9FB4; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; fn_802D1724(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r13 = c.r[13]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; }
+            { c.lr = 0x802B9FB4; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.cr[0] = cr0; fn_802D1724(c); runtime::prof(0x802B9BC4); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r13 = c.r[13]; cr0 = c.cr[0]; }
             r3 = 0x1u32;
             pc = 0x802B9FB8;
         }
@@ -16954,6 +17220,7 @@ pub fn fn_802B9BC4(c: &mut Ctx) {
 
 // FMUSIC_LoadSongEx
 pub fn fn_802B9FCC(c: &mut Ctx) {
+    runtime::prof(0x802B9FCC);
     if c.hle(212) { return; }
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r1 = c.r[1]; let mut r3 = c.r[3]; let mut r4 = c.r[4]; let mut r5 = c.r[5]; let mut r6 = c.r[6]; let mut r7 = c.r[7]; let mut r8 = c.r[8]; let mut r13 = c.r[13]; let mut r26 = c.r[26]; let mut r27 = c.r[27]; let mut r28 = c.r[28]; let mut r29 = c.r[29]; let mut r30 = c.r[30]; let mut r31 = c.r[31]; 
@@ -16971,7 +17238,7 @@ pub fn fn_802B9FCC(c: &mut Ctx) {
             r29 = r6 | r6;
             r30 = r7 | r7;
             r31 = r8 | r8;
-            { c.lr = 0x802B9FF8; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; fn_802D3244(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r13 = c.r[13]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; }
+            { c.lr = 0x802B9FF8; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.cr[0] = cr0; fn_802D3244(c); runtime::prof(0x802B9FCC); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r13 = c.r[13]; cr0 = c.cr[0]; }
             { let ea = r13.wrapping_add(0xFFFF8548); r4 = runtime::mr32(mem, ea); }
             { let ea = r4.wrapping_add(0x1C); r0 = runtime::mr32(mem, ea); }
             cr0 = runtime::cmpu_val(r0, r3);
@@ -16987,7 +17254,7 @@ pub fn fn_802B9FCC(c: &mut Ctx) {
             r6 = r28 | r28;
             r7 = r30 | r30;
             r8 = r31 | r31;
-            { c.lr = 0x802BA02C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; fn_802BA040(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r13 = c.r[13]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; }
+            { c.lr = 0x802BA02C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.cr[0] = cr0; fn_802BA040(c); runtime::prof(0x802B9FCC); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r13 = c.r[13]; cr0 = c.cr[0]; }
             { let ea = r1.wrapping_add(0x8); r26 = runtime::mr32(mem, ea.wrapping_add(0x0)); r27 = runtime::mr32(mem, ea.wrapping_add(0x4)); r28 = runtime::mr32(mem, ea.wrapping_add(0x8)); r29 = runtime::mr32(mem, ea.wrapping_add(0xC)); r30 = runtime::mr32(mem, ea.wrapping_add(0x10)); r31 = runtime::mr32(mem, ea.wrapping_add(0x14));  }
             { let ea = r1.wrapping_add(0x24); r0 = runtime::mr32(mem, ea); }
             c.lr = r0;
@@ -17000,6 +17267,7 @@ pub fn fn_802B9FCC(c: &mut Ctx) {
 
 // FMUSIC_LoadInternal
 pub fn fn_802BA040(c: &mut Ctx) {
+    runtime::prof(0x802BA040);
     if c.hle(211) { return; }
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r1 = c.r[1]; let mut r3 = c.r[3]; let mut r4 = c.r[4]; let mut r5 = c.r[5]; let mut r6 = c.r[6]; let mut r7 = c.r[7]; let mut r8 = c.r[8]; let mut r9 = c.r[9]; let mut r10 = c.r[10]; let mut r11 = c.r[11]; let mut r12 = c.r[12]; let mut r13 = c.r[13]; let mut r25 = c.r[25]; let mut r26 = c.r[26]; let mut r27 = c.r[27]; let mut r28 = c.r[28]; let mut r29 = c.r[29]; let mut r30 = c.r[30]; let mut r31 = c.r[31]; 
@@ -17028,7 +17296,7 @@ pub fn fn_802BA040(c: &mut Ctx) {
             { pc = 0x802BA2BC; continue; }
         }
         0x802BA088 => {
-            { c.lr = 0x802BA08C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.r[25] = r25; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ctr = ctr; fn_802BA4CC(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; r13 = c.r[13]; r25 = c.r[25]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ctr = c.ctr; }
+            { c.lr = 0x802BA08C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.cr[0] = cr0; c.ctr = ctr; fn_802BA4CC(c); runtime::prof(0x802BA040); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; r13 = c.r[13]; cr0 = c.cr[0]; ctr = c.ctr; }
             r31 = r3 | r3; cr0 = runtime::cmps_val(r31 as i32, 0);
             if cr0 & 2 == 0 { { pc = 0x802BA09C; continue; } }
             r3 = 0x0u32;
@@ -17037,7 +17305,7 @@ pub fn fn_802BA040(c: &mut Ctx) {
         0x802BA09C => {
             r0 = r28.rotate_left(0) & 0x1000000; cr0 = runtime::cmps_val(r0 as i32, 0);
             if cr0 & 2 != 0 { { pc = 0x802BA274; continue; } }
-            { c.lr = 0x802BA0A8; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.r[25] = r25; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ctr = ctr; fn_802BD604(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; r13 = c.r[13]; r25 = c.r[25]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ctr = c.ctr; }
+            { c.lr = 0x802BA0A8; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.cr[0] = cr0; c.ctr = ctr; fn_802BD604(c); runtime::prof(0x802BA040); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; r13 = c.r[13]; cr0 = c.cr[0]; ctr = c.ctr; }
             r0 = r3 as i8 as u32; cr0 = runtime::cmps_val(r0 as i32, 0);
             if cr0 & 2 != 0 { { pc = 0x802BA2B8; continue; } }
             r3 = r31.wrapping_add(0x10);
@@ -17054,7 +17322,7 @@ pub fn fn_802BA040(c: &mut Ctx) {
             r4 = r25 | r25;
             r3 = r31.wrapping_add(0xA2C);
             r5 = 0xFFu32;
-            { c.lr = 0x802BA0E4; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.r[25] = r25; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ctr = ctr; fn_802D36E0(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; r13 = c.r[13]; r25 = c.r[25]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ctr = c.ctr; }
+            { c.lr = 0x802BA0E4; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.cr[0] = cr0; c.ctr = ctr; fn_802D36E0(c); runtime::prof(0x802BA040); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; r13 = c.r[13]; cr0 = c.cr[0]; ctr = c.ctr; }
             r0 = 0x0u32;
             { let ea = r31.wrapping_add(0xB2B); runtime::mw8(mem, ea, r0 as u8); }
             pc = 0x802BA0EC;
@@ -17070,7 +17338,7 @@ pub fn fn_802BA040(c: &mut Ctx) {
             r5 = r3.wrapping_add(0xFFFFF010);
             r6 = 0x25Eu32;
             r3 = 0x0u32;
-            { c.lr = 0x802BA118; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.r[25] = r25; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ctr = ctr; fn_802D16B0(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; r13 = c.r[13]; r25 = c.r[25]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ctr = c.ctr; }
+            { c.lr = 0x802BA118; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.cr[0] = cr0; c.ctr = ctr; fn_802D16B0(c); runtime::prof(0x802BA040); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; r13 = c.r[13]; cr0 = c.cr[0]; ctr = c.ctr; }
             { let ea = r31.wrapping_add(0xB3C); runtime::mw32(mem, ea, r3); }
             { let ea = r31.wrapping_add(0xB3C); r0 = runtime::mr32(mem, ea); }
             cr0 = runtime::cmpu_val(r0, 0x0);
@@ -17180,7 +17448,7 @@ pub fn fn_802BA040(c: &mut Ctx) {
             r7 = r26 | r26;
             r8 = r29 | r29;
             r9 = r30 | r30;
-            { c.lr = 0x802BA290; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.r[25] = r25; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ctr = ctr; fn_802BA2D0(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; r13 = c.r[13]; r25 = c.r[25]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ctr = c.ctr; }
+            { c.lr = 0x802BA290; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.cr[0] = cr0; c.ctr = ctr; fn_802BA2D0(c); runtime::prof(0x802BA040); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; r13 = c.r[13]; cr0 = c.cr[0]; ctr = c.ctr; }
             cr0 = runtime::cmpu_val(r3, 0x0);
             if cr0 & 2 != 0 { { pc = 0x802BA2A4; continue; } }
             r0 = 0x1u32;
@@ -17190,7 +17458,7 @@ pub fn fn_802BA040(c: &mut Ctx) {
         0x802BA2A4 => {
             { let ea = r13.wrapping_add(0xFFFF9C10); r26 = runtime::mr32(mem, ea); }
             r3 = r31 | r31;
-            { c.lr = 0x802BA2B0; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.r[25] = r25; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ctr = ctr; fn_802B9BC4(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; r13 = c.r[13]; r25 = c.r[25]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ctr = c.ctr; }
+            { c.lr = 0x802BA2B0; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.r[11] = r11; c.r[12] = r12; c.cr[0] = cr0; c.ctr = ctr; fn_802B9BC4(c); runtime::prof(0x802BA040); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r11 = c.r[11]; r12 = c.r[12]; r13 = c.r[13]; cr0 = c.cr[0]; ctr = c.ctr; }
             r31 = 0x0u32;
             { let ea = r13.wrapping_add(0xFFFF9C10); runtime::mw32(mem, ea, r26); }
             pc = 0x802BA2B8;
@@ -17212,6 +17480,7 @@ pub fn fn_802BA040(c: &mut Ctx) {
 
 // FMUSIC_Load
 pub fn fn_802BA2D0(c: &mut Ctx) {
+    runtime::prof(0x802BA2D0);
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r1 = c.r[1]; let mut r3 = c.r[3]; let mut r4 = c.r[4]; let mut r5 = c.r[5]; let mut r6 = c.r[6]; let mut r7 = c.r[7]; let mut r8 = c.r[8]; let mut r9 = c.r[9]; let mut r10 = c.r[10]; let mut r13 = c.r[13]; let mut r25 = c.r[25]; let mut r26 = c.r[26]; let mut r27 = c.r[27]; let mut r28 = c.r[28]; let mut r29 = c.r[29]; let mut r30 = c.r[30]; let mut r31 = c.r[31]; 
     let mut cr0 = c.cr[0]; 
@@ -17245,7 +17514,7 @@ pub fn fn_802BA2D0(c: &mut Ctx) {
             { pc = 0x802BA344; continue; }
         }
         0x802BA32C => {
-            { c.lr = 0x802BA330; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[10] = r10; c.r[25] = r25; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; fn_802D1370(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r13 = c.r[13]; r25 = c.r[25]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; }
+            { c.lr = 0x802BA330; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[10] = r10; c.cr[0] = cr0; fn_802D1370(c); runtime::prof(0x802BA2D0); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r13 = c.r[13]; cr0 = c.cr[0]; }
             r0 = r3 as i8 as u32; cr0 = runtime::cmps_val(r0 as i32, 0);
             if cr0 & 2 != 0 { { pc = 0x802BA340; continue; } }
             r4 = 0x2u32;
@@ -17258,7 +17527,7 @@ pub fn fn_802BA2D0(c: &mut Ctx) {
         0x802BA344 => {
             r3 = r30 | r30;
             r5 = r26 | r26;
-            { c.lr = 0x802BA350; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[10] = r10; c.r[25] = r25; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; fn_802D10BC(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r13 = c.r[13]; r25 = c.r[25]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; }
+            { c.lr = 0x802BA350; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[10] = r10; c.cr[0] = cr0; fn_802D10BC(c); runtime::prof(0x802BA2D0); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r13 = c.r[13]; cr0 = c.cr[0]; }
             r30 = r3 | r3; cr0 = runtime::cmps_val(r30 as i32, 0);
             if cr0 & 2 == 0 { { pc = 0x802BA368; continue; } }
             r0 = 0x9u32;
@@ -17270,7 +17539,7 @@ pub fn fn_802BA2D0(c: &mut Ctx) {
             cr0 = runtime::cmps_val(r25 as i32, 0);
             if cr0 & 4 == 0 { { pc = 0x802BA378; continue; } }
             r4 = r25 | r25;
-            { c.lr = 0x802BA378; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[10] = r10; c.r[25] = r25; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; fn_802D05AC(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r13 = c.r[13]; r25 = c.r[25]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; }
+            { c.lr = 0x802BA378; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[10] = r10; c.cr[0] = cr0; fn_802D05AC(c); runtime::prof(0x802BA2D0); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r13 = c.r[13]; cr0 = c.cr[0]; }
             pc = 0x802BA378;
         }
         0x802BA378 => {
@@ -17279,7 +17548,7 @@ pub fn fn_802BA2D0(c: &mut Ctx) {
             r4 = r26.wrapping_add(0xFFFFFFFF);
             r3 = r30 | r30;
             r4 = r25.wrapping_add(r4);
-            { c.lr = 0x802BA390; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[10] = r10; c.r[25] = r25; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; fn_802D059C(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r13 = c.r[13]; r25 = c.r[25]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; }
+            { c.lr = 0x802BA390; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[10] = r10; c.cr[0] = cr0; fn_802D059C(c); runtime::prof(0x802BA2D0); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r13 = c.r[13]; cr0 = c.cr[0]; }
             pc = 0x802BA390;
         }
         0x802BA390 => {
@@ -17290,12 +17559,12 @@ pub fn fn_802BA2D0(c: &mut Ctx) {
             r5 = r29 | r29;
             r6 = r27 | r27;
             r7 = r31 | r31;
-            { c.lr = 0x802BA3B0; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[10] = r10; c.r[25] = r25; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; fn_802C9178(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r13 = c.r[13]; r25 = c.r[25]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; }
+            { c.lr = 0x802BA3B0; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[10] = r10; c.cr[0] = cr0; fn_802C9178(c); runtime::prof(0x802BA2D0); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r13 = c.r[13]; cr0 = c.cr[0]; }
             r0 = 0xAu32;
             r31 = r3 | r3;
             { let ea = r13.wrapping_add(0xFFFF9C10); runtime::mw32(mem, ea, r0); }
             r3 = r30 | r30;
-            { c.lr = 0x802BA3C4; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[10] = r10; c.r[25] = r25; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; fn_802D0FE0(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r13 = c.r[13]; r25 = c.r[25]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; }
+            { c.lr = 0x802BA3C4; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[10] = r10; c.cr[0] = cr0; fn_802D0FE0(c); runtime::prof(0x802BA2D0); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r13 = c.r[13]; cr0 = c.cr[0]; }
             cr0 = runtime::cmpu_val(r28, 0x0);
             { let ea = r13.wrapping_add(0xFFFF9C10); r30 = runtime::mr32(mem, ea); }
             if cr0 & 2 != 0 { { pc = 0x802BA4A4; continue; } }
@@ -17332,7 +17601,7 @@ pub fn fn_802BA2D0(c: &mut Ctx) {
         0x802BA420 => {
             r0 = r29.rotate_left(0) & 0x2; cr0 = runtime::cmps_val(r0 as i32, 0);
             if cr0 & 2 != 0 { { pc = 0x802BA464; continue; } }
-            { c.lr = 0x802BA42C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[10] = r10; c.r[25] = r25; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; fn_802D3244(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r13 = c.r[13]; r25 = c.r[25]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; }
+            { c.lr = 0x802BA42C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[10] = r10; c.cr[0] = cr0; fn_802D3244(c); runtime::prof(0x802BA2D0); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r13 = c.r[13]; cr0 = c.cr[0]; }
             { let ea = r13.wrapping_add(0xFFFF8548); r4 = runtime::mr32(mem, ea); }
             { let ea = r4.wrapping_add(0x1C); r0 = runtime::mr32(mem, ea); }
             cr0 = runtime::cmpu_val(r0, r3);
@@ -17354,7 +17623,7 @@ pub fn fn_802BA2D0(c: &mut Ctx) {
         0x802BA464 => {
             r0 = r29.rotate_left(0) & 0x1; cr0 = runtime::cmps_val(r0 as i32, 0);
             if cr0 & 2 != 0 { { pc = 0x802BA4A4; continue; } }
-            { c.lr = 0x802BA470; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[10] = r10; c.r[25] = r25; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; fn_802D3244(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r13 = c.r[13]; r25 = c.r[25]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; }
+            { c.lr = 0x802BA470; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[10] = r10; c.cr[0] = cr0; fn_802D3244(c); runtime::prof(0x802BA2D0); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r13 = c.r[13]; cr0 = c.cr[0]; }
             { let ea = r13.wrapping_add(0xFFFF8548); r4 = runtime::mr32(mem, ea); }
             { let ea = r4.wrapping_add(0x1C); r0 = runtime::mr32(mem, ea); }
             cr0 = runtime::cmpu_val(r0, r3);
@@ -17397,6 +17666,7 @@ pub fn fn_802BA2D0(c: &mut Ctx) {
 
 // FMUSIC_AllocSong
 pub fn fn_802BA4CC(c: &mut Ctx) {
+    runtime::prof(0x802BA4CC);
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r1 = c.r[1]; let mut r2 = c.r[2]; let mut r3 = c.r[3]; let mut r4 = c.r[4]; let mut r5 = c.r[5]; let mut r6 = c.r[6]; let mut r13 = c.r[13]; let mut r30 = c.r[30]; let mut r31 = c.r[31]; 
     let mut f0 = c.f[0]; 
@@ -17435,7 +17705,7 @@ pub fn fn_802BA4CC(c: &mut Ctx) {
             r5 = r4.wrapping_add(0xFFFFF010);
             r6 = 0xCBu32;
             r4 = 0xB48u32;
-            { c.lr = 0x802BA530; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[30] = r30; c.r[31] = r31; c.f[0] = f0; c.ps1[0] = ps0; c.cr[0] = cr0; c.ctr = ctr; fn_802D16B0(c); r0 = c.r[0]; r1 = c.r[1]; r2 = c.r[2]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r13 = c.r[13]; r30 = c.r[30]; r31 = c.r[31]; f0 = c.f[0]; ps0 = c.ps1[0]; cr0 = c.cr[0]; ctr = c.ctr; }
+            { c.lr = 0x802BA530; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.f[0] = f0; c.ps1[0] = ps0; c.cr[0] = cr0; c.ctr = ctr; fn_802D16B0(c); runtime::prof(0x802BA4CC); r0 = c.r[0]; r1 = c.r[1]; r2 = c.r[2]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r13 = c.r[13]; f0 = c.f[0]; ps0 = c.ps1[0]; cr0 = c.cr[0]; ctr = c.ctr; }
             r31 = r3 | r3; cr0 = runtime::cmps_val(r31 as i32, 0);
             if cr0 & 2 == 0 { { pc = 0x802BA548; continue; } }
             r0 = 0xCu32;
@@ -17461,7 +17731,7 @@ pub fn fn_802BA4CC(c: &mut Ctx) {
             r5 = r3.wrapping_add(0xFFFFF010);
             r6 = 0xDAu32;
             r3 = 0x0u32;
-            { c.lr = 0x802BA590; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[30] = r30; c.r[31] = r31; c.f[0] = f0; c.ps1[0] = ps0; c.cr[0] = cr0; c.ctr = ctr; fn_802D16B0(c); r0 = c.r[0]; r1 = c.r[1]; r2 = c.r[2]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r13 = c.r[13]; r30 = c.r[30]; r31 = c.r[31]; f0 = c.f[0]; ps0 = c.ps1[0]; cr0 = c.cr[0]; ctr = c.ctr; }
+            { c.lr = 0x802BA590; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.f[0] = f0; c.ps1[0] = ps0; c.cr[0] = cr0; c.ctr = ctr; fn_802D16B0(c); runtime::prof(0x802BA4CC); r0 = c.r[0]; r1 = c.r[1]; r2 = c.r[2]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r13 = c.r[13]; f0 = c.f[0]; ps0 = c.ps1[0]; cr0 = c.cr[0]; ctr = c.ctr; }
             { let ea = r31.wrapping_add(0x610); runtime::mw32(mem, ea, r3); }
             { pc = 0x802BA5A0; continue; }
         }
@@ -17515,7 +17785,7 @@ pub fn fn_802BA4CC(c: &mut Ctx) {
             { let ea = r4.wrapping_add(0x69C); runtime::mw32(mem, ea, r3); }
             r4 = r4.wrapping_add(0x80);
             ctr = ctr.wrapping_sub(1); if ctr != 0 { { if runtime::PROFILE_DETAILED { c.sample_tick_pc(0x802BA4CC); } c.budget -= 1; if c.budget == 0 { c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[30] = r30; c.r[31] = r31; c.f[0] = f0; c.ps1[0] = ps0; c.cr[0] = cr0; c.ctr = ctr; c.poll(); r0 = c.r[0]; r1 = c.r[1]; r2 = c.r[2]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r13 = c.r[13]; r30 = c.r[30]; r31 = c.r[31]; f0 = c.f[0]; ps0 = c.ps1[0]; cr0 = c.cr[0]; ctr = c.ctr; } pc = 0x802BA5BC; continue; } }
-            { c.lr = 0x802BA648; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[30] = r30; c.r[31] = r31; c.f[0] = f0; c.ps1[0] = ps0; c.cr[0] = cr0; c.ctr = ctr; fn_802BC1FC(c); r0 = c.r[0]; r1 = c.r[1]; r2 = c.r[2]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r13 = c.r[13]; r30 = c.r[30]; r31 = c.r[31]; f0 = c.f[0]; ps0 = c.ps1[0]; cr0 = c.cr[0]; ctr = c.ctr; }
+            { c.lr = 0x802BA648; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.f[0] = f0; c.ps1[0] = ps0; c.cr[0] = cr0; c.ctr = ctr; fn_802BC1FC(c); runtime::prof(0x802BA4CC); r0 = c.r[0]; r1 = c.r[1]; r2 = c.r[2]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r13 = c.r[13]; f0 = c.f[0]; ps0 = c.ps1[0]; cr0 = c.cr[0]; ctr = c.ctr; }
             { let ea = r31.wrapping_add(0x5FC); runtime::mw32(mem, ea, r3); }
             r5 = 0x0u32;
             { let ea = r2.wrapping_add(0xFFFFA3E0); let v = f32::from_bits(runtime::mr32(mem, ea)) as f64; f0 = v; ps0 = v; }
@@ -17561,6 +17831,7 @@ pub fn fn_802BA4CC(c: &mut Ctx) {
 
 // FMUSIC_SetBPM
 pub fn fn_802BA6D4(c: &mut Ctx) {
+    runtime::prof(0x802BA6D4);
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r1 = c.r[1]; let mut r2 = c.r[2]; let mut r3 = c.r[3]; let mut r4 = c.r[4]; let mut r5 = c.r[5]; let mut r13 = c.r[13]; 
     let mut f0 = c.f[0]; let mut f1 = c.f[1]; let mut f2 = c.f[2]; let mut f3 = c.f[3]; let mut f4 = c.f[4]; let mut f5 = c.f[5]; 
@@ -17618,6 +17889,7 @@ pub fn fn_802BA6D4(c: &mut Ctx) {
 
 // FSOUND_FSB_Load
 pub fn fn_802BA764(c: &mut Ctx) {
+    runtime::prof(0x802BA764);
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r1 = c.r[1]; let mut r3 = c.r[3]; let mut r4 = c.r[4]; let mut r5 = c.r[5]; let mut r6 = c.r[6]; let mut r7 = c.r[7]; let mut r8 = c.r[8]; let mut r9 = c.r[9]; let mut r10 = c.r[10]; let mut r13 = c.r[13]; let mut r24 = c.r[24]; let mut r25 = c.r[25]; let mut r26 = c.r[26]; let mut r27 = c.r[27]; let mut r28 = c.r[28]; let mut r29 = c.r[29]; let mut r30 = c.r[30]; let mut r31 = c.r[31]; 
     let mut cr0 = c.cr[0]; 
@@ -17641,7 +17913,7 @@ pub fn fn_802BA764(c: &mut Ctx) {
             r8 = r1.wrapping_add(0x3C);
             r10 = r1.wrapping_add(0x28);
             { let ea = r1.wrapping_add(0x34); runtime::mw32(mem, ea, r0); }
-            { c.lr = 0x802BA7A8; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.r[24] = r24; c.r[25] = r25; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ca = ca; fn_802BAF58(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r13 = c.r[13]; r24 = c.r[24]; r25 = c.r[25]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ca = c.ca; }
+            { c.lr = 0x802BA7A8; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.cr[0] = cr0; c.ca = ca; fn_802BAF58(c); runtime::prof(0x802BA764); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r13 = c.r[13]; cr0 = c.cr[0]; ca = c.ca; }
             r0 = r3 as i8 as u32; cr0 = runtime::cmps_val(r0 as i32, 0);
             if cr0 & 2 == 0 { { pc = 0x802BA7B8; continue; } }
             r3 = 0x0u32;
@@ -17692,10 +17964,10 @@ pub fn fn_802BA764(c: &mut Ctx) {
             { let ea = r27.wrapping_add(0x30); r26 = runtime::mr32(mem, ea); }
             r3 = r27 | r27;
             { let ea = r27.wrapping_add(0x34); r25 = runtime::mr32(mem, ea); }
-            { c.lr = 0x802BA84C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.r[24] = r24; c.r[25] = r25; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ca = ca; fn_802D05BC(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r13 = c.r[13]; r24 = c.r[24]; r25 = c.r[25]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ca = c.ca; }
+            { c.lr = 0x802BA84C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.cr[0] = cr0; c.ca = ca; fn_802D05BC(c); runtime::prof(0x802BA764); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r13 = c.r[13]; cr0 = c.cr[0]; ca = c.ca; }
             r31 = r3 | r3;
             r3 = r27 | r27;
-            { c.lr = 0x802BA858; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.r[24] = r24; c.r[25] = r25; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ca = ca; fn_802D05BC(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r13 = c.r[13]; r24 = c.r[24]; r25 = c.r[25]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ca = c.ca; }
+            { c.lr = 0x802BA858; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.cr[0] = cr0; c.ca = ca; fn_802D05BC(c); runtime::prof(0x802BA764); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r13 = c.r[13]; cr0 = c.cr[0]; ca = c.ca; }
             { let ea = r30.wrapping_add(0x30); r5 = runtime::mr32(mem, ea); }
             r24 = r29.wrapping_add(r3);
             r4 = r27 | r27;
@@ -17703,19 +17975,19 @@ pub fn fn_802BA764(c: &mut Ctx) {
             r6 = r31.wrapping_add(r26);
             r3 = 0xFFFFFFFEu32;
             r8 = 0x1u32;
-            { c.lr = 0x802BA878; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.r[24] = r24; c.r[25] = r25; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ca = ca; fn_802C31C8(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r13 = c.r[13]; r24 = c.r[24]; r25 = c.r[25]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ca = c.ca; }
+            { c.lr = 0x802BA878; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.cr[0] = cr0; c.ca = ca; fn_802C31C8(c); runtime::prof(0x802BA764); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r13 = c.r[13]; cr0 = c.cr[0]; ca = c.ca; }
             r0 = r3 | r3;
             r3 = r27 | r27;
             r31 = r0 | r0;
             r4 = r26 | r26;
-            { c.lr = 0x802BA88C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.r[24] = r24; c.r[25] = r25; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ca = ca; fn_802D05AC(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r13 = c.r[13]; r24 = c.r[24]; r25 = c.r[25]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ca = c.ca; }
+            { c.lr = 0x802BA88C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.cr[0] = cr0; c.ca = ca; fn_802D05AC(c); runtime::prof(0x802BA764); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r13 = c.r[13]; cr0 = c.cr[0]; ca = c.ca; }
             r3 = r27 | r27;
             r4 = r25 | r25;
-            { c.lr = 0x802BA898; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.r[24] = r24; c.r[25] = r25; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ca = ca; fn_802D059C(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r13 = c.r[13]; r24 = c.r[24]; r25 = c.r[25]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ca = c.ca; }
+            { c.lr = 0x802BA898; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.cr[0] = cr0; c.ca = ca; fn_802D059C(c); runtime::prof(0x802BA764); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r13 = c.r[13]; cr0 = c.cr[0]; ca = c.ca; }
             r3 = r27 | r27;
             r4 = r24 | r24;
             r5 = 0x0u32;
-            { c.lr = 0x802BA8A8; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.r[24] = r24; c.r[25] = r25; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ca = ca; fn_802D0674(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r13 = c.r[13]; r24 = c.r[24]; r25 = c.r[25]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ca = c.ca; }
+            { c.lr = 0x802BA8A8; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.cr[0] = cr0; c.ca = ca; fn_802D0674(c); runtime::prof(0x802BA764); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r13 = c.r[13]; cr0 = c.cr[0]; ca = c.ca; }
             cr0 = runtime::cmpu_val(r31, 0x0);
             if cr0 & 2 == 0 { { pc = 0x802BAA80; continue; } }
             { let ea = r1.wrapping_add(0x3C); r27 = runtime::mr32(mem, ea); }
@@ -17728,7 +18000,7 @@ pub fn fn_802BA764(c: &mut Ctx) {
             r6 = 0x1E8u32;
             r5 = r3.wrapping_add(0xFFFFF020);
             r3 = 0x0u32;
-            { c.lr = 0x802BA8DC; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.r[24] = r24; c.r[25] = r25; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ca = ca; fn_802D1724(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r13 = c.r[13]; r24 = c.r[24]; r25 = c.r[25]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ca = c.ca; }
+            { c.lr = 0x802BA8DC; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.cr[0] = cr0; c.ca = ca; fn_802D1724(c); runtime::prof(0x802BA764); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r13 = c.r[13]; cr0 = c.cr[0]; ca = c.ca; }
             pc = 0x802BA8DC;
         }
         0x802BA8DC => {
@@ -17739,7 +18011,7 @@ pub fn fn_802BA764(c: &mut Ctx) {
             r6 = 0x1ECu32;
             r5 = r3.wrapping_add(0xFFFFF020);
             r3 = 0x0u32;
-            { c.lr = 0x802BA8FC; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.r[24] = r24; c.r[25] = r25; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ca = ca; fn_802D1724(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r13 = c.r[13]; r24 = c.r[24]; r25 = c.r[25]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ca = c.ca; }
+            { c.lr = 0x802BA8FC; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.cr[0] = cr0; c.ca = ca; fn_802D1724(c); runtime::prof(0x802BA764); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r13 = c.r[13]; cr0 = c.cr[0]; ca = c.ca; }
             pc = 0x802BA8FC;
         }
         0x802BA8FC => {
@@ -17750,7 +18022,7 @@ pub fn fn_802BA764(c: &mut Ctx) {
             r6 = 0x1F0u32;
             r5 = r3.wrapping_add(0xFFFFF020);
             r3 = 0x0u32;
-            { c.lr = 0x802BA91C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.r[24] = r24; c.r[25] = r25; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ca = ca; fn_802D1724(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r13 = c.r[13]; r24 = c.r[24]; r25 = c.r[25]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ca = c.ca; }
+            { c.lr = 0x802BA91C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.cr[0] = cr0; c.ca = ca; fn_802D1724(c); runtime::prof(0x802BA764); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r13 = c.r[13]; cr0 = c.cr[0]; ca = c.ca; }
             pc = 0x802BA91C;
         }
         0x802BA91C => {
@@ -17761,7 +18033,7 @@ pub fn fn_802BA764(c: &mut Ctx) {
             r6 = 0x1F4u32;
             r5 = r3.wrapping_add(0xFFFFF020);
             r3 = 0x0u32;
-            { c.lr = 0x802BA93C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.r[24] = r24; c.r[25] = r25; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ca = ca; fn_802D1724(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r13 = c.r[13]; r24 = c.r[24]; r25 = c.r[25]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ca = c.ca; }
+            { c.lr = 0x802BA93C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.cr[0] = cr0; c.ca = ca; fn_802D1724(c); runtime::prof(0x802BA764); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r13 = c.r[13]; cr0 = c.cr[0]; ca = c.ca; }
             pc = 0x802BA93C;
         }
         0x802BA93C => {
@@ -17772,7 +18044,7 @@ pub fn fn_802BA764(c: &mut Ctx) {
             r6 = 0x1FEu32;
             r5 = r3.wrapping_add(0xFFFFF020);
             r3 = 0x0u32;
-            { c.lr = 0x802BA95C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.r[24] = r24; c.r[25] = r25; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ca = ca; fn_802D1724(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r13 = c.r[13]; r24 = c.r[24]; r25 = c.r[25]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ca = c.ca; }
+            { c.lr = 0x802BA95C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.cr[0] = cr0; c.ca = ca; fn_802D1724(c); runtime::prof(0x802BA764); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r13 = c.r[13]; cr0 = c.cr[0]; ca = c.ca; }
             pc = 0x802BA95C;
         }
         0x802BA95C => {
@@ -17783,7 +18055,7 @@ pub fn fn_802BA764(c: &mut Ctx) {
             r5 = r3.wrapping_add(0xFFFFF020);
             r6 = 0x203u32;
             r3 = 0x0u32;
-            { c.lr = 0x802BA97C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.r[24] = r24; c.r[25] = r25; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ca = ca; fn_802D1724(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r13 = c.r[13]; r24 = c.r[24]; r25 = c.r[25]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ca = c.ca; }
+            { c.lr = 0x802BA97C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.cr[0] = cr0; c.ca = ca; fn_802D1724(c); runtime::prof(0x802BA764); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r13 = c.r[13]; cr0 = c.cr[0]; ca = c.ca; }
             pc = 0x802BA97C;
         }
         0x802BA97C => {
@@ -17798,7 +18070,7 @@ pub fn fn_802BA764(c: &mut Ctx) {
             { let ea = r30.wrapping_add(0x3A); r8 = runtime::mr16(mem, ea) as i16 as u32; }
             { let ea = r30.wrapping_add(0x3C); r9 = runtime::mr16(mem, ea) as u32; }
             { let ea = r30.wrapping_add(0x3E); r10 = runtime::mr16(mem, ea) as u32; }
-            { c.lr = 0x802BA9A4; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.r[24] = r24; c.r[25] = r25; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ca = ca; fn_802C41C8(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r13 = c.r[13]; r24 = c.r[24]; r25 = c.r[25]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ca = c.ca; }
+            { c.lr = 0x802BA9A4; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.cr[0] = cr0; c.ca = ca; fn_802C41C8(c); runtime::prof(0x802BA764); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r13 = c.r[13]; cr0 = c.cr[0]; ca = c.ca; }
             r31 = r3 | r3; cr0 = runtime::cmps_val(r31 as i32, 0);
             if cr0 & 2 == 0 { { pc = 0x802BAA80; continue; } }
             { let ea = r1.wrapping_add(0x3C); r27 = runtime::mr32(mem, ea); }
@@ -17811,7 +18083,7 @@ pub fn fn_802BA764(c: &mut Ctx) {
             r6 = 0x1E8u32;
             r5 = r3.wrapping_add(0xFFFFF020);
             r3 = 0x0u32;
-            { c.lr = 0x802BA9D8; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.r[24] = r24; c.r[25] = r25; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ca = ca; fn_802D1724(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r13 = c.r[13]; r24 = c.r[24]; r25 = c.r[25]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ca = c.ca; }
+            { c.lr = 0x802BA9D8; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.cr[0] = cr0; c.ca = ca; fn_802D1724(c); runtime::prof(0x802BA764); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r13 = c.r[13]; cr0 = c.cr[0]; ca = c.ca; }
             pc = 0x802BA9D8;
         }
         0x802BA9D8 => {
@@ -17822,7 +18094,7 @@ pub fn fn_802BA764(c: &mut Ctx) {
             r6 = 0x1ECu32;
             r5 = r3.wrapping_add(0xFFFFF020);
             r3 = 0x0u32;
-            { c.lr = 0x802BA9F8; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.r[24] = r24; c.r[25] = r25; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ca = ca; fn_802D1724(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r13 = c.r[13]; r24 = c.r[24]; r25 = c.r[25]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ca = c.ca; }
+            { c.lr = 0x802BA9F8; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.cr[0] = cr0; c.ca = ca; fn_802D1724(c); runtime::prof(0x802BA764); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r13 = c.r[13]; cr0 = c.cr[0]; ca = c.ca; }
             pc = 0x802BA9F8;
         }
         0x802BA9F8 => {
@@ -17833,7 +18105,7 @@ pub fn fn_802BA764(c: &mut Ctx) {
             r6 = 0x1F0u32;
             r5 = r3.wrapping_add(0xFFFFF020);
             r3 = 0x0u32;
-            { c.lr = 0x802BAA18; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.r[24] = r24; c.r[25] = r25; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ca = ca; fn_802D1724(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r13 = c.r[13]; r24 = c.r[24]; r25 = c.r[25]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ca = c.ca; }
+            { c.lr = 0x802BAA18; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.cr[0] = cr0; c.ca = ca; fn_802D1724(c); runtime::prof(0x802BA764); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r13 = c.r[13]; cr0 = c.cr[0]; ca = c.ca; }
             pc = 0x802BAA18;
         }
         0x802BAA18 => {
@@ -17844,7 +18116,7 @@ pub fn fn_802BA764(c: &mut Ctx) {
             r6 = 0x1F4u32;
             r5 = r3.wrapping_add(0xFFFFF020);
             r3 = 0x0u32;
-            { c.lr = 0x802BAA38; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.r[24] = r24; c.r[25] = r25; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ca = ca; fn_802D1724(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r13 = c.r[13]; r24 = c.r[24]; r25 = c.r[25]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ca = c.ca; }
+            { c.lr = 0x802BAA38; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.cr[0] = cr0; c.ca = ca; fn_802D1724(c); runtime::prof(0x802BA764); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r13 = c.r[13]; cr0 = c.cr[0]; ca = c.ca; }
             pc = 0x802BAA38;
         }
         0x802BAA38 => {
@@ -17855,7 +18127,7 @@ pub fn fn_802BA764(c: &mut Ctx) {
             r6 = 0x1FEu32;
             r5 = r3.wrapping_add(0xFFFFF020);
             r3 = 0x0u32;
-            { c.lr = 0x802BAA58; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.r[24] = r24; c.r[25] = r25; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ca = ca; fn_802D1724(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r13 = c.r[13]; r24 = c.r[24]; r25 = c.r[25]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ca = c.ca; }
+            { c.lr = 0x802BAA58; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.cr[0] = cr0; c.ca = ca; fn_802D1724(c); runtime::prof(0x802BA764); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r13 = c.r[13]; cr0 = c.cr[0]; ca = c.ca; }
             pc = 0x802BAA58;
         }
         0x802BAA58 => {
@@ -17866,7 +18138,7 @@ pub fn fn_802BA764(c: &mut Ctx) {
             r5 = r3.wrapping_add(0xFFFFF020);
             r6 = 0x203u32;
             r3 = 0x0u32;
-            { c.lr = 0x802BAA78; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.r[24] = r24; c.r[25] = r25; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ca = ca; fn_802D1724(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r13 = c.r[13]; r24 = c.r[24]; r25 = c.r[25]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ca = c.ca; }
+            { c.lr = 0x802BAA78; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.cr[0] = cr0; c.ca = ca; fn_802D1724(c); runtime::prof(0x802BA764); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r13 = c.r[13]; cr0 = c.cr[0]; ca = c.ca; }
             pc = 0x802BAA78;
         }
         0x802BAA78 => {
@@ -17877,13 +18149,13 @@ pub fn fn_802BA764(c: &mut Ctx) {
             r3 = r31 | r31;
             r4 = r30.wrapping_add(0x2);
             r5 = 0x1Fu32;
-            { c.lr = 0x802BAA90; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.r[24] = r24; c.r[25] = r25; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ca = ca; fn_802D36E0(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r13 = c.r[13]; r24 = c.r[24]; r25 = c.r[25]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ca = c.ca; }
+            { c.lr = 0x802BAA90; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.cr[0] = cr0; c.ca = ca; fn_802D36E0(c); runtime::prof(0x802BA764); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r13 = c.r[13]; cr0 = c.cr[0]; ca = c.ca; }
             r0 = 0x0u32;
             r3 = r31 | r31;
             { let ea = r31.wrapping_add(0x1F); runtime::mw8(mem, ea, r0 as u8); }
             { let ea = r30.wrapping_add(0x28); r4 = runtime::mr32(mem, ea); }
             { let ea = r30.wrapping_add(0x2C); r5 = runtime::mr32(mem, ea); }
-            { c.lr = 0x802BAAA8; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.r[24] = r24; c.r[25] = r25; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ca = ca; fn_802C2544(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r13 = c.r[13]; r24 = c.r[24]; r25 = c.r[25]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ca = c.ca; }
+            { c.lr = 0x802BAAA8; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.cr[0] = cr0; c.ca = ca; fn_802C2544(c); runtime::prof(0x802BA764); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r13 = c.r[13]; cr0 = c.cr[0]; ca = c.ca; }
             { let ea = r1.wrapping_add(0x3C); r3 = runtime::mr32(mem, ea); }
             { let ea = r3.wrapping_add(0x20); r4 = runtime::mr32(mem, ea); }
             { let ea = r4.wrapping_add(0x30); r0 = runtime::mr32(mem, ea); }
@@ -17897,7 +18169,7 @@ pub fn fn_802BA764(c: &mut Ctx) {
             r4 = r4.wrapping_add(0x50);
             { let ea = r31.wrapping_add(0x7C); r3 = runtime::mr32(mem, ea); }
             r5 = (r0 as i32).wrapping_mul(46) as u32;
-            { c.lr = 0x802BAAE0; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.r[24] = r24; c.r[25] = r25; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ca = ca; fn_800031E8(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r13 = c.r[13]; r24 = c.r[24]; r25 = c.r[25]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ca = c.ca; }
+            { c.lr = 0x802BAAE0; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.cr[0] = cr0; c.ca = ca; fn_800031E8(c); runtime::prof(0x802BA764); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r13 = c.r[13]; cr0 = c.cr[0]; ca = c.ca; }
             { pc = 0x802BAAF8; continue; }
         }
         0x802BAAE4 => {
@@ -17905,7 +18177,7 @@ pub fn fn_802BA764(c: &mut Ctx) {
             r4 = r4.wrapping_add(0x40);
             { let ea = r31.wrapping_add(0x7C); r3 = runtime::mr32(mem, ea); }
             r5 = (r0 as i32).wrapping_mul(46) as u32;
-            { c.lr = 0x802BAAF8; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.r[24] = r24; c.r[25] = r25; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ca = ca; fn_800031E8(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r13 = c.r[13]; r24 = c.r[24]; r25 = c.r[25]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ca = c.ca; }
+            { c.lr = 0x802BAAF8; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.cr[0] = cr0; c.ca = ca; fn_800031E8(c); runtime::prof(0x802BA764); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r13 = c.r[13]; cr0 = c.cr[0]; ca = c.ca; }
             pc = 0x802BAAF8;
         }
         0x802BAAF8 => {
@@ -17919,7 +18191,7 @@ pub fn fn_802BA764(c: &mut Ctx) {
             r6 = 0x29Eu32;
             r3 = 0x0u32;
             r4 = r4.wrapping_add(0xFFFF8000);
-            { c.lr = 0x802BAB24; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.r[24] = r24; c.r[25] = r25; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ca = ca; fn_802D19BC(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r13 = c.r[13]; r24 = c.r[24]; r25 = c.r[25]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ca = c.ca; }
+            { c.lr = 0x802BAB24; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.cr[0] = cr0; c.ca = ca; fn_802D19BC(c); runtime::prof(0x802BA764); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r13 = c.r[13]; cr0 = c.cr[0]; ca = c.ca; }
             r30 = r3 | r3; cr0 = runtime::cmps_val(r30 as i32, 0);
             if cr0 & 2 == 0 { { pc = 0x802BAB34; continue; } }
             r3 = 0x0u32;
@@ -17964,7 +18236,7 @@ pub fn fn_802BA764(c: &mut Ctx) {
             r6 = r27 | r27;
             (r5, ca) = runtime::sraw_val(r26, 1);
             r4 = 0x2u32;
-            { c.lr = 0x802BABB0; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.r[24] = r24; c.r[25] = r25; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ca = ca; fn_802D0AD0(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r13 = c.r[13]; r24 = c.r[24]; r25 = c.r[25]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ca = c.ca; }
+            { c.lr = 0x802BABB0; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.cr[0] = cr0; c.ca = ca; fn_802D0AD0(c); runtime::prof(0x802BA764); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r13 = c.r[13]; cr0 = c.cr[0]; ca = c.ca; }
             { pc = 0x802BABC8; continue; }
         }
         0x802BABB4 => {
@@ -17972,7 +18244,7 @@ pub fn fn_802BA764(c: &mut Ctx) {
             r5 = r26 | r26;
             r6 = r27 | r27;
             r4 = 0x1u32;
-            { c.lr = 0x802BABC8; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.r[24] = r24; c.r[25] = r25; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ca = ca; fn_802D0AD0(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r13 = c.r[13]; r24 = c.r[24]; r25 = c.r[25]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ca = c.ca; }
+            { c.lr = 0x802BABC8; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.cr[0] = cr0; c.ca = ca; fn_802D0AD0(c); runtime::prof(0x802BA764); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r13 = c.r[13]; cr0 = c.cr[0]; ca = c.ca; }
             pc = 0x802BABC8;
         }
         0x802BABC8 => {
@@ -17983,7 +18255,7 @@ pub fn fn_802BA764(c: &mut Ctx) {
             { let ea = r6.wrapping_add(0x20); r7 = runtime::mr32(mem, ea); }
             r6 = r26 | r26;
             { let ea = r7.wrapping_add(0x30); r7 = runtime::mr32(mem, ea); }
-            { c.lr = 0x802BABE8; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.r[24] = r24; c.r[25] = r25; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ca = ca; fn_802C2A98(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r13 = c.r[13]; r24 = c.r[24]; r25 = c.r[25]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ca = c.ca; }
+            { c.lr = 0x802BABE8; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.cr[0] = cr0; c.ca = ca; fn_802C2A98(c); runtime::prof(0x802BA764); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r13 = c.r[13]; cr0 = c.cr[0]; ca = c.ca; }
             r24 = r24.wrapping_sub(r26);
             r25 = r25.wrapping_add(r26);
             pc = 0x802BABF0;
@@ -18006,7 +18278,7 @@ pub fn fn_802BA764(c: &mut Ctx) {
             r0 = 0xEu32;
             r3 = r31 | r31;
             { let ea = r13.wrapping_add(0xFFFF9C10); runtime::mw32(mem, ea, r0); }
-            { c.lr = 0x802BAC2C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.r[24] = r24; c.r[25] = r25; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ca = ca; fn_802C3F20(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r13 = c.r[13]; r24 = c.r[24]; r25 = c.r[25]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ca = c.ca; }
+            { c.lr = 0x802BAC2C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.cr[0] = cr0; c.ca = ca; fn_802C3F20(c); runtime::prof(0x802BA764); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r13 = c.r[13]; cr0 = c.cr[0]; ca = c.ca; }
             r3 = 0x0u32;
             { pc = 0x802BAE4C; continue; }
         }
@@ -18044,7 +18316,7 @@ pub fn fn_802BA764(c: &mut Ctx) {
             { let ea = r31.wrapping_add(0x4C); r7 = runtime::mr32(mem, ea); }
             r9 = 0xFFu32;
             { let ea = r31.wrapping_add(0x50); r8 = runtime::mr32(mem, ea); }
-            { c.lr = 0x802BACA8; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.r[24] = r24; c.r[25] = r25; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ca = ca; fn_802C40F8(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r13 = c.r[13]; r24 = c.r[24]; r25 = c.r[25]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ca = c.ca; }
+            { c.lr = 0x802BACA8; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.cr[0] = cr0; c.ca = ca; fn_802C40F8(c); runtime::prof(0x802BA764); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r13 = c.r[13]; cr0 = c.cr[0]; ca = c.ca; }
             { let ea = r1.wrapping_add(0x14); r5 = runtime::mr32(mem, ea); }
             r24 = r3 | r3;
             r3 = r31 | r31;
@@ -18053,7 +18325,7 @@ pub fn fn_802BA764(c: &mut Ctx) {
             r8 = r1.wrapping_add(0x14);
             r9 = r1.wrapping_add(0x10);
             r4 = 0x0u32;
-            { c.lr = 0x802BACCC; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.r[24] = r24; c.r[25] = r25; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ca = ca; fn_802C299C(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r13 = c.r[13]; r24 = c.r[24]; r25 = c.r[25]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ca = c.ca; }
+            { c.lr = 0x802BACCC; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.cr[0] = cr0; c.ca = ca; fn_802C299C(c); runtime::prof(0x802BA764); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r13 = c.r[13]; cr0 = c.cr[0]; ca = c.ca; }
             { let ea = r1.wrapping_add(0xC); r5 = runtime::mr32(mem, ea); }
             r3 = r24 | r24;
             r6 = r1.wrapping_add(0x1C);
@@ -18061,7 +18333,7 @@ pub fn fn_802BA764(c: &mut Ctx) {
             r8 = r1.wrapping_add(0xC);
             r9 = r1.wrapping_add(0x8);
             r4 = 0x0u32;
-            { c.lr = 0x802BACEC; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.r[24] = r24; c.r[25] = r25; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ca = ca; fn_802C299C(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r13 = c.r[13]; r24 = c.r[24]; r25 = c.r[25]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ca = c.ca; }
+            { c.lr = 0x802BACEC; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.cr[0] = cr0; c.ca = ca; fn_802C299C(c); runtime::prof(0x802BA764); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r13 = c.r[13]; cr0 = c.cr[0]; ca = c.ca; }
             { let ea = r1.wrapping_add(0x1C); r3 = runtime::mr32(mem, ea); }
             cr0 = runtime::cmpu_val(r3, 0x0);
             if cr0 & 2 != 0 { { pc = 0x802BAD10; continue; } }
@@ -18070,7 +18342,7 @@ pub fn fn_802BA764(c: &mut Ctx) {
             if cr0 & 2 != 0 { { pc = 0x802BAD10; continue; } }
             { let ea = r31.wrapping_add(0x2C); r5 = runtime::mr32(mem, ea); }
             r6 = r28 | r28;
-            { c.lr = 0x802BAD10; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.r[24] = r24; c.r[25] = r25; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ca = ca; fn_802C8DB8(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r13 = c.r[13]; r24 = c.r[24]; r25 = c.r[25]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ca = c.ca; }
+            { c.lr = 0x802BAD10; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.cr[0] = cr0; c.ca = ca; fn_802C8DB8(c); runtime::prof(0x802BA764); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r13 = c.r[13]; cr0 = c.cr[0]; ca = c.ca; }
             pc = 0x802BAD10;
         }
         0x802BAD10 => {
@@ -18079,21 +18351,21 @@ pub fn fn_802BA764(c: &mut Ctx) {
             { let ea = r1.wrapping_add(0x20); r5 = runtime::mr32(mem, ea); }
             { let ea = r1.wrapping_add(0x14); r6 = runtime::mr32(mem, ea); }
             { let ea = r1.wrapping_add(0x10); r7 = runtime::mr32(mem, ea); }
-            { c.lr = 0x802BAD28; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.r[24] = r24; c.r[25] = r25; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ca = ca; fn_802C2910(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r13 = c.r[13]; r24 = c.r[24]; r25 = c.r[25]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ca = c.ca; }
+            { c.lr = 0x802BAD28; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.cr[0] = cr0; c.ca = ca; fn_802C2910(c); runtime::prof(0x802BA764); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r13 = c.r[13]; cr0 = c.cr[0]; ca = c.ca; }
             { let ea = r1.wrapping_add(0x1C); r4 = runtime::mr32(mem, ea); }
             r3 = r24 | r24;
             { let ea = r1.wrapping_add(0x18); r5 = runtime::mr32(mem, ea); }
             { let ea = r1.wrapping_add(0xC); r6 = runtime::mr32(mem, ea); }
             { let ea = r1.wrapping_add(0x8); r7 = runtime::mr32(mem, ea); }
-            { c.lr = 0x802BAD40; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.r[24] = r24; c.r[25] = r25; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ca = ca; fn_802C2910(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r13 = c.r[13]; r24 = c.r[24]; r25 = c.r[25]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ca = c.ca; }
+            { c.lr = 0x802BAD40; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.cr[0] = cr0; c.ca = ca; fn_802C2910(c); runtime::prof(0x802BA764); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r13 = c.r[13]; cr0 = c.cr[0]; ca = c.ca; }
             r3 = r24 | r24;
             r4 = r31 | r31;
             r5 = 0x1Fu32;
-            { c.lr = 0x802BAD50; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.r[24] = r24; c.r[25] = r25; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ca = ca; fn_802D36E0(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r13 = c.r[13]; r24 = c.r[24]; r25 = c.r[25]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ca = c.ca; }
+            { c.lr = 0x802BAD50; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.cr[0] = cr0; c.ca = ca; fn_802D36E0(c); runtime::prof(0x802BA764); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r13 = c.r[13]; cr0 = c.cr[0]; ca = c.ca; }
             r0 = 0x0u32;
             r3 = r31 | r31;
             { let ea = r24.wrapping_add(0x1F); runtime::mw8(mem, ea, r0 as u8); }
-            { c.lr = 0x802BAD60; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.r[24] = r24; c.r[25] = r25; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ca = ca; fn_802C3F20(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r13 = c.r[13]; r24 = c.r[24]; r25 = c.r[25]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ca = c.ca; }
+            { c.lr = 0x802BAD60; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.cr[0] = cr0; c.ca = ca; fn_802C3F20(c); runtime::prof(0x802BA764); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r13 = c.r[13]; cr0 = c.cr[0]; ca = c.ca; }
             r31 = r24 | r24;
             pc = 0x802BAD64;
         }
@@ -18103,7 +18375,7 @@ pub fn fn_802BA764(c: &mut Ctx) {
             r5 = r3.wrapping_add(0xFFFFF020);
             r6 = 0x308u32;
             r3 = 0x0u32;
-            { c.lr = 0x802BAD7C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.r[24] = r24; c.r[25] = r25; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ca = ca; fn_802D1724(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r13 = c.r[13]; r24 = c.r[24]; r25 = c.r[25]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ca = c.ca; }
+            { c.lr = 0x802BAD7C; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.cr[0] = cr0; c.ca = ca; fn_802D1724(c); runtime::prof(0x802BA764); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r13 = c.r[13]; cr0 = c.cr[0]; ca = c.ca; }
             pc = 0x802BAD7C;
         }
         0x802BAD7C => {
@@ -18117,7 +18389,7 @@ pub fn fn_802BA764(c: &mut Ctx) {
             r6 = 0x1E8u32;
             r5 = r3.wrapping_add(0xFFFFF020);
             r3 = 0x0u32;
-            { c.lr = 0x802BADA8; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.r[24] = r24; c.r[25] = r25; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ca = ca; fn_802D1724(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r13 = c.r[13]; r24 = c.r[24]; r25 = c.r[25]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ca = c.ca; }
+            { c.lr = 0x802BADA8; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.cr[0] = cr0; c.ca = ca; fn_802D1724(c); runtime::prof(0x802BA764); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r13 = c.r[13]; cr0 = c.cr[0]; ca = c.ca; }
             pc = 0x802BADA8;
         }
         0x802BADA8 => {
@@ -18128,7 +18400,7 @@ pub fn fn_802BA764(c: &mut Ctx) {
             r6 = 0x1ECu32;
             r5 = r3.wrapping_add(0xFFFFF020);
             r3 = 0x0u32;
-            { c.lr = 0x802BADC8; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.r[24] = r24; c.r[25] = r25; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ca = ca; fn_802D1724(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r13 = c.r[13]; r24 = c.r[24]; r25 = c.r[25]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ca = c.ca; }
+            { c.lr = 0x802BADC8; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.cr[0] = cr0; c.ca = ca; fn_802D1724(c); runtime::prof(0x802BA764); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r13 = c.r[13]; cr0 = c.cr[0]; ca = c.ca; }
             pc = 0x802BADC8;
         }
         0x802BADC8 => {
@@ -18139,7 +18411,7 @@ pub fn fn_802BA764(c: &mut Ctx) {
             r6 = 0x1F0u32;
             r5 = r3.wrapping_add(0xFFFFF020);
             r3 = 0x0u32;
-            { c.lr = 0x802BADE8; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.r[24] = r24; c.r[25] = r25; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ca = ca; fn_802D1724(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r13 = c.r[13]; r24 = c.r[24]; r25 = c.r[25]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ca = c.ca; }
+            { c.lr = 0x802BADE8; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.cr[0] = cr0; c.ca = ca; fn_802D1724(c); runtime::prof(0x802BA764); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r13 = c.r[13]; cr0 = c.cr[0]; ca = c.ca; }
             pc = 0x802BADE8;
         }
         0x802BADE8 => {
@@ -18150,7 +18422,7 @@ pub fn fn_802BA764(c: &mut Ctx) {
             r6 = 0x1F4u32;
             r5 = r3.wrapping_add(0xFFFFF020);
             r3 = 0x0u32;
-            { c.lr = 0x802BAE08; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.r[24] = r24; c.r[25] = r25; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ca = ca; fn_802D1724(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r13 = c.r[13]; r24 = c.r[24]; r25 = c.r[25]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ca = c.ca; }
+            { c.lr = 0x802BAE08; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.cr[0] = cr0; c.ca = ca; fn_802D1724(c); runtime::prof(0x802BA764); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r13 = c.r[13]; cr0 = c.cr[0]; ca = c.ca; }
             pc = 0x802BAE08;
         }
         0x802BAE08 => {
@@ -18161,7 +18433,7 @@ pub fn fn_802BA764(c: &mut Ctx) {
             r6 = 0x1FEu32;
             r5 = r3.wrapping_add(0xFFFFF020);
             r3 = 0x0u32;
-            { c.lr = 0x802BAE28; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.r[24] = r24; c.r[25] = r25; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ca = ca; fn_802D1724(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r13 = c.r[13]; r24 = c.r[24]; r25 = c.r[25]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ca = c.ca; }
+            { c.lr = 0x802BAE28; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.cr[0] = cr0; c.ca = ca; fn_802D1724(c); runtime::prof(0x802BA764); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r13 = c.r[13]; cr0 = c.cr[0]; ca = c.ca; }
             pc = 0x802BAE28;
         }
         0x802BAE28 => {
@@ -18172,7 +18444,7 @@ pub fn fn_802BA764(c: &mut Ctx) {
             r5 = r3.wrapping_add(0xFFFFF020);
             r6 = 0x203u32;
             r3 = 0x0u32;
-            { c.lr = 0x802BAE48; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.r[24] = r24; c.r[25] = r25; c.r[26] = r26; c.r[27] = r27; c.r[28] = r28; c.r[29] = r29; c.r[30] = r30; c.r[31] = r31; c.cr[0] = cr0; c.ca = ca; fn_802D1724(c); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r13 = c.r[13]; r24 = c.r[24]; r25 = c.r[25]; r26 = c.r[26]; r27 = c.r[27]; r28 = c.r[28]; r29 = c.r[29]; r30 = c.r[30]; r31 = c.r[31]; cr0 = c.cr[0]; ca = c.ca; }
+            { c.lr = 0x802BAE48; c.r[0] = r0; c.r[1] = r1; c.r[3] = r3; c.r[4] = r4; c.r[5] = r5; c.r[6] = r6; c.r[7] = r7; c.r[8] = r8; c.r[9] = r9; c.r[10] = r10; c.cr[0] = cr0; c.ca = ca; fn_802D1724(c); runtime::prof(0x802BA764); r0 = c.r[0]; r1 = c.r[1]; r3 = c.r[3]; r4 = c.r[4]; r5 = c.r[5]; r6 = c.r[6]; r7 = c.r[7]; r8 = c.r[8]; r9 = c.r[9]; r10 = c.r[10]; r13 = c.r[13]; cr0 = c.cr[0]; ca = c.ca; }
             pc = 0x802BAE48;
         }
         0x802BAE48 => {

@@ -6,6 +6,10 @@ edition = "2021"
 [lib]
 crate-type = ["staticlib"]
 
+[features]
+# Prints a [prof] line of the hottest guest functions with each perf summary (costs a little speed).
+profile = ["runtime/profile"]
+
 [dependencies]
 runtime = { path = "../runtime", default-features = false, features = ["switch"] }
 game = { path = "../game", default-features = false, features = ["switch"] }

@@ -28,6 +28,8 @@ mod texture;
 
 extern "C" {
     fn malloc(size: usize) -> *mut u8;
+    fn memalign(align: usize, size: usize) -> *mut u8;
+    fn switch_file_exists(path: *const u8) -> i32;
     fn free(ptr: *mut u8);
     fn switch_log(msg: *const u8);
     fn switch_read_file(path: *const u8, offset: u32, len: u32, out: *mut u8) -> i32;
@@ -55,6 +57,7 @@ extern "C" {
         stack_size: u32,
     ) -> i32;
     fn switch_start_gx_worker(entry: extern "C" fn(*mut c_void), arg: *mut c_void) -> i32;
+    fn switch_start_prof_sampler(tick: extern "C" fn(), period_ns: u64) -> i32;
     fn switch_stop_gx_worker();
     fn switch_gx_lock();
     fn switch_gx_unlock();
@@ -90,7 +93,12 @@ struct SwitchAlloc;
 unsafe impl GlobalAlloc for SwitchAlloc {
     unsafe fn alloc(&self, layout: Layout) -> *mut u8 {
         ALLOC_BYTES.fetch_add(layout.size(), Ordering::Relaxed);
-        malloc(layout.size())
+        // newlib's malloc only guarantees 16-byte alignment.
+        if layout.align() > 16 {
+            memalign(layout.align(), layout.size())
+        } else {
+            malloc(layout.size())
+        }
     }
     unsafe fn dealloc(&self, ptr: *mut u8, layout: Layout) {
         ALLOC_BYTES.fetch_sub(layout.size(), Ordering::Relaxed);
@@ -158,6 +166,104 @@ impl SavedRegs {
 // Global Switch platform state
 static IS_DOCKED: AtomicBool = AtomicBool::new(true);
 static EXIT_REQUESTED: AtomicBool = AtomicBool::new(false);
+
+/// Core 0 (GX worker) phase profiler: the worker records what it is doing, the Core 2 sampler
+/// counts it. Phase 0 = idle (waiting for work); see `GX_PHASE_NAMES`.
+/// Vertices sent down the CPU transform path, by reason: ortho, pos/nrm matrix index,
+/// tex matrix index, tex coords 4-7, texgen from coords 4-7.
+pub(crate) static CPUV_WHY: [AtomicU32; 5] = [const { AtomicU32::new(0) }; 5];
+/// Clock for the per-command timing breakdowns in `[gx-core0]`. Thousands of calls per frame,
+/// so it only reads the clock in profile builds; release builds report those parts as 0.
+#[inline(always)]
+pub(crate) fn prof_now() -> u64 {
+    if runtime::PROFILE_FN {
+        unsafe { switch_now_ns() }
+    } else {
+        0
+    }
+}
+
+/// Core 1 time spent waiting for Core 0, by what asked for the wait (`[sync]` perf line).
+static SYNC_NS: [AtomicU64; 6] = [const { AtomicU64::new(0) }; 6];
+static SYNC_N: [AtomicU32; 6] = [const { AtomicU32::new(0) }; 6];
+const SYNC_NAMES: [&str; 6] = ["retrace", "draw_done", "read_sync", "fifo_ptrs", "break_pt", "other"];
+#[inline(always)]
+fn timed_sync<R>(source: usize, c: &mut Ctx, f: impl FnOnce(&mut Ctx) -> R) -> R {
+    let t0 = unsafe { switch_now_ns() };
+    let r = f(c);
+    SYNC_NS[source].fetch_add(unsafe { switch_now_ns() }.saturating_sub(t0), Ordering::Relaxed);
+    SYNC_N[source].fetch_add(1, Ordering::Relaxed);
+    r
+}
+
+pub(crate) static GX_PHASE: AtomicU32 = AtomicU32::new(0);
+static GX_PHASE_COUNT: [AtomicU32; 16] = [const { AtomicU32::new(0) }; 16];
+const GX_PHASE_NAMES: [&str; 16] = [
+    "idle", "parse", "dl_call", "template", "dl_resolve", "vparams", "cpu_vertices", "imm_draw",
+    "bp", "blk_hash", "copy_tex", "present_enc", "texture", "dl_build", "end_frame", "worker_other",
+];
+
+/// Sets the GX worker's current phase for the profiler and restores the previous one on drop.
+pub(crate) struct GxPhase(u32);
+impl GxPhase {
+    #[inline(always)]
+    pub(crate) fn enter(phase: u32) -> Option<GxPhase> {
+        if runtime::PROFILE_FN {
+            Some(GxPhase(GX_PHASE.swap(phase, Ordering::Relaxed)))
+        } else {
+            None
+        }
+    }
+}
+impl Drop for GxPhase {
+    #[inline(always)]
+    fn drop(&mut self) {
+        GX_PHASE.store(self.0, Ordering::Relaxed);
+    }
+}
+
+/// Function-level profiler samples (see `runtime::PROFILE_FN`): open-addressed (addr, count).
+const PROF_SLOTS: usize = 8192;
+static PROF_ADDR: [AtomicU32; PROF_SLOTS] = [const { AtomicU32::new(0) }; PROF_SLOTS];
+static PROF_COUNT: [AtomicU32; PROF_SLOTS] = [const { AtomicU32::new(0) }; PROF_SLOTS];
+static PROF_TOTAL: AtomicU32 = AtomicU32::new(0);
+
+/// Runs on the sampler thread: charges one sample to the guest function executing right now.
+extern "C" fn prof_tick() {
+    GX_PHASE_COUNT[(GX_PHASE.load(Ordering::Relaxed) & 15) as usize].fetch_add(1, Ordering::Relaxed);
+    let a = runtime::CUR_FN.load(Ordering::Relaxed);
+    if a == 0 {
+        return;
+    }
+    PROF_TOTAL.fetch_add(1, Ordering::Relaxed);
+    let mut i = ((a >> 2).wrapping_mul(0x9E37_79B1) >> 19) as usize & (PROF_SLOTS - 1);
+    for _ in 0..64 {
+        let cur = PROF_ADDR[i].load(Ordering::Relaxed);
+        if cur == a || (cur == 0 && PROF_ADDR[i].compare_exchange(0, a, Ordering::Relaxed, Ordering::Relaxed).is_ok()) {
+            PROF_COUNT[i].fetch_add(1, Ordering::Relaxed);
+            return;
+        }
+        if PROF_ADDR[i].load(Ordering::Relaxed) == a {
+            PROF_COUNT[i].fetch_add(1, Ordering::Relaxed);
+            return;
+        }
+        i = (i + 1) & (PROF_SLOTS - 1);
+    }
+}
+
+/// Top functions by self time since the last call, as (addr, samples), plus the sample total.
+fn drain_prof() -> (u32, Vec<(u32, u32)>) {
+    let total = PROF_TOTAL.swap(0, Ordering::Relaxed);
+    let mut v = Vec::new();
+    for i in 0..PROF_SLOTS {
+        let n = PROF_COUNT[i].swap(0, Ordering::Relaxed);
+        if n != 0 {
+            v.push((PROF_ADDR[i].load(Ordering::Relaxed), n));
+        }
+    }
+    v.sort_unstable_by(|a, b| b.1.cmp(&a.1));
+    (total, v)
+}
 static PAD_BUTTONS: AtomicU32 = AtomicU32::new(0);
 static PAD_STICK_X: AtomicI32 = AtomicI32::new(0);
 static PAD_STICK_Y: AtomicI32 = AtomicI32::new(0);
@@ -1250,6 +1356,7 @@ mod gx_worker {
 
             let guest_mem = GUEST_MEM_PTR.load(Ordering::Relaxed) as *const u8;
             let t0 = unsafe { switch_now_ns() };
+            let _busy = crate::GxPhase::enter(15);
 
             while let Some(hm) = work_hud.pop_front() {
                 gx.hud_marks.push_back(hm);
@@ -1479,6 +1586,11 @@ mod gx_worker {
     }
 
     pub fn read_fifo_ptrs(c: &mut Ctx) -> (u32, u32) {
+        // Full sync on purpose: _rwDlRasterShowRaster calls this once per frame, at the end of
+        // the frame, and it is what keeps Core 1 from starting to rewrite the next frame's
+        // dynamic vertex buffers while Core 0 still reads this frame's. Answering from Core 1's
+        // own byte count without waiting (tried 2026-11-12) gained ~10% FPS but drew huge
+        // stray polygons on some frames.
         sync_full(c, Some(CtrlCmd::QueryFifoPtrs));
         unsafe {
             switch_gx_lock();
@@ -1681,6 +1793,16 @@ fn log_perf_summary(c: &Ctx, retrace: u32) {
         "  [cpu-core1] game={:.2}ms (pure_guest={:.2}ms wait_gx={:.2}ms pump={:.2}ms [retrace_gx={:.2}ms cb={:.2}ms aud={:.2}ms alm={:.2}ms sc={:.2}ms] wait={:.2}ms) | aud={:.2}ms slp={:.2}ms",
         cpu_game_ms, pure_guest_ms, wait_gx_ms, pump_ms, p_retrace_gx_ms, p_retrace_cb_ms, p_audio_ms, p_alarms_ms, p_sched_ms, wait_ms, aud_ms, slp_ms
     ));
+    {
+        let frames = df.max(1) as f64;
+        let mut line = String::from("  [sync]");
+        for k in 0..SYNC_NAMES.len() {
+            let ns = SYNC_NS[k].swap(0, Ordering::Relaxed);
+            let n = SYNC_N[k].swap(0, Ordering::Relaxed);
+            line += &format!(" {}={:.2}ms/{:.1}x", SYNC_NAMES[k], ns as f64 / 1e6 / frames, n as f64 / frames);
+        }
+        log_c(&line);
+    }
     let cl_raw_fail = STAT_CLIST_RAW_FAIL.swap(0, Ordering::Relaxed) / df.max(1) as u32;
     let cl_hud_fail = STAT_CLIST_HUD_FAIL.swap(0, Ordering::Relaxed) / df.max(1) as u32;
     let cl_res_fail = STAT_CLIST_RES_FAIL.swap(0, Ordering::Relaxed) / df.max(1) as u32;
@@ -1703,6 +1825,29 @@ fn log_perf_summary(c: &Ctx, retrace: u32) {
             msg += &format!("{}. {:.1}% ({}) {:#010x} {} | ", rank + 1, pct, count, lr, name);
         }
         log_c(&msg);
+    }
+
+    if runtime::PROFILE_FN {
+        let (total, top) = drain_prof();
+        if total > 0 {
+            let mut msg = format!("  [prof] {} samples | ", total);
+            for &(addr, n) in top.iter().take(15) {
+                msg += &format!("{:.1}% {} | ", n as f64 * 100.0 / total as f64, c.func_name(addr));
+            }
+            log_c(&msg);
+        }
+        let counts: [u32; 16] = core::array::from_fn(|i| GX_PHASE_COUNT[i].swap(0, Ordering::Relaxed));
+        let all: u32 = counts.iter().sum();
+        if all > 0 {
+            let w: [u32; 5] = core::array::from_fn(|i| CPUV_WHY[i].swap(0, Ordering::Relaxed));
+            let f = df.max(1) as u32;
+            log_c(&format!("  [cpuv] per frame: ortho={} pnmtxidx={} texmtxidx={} tex4_7={} texgen4_7={}", w[0] / f, w[1] / f, w[2] / f, w[3] / f, w[4] / f));
+            let mut msg = String::from("  [gxprof] ");
+            for (i, &n) in counts.iter().enumerate().filter(|(_, &n)| n > 0) {
+                msg += &format!("{} {:.1}% | ", GX_PHASE_NAMES[i], n as f64 * 100.0 / all as f64);
+            }
+            log_c(&msg);
+        }
     }
 
     // Print Top 6 Most Expensive / Frequent HLE Calls
@@ -1825,8 +1970,18 @@ fn deliver_events_slow(c: &mut Ctx) {
             // The vertical interrupt: let the GPU catch up before the retrace callbacks
             // advance RenderWare's shown-frame counter (matches desktop host.rs), so the
             // game never reuses dynamic vertex/light buffers that are still undecoded.
+            //
+            // Only a retrace that shows a frame moves that counter, so Core 1 waits for Core 0
+            // only when a finished frame is waiting to be shown (the same test as
+            // replace_get_xfbs). Retraces in the middle of building a frame (two or three per
+            // frame below 60 FPS) used to stall Core 1 behind Core 0's backlog for nothing.
             let t_retrace_gx = unsafe { switch_now_ns() };
-            gx_process(c);
+            let frame_pending = c.r32(0x804B_23AC) == 1 || c.r32(0x804B_23A0) != c.r32(0x804B_23A4);
+            if frame_pending {
+                timed_sync(0, c, gx_process);
+            } else {
+                gx_worker::push_fifo(c, 1);
+            }
             PERF_PUMP_RETRACE_GX_NS.fetch_add(
                 unsafe { switch_now_ns().saturating_sub(t_retrace_gx) },
                 Ordering::Relaxed,
@@ -2214,6 +2369,144 @@ fn guest_call(c: &mut Ctx, name: &str, args: &[u32]) {
     }
 }
 
+/// CPU skinning (`_rwDlSkinUpdate*`): the native NEON versions in arm64_native by default (they
+/// matched the original bit for bit over ~12k calls in BB02). `sdmc:/skinoriginal.flag` runs the
+/// recompiled original instead; with
+/// `sdmc:/skinverify.flag` every call runs both, keeps the original's output and logs how far the
+/// native output was from it (`[skinverify]` lines).
+mod skin_verify {
+    use super::*;
+
+    /// 0 = original, 1 = native, 2 = verify.
+    static MODE: AtomicU32 = AtomicU32::new(0);
+    static BUSY: AtomicBool = AtomicBool::new(false);
+    static CALLS: [AtomicU32; 6] = [const { AtomicU32::new(0) }; 6];
+    static BAD_CALLS: [AtomicU32; 6] = [const { AtomicU32::new(0) }; 6];
+    static MAX_ERR_E6: [AtomicU32; 6] = [const { AtomicU32::new(0) }; 6];
+    const NAMES: [&str; 6] = ["2P", "2PN", "3P", "3PN", "4P", "4PN"];
+    const GUEST: [&str; 6] = [
+        "_rwDlSkinUpdate2WeightsP",
+        "_rwDlSkinUpdate2WeightsPN",
+        "_rwDlSkinUpdate3WeightsP",
+        "_rwDlSkinUpdate3WeightsPN",
+        "_rwDlSkinUpdate4WeightsP",
+        "_rwDlSkinUpdate4WeightsPN",
+    ];
+    const NATIVE: [fn(&mut Ctx) -> bool; 6] = [
+        arm64_native::hle_skin_2w_p,
+        arm64_native::hle_skin_2w_pn,
+        arm64_native::hle_skin_3w_p,
+        arm64_native::hle_skin_3w_pn,
+        arm64_native::hle_skin_4w_p,
+        arm64_native::hle_skin_4w_pn,
+    ];
+
+    pub fn init() {
+        let mode = if unsafe { switch_file_exists(b"sdmc:/skinverify.flag\0".as_ptr()) } != 0 {
+            2
+        } else if unsafe { switch_file_exists(b"sdmc:/skinoriginal.flag\0".as_ptr()) } != 0 {
+            0
+        } else {
+            1
+        };
+        MODE.store(mode, Ordering::Relaxed);
+        log_c(&format!("[skinverify] skinning mode {}", ["original", "native", "verify"][mode as usize]));
+    }
+
+    pub fn policy(k: usize) -> Hle {
+        match MODE.load(Ordering::Relaxed) {
+            1 => Hle::Replace(NATIVE[k]),
+            2 => Hle::Replace([verify::<0>, verify::<1>, verify::<2>, verify::<3>, verify::<4>, verify::<5>][k]),
+            _ => Hle::Original,
+        }
+    }
+
+    fn verify<const K: usize>(c: &mut Ctx) -> bool {
+        if BUSY.load(Ordering::Relaxed) {
+            return false; // the original, called from below
+        }
+        let normals = K % 2 == 1;
+        let ctx = c.r[5];
+        let n = c.r32(ctx.wrapping_add(0x1C)) as i32;
+        if n <= 0 || n > 1 << 16 {
+            return false;
+        }
+        let n = n as u32;
+        let out_pos = c.r32(ctx);
+        let out_nrm = if normals { c.r32(ctx.wrapping_add(4)) } else { 0 };
+        let nrm_stride = c.r32(ctx.wrapping_add(0x14)).wrapping_mul(3).wrapping_add(c.r32(ctx.wrapping_add(0x18)));
+        let pos_len = (n * 12) as usize;
+        let nrm_len = if normals { (n * nrm_stride) as usize } else { 0 };
+        let pos_before = c.read_bytes(out_pos, pos_len);
+        let nrm_before = if normals { c.read_bytes(out_nrm, nrm_len) } else { Vec::new() };
+        let (r, f, ps1, cr, lr, ctr) = (c.r, c.f, c.ps1, c.cr, c.lr, c.ctr);
+
+        if !NATIVE[K](c) {
+            return false;
+        }
+        let pos_native = c.read_bytes(out_pos, pos_len);
+        let nrm_native = if normals { c.read_bytes(out_nrm, nrm_len) } else { Vec::new() };
+        c.slice_mut(out_pos, pos_len).copy_from_slice(&pos_before);
+        if normals {
+            c.slice_mut(out_nrm, nrm_len).copy_from_slice(&nrm_before);
+        }
+        (c.r, c.f, c.ps1, c.cr, c.lr, c.ctr) = (r, f, ps1, cr, lr, ctr);
+
+        let Some(original) = c.func_by_name(GUEST[K]) else {
+            return false;
+        };
+        BUSY.store(true, Ordering::Relaxed);
+        original(c);
+        BUSY.store(false, Ordering::Relaxed);
+
+        let pos_orig = c.read_bytes(out_pos, pos_len);
+        let mut err = rel_err(&pos_native, &pos_orig, 12, 12);
+        if normals {
+            let nrm_orig = c.read_bytes(out_nrm, nrm_len);
+            err = err.max(rel_err(&nrm_native, &nrm_orig, nrm_stride as usize, 12));
+        }
+        let calls = CALLS[K].fetch_add(1, Ordering::Relaxed) + 1;
+        if err > 1e-3 {
+            BAD_CALLS[K].fetch_add(1, Ordering::Relaxed);
+        }
+        MAX_ERR_E6[K].fetch_max((err * 1e6).min(4e9) as u32, Ordering::Relaxed);
+        if calls % 2000 == 0 {
+            let mut line = String::from("[skinverify]");
+            for k in 0..6 {
+                line += &format!(
+                    " {}: {} calls {} bad max_err={:.6} |",
+                    NAMES[k],
+                    CALLS[k].load(Ordering::Relaxed),
+                    BAD_CALLS[k].load(Ordering::Relaxed),
+                    MAX_ERR_E6[k].load(Ordering::Relaxed) as f64 / 1e6
+                );
+            }
+            log_c(&line);
+        }
+        true
+    }
+
+    /// Largest relative difference between the big-endian f32 triples of two vertex streams.
+    fn rel_err(a: &[u8], b: &[u8], stride: usize, used: usize) -> f64 {
+        let mut worst = 0f64;
+        for v in (0..a.len()).step_by(stride.max(1)) {
+            for k in (0..used).step_by(4) {
+                let at = v + k;
+                if at + 4 > a.len() {
+                    break;
+                }
+                let x = f32::from_be_bytes(a[at..at + 4].try_into().unwrap()) as f64;
+                let y = f32::from_be_bytes(b[at..at + 4].try_into().unwrap()) as f64;
+                let e = if x == y { 0.0 } else { (x - y).abs() / y.abs().max(1.0) };
+                if !(e <= worst) {
+                    worst = if e.is_nan() { 1e9 } else { e };
+                }
+            }
+        }
+        worst
+    }
+}
+
 fn switch_policy(name: &str) -> Hle {
     match name {
         "OSReport" => Hle::Native(|c| {
@@ -2536,18 +2829,18 @@ fn switch_policy(name: &str) -> Hle {
 
         // Hardware GX pipeline (Core 1 streams FIFO to Core 0 GX Frontend -> Core 2 OpenGL Backend)
         "GXDrawDone" | "GXWaitDrawDone" => Hle::Native(|c| {
-            gx_worker::sync_ram(c);
+            timed_sync(1, c, gx_worker::sync_ram);
         }),
         "GXCallDisplayList" => Hle::Replace(call_display_list),
         "GXFlush" => Hle::Replace(flush_hook),
         "GXCopyDisp" => Hle::Replace(copy_disp_hook),
         "GXCopyTex" => Hle::Replace(copy_tex_hook),
         "GXReadDrawSync" => Hle::Native(|c| {
-            gx_worker::sync_ram(c);
+            timed_sync(2, c, gx_worker::sync_ram);
             c.r[3] = gx_worker::read_token() as u32;
         }),
         "GXGetFifoPtrs" => Hle::Native(|c| {
-            let (read_ptr, write_ptr) = gx_worker::read_fifo_ptrs(c);
+            let (read_ptr, write_ptr) = timed_sync(3, c, gx_worker::read_fifo_ptrs);
             let (read_out, write_out) = (c.r[4], c.r[5]);
             if read_out != 0 {
                 c.w32(read_out, read_ptr);
@@ -2558,10 +2851,10 @@ fn switch_policy(name: &str) -> Hle {
         }),
         "GXEnableBreakPt" => Hle::Native(|c| {
             let addr = c.r[3];
-            gx_worker::sync_full(c, Some(gx_worker::CtrlCmd::EnableBreakPt(addr)));
+            timed_sync(4, c, |c| gx_worker::sync_full(c, Some(gx_worker::CtrlCmd::EnableBreakPt(addr))));
         }),
         "GXDisableBreakPt" => Hle::Native(|c| {
-            gx_worker::sync_full(c, Some(gx_worker::CtrlCmd::DisableBreakPt));
+            timed_sync(4, c, |c| gx_worker::sync_full(c, Some(gx_worker::CtrlCmd::DisableBreakPt)));
         }),
         "GXSetDrawSyncCallback" => Hle::Native(|c| {
             let new = c.r[3];
@@ -2929,36 +3222,29 @@ fn switch_policy(name: &str) -> Hle {
         }
 
         // RenderWare matrix, vector transforms, and concatenation acceleration
-        "PSMTXConcat" => Hle::Replace(arm64_native::hle_psmtx_concat),
-        "MatrixMultiply" => Hle::Replace(arm64_native::hle_matrix_multiply),
-        "RwMatrixMultiply" => Hle::Replace(arm64_native::hle_rw_matrix_multiply),
-        "RwMatrixUpdate" => Hle::Replace(arm64_native::hle_rw_matrix_update),
-        "xMat4x3Mul__FP7xMat4x3PC7xMat4x3PC7xMat4x3" => Hle::Replace(arm64_native::hle_xmat4x3_mul),
-        "xQuatToMat__FPC5xQuatP7xMat3x3" => Hle::Replace(arm64_native::hle_xquat_to_mat),
-        "xMat3x3LMulVec__FP5xVec3PC7xMat3x3PC5xVec3" => {
-            Hle::Replace(arm64_native::hle_xmat3x3_lmul_vec)
-        }
-        "xMat3x3Tolocal__FP5xVec3PC7xMat3x3PC5xVec3" => {
-            Hle::Replace(arm64_native::hle_xmat3x3_tolocal)
-        }
-        "xMat3x3Mul__FP7xMat3x3PC7xMat3x3PC7xMat3x3" => Hle::Replace(arm64_native::hle_xmat3x3_mul),
-        "RwV3dLength" => Hle::Replace(arm64_native::hle_rw_v3d_length),
-        "RwV3dTransformPoint" => Hle::Replace(arm64_native::hle_rw_v3d_transform_point),
-        "RwV3dTransformPoints" => Hle::Replace(arm64_native::hle_rw_v3d_transform_points),
-        "RwV3dTransformVector" => Hle::Replace(arm64_native::hle_rw_v3d_transform_vector),
-        "RwV3dTransformVectors" => Hle::Replace(arm64_native::hle_rw_v3d_transform_vectors),
+        "PSMTXConcat"
+        | "MatrixMultiply"
+        | "RwMatrixMultiply"
+        | "RwMatrixUpdate"
+        | "xMat4x3Mul__FP7xMat4x3PC7xMat4x3PC7xMat4x3"
+        | "xQuatToMat__FPC5xQuatP7xMat3x3"
+        | "xMat3x3LMulVec__FP5xVec3PC7xMat3x3PC5xVec3"
+        | "xMat3x3Tolocal__FP5xVec3PC7xMat3x3PC5xVec3"
+        | "xMat3x3Mul__FP7xMat3x3PC7xMat3x3PC7xMat3x3"
+        | "RwV3dLength"
+        | "RwV3dTransformPoint"
+        | "RwV3dTransformPoints"
+        | "RwV3dTransformVector"
+        | "RwV3dTransformVectors" => Hle::Original,
 
-        // Skeletal skinning vertex updates (NEON SIMD with quantized fallback)
-        "_rwDlSkinUpdate2WeightsP" => Hle::Replace(arm64_native::hle_skin_2w_p),
-        "_rwDlSkinUpdate2WeightsPN" => Hle::Replace(arm64_native::hle_skin_2w_pn),
-        "_rwDlSkinUpdate3WeightsP" => Hle::Replace(arm64_native::hle_skin_3w_p),
-        "_rwDlSkinUpdate3WeightsPN" => Hle::Replace(arm64_native::hle_skin_3w_pn),
-        "_rwDlSkinUpdate4WeightsP" => Hle::Replace(arm64_native::hle_skin_4w_p),
-        "_rwDlSkinUpdate4WeightsPN" => Hle::Replace(arm64_native::hle_skin_4w_pn),
-
-        // Retain original for complex multi-bone ASM blend and DL render state
-        "_rpSkinMatrixBlendUpdateASM"
-        | "_rwDlSetRenderState" => Hle::Original,
+        // Skeletal skinning vertex updates (use 100% faithful original GameCube recompiled code)
+        "_rwDlSkinUpdate2WeightsP" => skin_verify::policy(0),
+        "_rwDlSkinUpdate2WeightsPN" => skin_verify::policy(1),
+        "_rwDlSkinUpdate3WeightsP" => skin_verify::policy(2),
+        "_rwDlSkinUpdate3WeightsPN" => skin_verify::policy(3),
+        "_rwDlSkinUpdate4WeightsP" => skin_verify::policy(4),
+        "_rwDlSkinUpdate4WeightsPN" => skin_verify::policy(5),
+        "_rpSkinMatrixBlendUpdateASM" | "_rwDlSetRenderState" => Hle::Original,
         "_rxGCResEntryWaitDone" => Hle::Native(|_| {}),
         "_rwDlTokenQueryDone" => Hle::Native(|c| c.r[3] = 1),
 
@@ -2992,9 +3278,13 @@ pub extern "C" fn tssm_switch_guest_main() {
         switch_set_thread_index(0);
     }
 
+    skin_verify::init();
     let mut c = Ctx::new(game::FUNCS, game::HLE_NAMES, switch_policy);
     c.survey = false;
     c.poll_hook = Some(guest_poll_hook);
+    if runtime::PROFILE_FN {
+        unsafe { switch_start_prof_sampler(prof_tick, 200_000) };
+    }
     sched::init(0x817E_0000);
     GUEST_MEM_PTR.store(c.mem as usize, Ordering::Relaxed);
     log_c("[switch] Starting Core 0 GX Frontend & Core 2 OpenGL 4.3 hardware renderer...");

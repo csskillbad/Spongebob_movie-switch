@@ -23,6 +23,8 @@ const PARAMS_STRIDE: usize = 256;
 /// Per-draw vertex shader parameters (352 words = 1408 bytes, aligned to 1536-byte UBO stride).
 pub const VPARAMS_WORDS: usize = 352;
 const VPARAMS_STRIDE: usize = 1536;
+/// XF matrix memory words uploaded for matrix-indexed draws: 64 position rows + 32 normal rows (vec4 each).
+pub const XF_WORDS: usize = 0x180;
 
 /// Persistent GPU Display List cache capacity (~192 MB VBO + ~32 MB IBO = 224 MB VRAM).
 const CACHE_VERTICES: u64 = 2_000_000;
@@ -216,6 +218,7 @@ pub struct Frame {
     params: Vec<u8>,
     pub raw: Vec<RawVertex>,
     vparams: Vec<u8>,
+    vparams_last_plain: Option<usize>,
     pub raw_flat: Vec<(u32, [f32; 4])>,
 }
 
@@ -229,6 +232,7 @@ impl Default for Frame {
             params: Vec::new(),
             raw: Vec::new(),
             vparams: Vec::new(),
+            vparams_last_plain: None,
             raw_flat: Vec::new(),
         }
     }
@@ -243,6 +247,7 @@ impl Frame {
         self.params.clear();
         self.raw.clear();
         self.vparams.clear();
+        self.vparams_last_plain = None;
         self.raw_flat.clear();
     }
 
@@ -252,14 +257,25 @@ impl Frame {
             .copy_from_slice(bytemuck::cast_slice(&[scale, shift, 1.0f32, 1.0]));
     }
 
-    pub fn push_vparams(&mut self, block: &[u32; VPARAMS_WORDS]) -> u32 {
+    /// Appends a VParams block (one VPARAMS_STRIDE slot). For matrix-indexed geometry, `xf` is
+    /// the XF matrix memory (0x100 position + 0x80 normal words); it goes in the next slot,
+    /// which gl_backend.c binds as `XfMem` (binding 2) at block offset + VPARAMS_STRIDE.
+    pub fn push_vparams(&mut self, block: &[u32; VPARAMS_WORDS], xf: Option<&[u32; XF_WORDS]>) -> u32 {
         let bytes: &[u8] = bytemuck::cast_slice(block);
         let offset = self.vparams.len();
-        if offset >= VPARAMS_STRIDE && self.vparams[offset - VPARAMS_STRIDE..][..bytes.len()] == *bytes {
+        if xf.is_none()
+            && self.vparams_last_plain == Some(offset.wrapping_sub(VPARAMS_STRIDE))
+            && self.vparams[offset - VPARAMS_STRIDE..][..bytes.len()] == *bytes
+        {
             return (offset - VPARAMS_STRIDE) as u32;
         }
         self.vparams.extend_from_slice(bytes);
         self.vparams.resize(offset + VPARAMS_STRIDE, 0);
+        self.vparams_last_plain = xf.is_none().then_some(offset);
+        if let Some(xf) = xf {
+            self.vparams.extend_from_slice(bytemuck::cast_slice(xf));
+            self.vparams.resize(offset + 2 * VPARAMS_STRIDE, 0);
+        }
         offset as u32
     }
 

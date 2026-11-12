@@ -1,0 +1,17 @@
+# Nintendo Switch build (tssm-switch). Note: a RUSTFLAGS environment variable replaces these, so
+# any script that sets RUSTFLAGS must repeat these flags itself.
+[target.aarch64-unknown-none]
+rustflags = [
+    "-C", "relocation-model=pic",
+    "-C", "target-cpu=cortex-a57",
+    # aarch64-unknown-none enables +strict-align by default, which makes LLVM split every
+    # unaligned guest load/store (runtime::mr32/mw32 use read_unaligned) into single-byte
+    # ldrb/strb + shifts: ~47% more instructions in the recompiled game. Horizon maps heap
+    # memory as Normal memory with alignment checking off, so unaligned access is fine there.
+    "-C", "target-feature=-strict-align",
+    # The generated functions are `loop { match pc }` state machines. LLVM does not thread the
+    # constant `pc = X; continue` jumps through the loop header by default, so every block
+    # transition went through a compare/branch tree on pc. This makes them direct branches:
+    # hot functions 10-36% smaller, ~22% less Core 1 time (Ryujinx, BB02).
+    "-C", "llvm-args=-jump-threading-across-loop-headers",
+]

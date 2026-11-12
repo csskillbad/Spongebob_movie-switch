@@ -7,4 +7,6 @@ edition = "2021"
 default = ["std"]
 std = []
 switch = []
+# Function-level profiler hooks (runtime::prof); see PROFILE_FN.
+profile = []
 

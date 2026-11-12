@@ -36,9 +36,50 @@ pub static SAMPLE_TABLE: [SampleEntry; SAMPLE_SLOTS] = [const { SampleEntry { lr
 pub static SAMPLE_TOTAL: AtomicU32 = AtomicU32::new(0);
 
 pub const PROFILE_DETAILED: bool = false;
+
+/// Function-level self-time profiler. Generated code calls `prof(own_addr)` on entry and after
+/// every call it makes returns, so `CUR_FN` always names the guest function currently executing
+/// on the main guest thread; a host sampler thread reads it. Off unless built with the `profile`
+/// feature (`cargo build -p tssm-switch --features profile`), in which case `prof` is empty.
+pub const PROFILE_FN: bool = cfg!(feature = "profile");
+pub static CUR_FN: AtomicU32 = AtomicU32::new(0);
+
+#[inline(always)]
+pub fn prof(addr: u32) {
+    if PROFILE_FN {
+        CUR_FN.store(addr, Ordering::Relaxed);
+    }
+}
 pub const MAX_HLE_FUNCS: usize = 1024;
 pub static HLE_CALL_COUNTS: [AtomicU32; MAX_HLE_FUNCS] = [const { AtomicU32::new(0) }; MAX_HLE_FUNCS];
 pub static HLE_CALL_TICKS: [AtomicU64; MAX_HLE_FUNCS] = [const { AtomicU64::new(0) }; MAX_HLE_FUNCS];
+
+/// 2^-scale and 2^scale for each raw 6-bit GQR scale field (a signed exponent), so quantized
+/// paired-single loads/stores need no per-element pow2. Same values as `Ctx::pow2`.
+const fn gqr_scales(negate: bool) -> [f64; 64] {
+    let mut t = [0.0f64; 64];
+    let mut sc = 0;
+    while sc < 64 {
+        let e = ((sc ^ 32) as i32) - 32;
+        let e = if negate { -e } else { e };
+        t[sc] = f64::from_bits(((1023 + e) as u64) << 52);
+        sc += 1;
+    }
+    t
+}
+pub static DEQUANT_SCALE: [f64; 64] = gqr_scales(true);
+pub static QUANT_SCALE: [f64; 64] = gqr_scales(false);
+
+/// One quantized element: `ty` is the GQR type & 3 (0 = u8, 1 = u16, 2 = s8, 3 = s16).
+#[inline(always)]
+pub fn quant_read(mem: *mut u8, ea: u32, ty: u32) -> f64 {
+    match ty {
+        0 => mr8(mem, ea) as f64,
+        1 => mr16(mem, ea) as f64,
+        2 => mr8(mem, ea) as i8 as f64,
+        _ => mr16(mem, ea) as i16 as f64,
+    }
+}
 
 #[inline(always)]
 pub fn in_ram(a: u32, len: usize) -> bool {
@@ -646,11 +687,23 @@ impl Ctx {
                 (f32::from_bits((pair >> 32) as u32) as f64, f32::from_bits(pair as u32) as f64)
             }
         } else {
-            self.psq_l_val_slow(ea, single, gqr)
+            // Quantized types 4..7 = u8, u16, s8, s16. Decoded inline (this runs per vertex in
+            // RenderWare's skinning and instancing loops); the scale comes from a table instead
+            // of recomputing 2^-n per element. Bit-identical to `dequantize`.
+            let ty = (gqr >> 16) & 3;
+            let k = DEQUANT_SCALE[((gqr >> 24) & 0x3F) as usize];
+            let v0 = quant_read(mem, ea, ty) * k;
+            let v1 = if single {
+                1.0
+            } else {
+                quant_read(mem, ea.wrapping_add(1 + (ty & 1)), ty) * k
+            };
+            (v0, v1)
         }
     }
 
-    #[cold]
+    /// Reference implementation the inline path must match (kept for the tests).
+    #[cfg(test)]
     fn psq_l_val_slow(&self, ea: u32, single: bool, gqr: u32) -> (f64, f64) {
         let (ty, scale) = ((gqr >> 16) & 7, (gqr >> 24) & 0x3F);
         let (v0, size) = self.dequantize(ea, ty, scale);
@@ -681,11 +734,30 @@ impl Ctx {
                 }
             }
         } else {
-            self.psq_st_val_slow(ea, f0, f1, single, gqr);
+            // Quantized store, inline (see psq_l_val). Same rounding/saturation as `quantize`;
+            // the second element goes to ea + size unless the target is the GX pipe.
+            let ty = gqr & 3;
+            let k = QUANT_SCALE[((gqr >> 8) & 0x3F) as usize];
+            self.quant_write(ea, ty, f0 * k);
+            if !single {
+                let at = if ea == mem::WGPIPE { ea } else { ea.wrapping_add(1 + (ty & 1)) };
+                self.quant_write(at, ty, f1 * k);
+            }
         }
     }
 
-    #[cold]
+    #[inline(always)]
+    fn quant_write(&mut self, at: u32, ty: u32, x: f64) {
+        match ty {
+            0 => self.gw8(at, x as u8),
+            1 => self.gw16(at, x as u16),
+            2 => self.gw8(at, x as i8 as u8),
+            _ => self.gw16(at, x as i16 as u16),
+        }
+    }
+
+    /// Reference implementation the inline path must match (kept for the tests).
+    #[cfg(test)]
     fn psq_st_val_slow(&mut self, ea: u32, f0: f64, f1: f64, single: bool, gqr: u32) {
         let (ty, scale) = (gqr & 7, (gqr >> 8) & 0x3F);
         let (b0, size) = Self::quantize(ty, scale, f0);
@@ -993,5 +1065,66 @@ impl Ctx {
     #[cold]
     pub fn trap(&mut self, what: &str) {
         panic!("privileged instruction `{what}` executed; its SDK function needs a native replacement")
+    }
+}
+
+#[cfg(test)]
+mod psq_tests {
+    use super::*;
+
+    fn ctx() -> Box<Ctx> {
+        Ctx::new(&[], &[], |_| Hle::Original)
+    }
+
+    const VALUES: [f64; 12] = [0.0, 1.0, -1.0, 0.5, 127.4, -128.6, 255.9, 300.0, -40000.0, 65535.5, 1e-3, f64::NAN];
+
+    #[test]
+    fn quantized_loads_match_reference() {
+        let mut c = ctx();
+        let base = mem::RAM_BASE + 0x1000;
+        let bytes = [0x00u8, 0x7F, 0x80, 0xFF, 0x12, 0x34, 0xFE, 0x01];
+        for (n, &b) in bytes.iter().enumerate() {
+            c.w8(base + n as u32, b);
+        }
+        for ty in 4..8u32 {
+            for scale in 0..64u32 {
+                c.spr[912 + 3] = (scale << 24) | (ty << 16);
+                for off in 0..4u32 {
+                    for single in [false, true] {
+                        let fast = c.psq_l_val(c.mem, base + off, single, 3);
+                        let slow = c.psq_l_val_slow(base + off, single, c.spr[912 + 3]);
+                        assert_eq!((fast.0.to_bits(), fast.1.to_bits()), (slow.0.to_bits(), slow.1.to_bits()),
+                            "ty={ty} scale={scale} off={off} single={single}");
+                    }
+                }
+            }
+        }
+    }
+
+    #[test]
+    fn quantized_stores_match_reference() {
+        let mut c = ctx();
+        let (a, b) = (mem::RAM_BASE + 0x2000, mem::RAM_BASE + 0x3000);
+        for ty in 4..8u32 {
+            for scale in 0..64u32 {
+                let gqr = (scale << 8) | ty;
+                c.spr[912 + 2] = gqr;
+                for &v0 in &VALUES {
+                    for &v1 in &VALUES {
+                        for single in [false, true] {
+                            for k in 0..4 {
+                                c.w8(a + k, 0xAA);
+                                c.w8(b + k, 0xAA);
+                            }
+                            c.psq_st_val(c.mem, a, v0, v1, single, 2);
+                            c.psq_st_val_slow(b, v0, v1, single, gqr);
+                            for k in 0..4 {
+                                assert_eq!(c.r8(a + k), c.r8(b + k), "ty={ty} scale={scale} v0={v0} v1={v1} single={single} byte={k}");
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 }
