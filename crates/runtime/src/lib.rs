@@ -869,7 +869,9 @@ impl Ctx {
         {
             let ticks: u64;
             unsafe {
-                core::arch::asm!("mrs {}, cntvct_el0", out(reg) ticks, options(pure, nomem, nostack));
+                // cntpct_el0, as libnx armGetSystemTick: Horizon traps EL0 reads of cntvct_el0 (crashed on
+                // hardware with ESR EC 0x18; Ryujinx allows them).
+                core::arch::asm!("mrs {}, cntpct_el0", out(reg) ticks, options(nomem, nostack));
             }
             ticks.wrapping_mul(135) / 64
         }
@@ -885,7 +887,9 @@ impl Ctx {
         {
             let ticks: u64;
             unsafe {
-                core::arch::asm!("mrs {}, cntvct_el0", out(reg) ticks, options(pure, nomem, nostack));
+                // cntpct_el0, as libnx armGetSystemTick: Horizon traps EL0 reads of cntvct_el0 (crashed on
+                // hardware with ESR EC 0x18; Ryujinx allows them).
+                core::arch::asm!("mrs {}, cntpct_el0", out(reg) ticks, options(nomem, nostack));
             }
             ticks
         }

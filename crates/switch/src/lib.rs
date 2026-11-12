@@ -186,7 +186,7 @@ pub(crate) fn prof_now() -> u64 {
 /// Core 1 time spent waiting for Core 0, by what asked for the wait (`[sync]` perf line).
 static SYNC_NS: [AtomicU64; 6] = [const { AtomicU64::new(0) }; 6];
 static SYNC_N: [AtomicU32; 6] = [const { AtomicU32::new(0) }; 6];
-const SYNC_NAMES: [&str; 6] = ["retrace", "draw_done", "read_sync", "fifo_ptrs", "break_pt", "other"];
+const SYNC_NAMES: [&str; 6] = ["retrace", "draw_done", "read_sync", "fifo_ptrs", "break_pt", "settle"];
 #[inline(always)]
 fn timed_sync<R>(source: usize, c: &mut Ctx, f: impl FnOnce(&mut Ctx) -> R) -> R {
     let t0 = unsafe { switch_now_ns() };
@@ -194,6 +194,14 @@ fn timed_sync<R>(source: usize, c: &mut Ctx, f: impl FnOnce(&mut Ctx) -> R) -> R
     SYNC_NS[source].fetch_add(unsafe { switch_now_ns() }.saturating_sub(t0), Ordering::Relaxed);
     SYNC_N[source].fetch_add(1, Ordering::Relaxed);
     r
+}
+
+/// Display-list cache counters per frame (`[dlstat]` perf line).
+pub(crate) static DLSTAT: [AtomicU64; 8] = [const { AtomicU64::new(0) }; 8];
+const DLSTAT_NAMES: [&str; 8] = ["resolve", "check_hit", "exact_hit", "builds", "built_verts", "owned", "hashed_kb", "list_kb"];
+#[inline(always)]
+pub(crate) fn dlstat(k: usize, n: u64) {
+    DLSTAT[k].fetch_add(n, Ordering::Relaxed);
 }
 
 pub(crate) static GX_PHASE: AtomicU32 = AtomicU32::new(0);
@@ -1271,6 +1279,8 @@ mod gx_worker {
     pub enum CtrlCmd {
         ResetCache,
         EnableBreakPt(u32),
+        /// Breakpoint at a FIFO stream position (bytes since boot), resolved on Core 1.
+        EnableBreakPtAt(u64),
         DisableBreakPt,
         QueryFifoPtrs,
     }
@@ -1371,6 +1381,7 @@ mod gx_worker {
                 match cmd {
                     CtrlCmd::ResetCache => need_reset_after = true,
                     CtrlCmd::EnableBreakPt(addr) => gx.set_breakpoint(guest_mem, addr),
+                    CtrlCmd::EnableBreakPtAt(limit) => gx.set_breakpoint_at(limit),
                     CtrlCmd::DisableBreakPt => gx.clear_breakpoint(),
                     CtrlCmd::QueryFifoPtrs => {
                         let ptrs = gx.fifo_ptrs(guest_mem);
@@ -1585,7 +1596,93 @@ mod gx_worker {
         }
     }
 
+    /// Lazy end-of-frame sync (default; `sdmc:/strictsync.flag` turns it off): GXGetFifoPtrs and the
+    /// frame breakpoints no longer wait for Core 0; instead Core 1 waits right before it
+    /// first rewrites dynamic vertex data in the next frame (CPU skinning), so Core 0 finishes
+    /// the previous frame while Core 1 runs the next frame's game logic. Without the wait before
+    /// skinning, characters' vertex buffers were rewritten while Core 0 still read them (huge
+    /// stray polygons on some frames). BB02 Ryujinx: per-frame wait 8-14 ms -> ~4-5 ms.
+    pub static LAZY_SYNC: core::sync::atomic::AtomicBool = core::sync::atomic::AtomicBool::new(false);
+    /// A frame ended without Core 1 waiting for Core 0 (see LAZY_SYNC).
+    pub static FRAME_DIRTY: core::sync::atomic::AtomicBool = core::sync::atomic::AtomicBool::new(false);
+
+    fn fifo_ring(c: &Ctx) -> (u32, u64) {
+        // Same mapping as Gx::fifo_range on Core 0.
+        let (base, top) = (c.r32(0xCC00_300C) & 0x03FF_FFE0, c.r32(0xCC00_3010) & 0x03FF_FFE0);
+        if top > base {
+            (base | 0x8000_0000, (top - base + 4) as u64)
+        } else {
+            (0x8000_0000, 0x4_0000)
+        }
+    }
+
+    fn written_now(c: &Ctx) -> u64 {
+        unsafe {
+            switch_gx_lock();
+            let written = shared().written_bytes + c.fifo_len as u64;
+            switch_gx_unlock();
+            written
+        }
+    }
+
+    /// Queues a control command for Core 0 behind everything written so far, without waiting.
+    pub fn post_cmd(c: &mut Ctx, cmd: CtrlCmd) {
+        unsafe {
+            switch_gx_lock();
+            let s = shared();
+            if c.fifo_len != 0 {
+                let slice = core::slice::from_raw_parts(c.mem.add(0x0200_0000), c.fifo_len);
+                s.staging.extend_from_slice(slice);
+                s.written_bytes += slice.len() as u64;
+                c.fifo_len = 0;
+            }
+            s.cmds.push_back(cmd);
+            s.written_seq += 1;
+            switch_gx_wake_work();
+            switch_gx_unlock();
+        }
+    }
+
+    /// GXEnableBreakPt. In lazy mode the address is resolved to a stream position here,
+    /// against Core 1's exact byte count: Core 0 may read the command after Core 1 has written
+    /// more than a whole FIFO ring further, and resolving it there lands a lap too far.
+    pub fn enable_breakpoint(c: &mut Ctx, addr: u32) {
+        if !LAZY_SYNC.load(Ordering::Relaxed) {
+            sync_full(c, Some(CtrlCmd::EnableBreakPt(addr)));
+            return;
+        }
+        let written = written_now(c);
+        let (base, size) = fifo_ring(c);
+        let behind = (written + size - (addr.wrapping_sub(base) as u64 % size)) % size;
+        post_cmd(c, CtrlCmd::EnableBreakPtAt(written - behind.min(written)));
+    }
+
+    pub fn disable_breakpoint(c: &mut Ctx) {
+        if LAZY_SYNC.load(Ordering::Relaxed) {
+            post_cmd(c, CtrlCmd::DisableBreakPt);
+        } else {
+            sync_full(c, Some(CtrlCmd::DisableBreakPt));
+        }
+    }
+
+    /// Called before Core 1 rewrites dynamic vertex data: settles a lazily ended frame.
+    #[inline(always)]
+    pub fn settle_frame(c: &mut Ctx) {
+        if FRAME_DIRTY.load(Ordering::Relaxed) {
+            FRAME_DIRTY.store(false, Ordering::Relaxed);
+            super::timed_sync(5, c, sync_ram);
+        }
+    }
+
     pub fn read_fifo_ptrs(c: &mut Ctx) -> (u32, u32) {
+        if LAZY_SYNC.load(Ordering::Relaxed) {
+            // The only caller (_rwDlRasterShowRaster) uses just the write pointer.
+            let written = written_now(c);
+            let (base, size) = fifo_ring(c);
+            let at = base + (written % size) as u32;
+            FRAME_DIRTY.store(true, Ordering::Relaxed);
+            return (at, at);
+        }
         // Full sync on purpose: _rwDlRasterShowRaster calls this once per frame, at the end of
         // the frame, and it is what keeps Core 1 from starting to rewrite the next frame's
         // dynamic vertex buffers while Core 0 still reads this frame's. Answering from Core 1's
@@ -1795,6 +1892,13 @@ fn log_perf_summary(c: &Ctx, retrace: u32) {
     ));
     {
         let frames = df.max(1) as f64;
+        let mut dl = String::from("  [dlstat]");
+        for k in 0..DLSTAT_NAMES.len() {
+            let v = DLSTAT[k].swap(0, Ordering::Relaxed);
+            let v = if k >= 6 { v / 1024 } else { v };
+            dl += &format!(" {}={:.0}", DLSTAT_NAMES[k], v as f64 / frames);
+        }
+        log_c(&dl);
         let mut line = String::from("  [sync]");
         for k in 0..SYNC_NAMES.len() {
             let ns = SYNC_NS[k].swap(0, Ordering::Relaxed);
@@ -2410,15 +2514,27 @@ mod skin_verify {
             1
         };
         MODE.store(mode, Ordering::Relaxed);
+        let lazy = unsafe { switch_file_exists(b"sdmc:/strictsync.flag\0".as_ptr()) } == 0;
+        gx_worker::LAZY_SYNC.store(lazy, Ordering::Relaxed);
+        log_c(if lazy {
+            "[switch] lazy end-of-frame sync (sdmc:/strictsync.flag turns it off)"
+        } else {
+            "[switch] strict end-of-frame sync (sdmc:/strictsync.flag)"
+        });
         log_c(&format!("[skinverify] skinning mode {}", ["original", "native", "verify"][mode as usize]));
     }
 
     pub fn policy(k: usize) -> Hle {
         match MODE.load(Ordering::Relaxed) {
-            1 => Hle::Replace(NATIVE[k]),
+            1 => Hle::Replace([native::<0>, native::<1>, native::<2>, native::<3>, native::<4>, native::<5>][k]),
             2 => Hle::Replace([verify::<0>, verify::<1>, verify::<2>, verify::<3>, verify::<4>, verify::<5>][k]),
-            _ => Hle::Original,
+            _ => Hle::Before(gx_worker::settle_frame),
         }
+    }
+
+    fn native<const K: usize>(c: &mut Ctx) -> bool {
+        gx_worker::settle_frame(c);
+        NATIVE[K](c)
     }
 
     fn verify<const K: usize>(c: &mut Ctx) -> bool {
@@ -2851,10 +2967,10 @@ fn switch_policy(name: &str) -> Hle {
         }),
         "GXEnableBreakPt" => Hle::Native(|c| {
             let addr = c.r[3];
-            timed_sync(4, c, |c| gx_worker::sync_full(c, Some(gx_worker::CtrlCmd::EnableBreakPt(addr))));
+            timed_sync(4, c, |c| gx_worker::enable_breakpoint(c, addr));
         }),
         "GXDisableBreakPt" => Hle::Native(|c| {
-            timed_sync(4, c, |c| gx_worker::sync_full(c, Some(gx_worker::CtrlCmd::DisableBreakPt)));
+            timed_sync(4, c, gx_worker::disable_breakpoint);
         }),
         "GXSetDrawSyncCallback" => Hle::Native(|c| {
             let new = c.r[3];

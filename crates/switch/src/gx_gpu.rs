@@ -1827,6 +1827,7 @@ impl Gx {
         let mut hash = 0u64;
         for &(addr, len) in spans.iter().filter(|span| span.1 != 0) {
             let bytes = unsafe { self.mem.slice(addr, len as usize) };
+            crate::dlstat(6, bytes.len() as u64);
             hash = (hash.rotate_left(5) ^ hash_bytes(bytes)).wrapping_mul(0x9E37_79B9_7F4A_7C15);
         }
         hash
@@ -1845,6 +1846,7 @@ impl Gx {
                     let block_addr = runtime::mem::RAM_BASE + ((block as u32) << BLOCK_SHIFT);
                     let bytes = unsafe { self.mem.slice(block_addr, 1 << BLOCK_SHIFT) };
                     self.block_hash[block] = hash_bytes(bytes);
+                    crate::dlstat(6, bytes.len() as u64);
                     self.block_stamp[block] = self.epoch;
                 }
                 hash = (hash.rotate_left(5) ^ self.block_hash[block])
@@ -1895,6 +1897,20 @@ impl Gx {
                 arrays,
             };
             let base = vertices.len() as u32;
+            {
+                static SEEN: core::sync::atomic::AtomicU32 = core::sync::atomic::AtomicU32::new(0);
+                static SIGS: [core::sync::atomic::AtomicU64; 24] = [const { core::sync::atomic::AtomicU64::new(0) }; 24];
+                let sig = (vcd_lo as u64) | ((vcd_hi as u64 & 0xFFFF) << 17) | ((format.a as u64) << 33);
+                let n = SEEN.load(core::sync::atomic::Ordering::Relaxed) as usize;
+                if n < 24 && !SIGS[..n].iter().any(|x| x.load(core::sync::atomic::Ordering::Relaxed) == sig) {
+                    SIGS[n].store(sig, core::sync::atomic::Ordering::Relaxed);
+                    SEEN.store(n as u32 + 1, core::sync::atomic::Ordering::Relaxed);
+                    crate::log_c(&format!(
+                        "[vfmt] vcd_lo={:#x} vcd_hi={:#x} a={:#010x} b={:#010x} count={} strides={:?}",
+                        vcd_lo, vcd_hi, format.a, format.b, count, arrays.map(|a| a.1)
+                    ));
+                }
+            }
             decode_raw(
                 self.mem,
                 &list[at + 3..at + need],
@@ -1923,6 +1939,8 @@ impl Gx {
             spans[n] = (offset as u32, len as u32);
         }
         plain &= self.spans_at(&spans).is_some();
+        crate::dlstat(3, 1);
+        crate::dlstat(4, vertices.len() as u64);
         self.list_vertices = vertices;
         self.list_indices = indices;
         plain.then_some((spans, draws, total))
@@ -1945,6 +1963,8 @@ impl Gx {
             return Ahead::Late;
         }
         let list = unsafe { self.mem.slice(addr, size) };
+        crate::dlstat(0, 1);
+        crate::dlstat(7, size as u64);
         let list_hash = if size >= 16 {
             let w0 = u64::from_le_bytes(list[..8].try_into().unwrap());
             let w1 = u64::from_le_bytes(list[size - 8..].try_into().unwrap());
@@ -2012,10 +2032,14 @@ impl Gx {
                 .filter(|check| check.blocks == blocks)
                 .map(|check| check.place);
             if let Some(p) = remembered {
+                crate::dlstat(1, 1);
                 place = Some(p);
             } else {
                 let exact = self.exact_hash(&at);
                 place = self.places.get(&(key.0, key.1, exact)).copied();
+                if place.is_some() {
+                    crate::dlstat(2, 1);
+                }
                 if place.is_none() && (built || self.build_list(list).is_some()) {
                     built = true;
                     let content = (
@@ -2062,6 +2086,7 @@ impl Gx {
         match place {
             Some(place) => Ahead::Cached(shape, place),
             None if built || self.build_list(list).is_some() => {
+                crate::dlstat(5, 1);
                 let (vertices, indices) = self.spare.pop().unwrap_or_default();
                 Ahead::Owned(
                     shape,
@@ -2741,6 +2766,12 @@ impl Gx {
 
     pub fn process_chunk(&mut self, guest_mem: *const u8, chunk: &[u8]) {
         self.mem = Mem(guest_mem);
+        // Block hashes are memoised per batch, not per frame: Core 1 keeps skinning further
+        // characters while Core 0 works, and a 4 KB block often holds several characters'
+        // vertices. With a per-frame memo, a block hashed for the first character hid the
+        // later characters' new poses (stale poses on some frames). Everything in one batch
+        // was written before the batch was handed over, so the memo is exact within it.
+        self.epoch = self.epoch.wrapping_add(1).max(1);
         let mut data = core::mem::take(&mut self.pending);
         let mut combined_owned = false;
         let slice: &[u8] = if data.is_empty() {
@@ -2816,6 +2847,11 @@ impl Gx {
             let behind = (written + size - (addr.wrapping_sub(base) as u64 % size)) % size;
             written - behind.min(written)
         });
+        self.limit = Some(limit);
+        self.break_signalled = false;
+    }
+
+    pub fn set_breakpoint_at(&mut self, limit: u64) {
         self.limit = Some(limit);
         self.break_signalled = false;
     }

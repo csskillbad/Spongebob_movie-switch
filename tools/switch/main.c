@@ -36,7 +36,6 @@ static FILE* s_log_fp = NULL;
 // calls __libnx_exception_handler on its own stack. We write the faulting PC/LR/FAR as offsets
 // into this module (match them against tssm.elf with `nm`/`addr2line`) to sdmc:/tssm_crash.txt.
 // ---------------------------------------------------------------------------------------------
-extern char __start__[];
 u8 __nx_exception_stack[0x8000] __attribute__((aligned(16)));
 u64 __nx_exception_stack_size = sizeof(__nx_exception_stack);
 uint32_t switch_get_thread_index(void);
@@ -55,7 +54,12 @@ static const char* exception_name(u32 desc) {
 }
 
 void __libnx_exception_handler(ThreadExceptionDump* ctx) {
-    const u64 base = (u64)(uintptr_t)__start__;
+    // Module base = start of the code region holding this function (the NSO's .text, i.e. ELF
+    // address 0). `__start__` resolved to 0 here, which made every offset 0.
+    MemoryInfo mi = {0};
+    u32 page_info = 0;
+    svcQueryMemory(&mi, &page_info, (u64)(uintptr_t)&__libnx_exception_handler);
+    const u64 base = mi.addr;
     const u64 limit = base + 0x08000000ull; // module image (code is ~40 MB)
     if (s_log_fp) fflush(s_log_fp);
     FILE* f = fopen("sdmc:/tssm_crash.txt", "w");
