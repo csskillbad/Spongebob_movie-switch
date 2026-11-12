@@ -204,6 +204,9 @@ pub(crate) fn dlstat(k: usize, n: u64) {
     DLSTAT[k].fetch_add(n, Ordering::Relaxed);
 }
 
+/// `sdmc:/strictsync.flag`: wait for Core 0 at every retrace, as the original port did.
+pub(crate) static STRICT_SYNC: AtomicBool = AtomicBool::new(false);
+
 pub(crate) static GX_PHASE: AtomicU32 = AtomicU32::new(0);
 static GX_PHASE_COUNT: [AtomicU32; 16] = [const { AtomicU32::new(0) }; 16];
 const GX_PHASE_NAMES: [&str; 16] = [
@@ -1294,6 +1297,8 @@ mod gx_worker {
         written_seq: u64,
         completed_ram_seq: u64,
         completed_full_seq: u64,
+        /// Core 0's FIFO state (Gx::describe), for the hang report.
+        gx_state: alloc::string::String,
         token: u16,
         frames: u64,
         last_stats: FrameStats,
@@ -1419,6 +1424,7 @@ mod gx_worker {
             let last_stats = gx.last_stats;
             let cache_used = gx.cache_room_used();
             let token = gx.token;
+            let gx_state = gx.describe();
 
             // Wake Core 1 immediately once all guest RAM reads and raised tokens for seq_at_pickup complete!
             unsafe {
@@ -1428,6 +1434,8 @@ mod gx_worker {
                 s.last_stats = last_stats;
                 s.cache_used = cache_used;
                 s.token = token;
+                s.gx_state.clear();
+                s.gx_state.push_str(&gx_state);
                 if s.completed_ram_seq < seq_at_pickup {
                     s.completed_ram_seq = seq_at_pickup;
                 }
@@ -1488,6 +1496,7 @@ mod gx_worker {
                 fifo_ptrs: (0x8000_0000, 0x8000_0000),
                 hud_widgets: 0,
                 hud_marked: 0,
+                gx_state: alloc::string::String::new(),
             });
             switch_start_gx_worker(worker_entry, core::ptr::null_mut());
             switch_gx_lock();
@@ -1596,7 +1605,7 @@ mod gx_worker {
         }
     }
 
-    /// Lazy end-of-frame sync (default; `sdmc:/strictsync.flag` turns it off): GXGetFifoPtrs and the
+    /// Lazy end-of-frame sync (opt-in: `sdmc:/lazysync.flag`): GXGetFifoPtrs and the
     /// frame breakpoints no longer wait for Core 0; instead Core 1 waits right before it
     /// first rewrites dynamic vertex data in the next frame (CPU skinning), so Core 0 finishes
     /// the previous frame while Core 1 runs the next frame's game logic. Without the wait before
@@ -1697,6 +1706,13 @@ mod gx_worker {
         }
     }
 
+    /// (written_seq, completed_ram_seq, completed_full_seq, Core 0 state, queued commands,
+    /// staged bytes). Caller holds the GX lock.
+    pub unsafe fn shared_for_report() -> (u64, u64, u64, &'static alloc::string::String, usize, usize) {
+        let s = shared();
+        (s.written_seq, s.completed_ram_seq, s.completed_full_seq, &s.gx_state, s.cmds.len(), s.staging.len())
+    }
+
     pub fn drain_perf_snapshot() -> (u64, FrameStats, u64, (u32, u32, u32, u64)) {
         unsafe {
             switch_gx_lock();
@@ -1752,6 +1768,29 @@ fn log_perf_summary(c: &Ctx, retrace: u32) {
         st.xf_loads,
     );
     let prev_frames = PERF_LAST_FRAMES.swap(frames, Ordering::Relaxed);
+    {
+        // Hang report: no frame for ~5 s of retraces -> write what every core is waiting on
+        // to the log (sdmc:/tssm.log), once per stall.
+        static STALLED: AtomicU32 = AtomicU32::new(0);
+        if frames == prev_frames && frames > 0 {
+            if STALLED.fetch_add(1, Ordering::Relaxed) + 1 == 15 {
+                let (written, ram, full, gx_state, cmds, staged) = unsafe {
+                    switch_gx_lock();
+                    let s = gx_worker::shared_for_report();
+                    let r = (s.0, s.1, s.2, s.3.clone(), s.4, s.5);
+                    switch_gx_unlock();
+                    r
+                };
+                log_c(&format!(
+                    "[hang] frames={} retrace={} gx_phase={} written_seq={} ram_done={} full_done={} cmds={} staged={} core0: {} | lazy={} lr={:#010x} ({}) | {}",
+                    frames, retrace, GX_PHASE.load(Ordering::Relaxed), written, ram, full, cmds, staged,
+                    gx_state, gx_worker::LAZY_SYNC.load(Ordering::Relaxed), c.lr, c.func_name(c.lr), sched::describe()
+                ));
+            }
+        } else {
+            STALLED.store(0, Ordering::Relaxed);
+        }
+    }
     let gx_ns = PERF_GX_NS.swap(0, Ordering::Relaxed);
     let gx_wait_ns = PERF_GX_WAIT_NS.swap(0, Ordering::Relaxed);
     let aud_ns = PERF_AUDIO_NS.swap(0, Ordering::Relaxed);
@@ -2081,7 +2120,7 @@ fn deliver_events_slow(c: &mut Ctx) {
             // frame below 60 FPS) used to stall Core 1 behind Core 0's backlog for nothing.
             let t_retrace_gx = unsafe { switch_now_ns() };
             let frame_pending = c.r32(0x804B_23AC) == 1 || c.r32(0x804B_23A0) != c.r32(0x804B_23A4);
-            if frame_pending {
+            if frame_pending || STRICT_SYNC.load(Ordering::Relaxed) {
                 timed_sync(0, c, gx_process);
             } else {
                 gx_worker::push_fifo(c, 1);
@@ -2514,13 +2553,13 @@ mod skin_verify {
             1
         };
         MODE.store(mode, Ordering::Relaxed);
-        let lazy = unsafe { switch_file_exists(b"sdmc:/strictsync.flag\0".as_ptr()) } == 0;
-        gx_worker::LAZY_SYNC.store(lazy, Ordering::Relaxed);
-        log_c(if lazy {
-            "[switch] lazy end-of-frame sync (sdmc:/strictsync.flag turns it off)"
-        } else {
-            "[switch] strict end-of-frame sync (sdmc:/strictsync.flag)"
-        });
+        // Lazy end-of-frame sync is opt-in until it has run on real hardware: a Switch hung
+        // at the first screens with it on by default (Ryujinx did not).
+        let lazy = unsafe { switch_file_exists(b"sdmc:/lazysync.flag\0".as_ptr()) } != 0;
+        let strict = unsafe { switch_file_exists(b"sdmc:/strictsync.flag\0".as_ptr()) } != 0;
+        gx_worker::LAZY_SYNC.store(lazy && !strict, Ordering::Relaxed);
+        STRICT_SYNC.store(strict, Ordering::Relaxed);
+        log_c(&format!("[switch] sync mode: lazy={} strict={} (sdmc:/lazysync.flag, sdmc:/strictsync.flag)", lazy && !strict, strict));
         log_c(&format!("[skinverify] skinning mode {}", ["original", "native", "verify"][mode as usize]));
     }
 
