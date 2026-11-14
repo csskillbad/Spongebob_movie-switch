@@ -5,7 +5,7 @@
 
 use alloc::vec;
 use alloc::vec::Vec;
-use core::sync::atomic::{AtomicUsize, Ordering};
+use core::sync::atomic::{AtomicU32, AtomicUsize, Ordering};
 use runtime::Ctx;
 
 pub const ARAM_SIZE: usize = 16 << 20;
@@ -21,6 +21,12 @@ static mut RING_BUF: [[i16; 2]; RING_CAP] = [[0; 2]; RING_CAP];
 static RING_WRITE: AtomicUsize = AtomicUsize::new(0);
 static RING_READ: AtomicUsize = AtomicUsize::new(0);
 
+pub static MIXED_FRAMES: AtomicU32 = AtomicU32::new(0);
+pub static DRAINED_FRAMES: AtomicU32 = AtomicU32::new(0);
+pub static ACTIVE_VOICES: AtomicU32 = AtomicU32::new(0);
+pub static PEAK_LEVEL: AtomicU32 = AtomicU32::new(0);
+pub static ARAM_TRANSFERS: AtomicU32 = AtomicU32::new(0);
+
 static mut ARAM: Option<Vec<u8>> = None;
 static mut AX_BLOCKS: u32 = 0;
 
@@ -33,6 +39,11 @@ pub fn init() {
     }
     RING_WRITE.store(0, Ordering::Relaxed);
     RING_READ.store(0, Ordering::Relaxed);
+    MIXED_FRAMES.store(0, Ordering::Relaxed);
+    DRAINED_FRAMES.store(0, Ordering::Relaxed);
+    ACTIVE_VOICES.store(0, Ordering::Relaxed);
+    PEAK_LEVEL.store(0, Ordering::Relaxed);
+    ARAM_TRANSFERS.store(0, Ordering::Relaxed);
 }
 
 pub fn transfer(c: &mut Ctx, to_aram: bool, main: u32, aram_addr: u32, len: u32) {
@@ -42,6 +53,7 @@ pub fn transfer(c: &mut Ctx, to_aram: bool, main: u32, aram_addr: u32, len: u32)
     if !main_ok || aram_off.saturating_add(len) > ARAM_SIZE || len == 0 {
         return;
     }
+    ARAM_TRANSFERS.fetch_add(1, Ordering::Relaxed);
     let memory = c.slice_mut(main, len);
     unsafe {
         let Some(aram) = ARAM.as_mut() else { return };
@@ -238,28 +250,36 @@ pub fn mix_frame(c: &mut Ctx) {
 
     let Some(aram) = (unsafe { ARAM.as_deref() }) else { return };
     let mut mixed = [0i32; FRAME_SAMPLES * 2];
+    let mut active = 0u32;
     for i in 0..BLOCK_COUNT {
         let block = blocks + i * BLOCK_SIZE;
         if c.r16(block + pb::RUNNING) == 1 {
+            active += 1;
             mix_voice(c, aram, block, &mut mixed);
         }
     }
+    ACTIVE_VOICES.store(active, Ordering::Relaxed);
+    MIXED_FRAMES.fetch_add(1, Ordering::Relaxed);
 
+    let mut peak = 0u32;
     let mut w = RING_WRITE.load(Ordering::Relaxed);
     let r = RING_READ.load(Ordering::Acquire);
     for pair in mixed.chunks_exact(2) {
         if w.wrapping_sub(r) >= RING_CAP {
             break;
         }
+        let l = pair[0].clamp(-32768, 32767);
+        let rv = pair[1].clamp(-32768, 32767);
+        peak = peak.max(l.unsigned_abs()).max(rv.unsigned_abs());
         unsafe {
-            RING_BUF[w & RING_MASK] = [
-                pair[0].clamp(-32768, 32767) as i16,
-                pair[1].clamp(-32768, 32767) as i16,
-            ];
+            RING_BUF[w & RING_MASK] = [l as i16, rv as i16];
         }
         w = w.wrapping_add(1);
     }
     RING_WRITE.store(w, Ordering::Release);
+    if peak > 0 {
+        PEAK_LEVEL.fetch_max(peak, Ordering::Relaxed);
+    }
 }
 
 /// Drains up to `max_frames` stereo `i16` frames into `dst`. Called from SDL2's audio callback.
@@ -277,5 +297,6 @@ pub unsafe fn drain(dst: *mut i16, max_frames: usize) -> usize {
         r = r.wrapping_add(1);
     }
     RING_READ.store(r, Ordering::Release);
+    DRAINED_FRAMES.fetch_add(avail as u32, Ordering::Relaxed);
     avail
 }

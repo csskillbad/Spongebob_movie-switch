@@ -1188,7 +1188,8 @@ fn fsound_default_pool(mem: *mut u8, r13: u32) -> u32 {
     g.wrapping_add(0x29C)
 }
 
-fn fsound_pool_alloc_internal(mem: *mut u8, r13: u32, pool: u32, req_size: u32) -> Option<u32> {
+fn fsound_pool_alloc_internal(c: &mut Ctx, pool: u32, req_size: u32) -> Option<u32> {
+    let mem = c.mem;
     if !in_ram(pool, 0x40) {
         return None;
     }
@@ -1221,19 +1222,24 @@ fn fsound_pool_alloc_internal(mem: *mut u8, r13: u32, pool: u32, req_size: u32) 
     let bitmap_slice = unsafe { core::slice::from_raw_parts(bitmap_ptr, total_blocks as usize) };
 
     // Linear search for `blocks_needed` consecutive free (0) blocks
-    let mut consecutive: u32 = 0;
-    let mut start_block: Option<u32> = None;
-    for (i, &b) in bitmap_slice.iter().enumerate() {
-        if b == 0 {
-            consecutive += 1;
-            if consecutive == blocks_needed {
-                start_block = Some(((i + 1) as u32).wrapping_sub(blocks_needed));
-                break;
+    let start_block = if blocks_needed == 0 {
+        Some(0)
+    } else {
+        let mut consecutive: u32 = 0;
+        let mut found: Option<u32> = None;
+        for (i, &b) in bitmap_slice.iter().enumerate() {
+            if b == 0 {
+                consecutive += 1;
+                if consecutive == blocks_needed {
+                    found = Some(((i + 1) as u32).wrapping_sub(blocks_needed));
+                    break;
+                }
+            } else {
+                consecutive = 0;
             }
-        } else {
-            consecutive = 0;
         }
-    }
+        found
+    };
 
     let start_block = match start_block {
         Some(sb) => sb,
@@ -1253,19 +1259,28 @@ fn fsound_pool_alloc_internal(mem: *mut u8, r13: u32, pool: u32, req_size: u32) 
         }
         (block_ptr.wrapping_add(0x20), block_ptr)
     } else {
-        // Custom pool (field_0x28 != 0, e.g. ARAM sample pool):
-        // Allocate a 32-byte header node from the default pool
-        let def_pool = fsound_default_pool(mem, r13);
-        let hdr = match fsound_pool_alloc_internal(mem, r13, def_pool, 0x20) {
-            Some(h) if h != 0 => h,
-            _ => {
-                // Free blocks on header allocation failure
-                unsafe {
-                    core::ptr::write_bytes(bitmap_ptr.add(start_block as usize), 0, blocks_needed as usize);
-                }
-                return Some(0);
+        // Custom pool (field_0x28 != 0, e.g. ARAM sample pool 0x80468F18):
+        // Allocate a 32-byte header node from the default pool (r3 = 0, which uses F_Malloc).
+        let saved_lr = c.lr;
+        let saved_r = [
+            c.r[0], c.r[3], c.r[4], c.r[5], c.r[6], c.r[7], c.r[8], c.r[9], c.r[10], c.r[11], c.r[12],
+        ];
+        c.r[3] = 0;
+        c.r[4] = 0x20;
+        c.r[5] = 0x8037_F460;
+        c.r[6] = 0x269;
+        c.call(0x802D_19BC);
+        let hdr = c.r[3];
+        c.lr = saved_lr;
+        [
+            c.r[0], c.r[3], c.r[4], c.r[5], c.r[6], c.r[7], c.r[8], c.r[9], c.r[10], c.r[11], c.r[12],
+        ] = saved_r;
+        if hdr == 0 || !in_ram(hdr, 0x20) {
+            unsafe {
+                core::ptr::write_bytes(bitmap_ptr.add(start_block as usize), 0, blocks_needed as usize);
             }
-        };
+            return Some(0);
+        }
         (hdr, hdr)
     };
 
@@ -1298,7 +1313,8 @@ fn fsound_pool_alloc_internal(mem: *mut u8, r13: u32, pool: u32, req_size: u32) 
     Some(ret_ptr)
 }
 
-fn fsound_pool_free_internal(mem: *mut u8, r13: u32, pool: u32, user_ptr: u32) -> bool {
+fn fsound_pool_free_internal(c: &mut Ctx, pool: u32, user_ptr: u32) -> bool {
+    let mem = c.mem;
     if user_ptr == 0 {
         return true;
     }
@@ -1343,9 +1359,20 @@ fn fsound_pool_free_internal(mem: *mut u8, r13: u32, pool: u32, user_ptr: u32) -
     }
 
     if field_0x28 != 0 {
-        // Free the 32-byte header node from default pool
-        let def_pool = fsound_default_pool(mem, r13);
-        fsound_pool_free_internal(mem, r13, def_pool, header);
+        // Free the 32-byte header node from default pool (r3 = 0, which uses F_Free)
+        let saved_lr = c.lr;
+        let saved_r = [
+            c.r[0], c.r[3], c.r[4], c.r[5], c.r[6], c.r[7], c.r[8], c.r[9], c.r[10], c.r[11], c.r[12],
+        ];
+        c.r[3] = 0;
+        c.r[4] = header;
+        c.r[5] = 0x8037_F460;
+        c.r[6] = 0x2DC;
+        c.call(0x802D_1724);
+        c.lr = saved_lr;
+        [
+            c.r[0], c.r[3], c.r[4], c.r[5], c.r[6], c.r[7], c.r[8], c.r[9], c.r[10], c.r[11], c.r[12],
+        ] = saved_r;
     }
 
     true
@@ -1360,7 +1387,7 @@ pub fn hle_fsound_memory_pool_alloc(c: &mut Ctx) -> bool {
         c.r[3]
     };
     let req_size = c.r[4];
-    match fsound_pool_alloc_internal(mem, c.r[13], pool, req_size) {
+    match fsound_pool_alloc_internal(c, pool, req_size) {
         Some(ptr) => {
             c.r[3] = ptr;
             true
@@ -1378,7 +1405,7 @@ pub fn hle_fsound_memory_pool_free(c: &mut Ctx) -> bool {
         c.r[3]
     };
     let user_ptr = c.r[4];
-    fsound_pool_free_internal(mem, c.r[13], pool, user_ptr)
+    fsound_pool_free_internal(c, pool, user_ptr)
 }
 
 /// Native ARM64 replacement for `FSOUND_Memory_Pool_Calloc` (`0x802D16B0`).

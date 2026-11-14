@@ -300,6 +300,7 @@ static AI_DMA_CALLBACK: AtomicU32 = AtomicU32::new(0);
 static AR_DMA_CALLBACK: AtomicU32 = AtomicU32::new(0);
 static DSP_TASK: AtomicU32 = AtomicU32::new(0);
 static TARGET_SCENE: AtomicU32 = AtomicU32::new(0);
+static BOOT_SCENE: AtomicU32 = AtomicU32::new(0);
 static WARP_TARGET: AtomicU32 = AtomicU32::new(0);
 static CURRENT_GAME_MODE: AtomicU32 = AtomicU32::new(0);
 
@@ -756,6 +757,17 @@ mod sched {
         res
     }
 
+    pub fn is_terminated(guest: u32) -> bool {
+        lock();
+        let s = unsafe { state() };
+        let res = match s.find(guest) {
+            Some(i) => s.threads[i].state == State::Exited,
+            None => true,
+        };
+        unlock();
+        res
+    }
+
     fn finish(c: &mut Ctx) {
         let caller = unsafe { switch_get_thread_index() as usize };
         let guest = {
@@ -841,9 +853,7 @@ mod sched {
             c.r[7],
             c.r[8] as i32,
         );
-        // Clamp ONLY the FMOD software mix threads (priority 8) to priority 18 (below Main Thread 16).
-        // DVD thread (priority 0) and Async asset unpacker (priority 10) MUST retain high priority so level loading completes!
-        let priority = if raw_prio == 8 { 18 } else { raw_prio };
+        let priority = raw_prio;
 
         c.slice_mut(guest, 0x318).fill(0);
         c.w16(guest + 0x2C8, 4); // OS_THREAD_STATE_WAITING
@@ -1958,6 +1968,15 @@ fn log_perf_summary(c: &Ctx, retrace: u32) {
         "  [gl-core2]  upload={:.2}ms state={:.2}ms draw_calls={:.2}ms [{} draws in {} batches] blit={:.2}ms swap_buffers={:.2}ms",
         gl_up_ms, gl_st_ms, gl_dc_ms, gl_draws_cnt / df.max(1) as u32, gl_batches_cnt / df.max(1) as u32, gl_bl_ms, gl_sw_ms
     ));
+    let aud_mixed = audio::MIXED_FRAMES.swap(0, Ordering::Relaxed);
+    let aud_drained = audio::DRAINED_FRAMES.swap(0, Ordering::Relaxed);
+    let aud_voices = audio::ACTIVE_VOICES.load(Ordering::Relaxed);
+    let aud_peak = audio::PEAK_LEVEL.swap(0, Ordering::Relaxed);
+    let aud_aram = audio::ARAM_TRANSFERS.swap(0, Ordering::Relaxed);
+    log_c(&format!(
+        "  [audio]     mixed_frames={} drained_samples={} active_voices={} peak={} aram_dma={}",
+        aud_mixed, aud_drained, aud_voices, aud_peak, aud_aram
+    ));
 
     // Print Top 6 Sampled Guest Functions
     if sample_total > 0 && !guest_samples.is_empty() {
@@ -2662,7 +2681,194 @@ mod skin_verify {
     }
 }
 
+/// Self-check for native replacements (`sdmc:/hleverify.flag`): every call runs the native
+/// version and the recompiled original on the same input, keeps the original's result and
+/// logs (`[hleverify]`) any difference in the return value or in the memory behind the
+/// pointer arguments r3-r8.
+mod hle_verify {
+    use super::*;
+
+    static ON: AtomicBool = AtomicBool::new(false);
+    static BUSY: AtomicBool = AtomicBool::new(false);
+    /// (guest name, native, return kind: 0 none, 1 r3, 2 f1, 3 r3:r4)
+    const TABLE: [(&str, fn(&mut Ctx) -> bool, u8); 39] = [
+        ("sqrt", arm64_native::hle_sqrt, 2),
+        ("__ieee754_sqrt", arm64_native::hle_sqrt, 2),
+        ("xsqrt__Ff", arm64_native::hle_xsqrt, 2),
+        ("_rwSqrt", arm64_native::hle_rw_sqrt, 2),
+        ("_rwInvSqrt", arm64_native::hle_rw_inv_sqrt, 2),
+        ("ceil", arm64_native::hle_ceil, 2),
+        ("floor", arm64_native::hle_floor, 2),
+        ("sinf", arm64_native::hle_sinf, 2),
+        ("isin__Ff", arm64_native::hle_sinf, 2),
+        ("cosf", arm64_native::hle_cosf, 2),
+        ("icos__Ff", arm64_native::hle_cosf, 2),
+        ("powf", arm64_native::hle_powf, 2),
+        ("sin", arm64_native::hle_sin, 2),
+        ("cos", arm64_native::hle_cos, 2),
+        ("tan", arm64_native::hle_tan, 2),
+        ("atan", arm64_native::hle_atan, 2),
+        ("atan2", arm64_native::hle_atan2, 2),
+        ("acos", arm64_native::hle_acos, 2),
+        ("asin", arm64_native::hle_asin, 2),
+        ("fmod", arm64_native::hle_fmod, 2),
+        ("__ieee754_fmod", arm64_native::hle_fmod, 2),
+        ("PSMTXIdentity", arm64_native::hle_psmtx_identity, 0),
+        ("PSMTXScale", arm64_native::hle_psmtx_scale, 0),
+        ("RwCameraFrustumTestSphere", arm64_native::hle_rw_camera_frustum_test_sphere, 1),
+        ("RtIntersectionSphereTriangle", arm64_native::hle_rt_intersection_sphere_triangle, 1),
+        ("RtIntersectionBBoxTriangle", arm64_native::hle_rt_intersection_bbox_triangle, 1),
+        ("xQuickCullIsects__FPC7xQCDataPC7xQCData", arm64_native::hle_xquick_cull_isects, 1),
+        ("properSphereIsectTri__FPC5xVec3fP5xVec3PfP19RpCollisionTriangle", arm64_native::hle_proper_sphere_isect_tri, 1),
+        ("PointWithinTriangle__FP5xVec3PP5xVec3P5xVec3", arm64_native::hle_point_within_triangle, 1),
+        ("RwBBoxCalculate", arm64_native::hle_rw_bbox_calculate, 1),
+        ("_rwGCNDisplayListGetStride", arm64_native::hle_rw_gcn_display_list_get_stride, 1),
+        ("xBoxForTriangle__FR4xBoxRC5xVec3RC5xVec3RC5xVec3", arm64_native::hle_xbox_for_triangle, 0),
+        ("xBoxInitBoundOBB__FP4xBoxPC4xBoxPC7xMat4x3", arm64_native::hle_xbox_init_bound_obb, 0),
+        ("__div2u", arm64_native::hle_div2u, 3),
+        ("__div2i", arm64_native::hle_div2i, 3),
+        ("__mod2u", arm64_native::hle_mod2u, 3),
+        ("__mod2i", arm64_native::hle_mod2i, 3),
+        ("split16", arm64_native::hle_split16, 0),
+        ("split8", arm64_native::hle_split8, 0),
+    ];
+    static CALLS: [AtomicU32; 39] = [const { AtomicU32::new(0) }; 39];
+    static BAD: [AtomicU32; 39] = [const { AtomicU32::new(0) }; 39];
+    static MAX_ERR_E6: [AtomicU32; 39] = [const { AtomicU32::new(0) }; 39];
+    static TOTAL: AtomicU32 = AtomicU32::new(0);
+    const VERIFY: [fn(&mut Ctx) -> bool; 39] = [verify::<0>, verify::<1>, verify::<2>, verify::<3>, verify::<4>, verify::<5>, verify::<6>, verify::<7>, verify::<8>, verify::<9>, verify::<10>, verify::<11>, verify::<12>, verify::<13>, verify::<14>, verify::<15>, verify::<16>, verify::<17>, verify::<18>, verify::<19>, verify::<20>, verify::<21>, verify::<22>, verify::<23>, verify::<24>, verify::<25>, verify::<26>, verify::<27>, verify::<28>, verify::<29>, verify::<30>, verify::<31>, verify::<32>, verify::<33>, verify::<34>, verify::<35>, verify::<36>, verify::<37>, verify::<38>];
+    const WINDOW: u32 = 256;
+
+    pub fn init() {
+        let on = unsafe { switch_file_exists(b"sdmc:/hleverify.flag\0".as_ptr()) } != 0;
+        ON.store(on, Ordering::Relaxed);
+        if on {
+            log_c("[hleverify] checking native replacements against the originals");
+        }
+    }
+
+    pub fn policy(name: &str) -> Option<Hle> {
+        if !ON.load(Ordering::Relaxed) {
+            return None;
+        }
+        TABLE.iter().position(|e| e.0 == name).map(|k| Hle::Replace(VERIFY[k]))
+    }
+
+    fn windows(c: &Ctx) -> [(u32, [u8; WINDOW as usize]); 6] {
+        core::array::from_fn(|i| {
+            let a = c.r[3 + i];
+            let mut w = [0u8; WINDOW as usize];
+            if a >= runtime::mem::RAM_BASE && a < runtime::mem::RAM_BASE + runtime::mem::RAM_SIZE - WINDOW {
+                for (k, b) in w.iter_mut().enumerate() {
+                    *b = c.r8(a + k as u32);
+                }
+                (a, w)
+            } else {
+                (0, w)
+            }
+        })
+    }
+
+    fn put_back(c: &mut Ctx, wins: &[(u32, [u8; WINDOW as usize]); 6]) {
+        for (a, w) in wins.iter().rev() {
+            if *a != 0 {
+                c.slice_mut(*a, WINDOW as usize).copy_from_slice(w);
+            }
+        }
+    }
+
+    fn rel(x: f64, y: f64) -> f64 {
+        if x.to_bits() == y.to_bits() || (x.is_nan() && y.is_nan()) {
+            0.0
+        } else {
+            let e = (x - y).abs() / y.abs().max(1e-6);
+            if e.is_nan() { 1e9 } else { e }
+        }
+    }
+
+    fn verify<const K: usize>(c: &mut Ctx) -> bool {
+        if BUSY.load(Ordering::Relaxed) {
+            return false;
+        }
+        let (name, native, kind) = TABLE[K];
+        let regs = (c.r, c.f, c.ps1, c.cr, c.lr, c.ctr, c.ca, c.xer_rest);
+        let before = windows(c);
+        let addrs: [u32; 6] = core::array::from_fn(|i| before[i].0);
+        if !native(c) {
+            (c.r, c.f, c.ps1, c.cr, c.lr, c.ctr, c.ca, c.xer_rest) = regs;
+            return false;
+        }
+        let n_out = (c.r[3], c.r[4], c.f[1]);
+        let n_mem: [[u8; WINDOW as usize]; 6] = core::array::from_fn(|i| {
+            let mut w = [0u8; WINDOW as usize];
+            if addrs[i] != 0 {
+                for (k, b) in w.iter_mut().enumerate() {
+                    *b = c.r8(addrs[i] + k as u32);
+                }
+            }
+            w
+        });
+        put_back(c, &before);
+        (c.r, c.f, c.ps1, c.cr, c.lr, c.ctr, c.ca, c.xer_rest) = regs;
+        let Some(original) = c.func_by_name(name) else {
+            return false;
+        };
+        BUSY.store(true, Ordering::Relaxed);
+        original(c);
+        BUSY.store(false, Ordering::Relaxed);
+
+        let mut err: f64 = match kind {
+            1 => (n_out.0 != c.r[3]) as u32 as f64,
+            2 => rel(n_out.2 as f32 as f64, c.f[1] as f32 as f64),
+            3 => ((n_out.0, n_out.1) != (c.r[3], c.r[4])) as u32 as f64,
+            _ => 0.0,
+        };
+        for i in 0..6 {
+            if addrs[i] == 0 {
+                continue;
+            }
+            for w in (0..WINDOW as usize).step_by(4) {
+                let o = c.r32(addrs[i] + w as u32);
+                let nw = u32::from_be_bytes(n_mem[i][w..w + 4].try_into().unwrap());
+                if o != nw {
+                    err = err.max(rel(f32::from_bits(nw) as f64, f32::from_bits(o) as f64).min(1e6));
+                }
+            }
+        }
+        CALLS[K].fetch_add(1, Ordering::Relaxed);
+        if err > 1e-4 {
+            if BAD[K].fetch_add(1, Ordering::Relaxed) < 3 {
+                log_c(&format!(
+                    "[hleverify] MISMATCH {}: native r3={:#x} f1={} | original r3={:#x} f1={} | err={:.6} lr={:#010x}",
+                    name, n_out.0, n_out.2, c.r[3], c.f[1], err, regs.4
+                ));
+            }
+        }
+        MAX_ERR_E6[K].fetch_max((err * 1e6).min(4e9) as u32, Ordering::Relaxed);
+        if TOTAL.fetch_add(1, Ordering::Relaxed) % 20000 == 19999 {
+            let mut line = String::from("[hleverify]");
+            for k in 0..TABLE.len() {
+                let n = CALLS[k].load(Ordering::Relaxed);
+                if n != 0 {
+                    line += &format!(
+                        " {}: {}/{} bad max={:.6} |",
+                        TABLE[k].0.split("__").next().unwrap_or(TABLE[k].0),
+                        BAD[k].load(Ordering::Relaxed),
+                        n,
+                        MAX_ERR_E6[k].load(Ordering::Relaxed) as f64 / 1e6
+                    );
+                }
+            }
+            log_c(&line);
+        }
+        true
+    }
+}
+
 fn switch_policy(name: &str) -> Hle {
+    if let Some(h) = hle_verify::policy(name) {
+        return h;
+    }
     match name {
         "OSReport" => Hle::Native(|c| {
             let msg = guest_format(c, 3);
@@ -2791,6 +2997,7 @@ fn switch_policy(name: &str) -> Hle {
         }),
         "OSExitThread" => Hle::Native(|c| sched::exit_current(c)),
         "OSIsThreadSuspended" => Hle::Native(|c| c.r[3] = sched::is_suspended(c.r[3]) as u32),
+        "OSIsThreadTerminated" => Hle::Native(|c| c.r[3] = sched::is_terminated(c.r[3]) as u32),
 
         "OSInitSemaphore" => Hle::Native(|c| {
             let (sem, count) = (c.r[3], c.r[4]);
@@ -3104,7 +3311,12 @@ fn switch_policy(name: &str) -> Hle {
                     } else {
                         let lower = e.path.to_ascii_lowercase();
                         if lower.ends_with("sb04.ini") {
-                            boot_override(&mut buf[..avail as usize]);
+                            // Skip the front end only when a boot scene was asked for
+                            // (sdmc:/scene.txt); otherwise the real title screen and main
+                            // menu run.
+                            if BOOT_SCENE.load(Ordering::Relaxed) != 0 {
+                                boot_override(&mut buf[..avail as usize]);
+                            }
                         } else if lower.ends_with("mnus_us.hip") {
                             autosave_notice(&mut buf[..avail as usize]);
                         }
@@ -3222,9 +3434,7 @@ fn switch_policy(name: &str) -> Hle {
             }
         }),
 
-        // AX mixer & effects: stub dead DSP aux reverb and command list processing
-        "__AXProcessAux" | "AXFXReverbHiCallback" | "AXFXReverbHiCallbackDpl2" | "__AXNextFrame"
-        | "__AXPrintStudio" => Hle::Native(|_| {}),
+        // AX mixer & effects
         _ if ["AX", "__AX", "MIX", "__MIX"].iter().any(|p| name.starts_with(p)) => Hle::Original,
 
         // Memory card
@@ -3237,16 +3447,22 @@ fn switch_policy(name: &str) -> Hle {
         "_rwDlRasterShowRaster" => Hle::Before(before_show_raster),
         "RwGameCubeGetXFBs" => Hle::Replace(replace_get_xfbs),
 
-        // Skip Bink FMV cutscenes cleanly when any button is pressed (from crates/tssm/src/menu.rs::before_movie)
-        "iFMVPlay__FPCcUifUibbi" | "iFMVPlay__FPCcUifUibb" => Hle::Before(|c| {
-            if c.r[4] != 0 {
-                c.r[4] = u32::MAX;
-            }
+        // Bink FMV cutscenes decode directly into the guest YUY2 XFB without GX rendering;
+        // skip them on Switch so boot proceeds directly to the MNUS main menu.
+        "iFMVPlay__FPCcUifUibbi" | "iFMVPlay__FPCcUifUibb" | "zMainMemCardSpaceQuery__Fv" => {
+            Hle::Native(|c| {
+                c.r[3] = 0;
+            })
+        }
+        "FSOUND_Time_Sleep" => Hle::Replace(|c| {
+            // FSOUND_Time_Sleep(0) is called right before locking the stream mutex; keep the
+            // baton on the stream thread until its 10 ms OSSetAlarm + OSSuspendThread sleep.
+            c.r[3] == 0
         }),
 
         "zSceneInit__FUii" => Hle::Before(|c| {
             static FIRST: AtomicBool = AtomicBool::new(true);
-            let target = TARGET_SCENE.load(Ordering::Relaxed);
+            let target = BOOT_SCENE.load(Ordering::Relaxed);
             if FIRST.swap(false, Ordering::Relaxed) && target != 0 {
                 c.r[3] = target;
             }
@@ -3361,17 +3577,18 @@ fn switch_policy(name: &str) -> Hle {
         // Matrix identity/scale & scene culling/collision acceleration
         "PSMTXIdentity" => Hle::Replace(arm64_native::hle_psmtx_identity),
         "PSMTXScale" => Hle::Replace(arm64_native::hle_psmtx_scale),
-        "RwCameraFrustumTestSphere" => Hle::Replace(arm64_native::hle_rw_camera_frustum_test_sphere),
-        "RtIntersectionSphereTriangle" => Hle::Replace(arm64_native::hle_rt_intersection_sphere_triangle),
-        "RtIntersectionBBoxTriangle" => Hle::Replace(arm64_native::hle_rt_intersection_bbox_triangle),
-        "xQuickCullIsects__FPC7xQCDataPC7xQCData" => Hle::Replace(arm64_native::hle_xquick_cull_isects),
-        "properSphereIsectTri__FPC5xVec3fP5xVec3PfP19RpCollisionTriangle" => Hle::Replace(arm64_native::hle_proper_sphere_isect_tri),
-        "PointWithinTriangle__FP5xVec3PP5xVec3P5xVec3" => Hle::Replace(arm64_native::hle_point_within_triangle),
+        // Collision / culling: the recompiled originals. The native versions of these were never
+        // checked against the originals and the player teleported / clipped through geometry;
+        // `sdmc:/hleverify.flag` can compare them again (hle_verify) before re-enabling.
+        "RwCameraFrustumTestSphere"
+        | "RtIntersectionSphereTriangle"
+        | "RtIntersectionBBoxTriangle"
+        | "xQuickCullIsects__FPC7xQCDataPC7xQCData"
+        | "properSphereIsectTri__FPC5xVec3fP5xVec3PfP19RpCollisionTriangle"
+        | "PointWithinTriangle__FP5xVec3PP5xVec3P5xVec3"
+        | "xBoxForTriangle__FR4xBoxRC5xVec3RC5xVec3RC5xVec3" => Hle::Original,
         "RwBBoxCalculate" => Hle::Replace(arm64_native::hle_rw_bbox_calculate),
         "_rwGCNDisplayListGetStride" => Hle::Replace(arm64_native::hle_rw_gcn_display_list_get_stride),
-        "xBoxForTriangle__FR4xBoxRC5xVec3RC5xVec3RC5xVec3" => {
-            Hle::Replace(arm64_native::hle_xbox_for_triangle)
-        }
         "xBoxInitBoundOBB__FP4xBoxPC4xBoxPC7xMat4x3" => {
             Hle::Replace(arm64_native::hle_xbox_init_bound_obb)
         }
@@ -3434,6 +3651,7 @@ pub extern "C" fn tssm_switch_guest_main() {
     }
 
     skin_verify::init();
+    hle_verify::init();
     let mut c = Ctx::new(game::FUNCS, game::HLE_NAMES, switch_policy);
     c.survey = false;
     c.poll_hook = Some(guest_poll_hook);
@@ -3561,6 +3779,7 @@ pub extern "C" fn tssm_switch_set_boot_scene(scene: *const u8) {
         let bytes = unsafe { core::slice::from_raw_parts(scene, 4) };
         if let Ok(arr) = bytes.try_into() {
             let val = u32::from_be_bytes(arr);
+            BOOT_SCENE.store(val, Ordering::Relaxed);
             TARGET_SCENE.store(val, Ordering::Relaxed);
             gl_renderer::CURRENT_SCENE_ID.store(val, Ordering::Relaxed);
         }

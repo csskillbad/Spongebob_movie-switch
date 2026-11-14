@@ -25,7 +25,6 @@ extern void     tssm_switch_set_scale_override(uint32_t scale);
 extern uint32_t tssm_switch_get_current_scene(void);
 extern uint32_t tssm_switch_get_frame_count(void);
 extern uint32_t tssm_switch_get_game_mode(void);
-extern int      tssm_switch_is_in_gameplay(void);
 extern void     tssm_switch_free_ctx(void* ctx);
 
 static Mutex s_log_mutex;
@@ -547,7 +546,6 @@ int main(int argc, char* argv[]) {
     // Optional boot scene override from SD card
     FILE* sf = fopen("sdmc:/scene.txt", "r");
     if (!sf) sf = fopen("sdmc:/switch/tssm/scene.txt", "r");
-    if (!sf) sf = fopen("romfs:/config/scene.txt", "r");
     if (sf) {
         char sname[8] = {0};
         if (fscanf(sf, "%4s", sname) == 1 && strlen(sname) == 4) {
@@ -564,7 +562,6 @@ int main(int argc, char* argv[]) {
 
     // Optional FPS HUD & automated benchmark flag
     bool show_fps = false;
-    bool autodemo = false;
 
     FILE* cf = fopen("sdmc:/switch/tssm/fps_counter.txt", "r");
     if (!cf) cf = fopen("romfs:/config/fps_counter.txt", "r");
@@ -589,15 +586,6 @@ int main(int argc, char* argv[]) {
         fclose(scf);
     }
 
-    FILE* af = fopen("sdmc:/switch/tssm/autodemo.flag", "rb");
-    if (!af) af = fopen("sdmc:/autodemo.flag", "rb");
-    if (!af) af = fopen("romfs:/config/autodemo.flag", "rb");
-    if (af) {
-        fclose(af);
-        autodemo = true;
-        show_fps = true;
-        switch_log("[switch] autodemo.flag detected: automated 60 FPS benchmark & HUD enabled.");
-    }
     tssm_switch_set_fps_enabled(show_fps ? 1 : 0);
 
     // 5. Launch GameCube guest engine on dedicated Core 1 (spawns Core 0 GX worker & Core 2 GL renderer)
@@ -615,7 +603,6 @@ int main(int argc, char* argv[]) {
 
     // 6. Lightweight Core 0 OS & input polling loop (125 Hz, < 0.05% CPU usage)
     u64 prev_kHeld = 0;
-    uint32_t auto_tick = 0;
     uint32_t dock_poll = 0;
 
     while (appletMainLoop()) {
@@ -643,11 +630,6 @@ int main(int argc, char* argv[]) {
         if ((kDown & HidNpadButton_Minus) && !(kHeld & HidNpadButton_Plus)) {
             show_fps = !show_fps;
             tssm_switch_set_fps_enabled(show_fps ? 1 : 0);
-        }
-
-        // Toggle automated demo input with L-Stick + R-Stick click
-        if ((kDown & HidNpadButton_StickL) && (kHeld & HidNpadButton_StickR)) {
-            autodemo = !autodemo;
         }
 
         // Level warp shortcut: hold ZL + press D-Pad Left / Right
@@ -684,47 +666,6 @@ int main(int argc, char* argv[]) {
 
         HidAnalogStickState l_stick = padGetStickPos(&pad, 0);
         HidAnalogStickState r_stick = padGetStickPos(&pad, 1);
-
-        if (autodemo && gc_buttons == 0 && abs(l_stick.x) < 4000 && abs(l_stick.y) < 4000) {
-            auto_tick++;
-
-            bool in_gameplay = (tssm_switch_is_in_gameplay() != 0);
-
-            if (!in_gameplay) {
-                // Not in active gameplay yet (logos, title screen, loading screen, intro FMV, prompts):
-                // Regularly pulse Start every 60 ticks (skips intro FMV and dismisses title screen)
-                uint32_t start_phase = auto_tick % 60;
-                if (start_phase < 6) {
-                    gc_buttons |= 0x1000; // GC Start
-                }
-                // Regularly pulse A to dismiss loading screens, level intros, and prompts
-                uint32_t a_phase = auto_tick % 30;
-                if (a_phase < 6) {
-                    gc_buttons |= 0x0100; // GC A
-                }
-            } else {
-                // In active 3D gameplay (mode == 12): NEVER press Start so pause menu never opens!
-                // Regularly pulse A to dismiss any tutorial dialog
-                uint32_t a_phase = auto_tick % 60;
-                if (a_phase >= 40 && a_phase <= 48) {
-                    gc_buttons |= 0x0100; // GC A
-                }
-
-                // Smooth 3D movement, camera panning, double-jumping, and spin attack
-                l_stick.y = 28000;
-                l_stick.x = (int16_t)(sinf((float)auto_tick * 0.022f) * 16000.0f);
-                r_stick.x = (int16_t)(cosf((float)auto_tick * 0.015f) * 11000.0f);
-
-                uint32_t cycle = auto_tick % 180;
-                if (cycle >= 16 && cycle <= 30) {
-                    gc_buttons |= 0x0100; // Jump
-                } else if (cycle >= 46 && cycle <= 58) {
-                    gc_buttons |= 0x0100; // Double Jump
-                } else if (cycle >= 96 && cycle <= 110) {
-                    gc_buttons |= 0x0200; // Karate Spin
-                }
-            }
-        }
 
         tssm_switch_set_pad(gc_buttons);
         tssm_switch_set_sticks(l_stick.x, l_stick.y, r_stick.x, r_stick.y);
