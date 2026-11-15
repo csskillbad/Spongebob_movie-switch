@@ -282,7 +282,7 @@ mkdir -p "$ROMFS_DIR/config"
 # (logos, title screen, main menu). Both remain available as SD-card files for testing.
 rm -f "$ROMFS_DIR/config/scene.txt" "$ROMFS_DIR/config/autodemo.flag"
 echo "1" > "$ROMFS_DIR/config/fps_counter.txt"
-echo "1" > "$ROMFS_DIR/config/scale.txt"
+rm -f "$ROMFS_DIR/config/scale.txt"
 
 if [ ! -f "$ROMFS_DIR/boot.txt" ]; then
     echo "TSSM Switch RomFS Root" > "$ROMFS_DIR/boot.txt"

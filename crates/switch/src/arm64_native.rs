@@ -23,6 +23,29 @@ extern "C" {
 
     fn switch_neon_matrix_concat_be(mem: *mut u8, a: u32, b: u32, ab: u32);
     fn switch_neon_matrix_mult_be(mem: *mut u8, dst: u32, a: u32, b: u32);
+    fn switch_neon_skin_blend_update_be(
+        mem: *mut u8,
+        out_mtx: u32,
+        inv_bone_mtx: u32,
+        anim_node_mtx: u32,
+        root_mtx: u32,
+        bone_indices: u32,
+        num_bones: u32,
+    );
+    fn switch_neon_transform_points_be(
+        mem: *mut u8,
+        pts_out: u32,
+        pts_in: u32,
+        n: i32,
+        mtx: u32,
+    );
+    fn switch_neon_transform_vectors_be(
+        mem: *mut u8,
+        vecs_out: u32,
+        vecs_in: u32,
+        n: i32,
+        mtx: u32,
+    );
     fn switch_str_hash_be(mem: *const u8, str_ea: u32) -> u32;
     fn switch_str_hash_n_be(mem: *const u8, str_ea: u32, max_len: u32) -> u32;
     fn switch_find_asset_by_type(mask: u32, target_idx: i32) -> i32;
@@ -774,17 +797,7 @@ pub fn hle_rw_v3d_transform_points(c: &mut Ctx) -> bool {
     let mem = c.mem;
     #[cfg(target_arch = "aarch64")]
     unsafe {
-        use core::arch::aarch64::*;
-        let m = neon::load_rw_mtx(mem, mtx);
-        for _ in 0..n {
-            let x = rf32(mem, pts_in);
-            let y = rf32(mem, pts_in.wrapping_add(4));
-            let z = rf32(mem, pts_in.wrapping_add(8));
-            let v = vfmaq_n_f32(vfmaq_n_f32(vfmaq_n_f32(m.3, m.0, x), m.1, y), m.2, z);
-            neon::store3_be(mem, pts_out, v);
-            pts_in = pts_in.wrapping_add(12);
-            pts_out = pts_out.wrapping_add(12);
-        }
+        switch_neon_transform_points_be(mem, pts_out, pts_in, n, mtx);
     }
     #[cfg(not(target_arch = "aarch64"))]
     {
@@ -846,19 +859,7 @@ pub fn hle_rw_v3d_transform_vectors(c: &mut Ctx) -> bool {
     let mem = c.mem;
     #[cfg(target_arch = "aarch64")]
     unsafe {
-        use core::arch::aarch64::*;
-        let m0 = neon::load4_be(mem, mtx);
-        let m1 = neon::load4_be(mem, mtx.wrapping_add(0x10));
-        let m2 = neon::load4_be(mem, mtx.wrapping_add(0x20));
-        for _ in 0..n {
-            let x = rf32(mem, vecs_in);
-            let y = rf32(mem, vecs_in.wrapping_add(4));
-            let z = rf32(mem, vecs_in.wrapping_add(8));
-            let v = vfmaq_n_f32(vfmaq_n_f32(vmulq_n_f32(m0, x), m1, y), m2, z);
-            neon::store3_be(mem, vecs_out, v);
-            vecs_in = vecs_in.wrapping_add(12);
-            vecs_out = vecs_out.wrapping_add(12);
-        }
+        switch_neon_transform_vectors_be(mem, vecs_out, vecs_in, n, mtx);
     }
     #[cfg(not(target_arch = "aarch64"))]
     {
@@ -893,15 +894,7 @@ pub fn hle_skin_matrix_blend_update_asm(c: &mut Ctx) -> bool {
     let mem = c.mem;
     #[cfg(target_arch = "aarch64")]
     unsafe {
-        let root = neon::load_rw_mtx(mem, root_mtx);
-        for i in 0..num_bones {
-            let off = (mr8(mem, bone_indices.wrapping_add(i)) as u32) << 6;
-            let anim = neon::load_rw_mtx(mem, anim_node_mtx.wrapping_add(off));
-            let inv = neon::load_rw_mtx(mem, inv_bone_mtx.wrapping_add(off));
-            let tmp = neon::mul_rw_mtx(anim, root);
-            let res = neon::mul_rw_mtx(inv, tmp);
-            neon::store_rw_mtx_xyz(mem, out_mtx.wrapping_add(off), res);
-        }
+        switch_neon_skin_blend_update_be(mem, out_mtx, inv_bone_mtx, anim_node_mtx, root_mtx, bone_indices, num_bones);
     }
     #[cfg(not(target_arch = "aarch64"))]
     {

@@ -388,15 +388,15 @@ impl Renderer {
     }
 
     #[inline]
-    fn wanted_scale(_height: u32) -> (u32, u32) {
+    fn wanted_scale(height: u32) -> (u32, u32) {
         match SCALE_OVERRIDE.load(Ordering::Relaxed) {
             1 => (1, 1),
             2 => (2, 2),
             3 => (3, 2),
             _ => {
-                // Default to (1, 1) native GameCube resolution for solid 60 FPS on real Switch hardware.
-                // 2x/3x high-res rendering can be opted in via sdmc:/switch/tssm/scale.txt (2).
-                (1, 1)
+                // Handheld (<= 720p): (2, 2) = 1280x1056 EFB (active 1280x720 native 1:1 pixel match)
+                // Docked (> 720p): (3, 2) = 1920x1056 EFB (active 1920x1080 native 1:1 pixel match)
+                if height > 720 { (3, 2) } else { (2, 2) }
             }
         }
     }

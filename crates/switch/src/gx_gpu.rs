@@ -198,8 +198,8 @@ fn decode_raw(
     let ck1 = color_kinds[1];
     let tk0 = tex_kind(0);
     let tk1 = tex_kind(1);
-    if (vcd_lo & 1) == 0
-        && pos_count == 3
+    let has_matrix = (vcd_lo & 1) != 0;
+    if pos_count == 3
         && pos_format == 4
         && !nbt
         && (nk == 0 || normal_format == 4)
@@ -372,6 +372,13 @@ fn decode_raw(
         unsafe {
             let dst = out.as_mut_ptr().add(start);
             for i in 0..count {
+                let matrix = if has_matrix {
+                    let m = (data[o] & 0x3F) as f32;
+                    o += 1;
+                    m
+                } else {
+                    0.0
+                };
                 let pos = fetch_f32x3(mem, data, &mut o, pk, arrays[0], &mut ranges[0]);
                 let normal = if nk != 0 {
                     fetch_f32x3(mem, data, &mut o, nk, arrays[1], &mut ranges[1])
@@ -400,7 +407,7 @@ fn decode_raw(
                 };
                 dst.add(i).write(RawVertex {
                     pos,
-                    pad0: 0.0,
+                    pad0: matrix,
                     normal,
                     pad1: 0.0,
                     colors: [c0, c1],

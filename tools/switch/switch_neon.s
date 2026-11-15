@@ -200,3 +200,307 @@ switch_str_hash_n_be:
 .Lhashn_zero:
     mov w0, #0
     ret
+
+// void switch_neon_skin_blend_update_be(void* mem, uint32_t out_mtx, uint32_t inv_bone_mtx, uint32_t anim_node_mtx, uint32_t root_mtx, uint32_t bone_indices, uint32_t num_bones)
+// x0 = mem, w1 = out_mtx, w2 = inv_bone_mtx, w3 = anim_node_mtx, w4 = root_mtx, w5 = bone_indices, w6 = num_bones
+.global switch_neon_skin_blend_update_be
+.type switch_neon_skin_blend_update_be, %function
+switch_neon_skin_blend_update_be:
+    cbz  w6, .Lskin_done
+
+    and  w1, w1, #0x07FFFFFF
+    add  x1, x0, x1
+    and  w2, w2, #0x07FFFFFF
+    add  x2, x0, x2
+    and  w3, w3, #0x07FFFFFF
+    add  x3, x0, x3
+    and  w4, w4, #0x07FFFFFF
+    add  x4, x0, x4
+    and  w5, w5, #0x07FFFFFF
+    add  x5, x0, x5
+
+    // Load root matrix (4 rows = 64 bytes) once, keep in v4-v7 throughout
+    ld1 {v4.16b}, [x4], #16
+    ld1 {v5.16b}, [x4], #16
+    ld1 {v6.16b}, [x4], #16
+    ld1 {v7.16b}, [x4]
+    rev32 v4.16b, v4.16b
+    rev32 v5.16b, v5.16b
+    rev32 v6.16b, v6.16b
+    rev32 v7.16b, v7.16b
+
+.Lskin_loop:
+    ldrb w8, [x5], #1               // bone index
+    lsl  w8, w8, #6                 // off = bone_index * 64
+    and  x8, x8, #0x07FFFFFF
+
+    // Load anim matrix (4 rows)
+    add  x9, x3, x8
+    ld1 {v0.16b}, [x9], #16
+    ld1 {v1.16b}, [x9], #16
+    ld1 {v2.16b}, [x9], #16
+    ld1 {v3.16b}, [x9]
+    rev32 v0.16b, v0.16b
+    rev32 v1.16b, v1.16b
+    rev32 v2.16b, v2.16b
+    rev32 v3.16b, v3.16b
+
+    // tmp = anim * root
+    // row 0:
+    fmul v16.4s, v4.4s, v0.s[0]
+    fmla v16.4s, v5.4s, v0.s[1]
+    fmla v16.4s, v6.4s, v0.s[2]
+
+    // row 1:
+    fmul v17.4s, v4.4s, v1.s[0]
+    fmla v17.4s, v5.4s, v1.s[1]
+    fmla v17.4s, v6.4s, v1.s[2]
+
+    // row 2:
+    fmul v18.4s, v4.4s, v2.s[0]
+    fmla v18.4s, v5.4s, v2.s[1]
+    fmla v18.4s, v6.4s, v2.s[2]
+
+    // row 3:
+    fmul v19.4s, v4.4s, v3.s[0]
+    fmla v19.4s, v5.4s, v3.s[1]
+    fmla v19.4s, v6.4s, v3.s[2]
+    fadd v19.4s, v19.4s, v7.4s
+
+    // Load inv matrix (4 rows)
+    add  x9, x2, x8
+    ld1 {v0.16b}, [x9], #16
+    ld1 {v1.16b}, [x9], #16
+    ld1 {v2.16b}, [x9], #16
+    ld1 {v3.16b}, [x9]
+    rev32 v0.16b, v0.16b
+    rev32 v1.16b, v1.16b
+    rev32 v2.16b, v2.16b
+    rev32 v3.16b, v3.16b
+
+    // res = inv * tmp
+    // row 0:
+    fmul v20.4s, v16.4s, v0.s[0]
+    fmla v20.4s, v17.4s, v0.s[1]
+    fmla v20.4s, v18.4s, v0.s[2]
+
+    // row 1:
+    fmul v21.4s, v16.4s, v1.s[0]
+    fmla v21.4s, v17.4s, v1.s[1]
+    fmla v21.4s, v18.4s, v1.s[2]
+
+    // row 2:
+    fmul v22.4s, v16.4s, v2.s[0]
+    fmla v22.4s, v17.4s, v2.s[1]
+    fmla v22.4s, v18.4s, v2.s[2]
+
+    // row 3:
+    fmul v23.4s, v16.4s, v3.s[0]
+    fmla v23.4s, v17.4s, v3.s[1]
+    fmla v23.4s, v18.4s, v3.s[2]
+    fadd v23.4s, v23.4s, v19.4s
+
+    // rev32 to big-endian
+    rev32 v20.16b, v20.16b
+    rev32 v21.16b, v21.16b
+    rev32 v22.16b, v22.16b
+    rev32 v23.16b, v23.16b
+
+    // Store xyz (12 bytes) of rows 0..3 to out_mtx + off
+    add  x9, x1, x8
+    st1 {v20.s}[0], [x9], #4
+    st1 {v20.s}[1], [x9], #4
+    st1 {v20.s}[2], [x9], #4
+    add  x9, x9, #4
+
+    st1 {v21.s}[0], [x9], #4
+    st1 {v21.s}[1], [x9], #4
+    st1 {v21.s}[2], [x9], #4
+    add  x9, x9, #4
+
+    st1 {v22.s}[0], [x9], #4
+    st1 {v22.s}[1], [x9], #4
+    st1 {v22.s}[2], [x9], #4
+    add  x9, x9, #4
+
+    st1 {v23.s}[0], [x9], #4
+    st1 {v23.s}[1], [x9], #4
+    st1 {v23.s}[2], [x9]
+
+    subs w6, w6, #1
+    bne  .Lskin_loop
+
+.Lskin_done:
+    ret
+
+// void switch_neon_transform_points_be(void* mem, uint32_t pts_out, uint32_t pts_in, int32_t n, uint32_t mtx)
+// x0 = mem, w1 = pts_out, w2 = pts_in, w3 = n, w4 = mtx
+.global switch_neon_transform_points_be
+.type switch_neon_transform_points_be, %function
+switch_neon_transform_points_be:
+    cmp  w3, #0
+    ble  .Lpts_done
+
+    and  w1, w1, #0x07FFFFFF
+    add  x1, x0, x1
+    and  w2, w2, #0x07FFFFFF
+    add  x2, x0, x2
+    and  w4, w4, #0x07FFFFFF
+    add  x4, x0, x4
+
+    // Load matrix: m0 (right), m1 (up), m2 (at), m3 (pos)
+    ld1 {v4.16b}, [x4], #16
+    ld1 {v5.16b}, [x4], #16
+    ld1 {v6.16b}, [x4], #16
+    ld1 {v7.16b}, [x4]
+    rev32 v4.16b, v4.16b
+    rev32 v5.16b, v5.16b
+    rev32 v6.16b, v6.16b
+    rev32 v7.16b, v7.16b
+
+    // Unroll 2 vertices per iteration if n >= 2
+    subs w3, w3, #2
+    blt  .Lpts_tail
+
+.Lpts_loop2:
+    // Vertex 0: load 3 floats
+    ld1 {v0.s}[0], [x2], #4
+    ld1 {v0.s}[1], [x2], #4
+    ld1 {v0.s}[2], [x2], #4
+
+    // Vertex 1: load 3 floats
+    ld1 {v2.s}[0], [x2], #4
+    ld1 {v2.s}[1], [x2], #4
+    ld1 {v2.s}[2], [x2], #4
+
+    rev32 v0.16b, v0.16b
+    rev32 v2.16b, v2.16b
+
+    // Dual-pipeline transform
+    fmul v1.4s, v4.4s, v0.s[0]
+    fmul v3.4s, v4.4s, v2.s[0]
+    fmla v1.4s, v5.4s, v0.s[1]
+    fmla v3.4s, v5.4s, v2.s[1]
+    fmla v1.4s, v6.4s, v0.s[2]
+    fmla v3.4s, v6.4s, v2.s[2]
+    fadd v1.4s, v1.4s, v7.4s
+    fadd v3.4s, v3.4s, v7.4s
+
+    rev32 v1.16b, v1.16b
+    rev32 v3.16b, v3.16b
+
+    // Store Vertex 0
+    st1 {v1.s}[0], [x1], #4
+    st1 {v1.s}[1], [x1], #4
+    st1 {v1.s}[2], [x1], #4
+
+    // Store Vertex 1
+    st1 {v3.s}[0], [x1], #4
+    st1 {v3.s}[1], [x1], #4
+    st1 {v3.s}[2], [x1], #4
+
+    subs w3, w3, #2
+    bge  .Lpts_loop2
+
+.Lpts_tail:
+    adds w3, w3, #2
+    ble  .Lpts_done
+
+    // Single remainder vertex
+    ld1 {v0.s}[0], [x2], #4
+    ld1 {v0.s}[1], [x2], #4
+    ld1 {v0.s}[2], [x2], #4
+    rev32 v0.16b, v0.16b
+
+    fmul v1.4s, v4.4s, v0.s[0]
+    fmla v1.4s, v5.4s, v0.s[1]
+    fmla v1.4s, v6.4s, v0.s[2]
+    fadd v1.4s, v1.4s, v7.4s
+
+    rev32 v1.16b, v1.16b
+    st1 {v1.s}[0], [x1], #4
+    st1 {v1.s}[1], [x1], #4
+    st1 {v1.s}[2], [x1], #4
+
+.Lpts_done:
+    ret
+
+// void switch_neon_transform_vectors_be(void* mem, uint32_t vecs_out, uint32_t vecs_in, int32_t n, uint32_t mtx)
+// x0 = mem, w1 = vecs_out, w2 = vecs_in, w3 = n, w4 = mtx
+.global switch_neon_transform_vectors_be
+.type switch_neon_transform_vectors_be, %function
+switch_neon_transform_vectors_be:
+    cmp  w3, #0
+    ble  .Lvecs_done
+
+    and  w1, w1, #0x07FFFFFF
+    add  x1, x0, x1
+    and  w2, w2, #0x07FFFFFF
+    add  x2, x0, x2
+    and  w4, w4, #0x07FFFFFF
+    add  x4, x0, x4
+
+    // Load matrix rows: m0, m1, m2 (no translation needed)
+    ld1 {v4.16b}, [x4], #16
+    ld1 {v5.16b}, [x4], #16
+    ld1 {v6.16b}, [x4]
+    rev32 v4.16b, v4.16b
+    rev32 v5.16b, v5.16b
+    rev32 v6.16b, v6.16b
+
+    subs w3, w3, #2
+    blt  .Lvecs_tail
+
+.Lvecs_loop2:
+    ld1 {v0.s}[0], [x2], #4
+    ld1 {v0.s}[1], [x2], #4
+    ld1 {v0.s}[2], [x2], #4
+
+    ld1 {v2.s}[0], [x2], #4
+    ld1 {v2.s}[1], [x2], #4
+    ld1 {v2.s}[2], [x2], #4
+
+    rev32 v0.16b, v0.16b
+    rev32 v2.16b, v2.16b
+
+    fmul v1.4s, v4.4s, v0.s[0]
+    fmul v3.4s, v4.4s, v2.s[0]
+    fmla v1.4s, v5.4s, v0.s[1]
+    fmla v3.4s, v5.4s, v2.s[1]
+    fmla v1.4s, v6.4s, v0.s[2]
+    fmla v3.4s, v6.4s, v2.s[2]
+
+    rev32 v1.16b, v1.16b
+    rev32 v3.16b, v3.16b
+
+    st1 {v1.s}[0], [x1], #4
+    st1 {v1.s}[1], [x1], #4
+    st1 {v1.s}[2], [x1], #4
+
+    st1 {v3.s}[0], [x1], #4
+    st1 {v3.s}[1], [x1], #4
+    st1 {v3.s}[2], [x1], #4
+
+    subs w3, w3, #2
+    bge  .Lvecs_loop2
+
+.Lvecs_tail:
+    adds w3, w3, #2
+    ble  .Lvecs_done
+
+    ld1 {v0.s}[0], [x2], #4
+    ld1 {v0.s}[1], [x2], #4
+    ld1 {v0.s}[2], [x2], #4
+    rev32 v0.16b, v0.16b
+
+    fmul v1.4s, v4.4s, v0.s[0]
+    fmla v1.4s, v5.4s, v0.s[1]
+    fmla v1.4s, v6.4s, v0.s[2]
+
+    rev32 v1.16b, v1.16b
+    st1 {v1.s}[0], [x1], #4
+    st1 {v1.s}[1], [x1], #4
+    st1 {v1.s}[2], [x1], #4
+
+.Lvecs_done:
+    ret
