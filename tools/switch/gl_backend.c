@@ -86,6 +86,7 @@ typedef struct {
             uint32_t w;
             uint32_t h;
             const uint8_t* rgba;
+            uint8_t  async_free;
         } upload_tex;
         struct {
             uint8_t wrap_s;
@@ -99,6 +100,7 @@ typedef struct {
             uint32_t idx_offset_elems;
             const void* indices;
             uint32_t idx_bytes;
+            uint8_t  async_free;
         } cache_upload;
         struct {
             uint32_t efb_w;
@@ -540,16 +542,10 @@ static uint32_t ring_upload(RingBuffer* rb, const void* data, uint32_t bytes, ui
         rb->capacity = new_cap;
         glBindBuffer(GL_COPY_WRITE_BUFFER, rb->id);
         glBufferData(GL_COPY_WRITE_BUFFER, new_cap, NULL, GL_DYNAMIC_DRAW);
-        if (rb == &s_ring_verts || rb == &s_ring_raw || rb == &s_ring_indices || rb == &s_ring_overlay) {
-            rebind_streaming_vaos();
-        }
         aligned = 0;
     } else if (aligned + bytes > rb->capacity) {
         glBindBuffer(GL_COPY_WRITE_BUFFER, rb->id);
         glBufferData(GL_COPY_WRITE_BUFFER, rb->capacity, NULL, GL_DYNAMIC_DRAW);
-        if (rb == &s_ring_verts || rb == &s_ring_raw || rb == &s_ring_indices || rb == &s_ring_overlay) {
-            rebind_streaming_vaos();
-        }
         aligned = 0;
     }
     glBindBuffer(GL_COPY_WRITE_BUFFER, rb->id);
@@ -1139,10 +1135,14 @@ static void gl_thread_entry(void* arg) {
                 glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
                 glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
                 glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, (GLsizei)cmd.upload_tex.w, (GLsizei)cmd.upload_tex.h, 0, GL_RGBA, GL_UNSIGNED_BYTE, cmd.upload_tex.rgba);
-                mutexLock(&s_gl_mutex);
-                if (cmd.out_u32) *cmd.out_u32 = tex;
-                condvarWakeAll(&s_gl_cond_sync_done);
-                mutexUnlock(&s_gl_mutex);
+                if (cmd.upload_tex.async_free) {
+                    free((void*)cmd.upload_tex.rgba);
+                } else {
+                    mutexLock(&s_gl_mutex);
+                    if (cmd.out_u32) *cmd.out_u32 = tex;
+                    condvarWakeAll(&s_gl_cond_sync_done);
+                    mutexUnlock(&s_gl_mutex);
+                }
                 break;
             }
             case GL_CMD_CREATE_SAMPLER: {
@@ -1171,9 +1171,14 @@ static void gl_thread_entry(void* arg) {
                     glBindBuffer(GL_COPY_WRITE_BUFFER, s_ibo_cache);
                     glBufferSubData(GL_COPY_WRITE_BUFFER, (GLintptr)cmd.cache_upload.idx_offset_elems * 4, cmd.cache_upload.idx_bytes, cmd.cache_upload.indices);
                 }
-                mutexLock(&s_gl_mutex);
-                condvarWakeAll(&s_gl_cond_sync_done);
-                mutexUnlock(&s_gl_mutex);
+                if (cmd.cache_upload.async_free) {
+                    free((void*)cmd.cache_upload.verts);
+                    free((void*)cmd.cache_upload.indices);
+                } else {
+                    mutexLock(&s_gl_mutex);
+                    condvarWakeAll(&s_gl_cond_sync_done);
+                    mutexUnlock(&s_gl_mutex);
+                }
                 break;
             }
             case GL_CMD_RESIZE_EFB: {
@@ -1415,21 +1420,46 @@ uint32_t switch_gl_link_program(uint32_t fs_id, uint32_t is_raw) {
 }
 
 uint32_t switch_gl_upload_texture(uint32_t existing_tex, uint32_t w, uint32_t h, const uint8_t* rgba) {
-    uint32_t res = 0;
+    size_t bytes = (size_t)w * (size_t)h * 4;
+    uint32_t tex = existing_tex;
+    uint8_t* copy = (bytes > 0 && rgba != NULL) ? (uint8_t*)malloc(bytes) : NULL;
+    if (copy != NULL) {
+        memcpy(copy, rgba, bytes);
+    }
+
     mutexLock(&s_gl_mutex);
+    if (tex == 0 && copy != NULL && s_pregen_tex_count > 0) {
+        tex = s_pregen_tex[--s_pregen_tex_count];
+    }
+    bool is_async = (tex != 0) && (copy != NULL || bytes == 0 || rgba == NULL);
+    if (!is_async && copy != NULL) {
+        free(copy);
+        copy = NULL;
+    }
+
     while (s_queue_head - s_queue_tail >= GL_QUEUE_CAPACITY && !s_gl_exit) {
         condvarWait(&s_gl_cond_queue_free, &s_gl_mutex);
     }
+    if (s_gl_exit) {
+        mutexUnlock(&s_gl_mutex);
+        free(copy);
+        return tex;
+    }
+
+    uint32_t res = tex;
     GlCommand* cmd = &s_queue[s_queue_head % GL_QUEUE_CAPACITY];
     s_queue_head++;
     cmd->type = GL_CMD_UPLOAD_TEXTURE;
-    cmd->upload_tex.existing_tex = existing_tex;
+    cmd->upload_tex.existing_tex = tex;
     cmd->upload_tex.w = w;
     cmd->upload_tex.h = h;
-    cmd->upload_tex.rgba = rgba;
-    cmd->out_u32 = &res;
+    cmd->upload_tex.rgba = is_async ? copy : rgba;
+    cmd->upload_tex.async_free = is_async ? 1 : 0;
+    cmd->out_u32 = is_async ? NULL : &res;
     condvarWakeAll(&s_gl_cond_work);
-    condvarWait(&s_gl_cond_sync_done, &s_gl_mutex);
+    if (!is_async) {
+        condvarWait(&s_gl_cond_sync_done, &s_gl_mutex);
+    }
     mutexUnlock(&s_gl_mutex);
     return res;
 }
@@ -1461,21 +1491,44 @@ void switch_gl_cache_upload(
     const void* indices,
     uint32_t idx_bytes
 ) {
+    void* verts_copy = (vert_bytes > 0 && verts != NULL) ? malloc(vert_bytes) : NULL;
+    void* idx_copy = (idx_bytes > 0 && indices != NULL) ? malloc(idx_bytes) : NULL;
+    bool copy_ok = ((vert_bytes == 0 || verts == NULL || verts_copy != NULL) &&
+                    (idx_bytes == 0 || indices == NULL || idx_copy != NULL));
+    if (copy_ok) {
+        if (verts_copy) memcpy(verts_copy, verts, vert_bytes);
+        if (idx_copy) memcpy(idx_copy, indices, idx_bytes);
+    } else {
+        free(verts_copy);
+        free(idx_copy);
+        verts_copy = NULL;
+        idx_copy = NULL;
+    }
+
     mutexLock(&s_gl_mutex);
     while (s_queue_head - s_queue_tail >= GL_QUEUE_CAPACITY && !s_gl_exit) {
         condvarWait(&s_gl_cond_queue_free, &s_gl_mutex);
+    }
+    if (s_gl_exit) {
+        mutexUnlock(&s_gl_mutex);
+        free(verts_copy);
+        free(idx_copy);
+        return;
     }
     GlCommand* cmd = &s_queue[s_queue_head % GL_QUEUE_CAPACITY];
     s_queue_head++;
     cmd->type = GL_CMD_CACHE_UPLOAD;
     cmd->cache_upload.vert_offset_elems = vert_offset_elems;
-    cmd->cache_upload.verts = verts;
+    cmd->cache_upload.verts = copy_ok ? verts_copy : verts;
     cmd->cache_upload.vert_bytes = vert_bytes;
     cmd->cache_upload.idx_offset_elems = idx_offset_elems;
-    cmd->cache_upload.indices = indices;
+    cmd->cache_upload.indices = copy_ok ? idx_copy : indices;
     cmd->cache_upload.idx_bytes = idx_bytes;
+    cmd->cache_upload.async_free = copy_ok ? 1 : 0;
     condvarWakeAll(&s_gl_cond_work);
-    condvarWait(&s_gl_cond_sync_done, &s_gl_mutex);
+    if (!copy_ok) {
+        condvarWait(&s_gl_cond_sync_done, &s_gl_mutex);
+    }
     mutexUnlock(&s_gl_mutex);
 }
 

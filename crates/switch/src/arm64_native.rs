@@ -997,73 +997,81 @@ fn skin_update_generic<const WEIGHTS: usize, const NORMALS: bool>(c: &mut Ctx) -
     let gqr7 = c.spr[919];
     let pos_stride = pos_comp.wrapping_mul(3);
     let nrm_stride = nrm_comp.wrapping_mul(3).wrapping_add(nrm_skip);
+    crate::mark_skinned_range(out_pos, (num_verts as u32).saturating_mul(pos_stride));
+    if NORMALS && out_nrm != 0 {
+        crate::mark_skinned_range(out_nrm, (num_verts as u32).saturating_mul(nrm_stride));
+    }
     const W_SCALE: f32 = 1.0 / 128.0;
 
     let fast_f32 = (gqr6 & 0x0004_0004) == 0
         && pos_comp == 4
         && (!NORMALS || ((gqr7 & 0x0004_0004) == 0 && nrm_comp == 4));
 
-    if fast_f32 {
-        #[cfg(target_arch = "aarch64")]
-        unsafe {
-            use core::arch::aarch64::*;
-            for _ in 0..num_verts {
-                let px = rf32(mem, in_pos);
-                let py = rf32(mem, in_pos.wrapping_add(4));
-                let pz = rf32(mem, in_pos.wrapping_add(8));
-                let (nx, ny, nz) = if NORMALS {
-                    (rf32(mem, in_nrm), rf32(mem, in_nrm.wrapping_add(4)), rf32(mem, in_nrm.wrapping_add(8)))
-                } else {
-                    (0.0, 0.0, 0.0)
-                };
+    #[cfg(target_arch = "aarch64")]
+    unsafe {
+        use core::arch::aarch64::*;
+        for _ in 0..num_verts {
+            let (px, py, pz) = if fast_f32 {
+                (rf32(mem, in_pos), rf32(mem, in_pos.wrapping_add(4)), rf32(mem, in_pos.wrapping_add(8)))
+            } else {
+                read_quantized_v3(c, in_pos, pos_comp, gqr6)
+            };
+            let (nx, ny, nz) = if !NORMALS {
+                (0.0, 0.0, 0.0)
+            } else if fast_f32 {
+                (rf32(mem, in_nrm), rf32(mem, in_nrm.wrapping_add(4)), rf32(mem, in_nrm.wrapping_add(8)))
+            } else {
+                read_quantized_v3(c, in_nrm, nrm_comp, gqr7)
+            };
 
-                let (b, w): ([u32; 4], [u8; 4]) = match WEIGHTS {
-                    2 => {
-                        let idx = mr16(mem, i_ptr) as u32;
-                        let wb = mr16(mem, w_ptr);
-                        ([idx >> 8, idx & 0xFF, 0, 0], [(wb >> 8) as u8, wb as u8, 0, 0])
-                    }
-                    3 => (
-                        [mr8(mem, i_ptr) as u32, mr8(mem, i_ptr.wrapping_add(1)) as u32, mr8(mem, i_ptr.wrapping_add(2)) as u32, 0],
-                        [mr8(mem, w_ptr), mr8(mem, w_ptr.wrapping_add(1)), mr8(mem, w_ptr.wrapping_add(2)), 0],
-                    ),
-                    _ => {
-                        let idx = mr32(mem, i_ptr);
-                        let wb = mr32(mem, w_ptr);
-                        (
-                            [(idx >> 24) & 0xFF, (idx >> 16) & 0xFF, (idx >> 8) & 0xFF, idx & 0xFF],
-                            [(wb >> 24) as u8, (wb >> 16) as u8, (wb >> 8) as u8, wb as u8],
-                        )
-                    }
-                };
-                w_ptr = w_ptr.wrapping_add(WEIGHTS as u32);
-                i_ptr = i_ptr.wrapping_add(WEIGHTS as u32);
-
-                let m0 = neon::load_rw_mtx(mem, mtx_array.wrapping_add(b[0] << 6));
-                let w0 = (w[0] as f32) * W_SCALE;
-                let tp0 = vfmaq_n_f32(vfmaq_n_f32(vfmaq_n_f32(m0.3, m0.0, px), m0.1, py), m0.2, pz);
-                let mut acc_p = vmulq_n_f32(tp0, w0);
-                let mut acc_n = if NORMALS {
-                    let tn0 = vfmaq_n_f32(vfmaq_n_f32(vmulq_n_f32(m0.0, nx), m0.1, ny), m0.2, nz);
-                    vmulq_n_f32(tn0, w0)
-                } else {
-                    vdupq_n_f32(0.0)
-                };
-
-                for k in 1..WEIGHTS {
-                    if w[k] == 0 {
-                        break;
-                    }
-                    let wk = (w[k] as f32) * W_SCALE;
-                    let mk = neon::load_rw_mtx(mem, mtx_array.wrapping_add(b[k] << 6));
-                    let tpk = vfmaq_n_f32(vfmaq_n_f32(vfmaq_n_f32(mk.3, mk.0, px), mk.1, py), mk.2, pz);
-                    acc_p = vfmaq_n_f32(acc_p, tpk, wk);
-                    if NORMALS {
-                        let tnk = vfmaq_n_f32(vfmaq_n_f32(vmulq_n_f32(mk.0, nx), mk.1, ny), mk.2, nz);
-                        acc_n = vfmaq_n_f32(acc_n, tnk, wk);
-                    }
+            let (b, w): ([u32; 4], [u8; 4]) = match WEIGHTS {
+                2 => {
+                    let idx = mr16(mem, i_ptr) as u32;
+                    let wb = mr16(mem, w_ptr);
+                    ([idx >> 8, idx & 0xFF, 0, 0], [(wb >> 8) as u8, wb as u8, 0, 0])
                 }
+                3 => (
+                    [mr8(mem, i_ptr) as u32, mr8(mem, i_ptr.wrapping_add(1)) as u32, mr8(mem, i_ptr.wrapping_add(2)) as u32, 0],
+                    [mr8(mem, w_ptr), mr8(mem, w_ptr.wrapping_add(1)), mr8(mem, w_ptr.wrapping_add(2)), 0],
+                ),
+                _ => {
+                    let idx = mr32(mem, i_ptr);
+                    let wb = mr32(mem, w_ptr);
+                    (
+                        [(idx >> 24) & 0xFF, (idx >> 16) & 0xFF, (idx >> 8) & 0xFF, idx & 0xFF],
+                        [(wb >> 24) as u8, (wb >> 16) as u8, (wb >> 8) as u8, wb as u8],
+                    )
+                }
+            };
+            w_ptr = w_ptr.wrapping_add(WEIGHTS as u32);
+            i_ptr = i_ptr.wrapping_add(WEIGHTS as u32);
 
+            let m0 = neon::load_rw_mtx(mem, mtx_array.wrapping_add(b[0] << 6));
+            let w0 = (w[0] as f32) * W_SCALE;
+            let tp0 = vfmaq_n_f32(vfmaq_n_f32(vfmaq_n_f32(m0.3, m0.0, px), m0.1, py), m0.2, pz);
+            let mut acc_p = vmulq_n_f32(tp0, w0);
+            let mut acc_n = if NORMALS {
+                let tn0 = vfmaq_n_f32(vfmaq_n_f32(vmulq_n_f32(m0.0, nx), m0.1, ny), m0.2, nz);
+                vmulq_n_f32(tn0, w0)
+            } else {
+                vdupq_n_f32(0.0)
+            };
+
+            for k in 1..WEIGHTS {
+                if w[k] == 0 {
+                    break;
+                }
+                let wk = (w[k] as f32) * W_SCALE;
+                let mk = neon::load_rw_mtx(mem, mtx_array.wrapping_add(b[k] << 6));
+                let tpk = vfmaq_n_f32(vfmaq_n_f32(vfmaq_n_f32(mk.3, mk.0, px), mk.1, py), mk.2, pz);
+                acc_p = vfmaq_n_f32(acc_p, tpk, wk);
+                if NORMALS {
+                    let tnk = vfmaq_n_f32(vfmaq_n_f32(vmulq_n_f32(mk.0, nx), mk.1, ny), mk.2, nz);
+                    acc_n = vfmaq_n_f32(acc_n, tnk, wk);
+                }
+            }
+
+            if fast_f32 {
                 neon::store3_be(mem, out_pos, acc_p);
                 in_pos = in_pos.wrapping_add(12);
                 out_pos = out_pos.wrapping_add(12);
@@ -1072,13 +1080,37 @@ fn skin_update_generic<const WEIGHTS: usize, const NORMALS: bool>(c: &mut Ctx) -
                     in_nrm = in_nrm.wrapping_add(nrm_stride);
                     out_nrm = out_nrm.wrapping_add(nrm_stride);
                 }
+            } else {
+                write_quantized_v3(
+                    mem,
+                    out_pos,
+                    pos_comp,
+                    gqr6,
+                    vgetq_lane_f32::<0>(acc_p),
+                    vgetq_lane_f32::<1>(acc_p),
+                    vgetq_lane_f32::<2>(acc_p),
+                );
+                in_pos = in_pos.wrapping_add(pos_stride);
+                out_pos = out_pos.wrapping_add(pos_stride);
+                if NORMALS {
+                    write_quantized_v3(
+                        mem,
+                        out_nrm,
+                        nrm_comp,
+                        gqr7,
+                        vgetq_lane_f32::<0>(acc_n),
+                        vgetq_lane_f32::<1>(acc_n),
+                        vgetq_lane_f32::<2>(acc_n),
+                    );
+                    in_nrm = in_nrm.wrapping_add(nrm_stride);
+                    out_nrm = out_nrm.wrapping_add(nrm_stride);
+                }
             }
-            return true;
         }
+        return true;
     }
 
-    // General path supporting arbitrary GQR6 / GQR7 fixed-point quantization (e.g. zReactive grass)
-    // and non-aarch64 builds.
+    // Non-aarch64 fallback path.
     for _ in 0..num_verts {
         let (px, py, pz) = read_quantized_v3(c, in_pos, pos_comp, gqr6);
         let (nx, ny, nz) = if NORMALS { read_quantized_v3(c, in_nrm, nrm_comp, gqr7) } else { (0.0, 0.0, 0.0) };
@@ -3111,6 +3143,114 @@ pub fn hle_xbox_init_bound_obb(c: &mut Ctx) -> bool {
     true
 }
 
+/// Native `xStrHash__FPCc(const char* str)` (`0x80222788`).
+pub fn hle_xstr_hash(c: &mut Ctx) -> bool {
+    let mem = c.mem;
+    let mut p = c.r[3];
+    let mut h = 0u32;
+    loop {
+        let ch = mr8(mem, p) as u32;
+        if ch == 0 {
+            break;
+        }
+        p = p.wrapping_add(1);
+        let sub = (ch & ((ch >> 1) & 0x7F)) & 0x20;
+        let folded = ch.wrapping_sub(sub) & 0xFF;
+        h = h.wrapping_mul(131).wrapping_add(folded);
+    }
+    c.r[3] = h;
+    true
+}
 
+/// Native `xStrHash__FPCcUl(const char* str, unsigned long max_len)` (`0x8022273C`).
+pub fn hle_xstr_hash_n(c: &mut Ctx) -> bool {
+    let mem = c.mem;
+    let mut p = c.r[3];
+    let max_len = c.r[4];
+    let mut h = 0u32;
+    let mut n = 0u32;
+    while n < max_len {
+        let ch = mr8(mem, p) as u32;
+        if ch == 0 {
+            break;
+        }
+        n = n.wrapping_add(1);
+        p = p.wrapping_add(1);
+        let sub = (ch & ((ch >> 1) & 0x7F)) & 0x20;
+        let folded = ch.wrapping_sub(sub) & 0xFF;
+        h = h.wrapping_mul(131).wrapping_add(folded);
+    }
+    c.r[3] = h;
+    true
+}
 
+/// Native `PKR_AssetCount(st_PACKER_READ_DATA* pr, unsigned int type)` (`0x80197B20`).
+pub fn hle_pkr_asset_count(c: &mut Ctx) -> bool {
+    let mem = c.mem;
+    let pr = c.r[3];
+    let ty = c.r[4];
+    if ty == 0 {
+        c.r[3] = mr32(mem, pr.wrapping_add(0xB4));
+        return true;
+    }
+    let mut p = mr32(mem, pr);
+    let mut idx = 0u32;
+    loop {
+        let t = mr32(mem, p);
+        if t == 0 {
+            c.r[3] = 0;
+            return true;
+        }
+        if t == ty {
+            let off = (idx << 4).wrapping_add(0xDC);
+            c.r[3] = mr32(mem, pr.wrapping_add(off));
+            return true;
+        }
+        idx = idx.wrapping_add(1);
+        p = p.wrapping_add(0x28);
+    }
+}
 
+/// Native `PKR_AssetByType(st_PACKER_READ_DATA* pr, unsigned int type, int idx, unsigned int* size)` (`0x80197A7C`).
+pub fn hle_pkr_asset_by_type(c: &mut Ctx) -> bool {
+    let mem = c.mem;
+    let pr = c.r[3];
+    let ty = c.r[4];
+    let idx = (c.r[5] as i32).max(0);
+    let size_out = c.r[6];
+    if size_out != 0 {
+        mw32(mem, size_out, 0);
+    }
+    let mut p = mr32(mem, pr);
+    let mut slot = -1i32;
+    let mut i = 0i32;
+    loop {
+        let t = mr32(mem, p);
+        if t == 0 {
+            break;
+        }
+        if t == ty {
+            slot = i;
+            break;
+        }
+        i += 1;
+        p = p.wrapping_add(0x28);
+    }
+    if slot < 0 {
+        c.r[3] = 0;
+        return true;
+    }
+    let entry_list = pr.wrapping_add(((slot as u32) << 4).wrapping_add(0xD8));
+    let count = mr32(mem, entry_list.wrapping_add(4)) as i32;
+    if idx >= count {
+        c.r[3] = 0;
+        return true;
+    }
+    let base = mr32(mem, entry_list);
+    let asset_hdr = mr32(mem, base.wrapping_add((idx as u32) << 2));
+    if size_out != 0 {
+        mw32(mem, size_out, mr32(mem, asset_hdr.wrapping_add(0x0C)));
+    }
+    c.r[3] = mr32(mem, asset_hdr.wrapping_add(0x24));
+    true
+}

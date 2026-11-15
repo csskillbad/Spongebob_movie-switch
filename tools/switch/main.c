@@ -560,7 +560,7 @@ int main(int argc, char* argv[]) {
         fclose(sf);
     }
 
-    // Optional FPS HUD & automated benchmark flag
+    // Optional FPS HUD flag
     bool show_fps = false;
 
     FILE* cf = fopen("sdmc:/switch/tssm/fps_counter.txt", "r");

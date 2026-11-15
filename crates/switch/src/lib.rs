@@ -204,6 +204,56 @@ pub(crate) fn dlstat(k: usize, n: u64) {
     DLSTAT[k].fetch_add(n, Ordering::Relaxed);
 }
 
+/// 4 KB guest RAM blocks written by CPU skinning (`_rwDlSkinUpdate*`). Display lists referencing
+/// these blocks skip static cache hashing (`spans_hash`/`exact_hash`) and decode straight into
+/// `Ahead::Owned`.
+const SKINNED_BLOCK_COUNT: usize = (runtime::mem::RAM_SIZE as usize) >> 12;
+static SKINNED_BLOCKS: [core::sync::atomic::AtomicU8; SKINNED_BLOCK_COUNT] =
+    [const { core::sync::atomic::AtomicU8::new(0) }; SKINNED_BLOCK_COUNT];
+
+#[inline(always)]
+pub(crate) fn mark_skinned_range(addr: u32, len: u32) {
+    if len == 0 || addr < runtime::mem::RAM_BASE {
+        return;
+    }
+    let start = ((addr - runtime::mem::RAM_BASE) as usize) >> 12;
+    let end = ((addr.saturating_sub(runtime::mem::RAM_BASE).saturating_add(len.saturating_sub(1))) as usize) >> 12;
+    if start < SKINNED_BLOCK_COUNT {
+        let last = end.min(SKINNED_BLOCK_COUNT - 1);
+        for b in start..=last {
+            if SKINNED_BLOCKS[b].load(Ordering::Relaxed) == 0 {
+                SKINNED_BLOCKS[b].store(1, Ordering::Relaxed);
+            }
+        }
+    }
+}
+
+#[inline(always)]
+pub(crate) fn is_skinned_spans(spans: &[(u32, u32)]) -> bool {
+    for &(addr, len) in spans {
+        if len == 0 || addr < runtime::mem::RAM_BASE {
+            continue;
+        }
+        let start = ((addr - runtime::mem::RAM_BASE) as usize) >> 12;
+        let end = ((addr.saturating_sub(runtime::mem::RAM_BASE).saturating_add(len.saturating_sub(1))) as usize) >> 12;
+        if start < SKINNED_BLOCK_COUNT {
+            let last = end.min(SKINNED_BLOCK_COUNT - 1);
+            for b in start..=last {
+                if SKINNED_BLOCKS[b].load(Ordering::Relaxed) != 0 {
+                    return true;
+                }
+            }
+        }
+    }
+    false
+}
+
+pub(crate) fn clear_skinned_blocks() {
+    for b in &SKINNED_BLOCKS {
+        b.store(0, Ordering::Relaxed);
+    }
+}
+
 /// `sdmc:/strictsync.flag`: wait for Core 0 at every retrace, as the original port did.
 pub(crate) static STRICT_SYNC: AtomicBool = AtomicBool::new(false);
 
@@ -1695,7 +1745,9 @@ mod gx_worker {
 
     pub fn read_fifo_ptrs(c: &mut Ctx) -> (u32, u32) {
         if LAZY_SYNC.load(Ordering::Relaxed) {
-            // The only caller (_rwDlRasterShowRaster) uses just the write pointer.
+            // Ensure at most one frame is in flight (zero-cost during 3D gameplay because
+            // _rwDlSkinUpdate* already settled the previous frame before skinning this one).
+            settle_frame(c);
             let written = written_now(c);
             let (base, size) = fifo_ring(c);
             let at = base + (written % size) as u32;
@@ -1792,9 +1844,15 @@ fn log_perf_summary(c: &Ctx, retrace: u32) {
                     r
                 };
                 log_c(&format!(
-                    "[hang] frames={} retrace={} gx_phase={} written_seq={} ram_done={} full_done={} cmds={} staged={} core0: {} | lazy={} lr={:#010x} ({}) | {}",
+                    "[hang] frames={} retrace={} gx_phase={} written_seq={} ram_done={} full_done={} cmds={} staged={} core0: {} | lazy={} dirty={} xfb[hand={} sub={} shn={} brk={} head={} en={} same={} pre={} post={} prog={}] lr={:#010x} ({}) | {}",
                     frames, retrace, GX_PHASE.load(Ordering::Relaxed), written, ram, full, cmds, staged,
-                    gx_state, gx_worker::LAZY_SYNC.load(Ordering::Relaxed), c.lr, c.func_name(c.lr), sched::describe()
+                    gx_state, gx_worker::LAZY_SYNC.load(Ordering::Relaxed),
+                    gx_worker::FRAME_DIRTY.load(Ordering::Relaxed),
+                    c.r32(0x804B_23AC), c.r32(0x804B_23A0), c.r32(0x804B_23A4),
+                    c.r32(0x804B_2398), c.r32(0x804B_239C), c.r32(0x804B_23A8),
+                    c.r32(0x804B_23B0), c.r32(0x804B_23B4), c.r32(0x804B_23B8),
+                    c.r32(0x804B_2380),
+                    c.lr, c.func_name(c.lr), sched::describe()
                 ));
             }
         } else {
@@ -2139,7 +2197,9 @@ fn deliver_events_slow(c: &mut Ctx) {
             // frame below 60 FPS) used to stall Core 1 behind Core 0's backlog for nothing.
             let t_retrace_gx = unsafe { switch_now_ns() };
             let frame_pending = c.r32(0x804B_23AC) == 1 || c.r32(0x804B_23A0) != c.r32(0x804B_23A4);
-            if frame_pending || STRICT_SYNC.load(Ordering::Relaxed) {
+            if (frame_pending && !gx_worker::FRAME_DIRTY.load(Ordering::Relaxed))
+                || STRICT_SYNC.load(Ordering::Relaxed)
+            {
                 timed_sync(0, c, gx_process);
             } else {
                 gx_worker::push_fifo(c, 1);
@@ -2572,13 +2632,12 @@ mod skin_verify {
             1
         };
         MODE.store(mode, Ordering::Relaxed);
-        // Lazy end-of-frame sync is opt-in until it has run on real hardware: a Switch hung
-        // at the first screens with it on by default (Ryujinx did not).
-        let lazy = unsafe { switch_file_exists(b"sdmc:/lazysync.flag\0".as_ptr()) } != 0;
+        let no_lazy = unsafe { switch_file_exists(b"sdmc:/nolazysync.flag\0".as_ptr()) } != 0;
         let strict = unsafe { switch_file_exists(b"sdmc:/strictsync.flag\0".as_ptr()) } != 0;
-        gx_worker::LAZY_SYNC.store(lazy && !strict, Ordering::Relaxed);
+        let lazy = !no_lazy && !strict;
+        gx_worker::LAZY_SYNC.store(lazy, Ordering::Relaxed);
         STRICT_SYNC.store(strict, Ordering::Relaxed);
-        log_c(&format!("[switch] sync mode: lazy={} strict={} (sdmc:/lazysync.flag, sdmc:/strictsync.flag)", lazy && !strict, strict));
+        log_c(&format!("[switch] sync mode: lazy={} strict={} (sdmc:/nolazysync.flag, sdmc:/strictsync.flag)", lazy, strict));
         log_c(&format!("[skinverify] skinning mode {}", ["original", "native", "verify"][mode as usize]));
     }
 
@@ -3577,16 +3636,19 @@ fn switch_policy(name: &str) -> Hle {
         // Matrix identity/scale & scene culling/collision acceleration
         "PSMTXIdentity" => Hle::Replace(arm64_native::hle_psmtx_identity),
         "PSMTXScale" => Hle::Replace(arm64_native::hle_psmtx_scale),
-        // Collision / culling: the recompiled originals. The native versions of these were never
-        // checked against the originals and the player teleported / clipped through geometry;
-        // `sdmc:/hleverify.flag` can compare them again (hle_verify) before re-enabling.
-        "RwCameraFrustumTestSphere"
-        | "RtIntersectionSphereTriangle"
-        | "RtIntersectionBBoxTriangle"
-        | "xQuickCullIsects__FPC7xQCDataPC7xQCData"
-        | "properSphereIsectTri__FPC5xVec3fP5xVec3PfP19RpCollisionTriangle"
-        | "PointWithinTriangle__FP5xVec3PP5xVec3P5xVec3"
-        | "xBoxForTriangle__FR4xBoxRC5xVec3RC5xVec3RC5xVec3" => Hle::Original,
+        "RwCameraFrustumTestSphere" => Hle::Replace(arm64_native::hle_rw_camera_frustum_test_sphere),
+        "RtIntersectionSphereTriangle" => Hle::Replace(arm64_native::hle_rt_intersection_sphere_triangle),
+        "RtIntersectionBBoxTriangle" => Hle::Replace(arm64_native::hle_rt_intersection_bbox_triangle),
+        "xQuickCullIsects__FPC7xQCDataPC7xQCData" => Hle::Replace(arm64_native::hle_xquick_cull_isects),
+        "properSphereIsectTri__FPC5xVec3fP5xVec3PfP19RpCollisionTriangle" => {
+            Hle::Replace(arm64_native::hle_proper_sphere_isect_tri)
+        }
+        "PointWithinTriangle__FP5xVec3PP5xVec3P5xVec3" => {
+            Hle::Replace(arm64_native::hle_point_within_triangle)
+        }
+        "xBoxForTriangle__FR4xBoxRC5xVec3RC5xVec3RC5xVec3" => {
+            Hle::Replace(arm64_native::hle_xbox_for_triangle)
+        }
         "RwBBoxCalculate" => Hle::Replace(arm64_native::hle_rw_bbox_calculate),
         "_rwGCNDisplayListGetStride" => Hle::Replace(arm64_native::hle_rw_gcn_display_list_get_stride),
         "xBoxInitBoundOBB__FP4xBoxPC4xBoxPC7xMat4x3" => {
@@ -3594,29 +3656,36 @@ fn switch_policy(name: &str) -> Hle {
         }
 
         // RenderWare matrix, vector transforms, and concatenation acceleration
-        "PSMTXConcat"
-        | "MatrixMultiply"
-        | "RwMatrixMultiply"
-        | "RwMatrixUpdate"
-        | "xMat4x3Mul__FP7xMat4x3PC7xMat4x3PC7xMat4x3"
+        "PSMTXConcat" => Hle::Replace(arm64_native::hle_psmtx_concat),
+        "MatrixMultiply" => Hle::Replace(arm64_native::hle_matrix_multiply),
+        "RwMatrixMultiply" => Hle::Replace(arm64_native::hle_rw_matrix_multiply),
+        "RwMatrixUpdate" => Hle::Replace(arm64_native::hle_rw_matrix_update),
+        "xMat4x3Mul__FP7xMat4x3PC7xMat4x3PC7xMat4x3"
         | "xQuatToMat__FPC5xQuatP7xMat3x3"
         | "xMat3x3LMulVec__FP5xVec3PC7xMat3x3PC5xVec3"
         | "xMat3x3Tolocal__FP5xVec3PC7xMat3x3PC5xVec3"
-        | "xMat3x3Mul__FP7xMat3x3PC7xMat3x3PC7xMat3x3"
-        | "RwV3dLength"
-        | "RwV3dTransformPoint"
-        | "RwV3dTransformPoints"
-        | "RwV3dTransformVector"
-        | "RwV3dTransformVectors" => Hle::Original,
+        | "xMat3x3Mul__FP7xMat3x3PC7xMat3x3PC7xMat3x3" => Hle::Original,
+        "RwV3dLength" => Hle::Replace(arm64_native::hle_rw_v3d_length),
+        "RwV3dTransformPoint" => Hle::Replace(arm64_native::hle_rw_v3d_transform_point),
+        "RwV3dTransformPoints" => Hle::Replace(arm64_native::hle_rw_v3d_transform_points),
+        "RwV3dTransformVector" => Hle::Replace(arm64_native::hle_rw_v3d_transform_vector),
+        "RwV3dTransformVectors" => Hle::Replace(arm64_native::hle_rw_v3d_transform_vectors),
 
-        // Skeletal skinning vertex updates (use 100% faithful original GameCube recompiled code)
+        // Asset lookup & string hash acceleration
+        "xStrHash__FPCc" => Hle::Replace(arm64_native::hle_xstr_hash),
+        "xStrHash__FPCcUl" => Hle::Replace(arm64_native::hle_xstr_hash_n),
+        "PKR_AssetCount__FP19st_PACKER_READ_DATAUi" => Hle::Replace(arm64_native::hle_pkr_asset_count),
+        "PKR_AssetByType__FP19st_PACKER_READ_DATAUiiPUi" => Hle::Replace(arm64_native::hle_pkr_asset_by_type),
+
+        // Skeletal skinning vertex updates
         "_rwDlSkinUpdate2WeightsP" => skin_verify::policy(0),
         "_rwDlSkinUpdate2WeightsPN" => skin_verify::policy(1),
         "_rwDlSkinUpdate3WeightsP" => skin_verify::policy(2),
         "_rwDlSkinUpdate3WeightsPN" => skin_verify::policy(3),
         "_rwDlSkinUpdate4WeightsP" => skin_verify::policy(4),
         "_rwDlSkinUpdate4WeightsPN" => skin_verify::policy(5),
-        "_rpSkinMatrixBlendUpdateASM" | "_rwDlSetRenderState" => Hle::Original,
+        "_rpSkinMatrixBlendUpdateASM" => Hle::Replace(arm64_native::hle_skin_matrix_blend_update_asm),
+        "_rwDlSetRenderState" => Hle::Replace(arm64_native::hle_rw_dl_set_render_state),
         "_rxGCResEntryWaitDone" => Hle::Native(|_| {}),
         "_rwDlTokenQueryDone" => Hle::Native(|c| c.r[3] = 1),
 
@@ -3822,13 +3891,4 @@ pub extern "C" fn tssm_switch_set_scale_override(scale: u32) {
 #[no_mangle]
 pub extern "C" fn tssm_switch_get_game_mode() -> u32 {
     CURRENT_GAME_MODE.load(Ordering::Relaxed)
-}
-
-#[no_mangle]
-pub extern "C" fn tssm_switch_is_in_gameplay() -> i32 {
-    if CURRENT_GAME_MODE.load(Ordering::Relaxed) == 12 {
-        1
-    } else {
-        0
-    }
 }

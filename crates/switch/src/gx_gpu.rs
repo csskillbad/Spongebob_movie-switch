@@ -192,6 +192,225 @@ fn decode_raw(
         }
     };
     out.reserve(count);
+    let pk = kind(9);
+    let nk = kind(11);
+    let ck0 = color_kinds[0];
+    let ck1 = color_kinds[1];
+    let tk0 = tex_kind(0);
+    let tk1 = tex_kind(1);
+    if (vcd_lo & 1) == 0
+        && pos_count == 3
+        && pos_format == 4
+        && !nbt
+        && (nk == 0 || normal_format == 4)
+        && (ck0 == 0 || color_format[0] == 5)
+        && (ck1 == 0 || color_format[1] == 5)
+        && (vcd_hi & !0xF) == 0
+        && (tk0 == 0 || ((tex[0].0 & 1) == 1 && (tex[0].1 & 7) == 4))
+        && (tk1 == 0 || ((tex[1].0 & 1) == 1 && (tex[1].1 & 7) == 4))
+    {
+        #[inline(always)]
+        fn fetch_f32x3(
+            c: Mem,
+            data: &[u8],
+            o: &mut usize,
+            k: u32,
+            array: (u32, u32),
+            r: &mut (u32, u32),
+        ) -> [f32; 3] {
+            let idx = match k {
+                1 => {
+                    let cur = *o;
+                    *o = cur + 12;
+                    return unsafe {
+                        let p = data.as_ptr().add(cur);
+                        [
+                            f32::from_bits(u32::from_be((p as *const u32).read_unaligned())),
+                            f32::from_bits(u32::from_be((p.add(4) as *const u32).read_unaligned())),
+                            f32::from_bits(u32::from_be((p.add(8) as *const u32).read_unaligned())),
+                        ]
+                    };
+                }
+                2 => {
+                    let idx = data[*o] as u32;
+                    *o += 1;
+                    idx
+                }
+                3 => {
+                    let idx = be16(data, *o) as u32;
+                    *o += 2;
+                    idx
+                }
+                _ => return [0.0; 3],
+            };
+            if idx < r.0 {
+                r.0 = idx;
+            }
+            if idx > r.1 {
+                r.1 = idx;
+            }
+            let addr = array.0.wrapping_add(idx.wrapping_mul(array.1));
+            let off = ((addr & 0x07FF_FFFF) as usize).min(0x07FF_FFF0);
+            unsafe {
+                let p = c.0.add(off);
+                [
+                    f32::from_bits(u32::from_be((p as *const u32).read_unaligned())),
+                    f32::from_bits(u32::from_be((p.add(4) as *const u32).read_unaligned())),
+                    f32::from_bits(u32::from_be((p.add(8) as *const u32).read_unaligned())),
+                ]
+            }
+        }
+        #[inline(always)]
+        fn fetch_rgba8(
+            c: Mem,
+            data: &[u8],
+            o: &mut usize,
+            k: u32,
+            array: (u32, u32),
+            r: &mut (u32, u32),
+        ) -> [f32; 4] {
+            const INV255: f32 = 1.0 / 255.0;
+            let rgba = match k {
+                1 => {
+                    let cur = *o;
+                    *o = cur + 4;
+                    [data[cur], data[cur + 1], data[cur + 2], data[cur + 3]]
+                }
+                2 => {
+                    let idx = data[*o] as u32;
+                    *o += 1;
+                    if idx < r.0 {
+                        r.0 = idx;
+                    }
+                    if idx > r.1 {
+                        r.1 = idx;
+                    }
+                    let addr = array.0.wrapping_add(idx.wrapping_mul(array.1));
+                    let off = ((addr & 0x07FF_FFFF) as usize).min(0x07FF_FFF0);
+                    unsafe {
+                        let p = c.0.add(off);
+                        [*p, *p.add(1), *p.add(2), *p.add(3)]
+                    }
+                }
+                3 => {
+                    let idx = be16(data, *o) as u32;
+                    *o += 2;
+                    if idx < r.0 {
+                        r.0 = idx;
+                    }
+                    if idx > r.1 {
+                        r.1 = idx;
+                    }
+                    let addr = array.0.wrapping_add(idx.wrapping_mul(array.1));
+                    let off = ((addr & 0x07FF_FFFF) as usize).min(0x07FF_FFF0);
+                    unsafe {
+                        let p = c.0.add(off);
+                        [*p, *p.add(1), *p.add(2), *p.add(3)]
+                    }
+                }
+                _ => return [0.0; 4],
+            };
+            [
+                rgba[0] as f32 * INV255,
+                rgba[1] as f32 * INV255,
+                rgba[2] as f32 * INV255,
+                rgba[3] as f32 * INV255,
+            ]
+        }
+        #[inline(always)]
+        fn fetch_f32x2(
+            c: Mem,
+            data: &[u8],
+            o: &mut usize,
+            k: u32,
+            array: (u32, u32),
+            r: &mut (u32, u32),
+        ) -> [f32; 2] {
+            let idx = match k {
+                1 => {
+                    let cur = *o;
+                    *o = cur + 8;
+                    return unsafe {
+                        let p = data.as_ptr().add(cur);
+                        [
+                            f32::from_bits(u32::from_be((p as *const u32).read_unaligned())),
+                            f32::from_bits(u32::from_be((p.add(4) as *const u32).read_unaligned())),
+                        ]
+                    };
+                }
+                2 => {
+                    let idx = data[*o] as u32;
+                    *o += 1;
+                    idx
+                }
+                3 => {
+                    let idx = be16(data, *o) as u32;
+                    *o += 2;
+                    idx
+                }
+                _ => return [0.0; 2],
+            };
+            if idx < r.0 {
+                r.0 = idx;
+            }
+            if idx > r.1 {
+                r.1 = idx;
+            }
+            let addr = array.0.wrapping_add(idx.wrapping_mul(array.1));
+            let off = ((addr & 0x07FF_FFFF) as usize).min(0x07FF_FFF0);
+            unsafe {
+                let p = c.0.add(off);
+                [
+                    f32::from_bits(u32::from_be((p as *const u32).read_unaligned())),
+                    f32::from_bits(u32::from_be((p.add(4) as *const u32).read_unaligned())),
+                ]
+            }
+        }
+
+        let mut o = 0usize;
+        let start = out.len();
+        unsafe {
+            let dst = out.as_mut_ptr().add(start);
+            for i in 0..count {
+                let pos = fetch_f32x3(mem, data, &mut o, pk, arrays[0], &mut ranges[0]);
+                let normal = if nk != 0 {
+                    fetch_f32x3(mem, data, &mut o, nk, arrays[1], &mut ranges[1])
+                } else {
+                    [0.0; 3]
+                };
+                let c0 = if ck0 != 0 {
+                    fetch_rgba8(mem, data, &mut o, ck0, arrays[2], &mut ranges[2])
+                } else {
+                    [0.0; 4]
+                };
+                let c1 = if ck1 != 0 {
+                    fetch_rgba8(mem, data, &mut o, ck1, arrays[3], &mut ranges[3])
+                } else {
+                    [0.0; 4]
+                };
+                let t0 = if tk0 != 0 {
+                    fetch_f32x2(mem, data, &mut o, tk0, arrays[4], &mut ranges[4])
+                } else {
+                    [0.0; 2]
+                };
+                let t1 = if tk1 != 0 {
+                    fetch_f32x2(mem, data, &mut o, tk1, arrays[5], &mut ranges[5])
+                } else {
+                    [0.0; 2]
+                };
+                dst.add(i).write(RawVertex {
+                    pos,
+                    pad0: 0.0,
+                    normal,
+                    pad1: 0.0,
+                    colors: [c0, c1],
+                    tex: [t0, t1, [0.0; 2], [0.0; 2]],
+                });
+            }
+            out.set_len(start + count);
+        }
+        return;
+    }
     let mut buf = [0u8; 16];
     let mut o = 0;
     for _ in 0..count {
@@ -2010,21 +2229,22 @@ impl Gx {
         // Lists whose vertices keep changing (CPU-skinned, animated models) are left out of the
         // cache for a while and uploaded fresh each frame instead (ported from the desktop gx.rs).
         let frames = self.frames;
-        let keep = !self.cache_full
+        let span_addrs = self.spans_at(&shape.spans);
+        let is_skinned = span_addrs
+            .as_ref()
+            .is_some_and(|at| crate::is_skinned_spans(at));
+        let keep = !is_skinned
+            && !self.cache_full
             && !self
                 .churn
                 .get(&key)
                 .is_some_and(|churn| frames < churn.out_until);
         let mut place = None;
-        if let (true, Some(at)) = (keep, self.spans_at(&shape.spans)) {
-            let bases = self.array_bases().iter().fold(0u64, |hash, &base| {
-                (hash.rotate_left(9) ^ base as u64).wrapping_mul(0x9E37_79B9_7F4A_7C15)
+        if let (true, Some(at)) = (keep, span_addrs) {
+            let bases = at.iter().fold(0u64, |hash, &(addr, _)| {
+                (hash.rotate_left(9) ^ addr as u64).wrapping_mul(0x9E37_79B9_7F4A_7C15)
             });
             let check_key = (key.0, key.1, bases);
-            // Reuse the remembered placement only while the memory blocks holding the vertices
-            // hash the same as when it was made. Skipping this check froze every CPU-skinned
-            // model (player, NPCs) in its first pose: the game rewrites their vertex arrays in
-            // place each frame, at the same addresses.
             let blocks = self.spans_hash(&at);
             let remembered = self
                 .checks
@@ -2766,12 +2986,6 @@ impl Gx {
 
     pub fn process_chunk(&mut self, guest_mem: *const u8, chunk: &[u8]) {
         self.mem = Mem(guest_mem);
-        // Block hashes are memoised per batch, not per frame: Core 1 keeps skinning further
-        // characters while Core 0 works, and a 4 KB block often holds several characters'
-        // vertices. With a per-frame memo, a block hashed for the first character hid the
-        // later characters' new poses (stale poses on some frames). Everything in one batch
-        // was written before the batch was handed over, so the memo is exact within it.
-        self.epoch = self.epoch.wrapping_add(1).max(1);
         let mut data = core::mem::take(&mut self.pending);
         let mut combined_owned = false;
         let slice: &[u8] = if data.is_empty() {
@@ -2803,9 +3017,14 @@ impl Gx {
         } else if !chunk.is_empty() {
             self.pending.extend_from_slice(chunk);
         }
-        if self.limit == Some(self.consumed) && !self.break_signalled {
-            self.break_signalled = true;
-            self.raised.push(Raised::Break);
+        if let Some(limit) = self.limit {
+            if self.consumed >= limit {
+                self.limit = None;
+                if !self.break_signalled {
+                    self.break_signalled = true;
+                    self.raised.push(Raised::Break);
+                }
+            }
         }
     }
 
@@ -2847,13 +3066,25 @@ impl Gx {
             let behind = (written + size - (addr.wrapping_sub(base) as u64 % size)) % size;
             written - behind.min(written)
         });
-        self.limit = Some(limit);
-        self.break_signalled = false;
+        if self.consumed >= limit {
+            self.limit = None;
+            self.break_signalled = true;
+            self.raised.push(Raised::Break);
+        } else {
+            self.limit = Some(limit);
+            self.break_signalled = false;
+        }
     }
 
     pub fn set_breakpoint_at(&mut self, limit: u64) {
-        self.limit = Some(limit);
-        self.break_signalled = false;
+        if self.consumed >= limit {
+            self.limit = None;
+            self.break_signalled = true;
+            self.raised.push(Raised::Break);
+        } else {
+            self.limit = Some(limit);
+            self.break_signalled = false;
+        }
     }
 
     pub fn clear_breakpoint(&mut self) {
@@ -2863,6 +3094,7 @@ impl Gx {
     pub fn reset_cache(&mut self) {
         self.cache_full = true;
         self.material_cache_len = 0;
+        crate::clear_skinned_blocks();
     }
 
     pub fn describe(&self) -> String {

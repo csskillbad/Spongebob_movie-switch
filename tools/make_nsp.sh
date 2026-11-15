@@ -280,6 +280,7 @@ ROMFS_DIR="$STAGE_DIR/romfs"
 mkdir -p "$ROMFS_DIR/config"
 # No scene.txt / autodemo.flag in the package: the game boots through its real front end
 # (logos, title screen, main menu). Both remain available as SD-card files for testing.
+rm -f "$ROMFS_DIR/config/scene.txt" "$ROMFS_DIR/config/autodemo.flag"
 echo "1" > "$ROMFS_DIR/config/fps_counter.txt"
 
 if [ ! -f "$ROMFS_DIR/boot.txt" ]; then
