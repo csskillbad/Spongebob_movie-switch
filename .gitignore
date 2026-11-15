@@ -26,3 +26,5 @@ config/fov.txt
 /textures/
 /*.zip
 hacbrewpack_backup/
+*.log
+target-*/

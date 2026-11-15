@@ -1,55 +1,105 @@
-# tssm-recomp
+# The SpongeBob SquarePants Movie - Nintendo Switch Port
 
-A static recompilation of **The SpongeBob SquarePants Movie** (GameCube, USA, GGVE78 revision 1)
-to native Windows (and Android), written in Rust.
+A native, high-performance static recompilation of **The SpongeBob SquarePants Movie** (GameCube USA, `GGVE78` revision 1) for the **Nintendo Switch**, written in Rust, C++, and AArch64 NEON assembly.
 
-**This repository contains no game code or data.** You need your own disc image, made from a
-disc you own. The builder reads the game's PowerPC code from it, translates every function to
-Rust, and compiles a native executable on your computer.
+Runs natively on bare-metal ARM64 (Cortex-A57) with direct hardware graphics acceleration via modern OpenGL 4.3 — **no emulator involved**.
+
+---
 
 ## Features
 
-- Runs natively: no emulator. The GPU's commands are drawn with wgpu (Vulkan).
-- Any frame rate, set in the game's own settings screen (60 to 500), with the game running at
-  the same speed; the driving levels' car is stepped at a fixed rate so it handles the same.
-- Field of view setting (60 to 110), widescreen and ultrawide.
-- Keyboard and mouse (mouse look, clickable menus) and gamepads.
-- With a texture pack, sharper text and sky flowers too: upscaled with smooth edges.
-- Texture packs in Dolphin's format: put the zip next to the game and it asks whether to use it
-  (or put it in the `textures` folder).
+- **Native 60 FPS Performance**: Runs natively on the Nintendo Switch hardware, tuned specifically for the ARM Cortex-A57 CPU architecture with LLVM ThinLTO.
+- **AArch64 NEON SIMD Acceleration**:
+  - Hand-crafted assembly routines (`switch_neon.s`) for RenderWare skeletal bone blending (`_rpSkinMatrixBlendUpdateASM`), keeping transform matrices cached in vector registers with zero stack spills.
+  - Dual-pipeline unrolled vertex and vector transforms (`RwV3dTransformPoints`, `RwV3dTransformVectors`).
+  - Single-cycle bit-scan asset lookups (`__builtin_ctz`) replacing 32-step software loops.
+  - Zero-allocation direct-register fast-path decoding for matrix-indexed and skinned character models.
+- **Dynamic 1:1 Native Resolution**:
+  - **Handheld Mode**: Native **720p** (1280x720 active pixel match).
+  - **Docked Mode**: Native **1080p** (1920x1080 active pixel match).
+- **Controls & Input**:
+  - Full support for Joy-Cons (handheld & detached) and Nintendo Switch Pro Controllers.
+  - Hardware radial stick deadzones to prevent drift.
+- **Audio & Video**:
+  - Real-time 64-voice DSP/AX software audio mixer with native sample rate conversion.
+  - Full Bink video playback for cutscenes.
+- **Dual Packaging**:
+  - **Standalone NSP**: All-in-one installable NSP (`Title ID: 0100780012340000`) installable directly to the Home Menu.
+  - **Homebrew NRO**: Standalone Homebrew Menu executable (`tssm.nro`).
 
-## Building
+---
 
-1. Download this repository (Code, Download ZIP) and unzip it, keeping the folders together.
-2. Double-click `build.bat` and choose your disc image (`.iso` or `.gcm`).
-3. If Rust or the Visual Studio C++ build tools are missing, it offers to download and install
-   them (answer `Y`).
-4. It offers the Xbox version's textures, a separate download
-   ([GameBanana](https://gamebanana.com/mods/648590)): answer `Y` and choose the downloaded zip.
-5. When it is done, start **The SpongeBob Movie Game.exe**, which appears next to `build.bat`.
+## Easy Build Instructions
 
-From a terminal: `powershell -ExecutionPolicy Bypass -File tools\build.ps1 -Iso <image>`
-(`-Dev` for a quicker-to-compile build, `-Force` to redo every step, `-Yes` to install missing
-tools without asking). The first build takes a while; later ones are quick.
+### Prerequisites
 
-Only GGVE78 revision 1 is accepted: the port's hooks refer to that build's addresses.
+- **Linux** (x86_64 or ARM64)
+- **Rust toolchain** (Nightly or Stable with `build-std` support, `rustup target add aarch64-unknown-none`)
+- **Podman** or **Docker** (for automated devkitA64 container toolchain)
+- **hacbrewpack** & **hactool** (for NSP packaging; already configured in `tools/`)
 
-## Layout
+### 1-Step Build
 
-| Path | What it is |
+Simply run the unified build script:
+
+```bash
+chmod +x build_switch.sh
+./build_switch.sh
+```
+
+The script will automatically:
+1. Compile the Rust static library (`libtssm_switch.a`) optimized for Cortex-A57.
+2. Compile C/C++ runtime and AArch64 NEON assembly via devkitA64.
+3. Link the Switch Homebrew executable (`target/switch/tssm.nro`).
+4. Package the standalone installable NSP (`target/switch/nsp/0100780012340000.nsp`).
+
+---
+
+## Installation
+
+### Option A: Install Standalone NSP (Recommended)
+1. Copy `target/switch/nsp/0100780012340000.nsp` to your Switch SD card or install over USB.
+2. Install with **DBI**, **Goldleaf**, or **Awoo Installer**.
+3. Launch directly from the Switch Home Menu!
+
+### Option B: Homebrew NRO
+1. Copy `target/switch/tssm.nro` to `sdmc:/switch/tssm/tssm.nro`.
+2. Ensure game assets (`files/`) are placed in `sdmc:/switch/tssm/files/`.
+3. Launch via the Homebrew Menu (holding R while launching any game for full RAM access).
+
+---
+
+## Controls
+
+| Switch Button | Action |
 |---|---|
-| `crates/recomp` | The recompiler (PowerPC ELF to Rust) and the disc extractor |
-| `crates/runtime` | Guest memory and CPU state the generated code runs on |
-| `crates/game` | Where the generated code goes (`src/gen`, written by the build, not in the repo) |
-| `crates/tssm` | The host: graphics, audio, input, memory card, disc, and the port's changes |
-| `crates/android` | The Android app |
-| `config` | Controls, window and frame rate settings, and the list of replaceable SDK functions |
-| `tools` | The builder (`build.ps1`) and the package maker (`package.ps1`) |
+| **Left Stick** | SpongeBob / Patrick Movement |
+| **Right Stick** | 360° Camera Control |
+| **A** | Jump / Double Jump / Select |
+| **B** | Spin Attack / Cancel |
+| **X** | Bowling Ball / Special Move |
+| **Y** | Bash / Interaction |
+| **ZL / ZR** | Sneak / Crouch / Cruise Bubble |
+| **L / R** | Center Camera |
+| **Plus (+)** | Pause Menu |
 
-`CHANGELOG.md` records what has changed and how it was checked.
+---
+
+## Repository Layout
+
+| Directory | Description |
+|---|---|
+| `crates/switch` | Nintendo Switch host implementation (audio, input, OpenGL 4.3 renderer, filesystem) |
+| `crates/runtime` | GameCube CPU context, memory mappings, and decompilation runtime |
+| `crates/game` | Recompiled GameCube game functions and logic |
+| `crates/recomp` | PowerPC binary static recompiler and ISO unpacker |
+| `tools/switch` | Switch C/C++ runtime, AArch64 NEON assembly (`switch_neon.s`), and Makefile |
+| `build_switch.sh` | One-click automated build script for Nintendo Switch |
+
+---
 
 ## Legal
 
-This project is not affiliated with or endorsed by Nickelodeon, THQ, Heavy Iron Studios or
-Nintendo. SpongeBob SquarePants is a trademark of Viacom International Inc. No copyrighted game
-code or assets are distributed here; you must supply your own legally obtained copy of the game.
+This project is not affiliated with, endorsed by, or connected to Nickelodeon, THQ, Heavy Iron Studios, or Nintendo.
+SpongeBob SquarePants is a trademark of Viacom International Inc.
+No proprietary game code, assets, audio, or textures are distributed in this repository. You must supply your own legally acquired copy of the original GameCube disc.
