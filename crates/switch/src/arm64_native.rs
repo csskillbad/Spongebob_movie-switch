@@ -20,6 +20,12 @@ extern "C" {
     fn acos(x: f64) -> f64;
     fn asin(x: f64) -> f64;
     fn fmod(x: f64, y: f64) -> f64;
+
+    fn switch_neon_matrix_concat_be(mem: *mut u8, a: u32, b: u32, ab: u32);
+    fn switch_neon_matrix_mult_be(mem: *mut u8, dst: u32, a: u32, b: u32);
+    fn switch_str_hash_be(mem: *const u8, str_ea: u32) -> u32;
+    fn switch_str_hash_n_be(mem: *const u8, str_ea: u32, max_len: u32) -> u32;
+    fn switch_find_asset_by_type(mask: u32, target_idx: i32) -> i32;
 }
 
 #[inline(always)]
@@ -628,38 +634,13 @@ pub fn hle_psmtx_concat(c: &mut Ctx) -> bool {
         return false;
     }
     let (a, b, ab) = (c.r[3], c.r[4], c.r[5]);
-    let mem = c.mem;
     #[cfg(target_arch = "aarch64")]
     unsafe {
-        use core::arch::aarch64::*;
-        let a0 = neon::load4_be(mem, a);
-        let a1 = neon::load4_be(mem, a.wrapping_add(0x10));
-        let a2 = neon::load4_be(mem, a.wrapping_add(0x20));
-        let b0 = neon::load4_be(mem, b);
-        let b1 = neon::load4_be(mem, b.wrapping_add(0x10));
-        let b2 = neon::load4_be(mem, b.wrapping_add(0x20));
-        let w_unit = vsetq_lane_f32::<3>(1.0, vdupq_n_f32(0.0));
-        let o0 = vfmaq_laneq_f32::<3>(
-            vfmaq_laneq_f32::<2>(vfmaq_laneq_f32::<1>(vmulq_laneq_f32::<0>(b0, a0), b1, a0), b2, a0),
-            w_unit,
-            a0,
-        );
-        let o1 = vfmaq_laneq_f32::<3>(
-            vfmaq_laneq_f32::<2>(vfmaq_laneq_f32::<1>(vmulq_laneq_f32::<0>(b0, a1), b1, a1), b2, a1),
-            w_unit,
-            a1,
-        );
-        let o2 = vfmaq_laneq_f32::<3>(
-            vfmaq_laneq_f32::<2>(vfmaq_laneq_f32::<1>(vmulq_laneq_f32::<0>(b0, a2), b1, a2), b2, a2),
-            w_unit,
-            a2,
-        );
-        neon::store4_be(mem, ab, o0);
-        neon::store4_be(mem, ab.wrapping_add(0x10), o1);
-        neon::store4_be(mem, ab.wrapping_add(0x20), o2);
+        switch_neon_matrix_concat_be(c.mem, a, b, ab);
     }
     #[cfg(not(target_arch = "aarch64"))]
     {
+        let mem = c.mem;
         let mut ma = [0.0f32; 12];
         let mut mb = [0.0f32; 12];
         for i in 0..12 {
@@ -681,10 +662,7 @@ pub fn hle_psmtx_concat(c: &mut Ctx) -> bool {
 fn rw_mtx_mul_core(mem: *mut u8, dst: u32, src_a: u32, src_b: u32) {
     #[cfg(target_arch = "aarch64")]
     unsafe {
-        let ma = neon::load_rw_mtx(mem, src_a);
-        let mb = neon::load_rw_mtx(mem, src_b);
-        let out = neon::mul_rw_mtx(ma, mb);
-        neon::store_rw_mtx_xyz(mem, dst, out);
+        switch_neon_matrix_mult_be(mem, dst, src_a, src_b);
     }
     #[cfg(not(target_arch = "aarch64"))]
     {
@@ -3145,43 +3123,59 @@ pub fn hle_xbox_init_bound_obb(c: &mut Ctx) -> bool {
 
 /// Native `xStrHash__FPCc(const char* str)` (`0x80222788`).
 pub fn hle_xstr_hash(c: &mut Ctx) -> bool {
-    let mem = c.mem;
-    let mut p = c.r[3];
-    let mut h = 0u32;
-    loop {
-        let ch = mr8(mem, p) as u32;
-        if ch == 0 {
-            break;
-        }
-        p = p.wrapping_add(1);
-        let sub = (ch & ((ch >> 1) & 0x7F)) & 0x20;
-        let folded = ch.wrapping_sub(sub) & 0xFF;
-        h = h.wrapping_mul(131).wrapping_add(folded);
+    #[cfg(target_arch = "aarch64")]
+    unsafe {
+        c.r[3] = switch_str_hash_be(c.mem, c.r[3]);
+        return true;
     }
-    c.r[3] = h;
-    true
+    #[cfg(not(target_arch = "aarch64"))]
+    {
+        let mem = c.mem;
+        let mut p = c.r[3];
+        let mut h = 0u32;
+        loop {
+            let ch = mr8(mem, p) as u32;
+            if ch == 0 {
+                break;
+            }
+            p = p.wrapping_add(1);
+            let sub = (ch & ((ch >> 1) & 0x7F)) & 0x20;
+            let folded = ch.wrapping_sub(sub) & 0xFF;
+            h = h.wrapping_mul(131).wrapping_add(folded);
+        }
+        c.r[3] = h;
+        true
+    }
 }
 
 /// Native `xStrHash__FPCcUl(const char* str, unsigned long max_len)` (`0x8022273C`).
 pub fn hle_xstr_hash_n(c: &mut Ctx) -> bool {
-    let mem = c.mem;
-    let mut p = c.r[3];
-    let max_len = c.r[4];
-    let mut h = 0u32;
-    let mut n = 0u32;
-    while n < max_len {
-        let ch = mr8(mem, p) as u32;
-        if ch == 0 {
-            break;
-        }
-        n = n.wrapping_add(1);
-        p = p.wrapping_add(1);
-        let sub = (ch & ((ch >> 1) & 0x7F)) & 0x20;
-        let folded = ch.wrapping_sub(sub) & 0xFF;
-        h = h.wrapping_mul(131).wrapping_add(folded);
+    #[cfg(target_arch = "aarch64")]
+    unsafe {
+        c.r[3] = switch_str_hash_n_be(c.mem, c.r[3], c.r[4]);
+        return true;
     }
-    c.r[3] = h;
-    true
+    #[cfg(not(target_arch = "aarch64"))]
+    {
+        let mem = c.mem;
+        let mut p = c.r[3];
+        let max_len = c.r[4];
+        let mut h = 0u32;
+        let mut n = 0u32;
+        while n < max_len {
+            let ch = mr8(mem, p) as u32;
+            if ch == 0 {
+                break;
+            }
+            n = n.wrapping_add(1);
+            p = p.wrapping_add(1);
+            let sub = (ch & ((ch >> 1) & 0x7F)) & 0x20;
+            let folded = ch.wrapping_sub(sub) & 0xFF;
+            h = h.wrapping_mul(131).wrapping_add(folded);
+        }
+        c.r[3] = h;
+        true
+    }
 }
 
 /// Native `PKR_AssetCount(st_PACKER_READ_DATA* pr, unsigned int type)` (`0x80197B20`).

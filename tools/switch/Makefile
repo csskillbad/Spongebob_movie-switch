@@ -8,7 +8,7 @@ LDFLAGS = -specs=$(DEVKITPRO)/libnx/switch.specs -g $(ARCH) -Wl,--gc-sections -W
 LIB_RUST ?= /work/libtssm_switch.a
 LIBS := $(LIB_RUST) -L$(PORTLIBS)/lib -L$(LIBNX)/lib -lglad -lEGL -lglapi -ldrm_nouveau -lSDL2 -lnx -lstdc++ -lm
 
-OBJS := main.o gl_backend.o
+OBJS := main.o gl_backend.o switch_neon.o switch_accel.o
 
 all: tssm.nro main
 
@@ -17,6 +17,12 @@ main.o: main.c gl_backend.h
 
 gl_backend.o: gl_backend.c gl_backend.h
 	$(CC) $(CFLAGS) -c $< -o $@
+
+switch_neon.o: switch_neon.s
+	$(CC) $(ARCH) -c $< -o $@
+
+switch_accel.o: switch_accel.cpp
+	$(CXX) $(CFLAGS) -fno-exceptions -fno-rtti -c $< -o $@
 
 tssm.elf: $(OBJS) $(LIB_RUST)
 	$(CC) $(LDFLAGS) -o $@ $(OBJS) $(LIBS)

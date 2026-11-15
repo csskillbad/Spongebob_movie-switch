@@ -398,9 +398,9 @@ int switch_start_gx_worker(void (*entry)(void*), void* arg) {
     condvarInit(&s_gx_cond_done);
     s_gx_entry = entry;
     s_gx_arg = arg;
-    Result rc = threadCreate(&s_gx_worker, gx_worker_trampoline, NULL, NULL, 4u * 1024u * 1024u, 0x2C, 0);
+    Result rc = threadCreate(&s_gx_worker, gx_worker_trampoline, NULL, NULL, 4u * 1024u * 1024u, 0x2B, 0);
     if (R_FAILED(rc)) {
-        rc = threadCreate(&s_gx_worker, gx_worker_trampoline, NULL, NULL, 4u * 1024u * 1024u, 0x2C, -2);
+        rc = threadCreate(&s_gx_worker, gx_worker_trampoline, NULL, NULL, 4u * 1024u * 1024u, 0x2B, -2);
     }
     if (R_SUCCEEDED(rc)) {
         s_gx_worker_started = true;
@@ -440,6 +440,29 @@ void switch_dispatch_worker(void (*fn)(void*), void* arg) {
 }
 
 void switch_wait_worker(void) {}
+
+// Hardware radial deadzone filter for Switch analog sticks (Joy-Con & Pro Controller drift elimination)
+static void apply_stick_deadzone(int32_t* x, int32_t* y) {
+    int64_t ix = *x;
+    int64_t iy = *y;
+    int64_t mag_sq = ix * ix + iy * iy;
+    // Radial deadzone threshold: 6500 (~20% of 32767). Any resting noise/drift below this is strictly 0.
+    const int64_t DEADZONE = 6500;
+    if (mag_sq <= DEADZONE * DEADZONE) {
+        *x = 0;
+        *y = 0;
+        return;
+    }
+    float mag = sqrtf((float)mag_sq);
+    const float MAX_IN = 32767.0f;
+    float factor = (mag - (float)DEADZONE) / (MAX_IN - (float)DEADZONE);
+    if (factor > 1.0f) factor = 1.0f;
+    if (factor < 0.0f) factor = 0.0f;
+    // Scale smoothly so max deflection reaches 25600 (GameCube 100% stick throw: 100 * 256)
+    const float MAX_OUT = 25600.0f;
+    *x = (int32_t)(((float)ix / mag) * factor * MAX_OUT);
+    *y = (int32_t)(((float)iy / mag) * factor * MAX_OUT);
+}
 
 // Allocate GameCube 128 MB guest address space (24 MB RAM + branchless WGPIPE FIFO & MMIO window)
 int switch_file_exists(const char* path) {
@@ -667,8 +690,16 @@ int main(int argc, char* argv[]) {
         HidAnalogStickState l_stick = padGetStickPos(&pad, 0);
         HidAnalogStickState r_stick = padGetStickPos(&pad, 1);
 
+        int32_t lx = l_stick.x;
+        int32_t ly = l_stick.y;
+        int32_t rx = r_stick.x;
+        int32_t ry = r_stick.y;
+
+        apply_stick_deadzone(&lx, &ly);
+        apply_stick_deadzone(&rx, &ry);
+
         tssm_switch_set_pad(gc_buttons);
-        tssm_switch_set_sticks(l_stick.x, l_stick.y, r_stick.x, r_stick.y);
+        tssm_switch_set_sticks(lx, ly, rx, ry);
 
         // Sleep 8 ms on Core 0 (125 Hz input polling, virtually zero CPU usage)
         svcSleepThread(8000000ULL);

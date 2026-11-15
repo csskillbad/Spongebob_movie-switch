@@ -3190,10 +3190,18 @@ fn switch_policy(name: &str) -> Hle {
             let mode = c.r32(0x804B_0D54);
             CURRENT_GAME_MODE.store(mode, Ordering::Relaxed);
             let btn = PAD_BUTTONS.load(Ordering::Relaxed);
-            let sx = (PAD_STICK_X.load(Ordering::Relaxed) / 256).clamp(-128, 127) as i8;
-            let sy = (PAD_STICK_Y.load(Ordering::Relaxed) / 256).clamp(-128, 127) as i8;
-            let cx = (PAD_SUBSTICK_X.load(Ordering::Relaxed) / 256).clamp(-128, 127) as i8;
-            let cy = (PAD_SUBSTICK_Y.load(Ordering::Relaxed) / 256).clamp(-128, 127) as i8;
+            let clamp_stick = |val: i32| -> i8 {
+                let v = val / 256;
+                if v.abs() < 8 {
+                    0
+                } else {
+                    v.clamp(-100, 100) as i8
+                }
+            };
+            let sx = clamp_stick(PAD_STICK_X.load(Ordering::Relaxed));
+            let sy = clamp_stick(PAD_STICK_Y.load(Ordering::Relaxed));
+            let cx = clamp_stick(PAD_SUBSTICK_X.load(Ordering::Relaxed));
+            let cy = clamp_stick(PAD_SUBSTICK_Y.load(Ordering::Relaxed));
             c.slice_mut(status, 12).fill(0);
             c.w16(status, btn as u16);
             c.w8(status + 2, sx as u8);
@@ -3636,19 +3644,15 @@ fn switch_policy(name: &str) -> Hle {
         // Matrix identity/scale & scene culling/collision acceleration
         "PSMTXIdentity" => Hle::Replace(arm64_native::hle_psmtx_identity),
         "PSMTXScale" => Hle::Replace(arm64_native::hle_psmtx_scale),
-        "RwCameraFrustumTestSphere" => Hle::Replace(arm64_native::hle_rw_camera_frustum_test_sphere),
-        "RtIntersectionSphereTriangle" => Hle::Replace(arm64_native::hle_rt_intersection_sphere_triangle),
-        "RtIntersectionBBoxTriangle" => Hle::Replace(arm64_native::hle_rt_intersection_bbox_triangle),
-        "xQuickCullIsects__FPC7xQCDataPC7xQCData" => Hle::Replace(arm64_native::hle_xquick_cull_isects),
-        "properSphereIsectTri__FPC5xVec3fP5xVec3PfP19RpCollisionTriangle" => {
-            Hle::Replace(arm64_native::hle_proper_sphere_isect_tri)
-        }
-        "PointWithinTriangle__FP5xVec3PP5xVec3P5xVec3" => {
-            Hle::Replace(arm64_native::hle_point_within_triangle)
-        }
-        "xBoxForTriangle__FR4xBoxRC5xVec3RC5xVec3RC5xVec3" => {
-            Hle::Replace(arm64_native::hle_xbox_for_triangle)
-        }
+        // Collision / culling: use the authentic recompiled GameCube originals.
+        // Hand-written HLEs have coordinate/normal mismatches that cause player sliding and floor clipping.
+        "RwCameraFrustumTestSphere"
+        | "RtIntersectionSphereTriangle"
+        | "RtIntersectionBBoxTriangle"
+        | "xQuickCullIsects__FPC7xQCDataPC7xQCData"
+        | "properSphereIsectTri__FPC5xVec3fP5xVec3PfP19RpCollisionTriangle"
+        | "PointWithinTriangle__FP5xVec3PP5xVec3P5xVec3"
+        | "xBoxForTriangle__FR4xBoxRC5xVec3RC5xVec3RC5xVec3" => Hle::Original,
         "RwBBoxCalculate" => Hle::Replace(arm64_native::hle_rw_bbox_calculate),
         "_rwGCNDisplayListGetStride" => Hle::Replace(arm64_native::hle_rw_gcn_display_list_get_stride),
         "xBoxInitBoundOBB__FP4xBoxPC4xBoxPC7xMat4x3" => {
