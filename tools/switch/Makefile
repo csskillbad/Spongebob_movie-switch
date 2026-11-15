@@ -1,7 +1,7 @@
 TOPDIR ?= $(CURDIR)
 include $(DEVKITPRO)/libnx/switch_rules
 
-ARCH := -march=armv8-a -mtune=cortex-a57 -mtp=soft -fPIE
+ARCH := -mcpu=cortex-a57 -mtp=soft -fPIE
 CFLAGS := -g -Wall -O3 -ffunction-sections $(ARCH) -I$(LIBNX)/include -I$(PORTLIBS)/include -D__SWITCH__
 LDFLAGS = -specs=$(DEVKITPRO)/libnx/switch.specs -g $(ARCH) -Wl,--gc-sections -Wl,--build-id=sha1
 
