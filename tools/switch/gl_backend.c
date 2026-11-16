@@ -471,14 +471,19 @@ static GLuint link_two(GLuint vs, GLuint fs, int delete_both) {
 }
 
 
-/* ---- Fragment shader / program-binary disk cache ----
- * Fragment shader compile is deferred until link time. On link we first try a
- * cached GL program binary (keyed by FNV-1a of the source), which avoids the
- * multi-ms driver compile+link hitch the first time each shader variant is hit. */
-#define SHADER_CACHE_DIR "sdmc:/switch/tssm/shadercache"
+/* ---- Shader warm-up cache ----
+ * The Switch's Mesa/nouveau driver has no glGetProgramBinary support, so instead of caching
+ * binaries we record the GLSL source of every fragment shader variant the game ever needed
+ * (sdmc:/switch/tssm/shaderwarm.bin). On the next start they are all compiled and linked
+ * up front on the GL thread, so gameplay never stalls on a first-use driver compile. */
+#define SHADER_WARM_DIR  "sdmc:/switch/tssm"
+#define SHADER_WARM_FILE "sdmc:/switch/tssm/shaderwarm.bin"
 typedef struct { char* src; uint32_t len; uint64_t hash; GLuint sh; } FsSlot;
 static FsSlot* s_fs_slots = NULL;
 static uint32_t s_fs_slot_count = 0, s_fs_slot_cap = 0;
+typedef struct { uint64_t hash; uint32_t is_raw; GLuint prog; } WarmProg;
+static WarmProg* s_warm = NULL;
+static uint32_t s_warm_count = 0, s_warm_cap = 0;
 
 static uint64_t fnv1a64(const char* p, uint32_t n) {
     uint64_t h = 1469598103934665603ULL;
@@ -501,70 +506,67 @@ static uint32_t fs_slot_add(const char* src, uint32_t len) {
     return s_fs_slot_count; /* handle = index + 1 */
 }
 
-static void shader_cache_path(char* out, size_t n, uint64_t h, uint32_t is_raw) {
-    snprintf(out, n, SHADER_CACHE_DIR "/%016llx_%u.bin", (unsigned long long)h, is_raw);
+static GLuint warm_find(uint64_t hash, uint32_t is_raw) {
+    for (uint32_t i = 0; i < s_warm_count; i++)
+        if (s_warm[i].hash == hash && s_warm[i].is_raw == is_raw) return s_warm[i].prog;
+    return 0;
+}
+
+static void warm_add(uint64_t hash, uint32_t is_raw, GLuint prog) {
+    if (s_warm_count == s_warm_cap) {
+        s_warm_cap = s_warm_cap ? s_warm_cap * 2 : 256;
+        s_warm = (WarmProg*)realloc(s_warm, s_warm_cap * sizeof(WarmProg));
+    }
+    s_warm[s_warm_count++] = (WarmProg){hash, is_raw, prog};
+}
+
+static void warm_record(const char* src, uint32_t len, uint32_t is_raw) {
+    mkdir("sdmc:/switch", 0777);
+    mkdir(SHADER_WARM_DIR, 0777);
+    FILE* w = fopen(SHADER_WARM_FILE, "ab");
+    if (!w) return;
+    fwrite(&is_raw, 4, 1, w);
+    fwrite(&len, 4, 1, w);
+    fwrite(src, 1, len, w);
+    fclose(w);
+}
+
+/* Compile + link every recorded variant (GL thread, before the first frame). */
+static void warm_load_all(GLuint vs_transformed, GLuint vs_gx) {
+    FILE* fp = fopen(SHADER_WARM_FILE, "rb");
+    if (!fp) return;
+    uint32_t n = 0;
+    for (;;) {
+        uint32_t is_raw = 0, len = 0;
+        if (fread(&is_raw, 4, 1, fp) != 1 || fread(&len, 4, 1, fp) != 1) break;
+        if (len == 0 || len > (1u << 20)) break;
+        char* src = (char*)malloc(len + 1);
+        if (!src || fread(src, 1, len, fp) != len) { free(src); break; }
+        src[len] = 0;
+        uint64_t h = fnv1a64(src, len);
+        if (!warm_find(h, is_raw)) {
+            GLuint fs = compile_shader(GL_FRAGMENT_SHADER, src, (GLint)len);
+            GLuint prog = link_two(is_raw ? vs_gx : vs_transformed, fs, 0);
+            glDeleteShader(fs);
+            warm_add(h, is_raw, prog);
+            n++;
+        }
+        free(src);
+    }
+    fclose(fp);
+    char m[96];
+    snprintf(m, sizeof(m), "[gl] shader warm-up: %u programs prelinked", n);
+    switch_log(m);
 }
 
 static GLuint link_cached(uint32_t handle, GLuint vs, uint32_t is_raw) {
     FsSlot* f = &s_fs_slots[handle - 1];
-    char path[160];
-    shader_cache_path(path, sizeof(path), f->hash, is_raw);
-    FILE* fp = fopen(path, "rb");
-    if (fp) {
-        GLenum fmt = 0; uint32_t sz = 0;
-        if (fread(&fmt, 4, 1, fp) == 1 && fread(&sz, 4, 1, fp) == 1 && sz > 0 && sz < (16u << 20)) {
-            void* buf = malloc(sz);
-            if (buf && fread(buf, 1, sz, fp) == sz) {
-                GLuint prog = glCreateProgram();
-                glProgramBinary(prog, fmt, buf, (GLsizei)sz);
-                GLint ok = GL_FALSE;
-                glGetProgramiv(prog, GL_LINK_STATUS, &ok);
-                if (ok) { free(buf); fclose(fp); return prog; }
-                glDeleteProgram(prog);
-            }
-            free(buf);
-        }
-        fclose(fp);
-    }
+    GLuint prog = warm_find(f->hash, is_raw);
+    if (prog) return prog;
     if (!f->sh) f->sh = compile_shader(GL_FRAGMENT_SHADER, f->src, (GLint)f->len);
-    GLuint prog = GL_FALSE;
-    prog = glCreateProgram();
-    glProgramParameteri(prog, GL_PROGRAM_BINARY_RETRIEVABLE_HINT, GL_TRUE);
-    glAttachShader(prog, vs);
-    glAttachShader(prog, f->sh);
-    glLinkProgram(prog);
-    glDetachShader(prog, vs);
-    glDetachShader(prog, f->sh);
-    GLint ok = GL_FALSE;
-    glGetProgramiv(prog, GL_LINK_STATUS, &ok);
-    if (!ok) {
-        char log[512];
-        glGetProgramInfoLog(prog, sizeof(log), NULL, log);
-        char msg[600];
-        snprintf(msg, sizeof(msg), "[gl] program link error: %s", log);
-        switch_log(msg);
-        return prog;
-    }
-    GLint blen = 0;
-    glGetProgramiv(prog, GL_PROGRAM_BINARY_LENGTH, &blen);
-    if (blen > 0) {
-        void* buf = malloc((size_t)blen);
-        GLenum fmt = 0; GLsizei got = 0;
-        if (buf) {
-            glGetProgramBinary(prog, blen, &got, &fmt, buf);
-            mkdir("sdmc:/switch/tssm", 0777);
-            mkdir(SHADER_CACHE_DIR, 0777);
-            FILE* w = fopen(path, "wb");
-            if (w) {
-                uint32_t sz = (uint32_t)got;
-                fwrite(&fmt, 4, 1, w); fwrite(&sz, 4, 1, w); fwrite(buf, 1, sz, w);
-                fclose(w);
-            }
-            free(buf);
-        }
-    }
-    /* free source memory; shader object kept (tiny) */
-    free(f->src); f->src = NULL;
+    prog = link_two(vs, f->sh, 0);
+    warm_add(f->hash, is_raw, prog);
+    warm_record(f->src, f->len, is_raw);
     return prog;
 }
 
@@ -1132,6 +1134,7 @@ static void gl_thread_entry(void* arg) {
 
     s_vs_transformed = compile_shader(GL_VERTEX_SHADER, k_vs_transformed_src, 0);
     s_vs_gx          = compile_shader(GL_VERTEX_SHADER, k_vs_gx_src, 0);
+    warm_load_all(s_vs_transformed, s_vs_gx);
 
     GLuint vs_blit = compile_shader(GL_VERTEX_SHADER, k_vs_blit_src, 0);
     GLuint fs_blit = compile_shader(GL_FRAGMENT_SHADER, k_fs_blit_src, 0);

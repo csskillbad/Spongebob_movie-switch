@@ -46,7 +46,7 @@ trap 'rm -rf "$TMP_BUILD"' EXIT
 echo ""
 echo "=== [1/3] Building Rust tssm-switch (aarch64-unknown-none, Cortex-A57) ==="
 RUSTC_BOOTSTRAP=1 RUSTFLAGS="-C relocation-model=pic -C target-cpu=cortex-a57 -C target-feature=-strict-align -C llvm-args=-jump-threading-across-loop-headers" \
-cargo build -p tssm-switch \
+cargo build -p tssm-switch ${TSSM_FEATURES:+--features $TSSM_FEATURES} \
     --target aarch64-unknown-none \
     --release \
     -Z build-std=core,alloc
@@ -77,6 +77,10 @@ $CONTAINER_CMD run --rm \
     -w /work \
     docker.io/devkitpro/devkita64:latest \
     make -C /work clean all LIB_RUST=/work/libtssm_switch.a
+
+# Publish fresh artifacts where tools/make_nsp.sh picks them up (never a stale /tmp copy)
+cp "$TMP_BUILD/main" target/switch/main
+cp "$TMP_BUILD/tssm.elf" target/switch/tssm.elf
 
 if [ -f "$TMP_BUILD/tssm.nro" ]; then
     cp "$TMP_BUILD/tssm.nro" target/switch/tssm.nro

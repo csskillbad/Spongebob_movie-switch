@@ -267,8 +267,8 @@ else
 fi
 
 echo "[4/5] Preparing main executable..."
-if [ -f "/tmp/switch-build/main" ]; then
-    cp /tmp/switch-build/main "$EXEFS_DIR/main"
+if [ -f "target/switch/main" ]; then
+    cp target/switch/main "$EXEFS_DIR/main"
 elif [ -f "target/switch/main" ]; then
     cp target/switch/main "$EXEFS_DIR/main"
 else
@@ -298,8 +298,8 @@ if [ -d "$ROOT_DIR/disc/files" ]; then
 fi
 
 echo "[5/6] Packaging standalone all-in-one .nro (with embedded RomFS)..."
-if [ -f "/tmp/switch-build/tssm.elf" ]; then
-    elf2nro /tmp/switch-build/tssm.elf "$ROOT_DIR/target/switch/tssm.nro" \
+if [ -f "target/switch/tssm.elf" ]; then
+    elf2nro target/switch/tssm.elf "$ROOT_DIR/target/switch/tssm.nro" \
         --icon="$CONTROL_DIR/icon_AmericanEnglish.dat" \
         --nacp="$CONTROL_DIR/control.nacp" \
         --romfsdir="$ROMFS_DIR"
