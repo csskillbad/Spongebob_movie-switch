@@ -367,55 +367,96 @@ fn decode_raw(
             }
         }
 
-        let mut o = 0usize;
         let start = out.len();
-        unsafe {
-            let dst = out.as_mut_ptr().add(start);
-            for i in 0..count {
-                let matrix = if has_matrix {
-                    let m = (data[o] & 0x3F) as f32;
-                    o += 1;
-                    m
-                } else {
-                    0.0
-                };
-                let pos = fetch_f32x3(mem, data, &mut o, pk, arrays[0], &mut ranges[0]);
-                let normal = if nk != 0 {
-                    fetch_f32x3(mem, data, &mut o, nk, arrays[1], &mut ranges[1])
-                } else {
-                    [0.0; 3]
-                };
-                let c0 = if ck0 != 0 {
-                    fetch_rgba8(mem, data, &mut o, ck0, arrays[2], &mut ranges[2])
-                } else {
-                    [0.0; 4]
-                };
-                let c1 = if ck1 != 0 {
-                    fetch_rgba8(mem, data, &mut o, ck1, arrays[3], &mut ranges[3])
-                } else {
-                    [0.0; 4]
-                };
-                let t0 = if tk0 != 0 {
-                    fetch_f32x2(mem, data, &mut o, tk0, arrays[4], &mut ranges[4])
-                } else {
-                    [0.0; 2]
-                };
-                let t1 = if tk1 != 0 {
-                    fetch_f32x2(mem, data, &mut o, tk1, arrays[5], &mut ranges[5])
-                } else {
-                    [0.0; 2]
-                };
-                dst.add(i).write(RawVertex {
-                    pos,
-                    pad0: matrix,
-                    normal,
-                    pad1: 0.0,
-                    colors: [c0, c1],
-                    tex: [t0, t1, [0.0; 2], [0.0; 2]],
-                });
+        // Every vertex has the same size on this path, so ranges of vertices decode independently.
+        #[inline(always)]
+        fn comp(k: u32, inline: usize) -> usize {
+            match k {
+                1 => inline,
+                2 => 1,
+                3 => 2,
+                _ => 0,
             }
-            out.set_len(start + count);
         }
+        let vsize = has_matrix as usize
+            + comp(pk, 12)
+            + comp(nk, 12)
+            + comp(ck0, 4)
+            + comp(ck1, 4)
+            + comp(tk0, 8)
+            + comp(tk1, 8);
+        let dst0 = unsafe { out.as_mut_ptr().add(start) };
+        let decode_range = |lo: usize, hi: usize, dst: *mut RawVertex, rg: &mut [(u32, u32); 12]| {
+            let mut o = lo * vsize;
+            unsafe {
+                for i in lo..hi {
+                    let matrix = if has_matrix {
+                        let m = (data[o] & 0x3F) as f32;
+                        o += 1;
+                        m
+                    } else {
+                        0.0
+                    };
+                    let pos = fetch_f32x3(mem, data, &mut o, pk, arrays[0], &mut rg[0]);
+                    let normal = if nk != 0 {
+                        fetch_f32x3(mem, data, &mut o, nk, arrays[1], &mut rg[1])
+                    } else {
+                        [0.0; 3]
+                    };
+                    let c0 = if ck0 != 0 {
+                        fetch_rgba8(mem, data, &mut o, ck0, arrays[2], &mut rg[2])
+                    } else {
+                        [0.0; 4]
+                    };
+                    let c1 = if ck1 != 0 {
+                        fetch_rgba8(mem, data, &mut o, ck1, arrays[3], &mut rg[3])
+                    } else {
+                        [0.0; 4]
+                    };
+                    let t0 = if tk0 != 0 {
+                        fetch_f32x2(mem, data, &mut o, tk0, arrays[4], &mut rg[4])
+                    } else {
+                        [0.0; 2]
+                    };
+                    let t1 = if tk1 != 0 {
+                        fetch_f32x2(mem, data, &mut o, tk1, arrays[5], &mut rg[5])
+                    } else {
+                        [0.0; 2]
+                    };
+                    dst.add(i).write(RawVertex {
+                        pos,
+                        pad0: matrix,
+                        normal,
+                        pad1: 0.0,
+                        colors: [c0, c1],
+                        tex: [t0, t1, [0.0; 2], [0.0; 2]],
+                    });
+                }
+            }
+        };
+        if count >= crate::par::MIN_PARALLEL_VERTS && vsize * count <= data.len() {
+            // Core 2 helper decodes the second half while this thread decodes the first.
+            let half = count / 2;
+            let mut ranges_b = [(u32::MAX, 0u32); 12];
+            let dst_addr = dst0 as usize;
+            {
+                let mut job = || {
+                    decode_range(half, count, dst_addr as *mut RawVertex, &mut ranges_b);
+                };
+                crate::par::run2(
+                    || decode_range(0, half, dst0, ranges),
+                    &mut job,
+                );
+            }
+            for n in 0..12 {
+                if ranges_b[n].0 != u32::MAX {
+                    ranges[n] = (ranges[n].0.min(ranges_b[n].0), ranges[n].1.max(ranges_b[n].1));
+                }
+            }
+        } else {
+            decode_range(0, count, dst0, ranges);
+        }
+        unsafe { out.set_len(start + count) };
         return;
     }
     let mut buf = [0u8; 16];

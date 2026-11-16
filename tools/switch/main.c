@@ -435,6 +435,71 @@ void switch_gx_wake_done(void) { condvarWakeAll(&s_gx_cond_done); }
 
 void switch_init_vertex_worker(void) {}
 
+/* ---- Core 2 helper: lets the GX worker split big vertex decodes in two ----
+ * One job at a time, posted by the GX worker only. If the helper has not started yet when the
+ * caller finishes its own half (e.g. the GL thread is busy), the caller steals the job. */
+#include <stdatomic.h>
+typedef void (*par_fn_t)(void*);
+static Thread     s_par_thread;
+static Mutex      s_par_mutex;
+static CondVar    s_par_cond_work, s_par_cond_done;
+static atomic_int s_par_state; /* 0 idle, 1 posted, 2 helper running, 3 done, 4 stolen */
+static par_fn_t   s_par_fn;
+static void*      s_par_ctx;
+static int        s_par_inited = 0, s_par_ok = 0;
+
+static void par_thread_fn(void* arg) {
+    (void)arg;
+    for (;;) {
+        mutexLock(&s_par_mutex);
+        while (atomic_load(&s_par_state) != 1) condvarWait(&s_par_cond_work, &s_par_mutex);
+        int expect = 1;
+        int won = atomic_compare_exchange_strong(&s_par_state, &expect, 2);
+        par_fn_t fn = s_par_fn; void* ctx = s_par_ctx;
+        mutexUnlock(&s_par_mutex);
+        if (!won) continue;
+        fn(ctx);
+        mutexLock(&s_par_mutex);
+        atomic_store(&s_par_state, 3);
+        condvarWakeAll(&s_par_cond_done);
+        mutexUnlock(&s_par_mutex);
+    }
+}
+
+uint32_t switch_par_post(par_fn_t fn, void* ctx) {
+    if (!s_par_inited) {
+        s_par_inited = 1;
+        mutexInit(&s_par_mutex);
+        condvarInit(&s_par_cond_work);
+        condvarInit(&s_par_cond_done);
+        atomic_store(&s_par_state, 0);
+        Result rc = threadCreate(&s_par_thread, par_thread_fn, NULL, NULL, 256u * 1024u, 0x2C, 2);
+        if (R_SUCCEEDED(rc) && R_SUCCEEDED(threadStart(&s_par_thread))) s_par_ok = 1;
+    }
+    if (!s_par_ok) return 0;
+    mutexLock(&s_par_mutex);
+    s_par_fn = fn; s_par_ctx = ctx;
+    atomic_store(&s_par_state, 1);
+    condvarWakeAll(&s_par_cond_work);
+    mutexUnlock(&s_par_mutex);
+    return 1;
+}
+
+/* 1 = caller took the job back and must run it itself, 0 = helper has it. */
+uint32_t switch_par_try_steal(void) {
+    int expect = 1;
+    return atomic_compare_exchange_strong(&s_par_state, &expect, 4) ? 1 : 0;
+}
+
+void switch_par_stolen_done(void) { atomic_store(&s_par_state, 0); }
+
+void switch_par_wait(void) {
+    mutexLock(&s_par_mutex);
+    while (atomic_load(&s_par_state) != 3) condvarWait(&s_par_cond_done, &s_par_mutex);
+    atomic_store(&s_par_state, 0);
+    mutexUnlock(&s_par_mutex);
+}
+
 void switch_dispatch_worker(void (*fn)(void*), void* arg) {
     if (fn) fn(arg);
 }

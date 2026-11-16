@@ -23,6 +23,7 @@ mod audio;
 mod card;
 mod gl_renderer;
 mod gx_gpu;
+mod par;
 mod tev_gl;
 mod texture;
 
