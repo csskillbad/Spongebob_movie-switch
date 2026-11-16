@@ -5,6 +5,7 @@
 #include <string.h>
 #include <stdbool.h>
 #include <switch.h>
+#include <sys/stat.h>
 #include <EGL/egl.h>
 #include <EGL/eglext.h>
 #include <glad/glad.h>
@@ -466,6 +467,104 @@ static GLuint link_two(GLuint vs, GLuint fs, int delete_both) {
         glDeleteShader(vs);
         glDeleteShader(fs);
     }
+    return prog;
+}
+
+
+/* ---- Fragment shader / program-binary disk cache ----
+ * Fragment shader compile is deferred until link time. On link we first try a
+ * cached GL program binary (keyed by FNV-1a of the source), which avoids the
+ * multi-ms driver compile+link hitch the first time each shader variant is hit. */
+#define SHADER_CACHE_DIR "sdmc:/switch/tssm/shadercache"
+typedef struct { char* src; uint32_t len; uint64_t hash; GLuint sh; } FsSlot;
+static FsSlot* s_fs_slots = NULL;
+static uint32_t s_fs_slot_count = 0, s_fs_slot_cap = 0;
+
+static uint64_t fnv1a64(const char* p, uint32_t n) {
+    uint64_t h = 1469598103934665603ULL;
+    for (uint32_t i = 0; i < n; i++) { h ^= (uint8_t)p[i]; h *= 1099511628211ULL; }
+    return h;
+}
+
+static uint32_t fs_slot_add(const char* src, uint32_t len) {
+    if (s_fs_slot_count == s_fs_slot_cap) {
+        s_fs_slot_cap = s_fs_slot_cap ? s_fs_slot_cap * 2 : 256;
+        s_fs_slots = (FsSlot*)realloc(s_fs_slots, s_fs_slot_cap * sizeof(FsSlot));
+    }
+    FsSlot* f = &s_fs_slots[s_fs_slot_count++];
+    f->src = (char*)malloc(len + 1);
+    memcpy(f->src, src, len);
+    f->src[len] = 0;
+    f->len = len;
+    f->hash = fnv1a64(src, len);
+    f->sh = 0;
+    return s_fs_slot_count; /* handle = index + 1 */
+}
+
+static void shader_cache_path(char* out, size_t n, uint64_t h, uint32_t is_raw) {
+    snprintf(out, n, SHADER_CACHE_DIR "/%016llx_%u.bin", (unsigned long long)h, is_raw);
+}
+
+static GLuint link_cached(uint32_t handle, GLuint vs, uint32_t is_raw) {
+    FsSlot* f = &s_fs_slots[handle - 1];
+    char path[160];
+    shader_cache_path(path, sizeof(path), f->hash, is_raw);
+    FILE* fp = fopen(path, "rb");
+    if (fp) {
+        GLenum fmt = 0; uint32_t sz = 0;
+        if (fread(&fmt, 4, 1, fp) == 1 && fread(&sz, 4, 1, fp) == 1 && sz > 0 && sz < (16u << 20)) {
+            void* buf = malloc(sz);
+            if (buf && fread(buf, 1, sz, fp) == sz) {
+                GLuint prog = glCreateProgram();
+                glProgramBinary(prog, fmt, buf, (GLsizei)sz);
+                GLint ok = GL_FALSE;
+                glGetProgramiv(prog, GL_LINK_STATUS, &ok);
+                if (ok) { free(buf); fclose(fp); return prog; }
+                glDeleteProgram(prog);
+            }
+            free(buf);
+        }
+        fclose(fp);
+    }
+    if (!f->sh) f->sh = compile_shader(GL_FRAGMENT_SHADER, f->src, (GLint)f->len);
+    GLuint prog = GL_FALSE;
+    prog = glCreateProgram();
+    glProgramParameteri(prog, GL_PROGRAM_BINARY_RETRIEVABLE_HINT, GL_TRUE);
+    glAttachShader(prog, vs);
+    glAttachShader(prog, f->sh);
+    glLinkProgram(prog);
+    glDetachShader(prog, vs);
+    glDetachShader(prog, f->sh);
+    GLint ok = GL_FALSE;
+    glGetProgramiv(prog, GL_LINK_STATUS, &ok);
+    if (!ok) {
+        char log[512];
+        glGetProgramInfoLog(prog, sizeof(log), NULL, log);
+        char msg[600];
+        snprintf(msg, sizeof(msg), "[gl] program link error: %s", log);
+        switch_log(msg);
+        return prog;
+    }
+    GLint blen = 0;
+    glGetProgramiv(prog, GL_PROGRAM_BINARY_LENGTH, &blen);
+    if (blen > 0) {
+        void* buf = malloc((size_t)blen);
+        GLenum fmt = 0; GLsizei got = 0;
+        if (buf) {
+            glGetProgramBinary(prog, blen, &got, &fmt, buf);
+            mkdir("sdmc:/switch/tssm", 0777);
+            mkdir(SHADER_CACHE_DIR, 0777);
+            FILE* w = fopen(path, "wb");
+            if (w) {
+                uint32_t sz = (uint32_t)got;
+                fwrite(&fmt, 4, 1, w); fwrite(&sz, 4, 1, w); fwrite(buf, 1, sz, w);
+                fclose(w);
+            }
+            free(buf);
+        }
+    }
+    /* free source memory; shader object kept (tiny) */
+    free(f->src); f->src = NULL;
     return prog;
 }
 
@@ -1107,16 +1206,18 @@ static void gl_thread_entry(void* arg) {
         // Execute command with OpenGL Context current
         switch (cmd.type) {
             case GL_CMD_COMPILE_FS: {
-                GLuint fs = compile_shader(GL_FRAGMENT_SHADER, cmd.compile_fs.src_ptr, (GLint)cmd.compile_fs.src_len);
+                uint32_t h = fs_slot_add(cmd.compile_fs.src_ptr, cmd.compile_fs.src_len);
                 mutexLock(&s_gl_mutex);
-                if (cmd.out_u32) *cmd.out_u32 = fs;
+                if (cmd.out_u32) *cmd.out_u32 = h;
                 condvarWakeAll(&s_gl_cond_sync_done);
                 mutexUnlock(&s_gl_mutex);
                 break;
             }
             case GL_CMD_LINK_PROGRAM: {
                 GLuint vs = cmd.link_prog.is_raw ? s_vs_gx : s_vs_transformed;
-                GLuint prog = link_two(vs, cmd.link_prog.fs_id, 0);
+                GLuint prog = 0;
+                if (cmd.link_prog.fs_id >= 1 && cmd.link_prog.fs_id <= s_fs_slot_count)
+                    prog = link_cached(cmd.link_prog.fs_id, vs, cmd.link_prog.is_raw);
                 mutexLock(&s_gl_mutex);
                 if (cmd.out_u32) *cmd.out_u32 = prog;
                 condvarWakeAll(&s_gl_cond_sync_done);
