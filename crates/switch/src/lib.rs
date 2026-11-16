@@ -2205,10 +2205,23 @@ fn deliver_events_slow(c: &mut Ctx) {
             } else {
                 gx_worker::push_fifo(c, 1);
             }
-            PERF_PUMP_RETRACE_GX_NS.fetch_add(
-                unsafe { switch_now_ns().saturating_sub(t_retrace_gx) },
-                Ordering::Relaxed,
-            );
+            let retrace_gx_ns = unsafe { switch_now_ns().saturating_sub(t_retrace_gx) };
+            PERF_PUMP_RETRACE_GX_NS.fetch_add(retrace_gx_ns, Ordering::Relaxed);
+            if frame_pending {
+                // Spike detector: a shown frame that took far longer than its neighbours.
+                static LAST_SHOWN: AtomicU64 = AtomicU64::new(0);
+                let now_ns = unsafe { switch_now_ns() };
+                let last = LAST_SHOWN.swap(now_ns, Ordering::Relaxed);
+                if last != 0 && now_ns.saturating_sub(last) > 100_000_000 {
+                    log_c(&format!(
+                        "[spike] frame took {:.1} ms (retrace_gx wait {:.1} ms, gx phase {}, scene {:#x})",
+                        now_ns.saturating_sub(last) as f64 / 1e6,
+                        retrace_gx_ns as f64 / 1e6,
+                        GX_PHASE_NAMES[(GX_PHASE.load(Ordering::Relaxed) & 15) as usize],
+                        gl_renderer::CURRENT_SCENE_ID.load(Ordering::Relaxed),
+                    ));
+                }
+            }
 
             let t_retrace_cb = unsafe { switch_now_ns() };
             // Deliver any GPU sync tokens raised by gx_process before running VI retrace callbacks
