@@ -91,27 +91,74 @@ void __libnx_exception_handler(ThreadExceptionDump* ctx) {
     fclose(f);
 }
 
-void switch_log(const char* msg) {
-    if (msg) {
-        svcOutputDebugString(msg, strlen(msg));
-        svcOutputDebugString("\n", 1);
-        printf("%s\n", msg);
-        fflush(stdout);
+/* Logging must never block the game: every line used to be fflush()ed to the SD card on the
+ * calling thread, which cost ~150 ms per perf report (several times a second). Lines now go
+ * into a ring buffer and a low-priority thread writes them out in batches. */
+#define LOG_RING_SIZE (256u * 1024u)
+static char     s_log_ring[LOG_RING_SIZE];
+static uint32_t s_log_head = 0, s_log_tail = 0; /* free-running byte counters */
+static Thread   s_log_thread;
+static int      s_log_thread_state = 0; /* 0 = not started, 1 = running, -1 = failed */
 
+static void log_open_file(void) {
+    if (!s_log_fp) {
+        s_log_fp = fopen("sdmc:/tssm.log", "a");
+        if (!s_log_fp) s_log_fp = fopen("sdmc:/switch/tssm/tssm.log", "a");
+    }
+}
+
+static void log_thread_fn(void* arg) {
+    (void)arg;
+    static char batch[LOG_RING_SIZE];
+    for (;;) {
+        svcSleepThread(250000000ULL);
         mutexLock(&s_log_mutex);
-        if (!s_log_fp) {
-            s_log_fp = fopen("sdmc:/tssm.log", "a");
-            if (!s_log_fp) {
-                s_log_fp = fopen("sdmc:/switch/tssm/tssm.log", "a");
+        uint32_t n = s_log_head - s_log_tail;
+        for (uint32_t i = 0; i < n; i++) batch[i] = s_log_ring[(s_log_tail + i) % LOG_RING_SIZE];
+        s_log_tail += n;
+        mutexUnlock(&s_log_mutex);
+        if (n) {
+            log_open_file();
+            if (s_log_fp) {
+                fwrite(batch, 1, n, s_log_fp);
+                fflush(s_log_fp);
             }
         }
+    }
+}
+
+void switch_log(const char* msg) {
+    if (!msg) return;
+    size_t len = strlen(msg);
+    svcOutputDebugString(msg, len);
+    svcOutputDebugString("\n", 1);
+
+    mutexLock(&s_log_mutex);
+    if (s_log_thread_state == 0) {
+        Result rc = threadCreate(&s_log_thread, log_thread_fn, NULL, NULL, 64u * 1024u, 0x3B, 2);
+        s_log_thread_state = (R_SUCCEEDED(rc) && R_SUCCEEDED(threadStart(&s_log_thread))) ? 1 : -1;
+    }
+    int urgent = strstr(msg, "rash") != NULL || strstr(msg, "FATAL") != NULL || strstr(msg, "panic") != NULL;
+    if (s_log_thread_state == 1 && !urgent) {
+        if (len + 1 <= LOG_RING_SIZE - (s_log_head - s_log_tail)) {
+            for (size_t i = 0; i < len; i++) s_log_ring[(s_log_head + i) % LOG_RING_SIZE] = msg[i];
+            s_log_ring[(s_log_head + len) % LOG_RING_SIZE] = '\n';
+            s_log_head += (uint32_t)len + 1;
+        } /* else: ring full, drop the line rather than stall the game */
+    } else {
+        log_open_file();
         if (s_log_fp) {
+            /* keep order: write whatever the ring still holds first */
+            while (s_log_tail != s_log_head) {
+                fputc(s_log_ring[s_log_tail % LOG_RING_SIZE], s_log_fp);
+                s_log_tail++;
+            }
             fputs(msg, s_log_fp);
             fputc('\n', s_log_fp);
             fflush(s_log_fp);
         }
-        mutexUnlock(&s_log_mutex);
     }
+    mutexUnlock(&s_log_mutex);
 }
 
 void switch_yield(void) {
