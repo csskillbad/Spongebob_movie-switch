@@ -23,6 +23,8 @@ mod audio;
 mod card;
 mod gl_renderer;
 mod gx_gpu;
+mod hle_opt;
+mod options;
 mod par;
 mod tev_gl;
 mod texture;
@@ -2772,7 +2774,7 @@ mod hle_verify {
     static ON: AtomicBool = AtomicBool::new(false);
     static BUSY: AtomicBool = AtomicBool::new(false);
     /// (guest name, native, return kind: 0 none, 1 r3, 2 f1, 3 r3:r4)
-    const TABLE: [(&str, fn(&mut Ctx) -> bool, u8); 44] = [
+    const TABLE: [(&str, fn(&mut Ctx) -> bool, u8); 47] = [
         ("sqrt", arm64_native::hle_sqrt, 2),
         ("__ieee754_sqrt", arm64_native::hle_sqrt, 2),
         ("xsqrt__Ff", arm64_native::hle_xsqrt, 2),
@@ -2817,12 +2819,15 @@ mod hle_verify {
         ("xMat3x3LMulVec__FP5xVec3PC7xMat3x3PC5xVec3", arm64_native::hle_xmat3x3_lmul_vec, 0),
         ("xMat3x3Tolocal__FP5xVec3PC7xMat3x3PC5xVec3", arm64_native::hle_xmat3x3_tolocal, 0),
         ("xMat3x3Mul__FP7xMat3x3PC7xMat3x3PC7xMat3x3", arm64_native::hle_xmat3x3_mul, 0),
+        ("xVec3Copy__FP5xVec3PC5xVec3", hle_opt::hle_xvec3_copy, 0),
+        ("xSTAssetCountByType__FUi", hle_opt::hle_xst_asset_count_by_type, 1),
+        ("xSTFindAssetByType__FUiiPUi", hle_opt::hle_xst_find_asset_by_type, 1),
     ];
-    static CALLS: [AtomicU32; 44] = [const { AtomicU32::new(0) }; 44];
-    static BAD: [AtomicU32; 44] = [const { AtomicU32::new(0) }; 44];
-    static MAX_ERR_E6: [AtomicU32; 44] = [const { AtomicU32::new(0) }; 44];
+    static CALLS: [AtomicU32; 47] = [const { AtomicU32::new(0) }; 47];
+    static BAD: [AtomicU32; 47] = [const { AtomicU32::new(0) }; 47];
+    static MAX_ERR_E6: [AtomicU32; 47] = [const { AtomicU32::new(0) }; 47];
     static TOTAL: AtomicU32 = AtomicU32::new(0);
-    const VERIFY: [fn(&mut Ctx) -> bool; 44] = [verify::<0>, verify::<1>, verify::<2>, verify::<3>, verify::<4>, verify::<5>, verify::<6>, verify::<7>, verify::<8>, verify::<9>, verify::<10>, verify::<11>, verify::<12>, verify::<13>, verify::<14>, verify::<15>, verify::<16>, verify::<17>, verify::<18>, verify::<19>, verify::<20>, verify::<21>, verify::<22>, verify::<23>, verify::<24>, verify::<25>, verify::<26>, verify::<27>, verify::<28>, verify::<29>, verify::<30>, verify::<31>, verify::<32>, verify::<33>, verify::<34>, verify::<35>, verify::<36>, verify::<37>, verify::<38>, verify::<39>, verify::<40>, verify::<41>, verify::<42>, verify::<43>];
+    const VERIFY: [fn(&mut Ctx) -> bool; 47] = [verify::<0>, verify::<1>, verify::<2>, verify::<3>, verify::<4>, verify::<5>, verify::<6>, verify::<7>, verify::<8>, verify::<9>, verify::<10>, verify::<11>, verify::<12>, verify::<13>, verify::<14>, verify::<15>, verify::<16>, verify::<17>, verify::<18>, verify::<19>, verify::<20>, verify::<21>, verify::<22>, verify::<23>, verify::<24>, verify::<25>, verify::<26>, verify::<27>, verify::<28>, verify::<29>, verify::<30>, verify::<31>, verify::<32>, verify::<33>, verify::<34>, verify::<35>, verify::<36>, verify::<37>, verify::<38>, verify::<39>, verify::<40>, verify::<41>, verify::<42>, verify::<43>, verify::<44>, verify::<45>, verify::<46>];
     const WINDOW: u32 = 64;
 
     pub fn init() {
@@ -3243,6 +3248,7 @@ fn switch_policy(name: &str) -> Hle {
                 s.fill(0);
                 s[10] = 0xFF;
             }
+            options::filter_pad(c.slice_mut(status, 12));
             check_warp(c);
             c.r[3] = 0;
         }),
@@ -3601,10 +3607,10 @@ fn switch_policy(name: &str) -> Hle {
         | "xCameraMove__FP7xCameraUiffffff"
         | "xCameraLookYPR__FP7xCameraUiffffff"
         | "zCameraTweakGlobal_Add__FUiffff"
-        | "zUIMgrUpdate__Ff"
-        | "DoRender__7zUITextCFv"
         | "DoRender__8zUIModelCFv"
         | "DoRender__8zUIImageCFv" => Hle::Original,
+        "zUIMgrUpdate__Ff" => Hle::Before(options::before_update),
+        "DoRender__7zUITextCFv" => Hle::Replace(options::render_row),
 
         // The save and load menus go straight to the three save slots.
         "zSaveLoad_SaveLoop__Fv" | "zSaveLoad_LoadLoop__Fv" => Hle::Before(card::before_menu),
@@ -3714,6 +3720,8 @@ fn switch_policy(name: &str) -> Hle {
         "xStrHash__FPCcUl" => Hle::Replace(arm64_native::hle_xstr_hash_n),
         "PKR_AssetCount__FP19st_PACKER_READ_DATAUi" => Hle::Replace(arm64_native::hle_pkr_asset_count),
         "PKR_AssetByType__FP19st_PACKER_READ_DATAUiiPUi" => Hle::Replace(arm64_native::hle_pkr_asset_by_type),
+        "qsort" => Hle::Replace(hle_opt::hle_qsort),
+        "TriStripBinEntryArrayCreate" => Hle::Replace(hle_opt::hle_tri_strip_bin_entry_array_create),
 
         // Skeletal skinning vertex updates
         "_rwDlSkinUpdate2WeightsP" => skin_verify::policy(0),
@@ -3743,6 +3751,7 @@ pub extern "C" fn tssm_switch_free_ctx(ctx: *mut c_void) {
 #[no_mangle]
 pub extern "C" fn tssm_switch_init() -> i32 {
     log_c("[switch] Initializing DVD filesystem & 64-voice DSP/AX audio...");
+    options::ensure_loaded();
     init_dvd_entries();
     audio::init();
     gl_renderer::CURRENT_SCENE_ID.store(TARGET_SCENE.load(Ordering::Relaxed), Ordering::Relaxed);

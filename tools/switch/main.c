@@ -703,33 +703,35 @@ int main(int argc, char* argv[]) {
         fclose(sf);
     }
 
-    // Optional FPS HUD flag
-    bool show_fps = false;
-
-    FILE* cf = fopen("sdmc:/switch/tssm/fps_counter.txt", "r");
-    if (!cf) cf = fopen("romfs:/config/fps_counter.txt", "r");
-    if (cf) {
-        int v = 0;
-        if (fscanf(cf, "%d", &v) == 1) {
-            show_fps = (v != 0);
+    // Legacy text config fallback only when user hasn't saved in-game settings yet
+    FILE* cfg_bin = fopen("sdmc:/switch/tssm/settings.bin", "rb");
+    if (cfg_bin) {
+        fclose(cfg_bin);
+    } else {
+        FILE* cf = fopen("sdmc:/switch/tssm/fps_counter.txt", "r");
+        if (!cf) cf = fopen("romfs:/config/fps_counter.txt", "r");
+        if (cf) {
+            int v = 0;
+            if (fscanf(cf, "%d", &v) == 1) {
+                tssm_switch_set_fps_enabled(v != 0 ? 1 : 0);
+            }
+            fclose(cf);
         }
-        fclose(cf);
-    }
 
-    FILE* scf = fopen("sdmc:/switch/tssm/scale.txt", "r");
-    if (!scf) scf = fopen("romfs:/config/scale.txt", "r");
-    if (scf) {
-        int sc = 0;
-        if (fscanf(scf, "%d", &sc) == 1 && sc >= 1 && sc <= 2) {
-            tssm_switch_set_scale_override((uint32_t)sc);
-            char sc_msg[64];
-            snprintf(sc_msg, sizeof(sc_msg), "[switch] Scale override: %dx", sc);
-            switch_log(sc_msg);
+        FILE* scf = fopen("sdmc:/switch/tssm/scale.txt", "r");
+        if (!scf) scf = fopen("romfs:/config/scale.txt", "r");
+        if (scf) {
+            int sc = 0;
+            if (fscanf(scf, "%d", &sc) == 1 && sc >= 1 && sc <= 2) {
+                tssm_switch_set_scale_override((uint32_t)sc);
+                char sc_msg[64];
+                snprintf(sc_msg, sizeof(sc_msg), "[switch] Scale override: %dx", sc);
+                switch_log(sc_msg);
+            }
+            fclose(scf);
         }
-        fclose(scf);
     }
-
-    tssm_switch_set_fps_enabled(show_fps ? 1 : 0);
+    bool show_fps = tssm_switch_get_fps_enabled() != 0;
 
     // 5. Launch GameCube guest engine on dedicated Core 1 (spawns Core 0 GX worker & Core 2 GL renderer)
     size_t stack_size = 8u * 1024u * 1024u;
@@ -771,7 +773,7 @@ int main(int argc, char* argv[]) {
 
         // Toggle GPU FPS HUD pill with Minus (-)
         if ((kDown & HidNpadButton_Minus) && !(kHeld & HidNpadButton_Plus)) {
-            show_fps = !show_fps;
+            show_fps = !tssm_switch_get_fps_enabled();
             tssm_switch_set_fps_enabled(show_fps ? 1 : 0);
         }
 
@@ -854,4 +856,50 @@ int main(int argc, char* argv[]) {
     fsdevUnmountDevice("sdmc");
 
     return 0;
+}
+
+/* ---- Persistent storage helpers (memory card image + user settings) ---- */
+#include <sys/stat.h>
+#include <time.h>
+
+static void switch_make_dirs(void) {
+    mkdir("sdmc:/switch", 0777);
+    mkdir("sdmc:/switch/tssm", 0777);
+}
+
+static int switch_blob_read(const char* path, unsigned char* buf, unsigned cap) {
+    FILE* f = fopen(path, "rb");
+    if (!f) return -1;
+    size_t n = fread(buf, 1, cap, f);
+    fclose(f);
+    return (int)n;
+}
+
+static int switch_blob_write(const char* path, const unsigned char* buf, unsigned len) {
+    char tmp[128];
+    snprintf(tmp, sizeof(tmp), "%s.tmp", path);
+    switch_make_dirs();
+    FILE* f = fopen(tmp, "wb");
+    if (!f) return -1;
+    size_t n = fwrite(buf, 1, len, f);
+    fflush(f);
+    fclose(f);
+    if (n != len) { remove(tmp); return -1; }
+    remove(path);
+    return rename(tmp, path);
+}
+
+#define SWITCH_CARD_PATH "sdmc:/switch/tssm/card.img"
+#define SWITCH_CFG_PATH  "sdmc:/switch/tssm/settings.bin"
+
+int switch_card_load(unsigned char* buf, unsigned cap) { return switch_blob_read(SWITCH_CARD_PATH, buf, cap); }
+int switch_card_store(const unsigned char* buf, unsigned len) { return switch_blob_write(SWITCH_CARD_PATH, buf, len); }
+int switch_cfg_load(unsigned char* buf, unsigned cap) { return switch_blob_read(SWITCH_CFG_PATH, buf, cap); }
+int switch_cfg_store(const unsigned char* buf, unsigned len) { return switch_blob_write(SWITCH_CFG_PATH, buf, len); }
+
+uint32_t switch_now_sec_2000(void) {
+    time_t t = time(NULL);
+    const time_t epoch_2000 = 946684800LL;
+    if (t <= epoch_2000) return 0;
+    return (uint32_t)(t - epoch_2000);
 }

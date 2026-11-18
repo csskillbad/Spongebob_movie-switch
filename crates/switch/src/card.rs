@@ -111,6 +111,69 @@ struct Card {
 }
 
 static mut CARD: Option<Card> = None;
+static DIRTY: AtomicBool = AtomicBool::new(false);
+
+extern "C" {
+    fn switch_card_load(buf: *mut u8, cap: u32) -> i32;
+    fn switch_card_store(buf: *const u8, len: u32) -> i32;
+    fn switch_now_sec_2000() -> u32;
+}
+
+const IMAGE_MAGIC: u32 = 0x5453_4331; // "TSC1"
+const IMAGE_CAP: usize = 4 + 4 + MAX_FILES * (4 + ENTRY + 4) + (BLOCKS * SECTOR) as usize;
+
+fn load_image(files: &mut Vec<Option<File>>) {
+    let mut buf = vec![0u8; IMAGE_CAP];
+    // SAFETY: buf is valid for IMAGE_CAP bytes.
+    let len = unsafe { switch_card_load(buf.as_mut_ptr(), IMAGE_CAP as u32) };
+    if len < 8 {
+        return;
+    }
+    let buf = &buf[..len as usize];
+    let rd = |at: usize| -> Option<u32> {
+        buf.get(at..at + 4).map(|b| u32::from_le_bytes([b[0], b[1], b[2], b[3]]))
+    };
+    if rd(0) != Some(IMAGE_MAGIC) {
+        return;
+    }
+    let Some(count) = rd(4) else { return };
+    let mut at = 8;
+    for _ in 0..count {
+        let (Some(slot), Some(len)) = (rd(at), rd(at + 4 + ENTRY)) else { return };
+        let (slot, len) = (slot as usize, len as usize);
+        let start = at + 4 + ENTRY + 4;
+        let (Some(entry), Some(data)) = (buf.get(at + 4..at + 4 + ENTRY), buf.get(start..start + len)) else { return };
+        if slot < MAX_FILES {
+            let mut e = [0u8; ENTRY];
+            e.copy_from_slice(entry);
+            files[slot] = Some(File { entry: e, data: data.to_vec() });
+        }
+        at = start + len;
+    }
+}
+
+/// Writes the card image to storage if anything changed since the last flush.
+fn flush() {
+    if !DIRTY.swap(false, Ordering::Relaxed) {
+        return;
+    }
+    let mut out: Vec<u8> = Vec::new();
+    with(|card| {
+        out.extend_from_slice(&IMAGE_MAGIC.to_le_bytes());
+        let count = card.files.iter().filter(|f| f.is_some()).count() as u32;
+        out.extend_from_slice(&count.to_le_bytes());
+        for (slot, file) in card.files.iter().enumerate() {
+            if let Some(file) = file {
+                out.extend_from_slice(&(slot as u32).to_le_bytes());
+                out.extend_from_slice(&file.entry);
+                out.extend_from_slice(&(file.data.len() as u32).to_le_bytes());
+                out.extend_from_slice(&file.data);
+            }
+        }
+    });
+    // SAFETY: out is valid for out.len() bytes.
+    unsafe { switch_card_store(out.as_ptr(), out.len() as u32) };
+}
 
 fn with<R>(f: impl FnOnce(&mut Card) -> R) -> R {
     // SAFETY: the guest runs on a single thread.
@@ -119,6 +182,7 @@ fn with<R>(f: impl FnOnce(&mut Card) -> R) -> R {
         CARD.get_or_insert_with(|| {
             let mut files = Vec::new();
             files.resize_with(MAX_FILES, || None);
+            load_image(&mut files);
             Card { files, result: READY, transferred: 0 }
         })
     };
@@ -129,12 +193,14 @@ fn present(chan: u32) -> bool {
     chan == 0
 }
 
-fn now(c: &Ctx) -> u32 {
-    (c.timebase() / 40_500_000) as u32
+fn now(_c: &Ctx) -> u32 {
+    // SAFETY: pure C clock helper returning seconds since 2000-01-01.
+    unsafe { switch_now_sec_2000() }
 }
 
 fn done(c: &mut Ctx, result: i32) {
     with(|card| card.result = result);
+    flush();
     c.r[3] = result as u32;
 }
 
@@ -142,6 +208,7 @@ fn done_async(c: &mut Ctx, chan: u32, callback: u32, result: i32) {
     if result < 0 {
         return done(c, result);
     }
+    flush();
     with(|card| card.result = BUSY);
     push_event(Event::CardDone { chan, callback, result });
     c.r[3] = READY as u32;
@@ -228,6 +295,8 @@ fn format(chan: u32) -> i32 {
         return NOCARD;
     }
     with(|card| card.files.iter_mut().for_each(|f| *f = None));
+    DIRTY.store(true, Ordering::Relaxed);
+    flush();
     READY
 }
 
@@ -352,6 +421,7 @@ fn create_async(c: &mut Ctx) {
         entry[E_COMMENT_ADDR..].copy_from_slice(&NONE.to_be_bytes());
         card.files[number] = Some(File { entry, data: vec![0; size as usize] });
         card.transferred = 0;
+        DIRTY.store(true, Ordering::Relaxed);
         Ok(number)
     });
     match result {
@@ -371,6 +441,7 @@ fn delete_async(c: &mut Ctx) {
     let result = with(|card| match find(card, c, &name) {
         Some(number) => {
             card.files[number] = None;
+            DIRTY.store(true, Ordering::Relaxed);
             READY
         }
         None => NOFILE,
@@ -418,6 +489,7 @@ fn write_async(c: &mut Ctx) {
             file.data[range].copy_from_slice(&source);
             file.entry[E_TIME..E_TIME + 4].copy_from_slice(&time.to_be_bytes());
             card.transferred = length;
+            DIRTY.store(true, Ordering::Relaxed);
         });
         Ok(chan)
     });
@@ -522,6 +594,7 @@ fn set_status(c: &mut Ctx) -> i32 {
         file.entry[E_ICON_SPEED..E_ICON_SPEED + 2].copy_from_slice(&icon_speed.to_be_bytes());
         file.entry[E_COMMENT_ADDR..].copy_from_slice(&comment.to_be_bytes());
         file.entry[E_TIME..E_TIME + 4].copy_from_slice(&time.to_be_bytes());
+        DIRTY.store(true, Ordering::Relaxed);
         READY
     })
 }
@@ -537,6 +610,7 @@ fn set_attributes(c: &mut Ctx) {
     let result = with(|card| match card.files[number].as_mut() {
         Some(file) => {
             file.entry[E_PERMISSION] = attributes;
+            DIRTY.store(true, Ordering::Relaxed);
             READY
         }
         None => NOFILE,

@@ -410,12 +410,12 @@ impl Renderer {
         if (win_w, win_h) != self.win_size {
             self.win_size = (win_w, win_h);
             crate::aspect::set_window(win_w, win_h);
-            let wanted = Self::wanted_scale(win_h);
-            if wanted != self.scale {
-                self.scale = wanted;
-                unsafe {
-                    switch_gl_resize_efb(EFB_WIDTH * wanted.0, EFB_HEIGHT * wanted.1);
-                }
+        }
+        let wanted = Self::wanted_scale(win_h);
+        if wanted != self.scale {
+            self.scale = wanted;
+            unsafe {
+                switch_gl_resize_efb(EFB_WIDTH * wanted.0, EFB_HEIGHT * wanted.1);
             }
         }
     }
