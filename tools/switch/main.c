@@ -597,11 +597,19 @@ void* switch_alloc_guest_memory(void) {
 
 static void audio_callback(void* userdata, Uint8* stream, int len) {
     (void)userdata;
+    static int16_t s_last_l = 0, s_last_r = 0;
     int16_t* out = (int16_t*)stream;
     size_t stereo_frames = (size_t)len / (2u * sizeof(int16_t));
     size_t got = tssm_switch_drain_audio(out, stereo_frames);
-    if (got < stereo_frames) {
-        memset(out + got * 2u, 0, (stereo_frames - got) * 2u * sizeof(int16_t));
+    if (got > 0) {
+        s_last_l = out[(got - 1u) * 2u];
+        s_last_r = out[(got - 1u) * 2u + 1u];
+    }
+    for (size_t i = got; i < stereo_frames; i++) {
+        s_last_l = (int16_t)(((int32_t)s_last_l * 63) >> 6);
+        s_last_r = (int16_t)(((int32_t)s_last_r * 63) >> 6);
+        out[i * 2u] = s_last_l;
+        out[i * 2u + 1u] = s_last_r;
     }
 }
 

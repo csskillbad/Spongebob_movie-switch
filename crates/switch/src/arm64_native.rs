@@ -2544,8 +2544,56 @@ pub fn hle_rw_gcn_display_list_get_stride(c: &mut Ctx) -> bool {
     true
 }
 
+#[inline(always)]
+fn point_within_triangle_vals(
+    px: f32,
+    py: f32,
+    pz: f32,
+    v0: (f32, f32, f32),
+    v1: (f32, f32, f32),
+    v2: (f32, f32, f32),
+    nx: f32,
+    ny: f32,
+    nz: f32,
+) -> bool {
+    let abs_nx = nx.abs();
+    let abs_ny = ny.abs();
+    let abs_nz = nz.abs();
+    let axis = if abs_nz > abs_ny {
+        if abs_nz > abs_nx { 2 } else { 0 }
+    } else if abs_ny > abs_nx {
+        1
+    } else {
+        0
+    };
+
+    let (pu, pv, uv) = match axis {
+        0 => (py, pz, [(v0.1, v0.2), (v1.1, v1.2), (v2.1, v2.2)]),
+        1 => (pz, px, [(v0.2, v0.0), (v1.2, v1.0), (v2.2, v2.0)]),
+        _ => (py, px, [(v0.1, v0.0), (v1.1, v1.0), (v2.1, v2.0)]),
+    };
+
+    let mut inside = false;
+    let mut j = 2usize;
+    for i in 0..3 {
+        let (ui, vi) = uv[i];
+        let (uj, vj) = uv[j];
+        if (ui <= pu && pu < uj) || (uj <= pu && pu < ui) {
+            let f2 = pu - ui;
+            let f1 = vj - vi;
+            let f0 = uj - ui;
+            let cross_v = vi + (f2 * f1) / f0;
+            if pv < cross_v {
+                inside = !inside;
+            }
+        }
+        j = i;
+    }
+    inside
+}
+
 /// Native ARM64 implementation of Heavy Iron `properSphereIsectTri` (`0x80206EDC`).
-/// Computes exact sphere-triangle intersection with normal, closest point, and distance.
+/// Computes exact sphere-triangle intersection displacement vector (`tohit`) and distance.
 pub fn hle_proper_sphere_isect_tri(c: &mut Ctx) -> bool {
     let center_ptr = c.r[3];
     let radius = c.f[1] as f32;
@@ -2557,6 +2605,16 @@ pub fn hle_proper_sphere_isect_tri(c: &mut Ctx) -> bool {
     if !in_ram(center_ptr, 12) || !in_ram(hit_ptr, 12) || !in_ram(dist_ptr, 4) || !in_ram(tri_ptr, 40) {
         return false;
     }
+
+    let v0_ptr = mr32(mem, tri_ptr + 28);
+    let v1_ptr = mr32(mem, tri_ptr + 32);
+    let v2_ptr = mr32(mem, tri_ptr + 36);
+
+    if !in_ram(v0_ptr, 12) || !in_ram(v1_ptr, 12) || !in_ram(v2_ptr, 12) {
+        return false;
+    }
+
+    let cur_dist = rf32(mem, dist_ptr);
 
     let cx = rf32(mem, center_ptr);
     let cy = rf32(mem, center_ptr + 4);
@@ -2570,125 +2628,87 @@ pub fn hle_proper_sphere_isect_tri(c: &mut Ctx) -> bool {
     let py = rf32(mem, tri_ptr + 16);
     let pz = rf32(mem, tri_ptr + 20);
 
-    let v0_ptr = mr32(mem, tri_ptr + 28);
-    let v1_ptr = mr32(mem, tri_ptr + 32);
-    let v2_ptr = mr32(mem, tri_ptr + 36);
+    // Match xVec3Dot paired-single evaluation order: x*x + (y*y + z*z)
+    let dot_c = ((nx as f64) * (cx as f64) + (((ny * cy) as f64) + ((nz * cz) as f64)) as f32 as f64) as f32;
+    let dot_p = ((nx as f64) * (px as f64) + (((ny * py) as f64) + ((nz * pz) as f64)) as f32 as f64) as f32;
+    let f26 = dot_p - dot_c;
 
-    if !in_ram(v0_ptr, 12) || !in_ram(v1_ptr, 12) || !in_ram(v2_ptr, 12) {
-        return false;
-    }
+    // Displacement vector from sphere center to triangle plane
+    let hx = nx * f26;
+    let hy = ny * f26;
+    let hz = nz * f26;
+    wf32(mem, hit_ptr, hx);
+    wf32(mem, hit_ptr + 4, hy);
+    wf32(mem, hit_ptr + 8, hz);
 
-    let v0_x = rf32(mem, v0_ptr);
-    let v0_y = rf32(mem, v0_ptr + 4);
-    let v0_z = rf32(mem, v0_ptr + 8);
+    // Projected point on plane: hit_vec + center
+    let proj_x = hx + cx;
+    let proj_y = hy + cy;
+    let proj_z = hz + cz;
 
-    let v1_x = rf32(mem, v1_ptr);
-    let v1_y = rf32(mem, v1_ptr + 4);
-    let v1_z = rf32(mem, v1_ptr + 8);
+    let v0 = (rf32(mem, v0_ptr), rf32(mem, v0_ptr + 4), rf32(mem, v0_ptr + 8));
+    let v1 = (rf32(mem, v1_ptr), rf32(mem, v1_ptr + 4), rf32(mem, v1_ptr + 8));
+    let v2 = (rf32(mem, v2_ptr), rf32(mem, v2_ptr + 4), rf32(mem, v2_ptr + 8));
 
-    let v2_x = rf32(mem, v2_ptr);
-    let v2_y = rf32(mem, v2_ptr + 4);
-    let v2_z = rf32(mem, v2_ptr + 8);
-
-    // Plane distance: dot(normal, center) - dot(normal, point)
-    let dot_c = nx * cx + ny * cy + nz * cz;
-    let dot_p = nx * px + ny * py + nz * pz;
-    let dist_to_plane = dot_c - dot_p;
-
-    let abs_dist_plane = dist_to_plane.abs();
-    if abs_dist_plane > radius {
-        c.r[3] = 0;
+    if point_within_triangle_vals(proj_x, proj_y, proj_z, v0, v1, v2, nx, ny, nz) {
+        wf32(mem, dist_ptr, f26.abs());
         return true;
     }
 
-    // Projected point on plane: center - normal * dist_to_plane
-    let proj_x = cx - nx * dist_to_plane;
-    let proj_y = cy - ny * dist_to_plane;
-    let proj_z = cz - nz * dist_to_plane;
+    let mut f29 = cur_dist * cur_dist;
+    let f28 = radius * radius;
+    let edges = [(v0, v1), (v1, v2), (v2, v0)];
 
-    // Test PointWithinTriangle on projected 2D coordinates (dominant normal axis)
-    let abs_nx = nx.abs();
-    let abs_ny = ny.abs();
-    let abs_nz = nz.abs();
+    for (a, b) in edges {
+        let f6 = b.0 - a.0;
+        let f7 = b.1 - a.1;
+        let f8 = b.2 - a.2;
 
-    let inside = if abs_nz >= abs_nx && abs_nz >= abs_ny {
-        let c0 = (v1_x - v0_x) * (proj_y - v0_y) - (v1_y - v0_y) * (proj_x - v0_x);
-        let c1 = (v2_x - v1_x) * (proj_y - v1_y) - (v2_y - v1_y) * (proj_x - v1_x);
-        let c2 = (v0_x - v2_x) * (proj_y - v2_y) - (v0_y - v2_y) * (proj_x - v2_x);
-        (c0 >= 0.0 && c1 >= 0.0 && c2 >= 0.0) || (c0 <= 0.0 && c1 <= 0.0 && c2 <= 0.0)
-    } else if abs_ny >= abs_nx {
-        let c0 = (v1_x - v0_x) * (proj_z - v0_z) - (v1_z - v0_z) * (proj_x - v0_x);
-        let c1 = (v2_x - v1_x) * (proj_z - v1_z) - (v2_z - v1_z) * (proj_x - v1_x);
-        let c2 = (v0_x - v2_x) * (proj_z - v2_z) - (v0_z - v2_z) * (proj_x - v2_x);
-        (c0 >= 0.0 && c1 >= 0.0 && c2 >= 0.0) || (c0 <= 0.0 && c1 <= 0.0 && c2 <= 0.0)
+        let dot_proj = ((proj_z as f64) * (f8 as f64)
+            + ((proj_x as f64) * (f6 as f64) + ((proj_y * f7) as f64)) as f32 as f64) as f32;
+        let dot_a = ((a.2 as f64) * (f8 as f64)
+            + ((a.0 as f64) * (f6 as f64) + ((a.1 * f7) as f64)) as f32 as f64) as f32;
+        let f3 = dot_proj - dot_a;
+
+        let (qx, qy, qz) = if f3 <= 0.0 {
+            a
+        } else {
+            let f2 = f8 * f8 + (f6 * f6 + f7 * f7);
+            if f3 < f2 {
+                let t = f3 / f2;
+                (f6 * t + a.0, f7 * t + a.1, f8 * t + a.2)
+            } else {
+                b
+            }
+        };
+
+        let dx = qx - cx;
+        let dy = qy - cy;
+        let dz = qz - cz;
+        let d_sq = dz * dz + (dx * dx + dy * dy);
+        if d_sq < f29 && d_sq < f28 {
+            f29 = d_sq;
+            wf32(mem, hit_ptr, dx);
+            wf32(mem, hit_ptr + 4, dy);
+            wf32(mem, hit_ptr + 8, dz);
+        }
+    }
+
+    let out_dist = if f29 <= 0.0 || f29.is_infinite() || f29.is_nan() {
+        f29
     } else {
-        let c0 = (v1_y - v0_y) * (proj_z - v0_z) - (v1_z - v0_z) * (proj_y - v0_y);
-        let c1 = (v2_y - v1_y) * (proj_z - v1_z) - (v2_z - v1_z) * (proj_y - v1_y);
-        let c2 = (v0_y - v2_y) * (proj_z - v2_z) - (v0_z - v2_z) * (proj_y - v2_y);
-        (c0 >= 0.0 && c1 >= 0.0 && c2 >= 0.0) || (c0 <= 0.0 && c1 <= 0.0 && c2 <= 0.0)
+        let f1_0 = (1.0f64 / hw_sqrt_f64(f29 as f64)) as f32;
+        let f2 = f1_0 * f1_0;
+        let f1 = f1_0 * 0.5f32;
+        let f2 = -(((f2 as f64) * (f29 as f64) - 3.0f64) as f32);
+        let inv = f2 * f1;
+        if inv > 1.0e-5f32 {
+            1.0f32 / inv
+        } else {
+            100000.0f32
+        }
     };
-
-    if inside {
-        wf32(mem, hit_ptr, proj_x);
-        wf32(mem, hit_ptr + 4, proj_y);
-        wf32(mem, hit_ptr + 8, proj_z);
-        wf32(mem, dist_ptr, abs_dist_plane);
-        c.r[3] = 1;
-        return true;
-    }
-
-    // Not inside triangle: test closest point on the 3 edges
-    let edges = [
-        (v0_x, v0_y, v0_z, v1_x, v1_y, v1_z),
-        (v1_x, v1_y, v1_z, v2_x, v2_y, v2_z),
-        (v2_x, v2_y, v2_z, v0_x, v0_y, v0_z),
-    ];
-
-    let r_sq = radius * radius;
-    let cur_dist = rf32(mem, dist_ptr);
-    let mut min_d_sq = cur_dist * cur_dist;
-    if min_d_sq > r_sq {
-        min_d_sq = r_sq;
-    }
-    let mut best_hit = None;
-
-    for (ax, ay, az, bx, by, bz) in edges {
-        let ab_x = bx - ax;
-        let ab_y = by - ay;
-        let ab_z = bz - az;
-        let ab_sq = ab_x * ab_x + ab_y * ab_y + ab_z * ab_z;
-        if ab_sq <= 0.0 {
-            continue;
-        }
-        let ac_x = cx - ax;
-        let ac_y = cy - ay;
-        let ac_z = cz - az;
-        let t = (ac_x * ab_x + ac_y * ab_y + ac_z * ab_z) / ab_sq;
-        let t_clamped = if t < 0.0 { 0.0 } else if t > 1.0 { 1.0 } else { t };
-        let qx = ax + ab_x * t_clamped;
-        let qy = ay + ab_y * t_clamped;
-        let qz = az + ab_z * t_clamped;
-        let diff_x = cx - qx;
-        let diff_y = cy - qy;
-        let diff_z = cz - qz;
-        let d_sq = diff_x * diff_x + diff_y * diff_y + diff_z * diff_z;
-        if d_sq < min_d_sq {
-            min_d_sq = d_sq;
-            best_hit = Some((qx, qy, qz));
-        }
-    }
-
-    if let Some((qx, qy, qz)) = best_hit {
-        let final_dist = hw_sqrt_f32(min_d_sq);
-        wf32(mem, hit_ptr, qx);
-        wf32(mem, hit_ptr + 4, qy);
-        wf32(mem, hit_ptr + 8, qz);
-        wf32(mem, dist_ptr, final_dist);
-        c.r[3] = 1;
-        return true;
-    }
-
-    c.r[3] = 0;
+    wf32(mem, dist_ptr, out_dist);
     true
 }
 
@@ -2703,14 +2723,6 @@ pub fn hle_point_within_triangle(c: &mut Ctx) -> bool {
         return false;
     }
 
-    let px = rf32(mem, p_ptr);
-    let py = rf32(mem, p_ptr + 4);
-    let pz = rf32(mem, p_ptr + 8);
-
-    let nx = rf32(mem, norm_ptr);
-    let ny = rf32(mem, norm_ptr + 4);
-    let nz = rf32(mem, norm_ptr + 8);
-
     let v0_ptr = mr32(mem, v_ptrs_ptr);
     let v1_ptr = mr32(mem, v_ptrs_ptr + 4);
     let v2_ptr = mr32(mem, v_ptrs_ptr + 8);
@@ -2719,40 +2731,20 @@ pub fn hle_point_within_triangle(c: &mut Ctx) -> bool {
         return false;
     }
 
-    let v0_x = rf32(mem, v0_ptr);
-    let v0_y = rf32(mem, v0_ptr + 4);
-    let v0_z = rf32(mem, v0_ptr + 8);
+    let px = rf32(mem, p_ptr);
+    let py = rf32(mem, p_ptr + 4);
+    let pz = rf32(mem, p_ptr + 8);
 
-    let v1_x = rf32(mem, v1_ptr);
-    let v1_y = rf32(mem, v1_ptr + 4);
-    let v1_z = rf32(mem, v1_ptr + 8);
+    let nx = rf32(mem, norm_ptr);
+    let ny = rf32(mem, norm_ptr + 4);
+    let nz = rf32(mem, norm_ptr + 8);
 
-    let v2_x = rf32(mem, v2_ptr);
-    let v2_y = rf32(mem, v2_ptr + 4);
-    let v2_z = rf32(mem, v2_ptr + 8);
+    let v0 = (rf32(mem, v0_ptr), rf32(mem, v0_ptr + 4), rf32(mem, v0_ptr + 8));
+    let v1 = (rf32(mem, v1_ptr), rf32(mem, v1_ptr + 4), rf32(mem, v1_ptr + 8));
+    let v2 = (rf32(mem, v2_ptr), rf32(mem, v2_ptr + 4), rf32(mem, v2_ptr + 8));
 
-    let abs_nx = nx.abs();
-    let abs_ny = ny.abs();
-    let abs_nz = nz.abs();
-
-    let inside = if abs_nz >= abs_nx && abs_nz >= abs_ny {
-        let c0 = (v1_x - v0_x) * (py - v0_y) - (v1_y - v0_y) * (px - v0_x);
-        let c1 = (v2_x - v1_x) * (py - v1_y) - (v2_y - v1_y) * (px - v1_x);
-        let c2 = (v0_x - v2_x) * (py - v2_y) - (v0_y - v2_y) * (px - v2_x);
-        (c0 >= 0.0 && c1 >= 0.0 && c2 >= 0.0) || (c0 <= 0.0 && c1 <= 0.0 && c2 <= 0.0)
-    } else if abs_ny >= abs_nx {
-        let c0 = (v1_x - v0_x) * (pz - v0_z) - (v1_z - v0_z) * (px - v0_x);
-        let c1 = (v2_x - v1_x) * (pz - v1_z) - (v2_z - v1_z) * (px - v1_x);
-        let c2 = (v0_x - v2_x) * (pz - v2_z) - (v0_z - v2_z) * (px - v2_x);
-        (c0 >= 0.0 && c1 >= 0.0 && c2 >= 0.0) || (c0 <= 0.0 && c1 <= 0.0 && c2 <= 0.0)
-    } else {
-        let c0 = (v1_y - v0_y) * (pz - v0_z) - (v1_z - v0_z) * (py - v0_y);
-        let c1 = (v2_y - v1_y) * (pz - v1_z) - (v2_z - v1_z) * (py - v1_y);
-        let c2 = (v0_y - v2_y) * (pz - v2_z) - (v0_z - v2_z) * (py - v2_y);
-        (c0 >= 0.0 && c1 >= 0.0 && c2 >= 0.0) || (c0 <= 0.0 && c1 <= 0.0 && c2 <= 0.0)
-    };
-
-    c.r[3] = if inside { 1 } else { 0 };
+    let inside = point_within_triangle_vals(px, py, pz, v0, v1, v2, nx, ny, nz);
+    c.r[3] = inside as u32;
     true
 }
 

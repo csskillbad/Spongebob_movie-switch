@@ -282,6 +282,14 @@ pub fn mix_frame(c: &mut Ctx) {
     }
 }
 
+/// Number of stereo frames currently waiting in the ring buffer.
+#[inline(always)]
+pub fn queued_frames() -> usize {
+    let w = RING_WRITE.load(Ordering::Relaxed);
+    let r = RING_READ.load(Ordering::Relaxed);
+    w.wrapping_sub(r)
+}
+
 /// Drains up to `max_frames` stereo `i16` frames into `dst`. Called from SDL2's audio callback.
 pub unsafe fn drain(dst: *mut i16, max_frames: usize) -> usize {
     if dst.is_null() || max_frames == 0 {

@@ -2176,7 +2176,40 @@ fn deliver_events_slow(c: &mut Ctx) {
 
         let now = c.timebase();
 
-        // 1. Phase-locked 60.000 Hz VI Retrace tick
+        // 1. Phase-locked 5.000 ms Audio / DSP frame tick (runs before VI retrace GX waits so
+        // the 32 kHz audio ring buffer never starves behind a frame sync).
+        let next_audio = NEXT_AUDIO_TIME.load(Ordering::Relaxed);
+        let dma_cb = AI_DMA_CALLBACK.load(Ordering::Relaxed);
+        if next_audio == 0 {
+            NEXT_AUDIO_TIME.store(now + AUDIO_INTERVAL, Ordering::Relaxed);
+        } else if AUDIO_DMA_RUNNING.load(Ordering::Relaxed) && dma_cb != 0 && now >= next_audio {
+            let mut next = next_audio + AUDIO_INTERVAL;
+            if now.saturating_sub(next) > AUDIO_INTERVAL * 8 {
+                // After a long loading stall, keep up to 4 frames (~20 ms) of catch-up cushion
+                // so the SDL audio ring buffer refills immediately without running hundreds of ticks.
+                next = now.saturating_sub(AUDIO_INTERVAL * 3);
+            }
+            NEXT_AUDIO_TIME.store(next, Ordering::Relaxed);
+            let t0 = unsafe { switch_now_ns() };
+            audio::mix_frame(c);
+            saved.restore(c);
+
+            let task = DSP_TASK.load(Ordering::Relaxed);
+            let resume = if task != 0 { c.r32(task + 0x2C) } else { 0 };
+            if resume != 0 {
+                c.r[3] = task;
+                c.call(resume);
+                saved.restore(c);
+            }
+            c.call(dma_cb);
+            saved.restore(c);
+            let dt = unsafe { switch_now_ns().saturating_sub(t0) };
+            PERF_AUDIO_NS.fetch_add(dt, Ordering::Relaxed);
+            PERF_PUMP_AUDIO_NS.fetch_add(dt, Ordering::Relaxed);
+            continue;
+        }
+
+        // 2. Phase-locked 60.000 Hz VI Retrace tick
         let next_retrace = NEXT_RETRACE_TIME.load(Ordering::Relaxed);
         if next_retrace == 0 {
             NEXT_RETRACE_TIME.store(now + RETRACE_INTERVAL, Ordering::Relaxed);
@@ -2279,32 +2312,6 @@ fn deliver_events_slow(c: &mut Ctx) {
             if count % 20 == 0 {
                 log_perf_summary(c, count);
             }
-            continue;
-        }
-
-        // 2. Phase-locked 5.000 ms Audio / DSP frame tick
-        let next_audio = NEXT_AUDIO_TIME.load(Ordering::Relaxed);
-        let dma_cb = AI_DMA_CALLBACK.load(Ordering::Relaxed);
-        if next_audio == 0 {
-            NEXT_AUDIO_TIME.store(now + AUDIO_INTERVAL, Ordering::Relaxed);
-        } else if AUDIO_DMA_RUNNING.load(Ordering::Relaxed) && dma_cb != 0 && now >= next_audio {
-            NEXT_AUDIO_TIME.store(now + AUDIO_INTERVAL, Ordering::Relaxed);
-            let t0 = unsafe { switch_now_ns() };
-            audio::mix_frame(c);
-            saved.restore(c);
-
-            let task = DSP_TASK.load(Ordering::Relaxed);
-            let resume = if task != 0 { c.r32(task + 0x2C) } else { 0 };
-            if resume != 0 {
-                c.r[3] = task;
-                c.call(resume);
-                saved.restore(c);
-            }
-            c.call(dma_cb);
-            saved.restore(c);
-            let dt = unsafe { switch_now_ns().saturating_sub(t0) };
-            PERF_AUDIO_NS.fetch_add(dt, Ordering::Relaxed);
-            PERF_PUMP_AUDIO_NS.fetch_add(dt, Ordering::Relaxed);
             continue;
         }
 
@@ -2519,6 +2526,7 @@ fn guest_poll_hook(c: &mut Ctx) {
         sched::reschedule(c, true);
     }
     saved.restore(c);
+    c.budget = 8192;
 }
 
 fn set_interrupts(c: &mut Ctx, enabled: bool) {
@@ -2528,7 +2536,7 @@ fn set_interrupts(c: &mut Ctx, enabled: bool) {
             deliver_events(c);
         } else {
             static EVENT_COUNTDOWN: AtomicU32 = AtomicU32::new(0);
-            if (EVENT_COUNTDOWN.fetch_add(1, Ordering::Relaxed) & 63) == 0 {
+            if (EVENT_COUNTDOWN.fetch_add(1, Ordering::Relaxed) & 7) == 0 {
                 deliver_events(c);
             }
         }
@@ -2764,7 +2772,7 @@ mod hle_verify {
     static ON: AtomicBool = AtomicBool::new(false);
     static BUSY: AtomicBool = AtomicBool::new(false);
     /// (guest name, native, return kind: 0 none, 1 r3, 2 f1, 3 r3:r4)
-    const TABLE: [(&str, fn(&mut Ctx) -> bool, u8); 39] = [
+    const TABLE: [(&str, fn(&mut Ctx) -> bool, u8); 44] = [
         ("sqrt", arm64_native::hle_sqrt, 2),
         ("__ieee754_sqrt", arm64_native::hle_sqrt, 2),
         ("xsqrt__Ff", arm64_native::hle_xsqrt, 2),
@@ -2792,7 +2800,7 @@ mod hle_verify {
         ("RtIntersectionSphereTriangle", arm64_native::hle_rt_intersection_sphere_triangle, 1),
         ("RtIntersectionBBoxTriangle", arm64_native::hle_rt_intersection_bbox_triangle, 1),
         ("xQuickCullIsects__FPC7xQCDataPC7xQCData", arm64_native::hle_xquick_cull_isects, 1),
-        ("properSphereIsectTri__FPC5xVec3fP5xVec3PfP19RpCollisionTriangle", arm64_native::hle_proper_sphere_isect_tri, 1),
+        ("properSphereIsectTri__FPC5xVec3fP5xVec3PfP19RpCollisionTriangle", arm64_native::hle_proper_sphere_isect_tri, 0),
         ("PointWithinTriangle__FP5xVec3PP5xVec3P5xVec3", arm64_native::hle_point_within_triangle, 1),
         ("RwBBoxCalculate", arm64_native::hle_rw_bbox_calculate, 1),
         ("_rwGCNDisplayListGetStride", arm64_native::hle_rw_gcn_display_list_get_stride, 1),
@@ -2804,13 +2812,18 @@ mod hle_verify {
         ("__mod2i", arm64_native::hle_mod2i, 3),
         ("split16", arm64_native::hle_split16, 0),
         ("split8", arm64_native::hle_split8, 0),
+        ("xMat4x3Mul__FP7xMat4x3PC7xMat4x3PC7xMat4x3", arm64_native::hle_xmat4x3_mul, 0),
+        ("xQuatToMat__FPC5xQuatP7xMat3x3", arm64_native::hle_xquat_to_mat, 0),
+        ("xMat3x3LMulVec__FP5xVec3PC7xMat3x3PC5xVec3", arm64_native::hle_xmat3x3_lmul_vec, 0),
+        ("xMat3x3Tolocal__FP5xVec3PC7xMat3x3PC5xVec3", arm64_native::hle_xmat3x3_tolocal, 0),
+        ("xMat3x3Mul__FP7xMat3x3PC7xMat3x3PC7xMat3x3", arm64_native::hle_xmat3x3_mul, 0),
     ];
-    static CALLS: [AtomicU32; 39] = [const { AtomicU32::new(0) }; 39];
-    static BAD: [AtomicU32; 39] = [const { AtomicU32::new(0) }; 39];
-    static MAX_ERR_E6: [AtomicU32; 39] = [const { AtomicU32::new(0) }; 39];
+    static CALLS: [AtomicU32; 44] = [const { AtomicU32::new(0) }; 44];
+    static BAD: [AtomicU32; 44] = [const { AtomicU32::new(0) }; 44];
+    static MAX_ERR_E6: [AtomicU32; 44] = [const { AtomicU32::new(0) }; 44];
     static TOTAL: AtomicU32 = AtomicU32::new(0);
-    const VERIFY: [fn(&mut Ctx) -> bool; 39] = [verify::<0>, verify::<1>, verify::<2>, verify::<3>, verify::<4>, verify::<5>, verify::<6>, verify::<7>, verify::<8>, verify::<9>, verify::<10>, verify::<11>, verify::<12>, verify::<13>, verify::<14>, verify::<15>, verify::<16>, verify::<17>, verify::<18>, verify::<19>, verify::<20>, verify::<21>, verify::<22>, verify::<23>, verify::<24>, verify::<25>, verify::<26>, verify::<27>, verify::<28>, verify::<29>, verify::<30>, verify::<31>, verify::<32>, verify::<33>, verify::<34>, verify::<35>, verify::<36>, verify::<37>, verify::<38>];
-    const WINDOW: u32 = 256;
+    const VERIFY: [fn(&mut Ctx) -> bool; 44] = [verify::<0>, verify::<1>, verify::<2>, verify::<3>, verify::<4>, verify::<5>, verify::<6>, verify::<7>, verify::<8>, verify::<9>, verify::<10>, verify::<11>, verify::<12>, verify::<13>, verify::<14>, verify::<15>, verify::<16>, verify::<17>, verify::<18>, verify::<19>, verify::<20>, verify::<21>, verify::<22>, verify::<23>, verify::<24>, verify::<25>, verify::<26>, verify::<27>, verify::<28>, verify::<29>, verify::<30>, verify::<31>, verify::<32>, verify::<33>, verify::<34>, verify::<35>, verify::<36>, verify::<37>, verify::<38>, verify::<39>, verify::<40>, verify::<41>, verify::<42>, verify::<43>];
+    const WINDOW: u32 = 64;
 
     pub fn init() {
         let on = unsafe { switch_file_exists(b"sdmc:/hleverify.flag\0".as_ptr()) } != 0;
@@ -2827,11 +2840,14 @@ mod hle_verify {
         TABLE.iter().position(|e| e.0 == name).map(|k| Hle::Replace(VERIFY[k]))
     }
 
-    fn windows(c: &Ctx) -> [(u32, [u8; WINDOW as usize]); 6] {
+    fn windows(c: &Ctx, kind: u8) -> [(u32, [u8; WINDOW as usize]); 6] {
+        let sp = c.r[1];
         core::array::from_fn(|i| {
             let a = c.r[3 + i];
             let mut w = [0u8; WINDOW as usize];
-            if a >= runtime::mem::RAM_BASE && a < runtime::mem::RAM_BASE + runtime::mem::RAM_SIZE - WINDOW {
+            // Ignore scalar float-only functions (kind == 2) and addresses inside the callee stack frame below sp.
+            let in_callee_stack = a >= sp.saturating_sub(1024) && a < sp;
+            if kind != 2 && !in_callee_stack && a >= runtime::mem::RAM_BASE && a < runtime::mem::RAM_BASE + runtime::mem::RAM_SIZE - WINDOW {
                 for (k, b) in w.iter_mut().enumerate() {
                     *b = c.r8(a + k as u32);
                 }
@@ -2865,7 +2881,7 @@ mod hle_verify {
         }
         let (name, native, kind) = TABLE[K];
         let regs = (c.r, c.f, c.ps1, c.cr, c.lr, c.ctr, c.ca, c.xer_rest);
-        let before = windows(c);
+        let before = windows(c, kind);
         let addrs: [u32; 6] = core::array::from_fn(|i| before[i].0);
         if !native(c) {
             (c.r, c.f, c.ps1, c.cr, c.lr, c.ctr, c.ca, c.xer_rest) = regs;
@@ -3658,15 +3674,19 @@ fn switch_policy(name: &str) -> Hle {
         // Matrix identity/scale & scene culling/collision acceleration
         "PSMTXIdentity" => Hle::Replace(arm64_native::hle_psmtx_identity),
         "PSMTXScale" => Hle::Replace(arm64_native::hle_psmtx_scale),
-        // Collision / culling: use the authentic recompiled GameCube originals.
-        // Hand-written HLEs have coordinate/normal mismatches that cause player sliding and floor clipping.
-        "RwCameraFrustumTestSphere"
-        | "RtIntersectionSphereTriangle"
-        | "RtIntersectionBBoxTriangle"
-        | "xQuickCullIsects__FPC7xQCDataPC7xQCData"
-        | "properSphereIsectTri__FPC5xVec3fP5xVec3PfP19RpCollisionTriangle"
-        | "PointWithinTriangle__FP5xVec3PP5xVec3P5xVec3"
-        | "xBoxForTriangle__FR4xBoxRC5xVec3RC5xVec3RC5xVec3" => Hle::Original,
+        "RwCameraFrustumTestSphere" => Hle::Original,
+        "RtIntersectionSphereTriangle" => Hle::Replace(arm64_native::hle_rt_intersection_sphere_triangle),
+        "RtIntersectionBBoxTriangle" => Hle::Replace(arm64_native::hle_rt_intersection_bbox_triangle),
+        "xQuickCullIsects__FPC7xQCDataPC7xQCData" => Hle::Replace(arm64_native::hle_xquick_cull_isects),
+        "properSphereIsectTri__FPC5xVec3fP5xVec3PfP19RpCollisionTriangle" => {
+            Hle::Replace(arm64_native::hle_proper_sphere_isect_tri)
+        }
+        "PointWithinTriangle__FP5xVec3PP5xVec3P5xVec3" => {
+            Hle::Replace(arm64_native::hle_point_within_triangle)
+        }
+        "xBoxForTriangle__FR4xBoxRC5xVec3RC5xVec3RC5xVec3" => {
+            Hle::Replace(arm64_native::hle_xbox_for_triangle)
+        }
         "RwBBoxCalculate" => Hle::Replace(arm64_native::hle_rw_bbox_calculate),
         "_rwGCNDisplayListGetStride" => Hle::Replace(arm64_native::hle_rw_gcn_display_list_get_stride),
         "xBoxInitBoundOBB__FP4xBoxPC4xBoxPC7xMat4x3" => {
@@ -3678,11 +3698,11 @@ fn switch_policy(name: &str) -> Hle {
         "MatrixMultiply" => Hle::Replace(arm64_native::hle_matrix_multiply),
         "RwMatrixMultiply" => Hle::Replace(arm64_native::hle_rw_matrix_multiply),
         "RwMatrixUpdate" => Hle::Replace(arm64_native::hle_rw_matrix_update),
-        "xMat4x3Mul__FP7xMat4x3PC7xMat4x3PC7xMat4x3"
-        | "xQuatToMat__FPC5xQuatP7xMat3x3"
-        | "xMat3x3LMulVec__FP5xVec3PC7xMat3x3PC5xVec3"
-        | "xMat3x3Tolocal__FP5xVec3PC7xMat3x3PC5xVec3"
-        | "xMat3x3Mul__FP7xMat3x3PC7xMat3x3PC7xMat3x3" => Hle::Original,
+        "xMat4x3Mul__FP7xMat4x3PC7xMat4x3PC7xMat4x3" => Hle::Replace(arm64_native::hle_xmat4x3_mul),
+        "xQuatToMat__FPC5xQuatP7xMat3x3" => Hle::Replace(arm64_native::hle_xquat_to_mat),
+        "xMat3x3LMulVec__FP5xVec3PC7xMat3x3PC5xVec3" => Hle::Replace(arm64_native::hle_xmat3x3_lmul_vec),
+        "xMat3x3Tolocal__FP5xVec3PC7xMat3x3PC5xVec3" => Hle::Replace(arm64_native::hle_xmat3x3_tolocal),
+        "xMat3x3Mul__FP7xMat3x3PC7xMat3x3PC7xMat3x3" => Hle::Replace(arm64_native::hle_xmat3x3_mul),
         "RwV3dLength" => Hle::Replace(arm64_native::hle_rw_v3d_length),
         "RwV3dTransformPoint" => Hle::Replace(arm64_native::hle_rw_v3d_transform_point),
         "RwV3dTransformPoints" => Hle::Replace(arm64_native::hle_rw_v3d_transform_points),
