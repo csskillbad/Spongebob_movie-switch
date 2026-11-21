@@ -127,6 +127,14 @@ impl Config {
             .map(|s| ((s.order & 7) as usize, ((s.order >> 3) & 7) as usize))
     }
 
+    pub fn tex_mask(&self) -> u8 {
+        let mut mask = 0u8;
+        for (map, _) in self.texture_uses() {
+            mask |= 1u8 << (map & 7);
+        }
+        mask
+    }
+
     pub fn fragment_glsl(&self) -> String {
         let mut s = String::with_capacity(2048);
         s.push_str(
@@ -137,16 +145,16 @@ impl Config {
                  vec4 alpha_ref;\n\
                  vec4 fog_color;\n\
                  vec4 fog;\n\
-             } p;\n\
-             layout(binding = 0) uniform sampler2D t0;\n\
-             layout(binding = 1) uniform sampler2D t1;\n\
-             layout(binding = 2) uniform sampler2D t2;\n\
-             layout(binding = 3) uniform sampler2D t3;\n\
-             layout(binding = 4) uniform sampler2D t4;\n\
-             layout(binding = 5) uniform sampler2D t5;\n\
-             layout(binding = 6) uniform sampler2D t6;\n\
-             layout(binding = 7) uniform sampler2D t7;\n\
-             layout(location = 0) in vec4 v_c0;\n\
+             } p;\n",
+        );
+        let mask = self.tex_mask();
+        for slot in 0..8u8 {
+            if (mask & (1u8 << slot)) != 0 {
+                writeln!(s, "layout(binding = {slot}) uniform sampler2D t{slot};").unwrap();
+            }
+        }
+        s.push_str(
+            "layout(location = 0) in vec4 v_c0;\n\
              layout(location = 1) in vec4 v_c1;\n\
              layout(location = 2) in vec4 v_uv01;\n\
              layout(location = 3) in vec4 v_uv23;\n\

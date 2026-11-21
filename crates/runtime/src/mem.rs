@@ -3,6 +3,12 @@
 
 pub const RAM_BASE: u32 = 0x8000_0000;
 pub const RAM_SIZE: u32 = 0x0180_0000;
+/// Extended guest RAM size on Switch (32 MB: 24 MB GC RAM + 8 MB extended RenderWare arena
+/// at 0x8180_0000..0x8200_0000, inside the 128 MB Switch guest allocation and below WGPIPE).
+#[cfg(target_os = "none")]
+pub const EXT_RAM_SIZE: u32 = 0x0200_0000;
+#[cfg(not(target_os = "none"))]
+pub const EXT_RAM_SIZE: u32 = RAM_SIZE;
 
 #[cfg(windows)]
 mod sys {

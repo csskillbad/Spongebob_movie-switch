@@ -83,7 +83,7 @@ pub fn quant_read(mem: *mut u8, ea: u32, ty: u32) -> f64 {
 
 #[inline(always)]
 pub fn in_ram(a: u32, len: usize) -> bool {
-    a >= mem::RAM_BASE && a.wrapping_sub(mem::RAM_BASE) <= mem::RAM_SIZE.saturating_sub(len as u32)
+    a >= mem::RAM_BASE && a.wrapping_sub(mem::RAM_BASE) <= mem::EXT_RAM_SIZE.saturating_sub(len as u32)
 }
 
 #[inline(always)]

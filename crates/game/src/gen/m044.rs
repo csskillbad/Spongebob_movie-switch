@@ -11653,6 +11653,7 @@ pub fn fn_8021C490(c: &mut Ctx) {
 #[inline]
 pub fn fn_8021C4B0(c: &mut Ctx) {
     runtime::prof(0x8021C4B0);
+    if c.hle(898) { return; }
     let mem = c.mem;
     let mut r3 = c.r[3]; let mut r4 = c.r[4]; 
     let mut f0 = c.f[0]; let mut f1 = c.f[1]; 

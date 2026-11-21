@@ -21,6 +21,7 @@ mod arm64_native;
 mod aspect;
 mod audio;
 mod card;
+mod debug;
 mod gl_renderer;
 mod gx_gpu;
 mod hle_opt;
@@ -207,25 +208,36 @@ pub(crate) fn dlstat(k: usize, n: u64) {
     DLSTAT[k].fetch_add(n, Ordering::Relaxed);
 }
 
-/// 4 KB guest RAM blocks written by CPU skinning (`_rwDlSkinUpdate*`). Display lists referencing
-/// these blocks skip static cache hashing (`spans_hash`/`exact_hash`) and decode straight into
-/// `Ahead::Owned`.
-const SKINNED_BLOCK_COUNT: usize = (runtime::mem::RAM_SIZE as usize) >> 12;
-static SKINNED_BLOCKS: [core::sync::atomic::AtomicU8; SKINNED_BLOCK_COUNT] =
-    [const { core::sync::atomic::AtomicU8::new(0) }; SKINNED_BLOCK_COUNT];
+/// 512 B guest RAM blocks written by CPU skinning (`_rwDlSkinUpdate*`).
+/// Uses a per-frame generation stamp so when RenderWare recycles an arena slot from a skinned
+/// mesh to a static mesh, the static mesh is NOT falsely treated as skinned forever.
+const SKINNED_BLOCK_SHIFT: usize = 9;
+const SKINNED_BLOCK_COUNT: usize = (runtime::mem::EXT_RAM_SIZE as usize) >> SKINNED_BLOCK_SHIFT;
+static SKIN_FRAME_GEN: AtomicU32 = AtomicU32::new(1);
+static SKINNED_BLOCKS: [AtomicU32; SKINNED_BLOCK_COUNT] =
+    [const { AtomicU32::new(0) }; SKINNED_BLOCK_COUNT];
+
+#[inline(always)]
+pub(crate) fn advance_skin_frame() {
+    let next = SKIN_FRAME_GEN.fetch_add(1, Ordering::Relaxed).wrapping_add(1);
+    if next == 0 {
+        SKIN_FRAME_GEN.store(1, Ordering::Relaxed);
+    }
+}
 
 #[inline(always)]
 pub(crate) fn mark_skinned_range(addr: u32, len: u32) {
     if len == 0 || addr < runtime::mem::RAM_BASE {
         return;
     }
-    let start = ((addr - runtime::mem::RAM_BASE) as usize) >> 12;
-    let end = ((addr.saturating_sub(runtime::mem::RAM_BASE).saturating_add(len.saturating_sub(1))) as usize) >> 12;
+    let gen = SKIN_FRAME_GEN.load(Ordering::Relaxed);
+    let start = ((addr - runtime::mem::RAM_BASE) as usize) >> SKINNED_BLOCK_SHIFT;
+    let end = ((addr.saturating_sub(runtime::mem::RAM_BASE).saturating_add(len.saturating_sub(1))) as usize) >> SKINNED_BLOCK_SHIFT;
     if start < SKINNED_BLOCK_COUNT {
         let last = end.min(SKINNED_BLOCK_COUNT - 1);
         for b in start..=last {
-            if SKINNED_BLOCKS[b].load(Ordering::Relaxed) == 0 {
-                SKINNED_BLOCKS[b].store(1, Ordering::Relaxed);
+            if SKINNED_BLOCKS[b].load(Ordering::Relaxed) != gen {
+                SKINNED_BLOCKS[b].store(gen, Ordering::Relaxed);
             }
         }
     }
@@ -233,17 +245,23 @@ pub(crate) fn mark_skinned_range(addr: u32, len: u32) {
 
 #[inline(always)]
 pub(crate) fn is_skinned_spans(spans: &[(u32, u32)]) -> bool {
+    let gen = SKIN_FRAME_GEN.load(Ordering::Relaxed);
     for &(addr, len) in spans {
         if len == 0 || addr < runtime::mem::RAM_BASE {
             continue;
         }
-        let start = ((addr - runtime::mem::RAM_BASE) as usize) >> 12;
-        let end = ((addr.saturating_sub(runtime::mem::RAM_BASE).saturating_add(len.saturating_sub(1))) as usize) >> 12;
+        let start = ((addr - runtime::mem::RAM_BASE) as usize) >> SKINNED_BLOCK_SHIFT;
+        let end = ((addr.saturating_sub(runtime::mem::RAM_BASE).saturating_add(len.saturating_sub(1))) as usize) >> SKINNED_BLOCK_SHIFT;
         if start < SKINNED_BLOCK_COUNT {
             let last = end.min(SKINNED_BLOCK_COUNT - 1);
             for b in start..=last {
-                if SKINNED_BLOCKS[b].load(Ordering::Relaxed) != 0 {
-                    return true;
+                let stamp = SKINNED_BLOCKS[b].load(Ordering::Relaxed);
+                if stamp != 0 {
+                    // Within ±2 frames of current skin generation (handles Core 1 running up to 1 frame ahead of Core 0).
+                    let diff = gen.wrapping_sub(stamp);
+                    if diff <= 2 || diff >= u32::MAX - 1 {
+                        return true;
+                    }
                 }
             }
         }
@@ -255,6 +273,7 @@ pub(crate) fn clear_skinned_blocks() {
     for b in &SKINNED_BLOCKS {
         b.store(0, Ordering::Relaxed);
     }
+    SKIN_FRAME_GEN.store(1, Ordering::Relaxed);
 }
 
 /// `sdmc:/strictsync.flag`: wait for Core 0 at every retrace, as the original port did.
@@ -1497,6 +1516,7 @@ mod gx_worker {
                 s.last_stats = last_stats;
                 s.cache_used = cache_used;
                 s.token = token;
+                ATOMIC_TOKEN.store(token, Ordering::Release);
                 s.gx_state.clear();
                 s.gx_state.push_str(&gx_state);
                 if s.completed_ram_seq < seq_at_pickup {
@@ -1659,6 +1679,13 @@ mod gx_worker {
         }
     }
 
+    static ATOMIC_TOKEN: core::sync::atomic::AtomicU16 = core::sync::atomic::AtomicU16::new(0);
+
+    #[inline(always)]
+    pub fn read_token_fast() -> u16 {
+        ATOMIC_TOKEN.load(Ordering::Acquire)
+    }
+
     pub fn read_token() -> u16 {
         unsafe {
             switch_gx_lock();
@@ -1715,6 +1742,9 @@ mod gx_worker {
         }
     }
 
+    static mut LAZY_MARKS: [(u32, u64); 32] = [(0, 0); 32];
+    static mut LAZY_MARK_IDX: usize = 0;
+
     /// GXEnableBreakPt. In lazy mode the address is resolved to a stream position here,
     /// against Core 1's exact byte count: Core 0 may read the command after Core 1 has written
     /// more than a whole FIFO ring further, and resolving it there lands a lap too far.
@@ -1724,9 +1754,25 @@ mod gx_worker {
             return;
         }
         let written = written_now(c);
-        let (base, size) = fifo_ring(c);
-        let behind = (written + size - (addr.wrapping_sub(base) as u64 % size)) % size;
-        post_cmd(c, CtrlCmd::EnableBreakPtAt(written - behind.min(written)));
+        // Prefer the exact recorded stream position from read_fifo_ptrs (immune to >1 FIFO lap).
+        let exact = unsafe {
+            let mut found: Option<u64> = None;
+            let idx = LAZY_MARK_IDX;
+            for step in 1..=LAZY_MARKS.len() {
+                let (m_addr, m_pos) = LAZY_MARKS[idx.wrapping_sub(step) & 31];
+                if m_addr == addr && m_pos != 0 && m_pos <= written {
+                    found = Some(m_pos);
+                    break;
+                }
+            }
+            found
+        };
+        let target = exact.unwrap_or_else(|| {
+            let (base, size) = fifo_ring(c);
+            let behind = (written + size - (addr.wrapping_sub(base) as u64 % size)) % size;
+            written - behind.min(written)
+        });
+        post_cmd(c, CtrlCmd::EnableBreakPtAt(target));
     }
 
     pub fn disable_breakpoint(c: &mut Ctx) {
@@ -1754,6 +1800,11 @@ mod gx_worker {
             let written = written_now(c);
             let (base, size) = fifo_ring(c);
             let at = base + (written % size) as u32;
+            unsafe {
+                let idx = LAZY_MARK_IDX;
+                LAZY_MARKS[idx & 31] = (at, written);
+                LAZY_MARK_IDX = idx.wrapping_add(1);
+            }
             FRAME_DIRTY.store(true, Ordering::Relaxed);
             return (at, at);
         }
@@ -2113,6 +2164,7 @@ fn deliver_events(c: &mut Ctx) {
 fn deliver_events_slow(c: &mut Ctx) {
     IN_HANDLER.store(true, Ordering::Relaxed);
     let saved = SavedRegs::save(c);
+    let mut retrace_ran = false;
 
     loop {
         if let Some(event) = pop_event() {
@@ -2141,8 +2193,13 @@ fn deliver_events_slow(c: &mut Ctx) {
                 Event::GxBreak => {
                     let cb = BREAK_PT_CB.load(Ordering::Relaxed);
                     if cb != 0 {
-                        c.call(cb);
-                        saved.restore(c);
+                        // Guard against stale GxBreak when RenderWare's XFB ring is already empty (brk == head).
+                        if cb == 0x8035_2580 && c.r32(0x804B_2398) == c.r32(0x804B_239C) {
+                            c.w32(0x804B_23A8, 0);
+                        } else {
+                            c.call(cb);
+                            saved.restore(c);
+                        }
                     }
                 }
                 Event::GxFinish => {
@@ -2211,11 +2268,13 @@ fn deliver_events_slow(c: &mut Ctx) {
             continue;
         }
 
-        // 2. Phase-locked 60.000 Hz VI Retrace tick
+        // 2. Phase-locked 60.000 Hz VI Retrace tick (at most once per deliver_events_slow call
+        // so long sync/shader stalls cannot chain multiple retraces inside OSRestoreInterrupts).
         let next_retrace = NEXT_RETRACE_TIME.load(Ordering::Relaxed);
         if next_retrace == 0 {
             NEXT_RETRACE_TIME.store(now + RETRACE_INTERVAL, Ordering::Relaxed);
-        } else if now >= next_retrace {
+        } else if !retrace_ran && now >= next_retrace {
+            retrace_ran = true;
             NEXT_RETRACE_TIME.store(
                 advance_due(next_retrace, RETRACE_INTERVAL, now),
                 Ordering::Relaxed,
@@ -2280,8 +2339,12 @@ fn deliver_events_slow(c: &mut Ctx) {
                     Event::GxBreak => {
                         let cb = BREAK_PT_CB.load(Ordering::Relaxed);
                         if cb != 0 {
-                            c.call(cb);
-                            saved.restore(c);
+                            if cb == 0x8035_2580 && c.r32(0x804B_2398) == c.r32(0x804B_239C) {
+                                c.w32(0x804B_23A8, 0);
+                            } else {
+                                c.call(cb);
+                                saved.restore(c);
+                            }
                         }
                     }
                     other => {
@@ -2615,6 +2678,52 @@ fn guest_call(c: &mut Ctx, name: &str, args: &[u32]) {
     }
 }
 
+/// Invokes a recompiled guest function at `addr` with full PPC register save/restore.
+/// Used by the Konami debug menu to safely call enemy/cheat routines from inside `PADRead`.
+pub(crate) fn call_guest_addr(c: &mut Ctx, addr: u32, args: &[u32]) -> u32 {
+    let saved = SavedRegs::save(c);
+    for (i, &a) in args.iter().enumerate() {
+        c.r[3 + i] = a;
+    }
+    c.call(addr);
+    let ret = c.r[3];
+    saved.restore(c);
+    ret
+}
+
+#[inline(always)]
+fn rw_token_done(query: u16, last: u16, cur: u16) -> bool {
+    if last >= 0xE000 {
+        return false;
+    }
+    if cur < last {
+        query > cur && query <= last
+    } else {
+        query <= last || query > cur
+    }
+}
+
+/// Lock-free fast-path `_rwDlTokenQueryDone(u16 token)` (`0x80359290`).
+/// Checks Core 0's latest completed token atomically first so already-finished RenderWare
+/// resource/skinning buffers return `1` without stalling Core 1 on `gx_worker::sync_ram`.
+/// Only synchronizes with Core 0 when the queried token is still genuinely in flight.
+fn hle_rw_dl_token_query_done(c: &mut Ctx) -> bool {
+    let query = (c.r[3] & 0xFFFF) as u16;
+    let last_addr = c.r[13].wrapping_add(0xFFFF_A3A8);
+    let cur = c.r16(c.r[13].wrapping_add(0xFFFF_8830));
+    let fast = gx_worker::read_token_fast();
+    if rw_token_done(query, fast, cur) {
+        c.w16(last_addr, fast);
+        c.r[3] = 1;
+        return true;
+    }
+    timed_sync(2, c, gx_worker::sync_ram);
+    let last = gx_worker::read_token_fast();
+    c.w16(last_addr, last);
+    c.r[3] = rw_token_done(query, last, cur) as u32;
+    true
+}
+
 /// CPU skinning (`_rwDlSkinUpdate*`): the native NEON versions in arm64_native by default (they
 /// matched the original bit for bit over ~12k calls in BB02). `sdmc:/skinoriginal.flag` runs the
 /// recompiled original instead; with
@@ -2773,8 +2882,8 @@ mod hle_verify {
 
     static ON: AtomicBool = AtomicBool::new(false);
     static BUSY: AtomicBool = AtomicBool::new(false);
-    /// (guest name, native, return kind: 0 none, 1 r3, 2 f1, 3 r3:r4)
-    const TABLE: [(&str, fn(&mut Ctx) -> bool, u8); 47] = [
+    /// (guest name, native, kind: 0 bitwise mem, 1 bitwise mem + r3, 2 f1, 3 r3:r4, 4 float mem, 5 float mem + r3)
+    const TABLE: [(&str, fn(&mut Ctx) -> bool, u8); 51] = [
         ("sqrt", arm64_native::hle_sqrt, 2),
         ("__ieee754_sqrt", arm64_native::hle_sqrt, 2),
         ("xsqrt__Ff", arm64_native::hle_xsqrt, 2),
@@ -2796,38 +2905,42 @@ mod hle_verify {
         ("asin", arm64_native::hle_asin, 2),
         ("fmod", arm64_native::hle_fmod, 2),
         ("__ieee754_fmod", arm64_native::hle_fmod, 2),
-        ("PSMTXIdentity", arm64_native::hle_psmtx_identity, 0),
-        ("PSMTXScale", arm64_native::hle_psmtx_scale, 0),
+        ("PSMTXIdentity", arm64_native::hle_psmtx_identity, 4),
+        ("PSMTXScale", arm64_native::hle_psmtx_scale, 4),
         ("RwCameraFrustumTestSphere", arm64_native::hle_rw_camera_frustum_test_sphere, 1),
-        ("RtIntersectionSphereTriangle", arm64_native::hle_rt_intersection_sphere_triangle, 1),
+        ("RtIntersectionSphereTriangle", arm64_native::hle_rt_intersection_sphere_triangle, 5),
         ("RtIntersectionBBoxTriangle", arm64_native::hle_rt_intersection_bbox_triangle, 1),
         ("xQuickCullIsects__FPC7xQCDataPC7xQCData", arm64_native::hle_xquick_cull_isects, 1),
-        ("properSphereIsectTri__FPC5xVec3fP5xVec3PfP19RpCollisionTriangle", arm64_native::hle_proper_sphere_isect_tri, 0),
+        ("properSphereIsectTri__FPC5xVec3fP5xVec3PfP19RpCollisionTriangle", arm64_native::hle_proper_sphere_isect_tri, 4),
         ("PointWithinTriangle__FP5xVec3PP5xVec3P5xVec3", arm64_native::hle_point_within_triangle, 1),
-        ("RwBBoxCalculate", arm64_native::hle_rw_bbox_calculate, 1),
+        ("RwBBoxCalculate", arm64_native::hle_rw_bbox_calculate, 5),
         ("_rwGCNDisplayListGetStride", arm64_native::hle_rw_gcn_display_list_get_stride, 1),
-        ("xBoxForTriangle__FR4xBoxRC5xVec3RC5xVec3RC5xVec3", arm64_native::hle_xbox_for_triangle, 0),
-        ("xBoxInitBoundOBB__FP4xBoxPC4xBoxPC7xMat4x3", arm64_native::hle_xbox_init_bound_obb, 0),
+        ("xBoxForTriangle__FR4xBoxRC5xVec3RC5xVec3RC5xVec3", arm64_native::hle_xbox_for_triangle, 4),
+        ("xBoxInitBoundOBB__FP4xBoxPC4xBoxPC7xMat4x3", arm64_native::hle_xbox_init_bound_obb, 4),
         ("__div2u", arm64_native::hle_div2u, 3),
         ("__div2i", arm64_native::hle_div2i, 3),
         ("__mod2u", arm64_native::hle_mod2u, 3),
         ("__mod2i", arm64_native::hle_mod2i, 3),
         ("split16", arm64_native::hle_split16, 0),
         ("split8", arm64_native::hle_split8, 0),
-        ("xMat4x3Mul__FP7xMat4x3PC7xMat4x3PC7xMat4x3", arm64_native::hle_xmat4x3_mul, 0),
-        ("xQuatToMat__FPC5xQuatP7xMat3x3", arm64_native::hle_xquat_to_mat, 0),
-        ("xMat3x3LMulVec__FP5xVec3PC7xMat3x3PC5xVec3", arm64_native::hle_xmat3x3_lmul_vec, 0),
-        ("xMat3x3Tolocal__FP5xVec3PC7xMat3x3PC5xVec3", arm64_native::hle_xmat3x3_tolocal, 0),
-        ("xMat3x3Mul__FP7xMat3x3PC7xMat3x3PC7xMat3x3", arm64_native::hle_xmat3x3_mul, 0),
-        ("xVec3Copy__FP5xVec3PC5xVec3", hle_opt::hle_xvec3_copy, 0),
+        ("xMat4x3Mul__FP7xMat4x3PC7xMat4x3PC7xMat4x3", arm64_native::hle_xmat4x3_mul, 4),
+        ("xQuatToMat__FPC5xQuatP7xMat3x3", arm64_native::hle_xquat_to_mat, 4),
+        ("xMat3x3LMulVec__FP5xVec3PC7xMat3x3PC5xVec3", arm64_native::hle_xmat3x3_lmul_vec, 4),
+        ("xMat3x3Tolocal__FP5xVec3PC7xMat3x3PC5xVec3", arm64_native::hle_xmat3x3_tolocal, 4),
+        ("xMat3x3Mul__FP7xMat3x3PC7xMat3x3PC7xMat3x3", arm64_native::hle_xmat3x3_mul, 4),
+        ("xVec3Copy__FP5xVec3PC5xVec3", hle_opt::hle_xvec3_copy, 4),
         ("xSTAssetCountByType__FUi", hle_opt::hle_xst_asset_count_by_type, 1),
         ("xSTFindAssetByType__FUiiPUi", hle_opt::hle_xst_find_asset_by_type, 1),
+        ("_rwGCNInstanceIndices", hle_opt::hle_rw_gcn_instance_indices, 0),
+        ("iAnimEvalSKB__FP14iAnimSKBHeaderfUiP5xVec3P5xQuat", hle_opt::hle_ianim_eval_skb, 4),
+        ("atof", hle_opt::hle_atof, 2),
+        ("xatof__FPCc", hle_opt::hle_xatof, 2),
     ];
-    static CALLS: [AtomicU32; 47] = [const { AtomicU32::new(0) }; 47];
-    static BAD: [AtomicU32; 47] = [const { AtomicU32::new(0) }; 47];
-    static MAX_ERR_E6: [AtomicU32; 47] = [const { AtomicU32::new(0) }; 47];
+    static CALLS: [AtomicU32; 51] = [const { AtomicU32::new(0) }; 51];
+    static BAD: [AtomicU32; 51] = [const { AtomicU32::new(0) }; 51];
+    static MAX_ERR_E6: [AtomicU32; 51] = [const { AtomicU32::new(0) }; 51];
     static TOTAL: AtomicU32 = AtomicU32::new(0);
-    const VERIFY: [fn(&mut Ctx) -> bool; 47] = [verify::<0>, verify::<1>, verify::<2>, verify::<3>, verify::<4>, verify::<5>, verify::<6>, verify::<7>, verify::<8>, verify::<9>, verify::<10>, verify::<11>, verify::<12>, verify::<13>, verify::<14>, verify::<15>, verify::<16>, verify::<17>, verify::<18>, verify::<19>, verify::<20>, verify::<21>, verify::<22>, verify::<23>, verify::<24>, verify::<25>, verify::<26>, verify::<27>, verify::<28>, verify::<29>, verify::<30>, verify::<31>, verify::<32>, verify::<33>, verify::<34>, verify::<35>, verify::<36>, verify::<37>, verify::<38>, verify::<39>, verify::<40>, verify::<41>, verify::<42>, verify::<43>, verify::<44>, verify::<45>, verify::<46>];
+    const VERIFY: [fn(&mut Ctx) -> bool; 51] = [verify::<0>, verify::<1>, verify::<2>, verify::<3>, verify::<4>, verify::<5>, verify::<6>, verify::<7>, verify::<8>, verify::<9>, verify::<10>, verify::<11>, verify::<12>, verify::<13>, verify::<14>, verify::<15>, verify::<16>, verify::<17>, verify::<18>, verify::<19>, verify::<20>, verify::<21>, verify::<22>, verify::<23>, verify::<24>, verify::<25>, verify::<26>, verify::<27>, verify::<28>, verify::<29>, verify::<30>, verify::<31>, verify::<32>, verify::<33>, verify::<34>, verify::<35>, verify::<36>, verify::<37>, verify::<38>, verify::<39>, verify::<40>, verify::<41>, verify::<42>, verify::<43>, verify::<44>, verify::<45>, verify::<46>, verify::<47>, verify::<48>, verify::<49>, verify::<50>];
     const WINDOW: u32 = 64;
 
     pub fn init() {
@@ -2845,14 +2958,14 @@ mod hle_verify {
         TABLE.iter().position(|e| e.0 == name).map(|k| Hle::Replace(VERIFY[k]))
     }
 
-    fn windows(c: &Ctx, kind: u8) -> [(u32, [u8; WINDOW as usize]); 6] {
+    fn windows(c: &Ctx, kind: u8) -> [(u32, [u8; WINDOW as usize]); 8] {
         let sp = c.r[1];
         core::array::from_fn(|i| {
             let a = c.r[3 + i];
             let mut w = [0u8; WINDOW as usize];
             // Ignore scalar float-only functions (kind == 2) and addresses inside the callee stack frame below sp.
             let in_callee_stack = a >= sp.saturating_sub(1024) && a < sp;
-            if kind != 2 && !in_callee_stack && a >= runtime::mem::RAM_BASE && a < runtime::mem::RAM_BASE + runtime::mem::RAM_SIZE - WINDOW {
+            if kind != 2 && !in_callee_stack && a >= runtime::mem::RAM_BASE && a < runtime::mem::RAM_BASE + runtime::mem::EXT_RAM_SIZE - WINDOW {
                 for (k, b) in w.iter_mut().enumerate() {
                     *b = c.r8(a + k as u32);
                 }
@@ -2863,7 +2976,7 @@ mod hle_verify {
         })
     }
 
-    fn put_back(c: &mut Ctx, wins: &[(u32, [u8; WINDOW as usize]); 6]) {
+    fn put_back(c: &mut Ctx, wins: &[(u32, [u8; WINDOW as usize]); 8]) {
         for (a, w) in wins.iter().rev() {
             if *a != 0 {
                 c.slice_mut(*a, WINDOW as usize).copy_from_slice(w);
@@ -2887,13 +3000,13 @@ mod hle_verify {
         let (name, native, kind) = TABLE[K];
         let regs = (c.r, c.f, c.ps1, c.cr, c.lr, c.ctr, c.ca, c.xer_rest);
         let before = windows(c, kind);
-        let addrs: [u32; 6] = core::array::from_fn(|i| before[i].0);
+        let addrs: [u32; 8] = core::array::from_fn(|i| before[i].0);
         if !native(c) {
             (c.r, c.f, c.ps1, c.cr, c.lr, c.ctr, c.ca, c.xer_rest) = regs;
             return false;
         }
         let n_out = (c.r[3], c.r[4], c.f[1]);
-        let n_mem: [[u8; WINDOW as usize]; 6] = core::array::from_fn(|i| {
+        let n_mem: [[u8; WINDOW as usize]; 8] = core::array::from_fn(|i| {
             let mut w = [0u8; WINDOW as usize];
             if addrs[i] != 0 {
                 for (k, b) in w.iter_mut().enumerate() {
@@ -2912,12 +3025,17 @@ mod hle_verify {
         BUSY.store(false, Ordering::Relaxed);
 
         let mut err: f64 = match kind {
-            1 => (n_out.0 != c.r[3]) as u32 as f64,
+            1 | 5 => (n_out.0 != c.r[3]) as u32 as f64,
             2 => rel(n_out.2 as f32 as f64, c.f[1] as f32 as f64),
             3 => ((n_out.0, n_out.1) != (c.r[3], c.r[4])) as u32 as f64,
             _ => 0.0,
         };
-        for i in 0..6 {
+        let is_float_mem = matches!(kind, 4 | 5);
+        let mut worst_arg = 255usize;
+        let mut worst_off = 0usize;
+        let mut worst_nw = 0u32;
+        let mut worst_o = 0u32;
+        for i in 0..8 {
             if addrs[i] == 0 {
                 continue;
             }
@@ -2925,7 +3043,18 @@ mod hle_verify {
                 let o = c.r32(addrs[i] + w as u32);
                 let nw = u32::from_be_bytes(n_mem[i][w..w + 4].try_into().unwrap());
                 if o != nw {
-                    err = err.max(rel(f32::from_bits(nw) as f64, f32::from_bits(o) as f64).min(1e6));
+                    let e = if is_float_mem {
+                        rel(f32::from_bits(nw) as f64, f32::from_bits(o) as f64).min(1e6)
+                    } else {
+                        1.0
+                    };
+                    if e > err {
+                        err = e;
+                        worst_arg = i;
+                        worst_off = w;
+                        worst_nw = nw;
+                        worst_o = o;
+                    }
                 }
             }
         }
@@ -2933,14 +3062,16 @@ mod hle_verify {
         if err > 1e-4 {
             if BAD[K].fetch_add(1, Ordering::Relaxed) < 3 {
                 log_c(&format!(
-                    "[hleverify] MISMATCH {}: native r3={:#x} f1={} | original r3={:#x} f1={} | err={:.6} lr={:#010x}",
-                    name, n_out.0, n_out.2, c.r[3], c.f[1], err, regs.4
+                    "[hleverify] MISMATCH {}: native r3={:#x} f1={} | orig r3={:#x} f1={} | err={:.6} arg=r{} +{:#x} nw={:#010x}({}) o={:#010x}({}) lr={:#010x}",
+                    name, n_out.0, n_out.2, c.r[3], c.f[1], err,
+                    3 + worst_arg, worst_off, worst_nw, f32::from_bits(worst_nw), worst_o, f32::from_bits(worst_o), regs.4
                 ));
             }
         }
         MAX_ERR_E6[K].fetch_max((err * 1e6).min(4e9) as u32, Ordering::Relaxed);
         if TOTAL.fetch_add(1, Ordering::Relaxed) % 20000 == 19999 {
             let mut line = String::from("[hleverify]");
+            let mut in_chunk = 0u32;
             for k in 0..TABLE.len() {
                 let n = CALLS[k].load(Ordering::Relaxed);
                 if n != 0 {
@@ -2951,9 +3082,17 @@ mod hle_verify {
                         n,
                         MAX_ERR_E6[k].load(Ordering::Relaxed) as f64 / 1e6
                     );
+                    in_chunk += 1;
+                    if in_chunk >= 4 {
+                        log_c(&line);
+                        line = String::from("[hleverify]");
+                        in_chunk = 0;
+                    }
                 }
             }
-            log_c(&line);
+            if in_chunk > 0 {
+                log_c(&line);
+            }
         }
         true
     }
@@ -3248,7 +3387,9 @@ fn switch_policy(name: &str) -> Hle {
                 s.fill(0);
                 s[10] = 0xFF;
             }
-            options::filter_pad(c.slice_mut(status, 12));
+            if !debug::filter_pad(c, status) {
+                options::filter_pad(c.slice_mut(status, 12));
+            }
             check_warp(c);
             c.r[3] = 0;
         }),
@@ -3316,6 +3457,16 @@ fn switch_policy(name: &str) -> Hle {
         }),
         "GXEnableBreakPt" => Hle::Native(|c| {
             let addr = c.r[3];
+            // RenderWare 3.7 checks `if (en == 0) { en = 1; GXEnableBreakPt(bp); }` *after*
+            // `OSRestoreInterrupts` in `_rwDlRasterShowRaster`. If the breakpoint callback already
+            // drained the ring (`brk == head`) during `OSRestoreInterrupts`, arming a breakpoint
+            // again would advance `brk` past `head` and permanently desync `sub != shn`.
+            if matches!(c.lr, 0x8035_3944 | 0x8035_3A40 | 0x8035_3B4C)
+                && c.r32(0x804B_2398) == c.r32(0x804B_239C)
+            {
+                c.w32(0x804B_23A8, 0);
+                return;
+            }
             timed_sync(4, c, |c| gx_worker::enable_breakpoint(c, addr));
         }),
         "GXDisableBreakPt" => Hle::Native(|c| {
@@ -3538,6 +3689,7 @@ fn switch_policy(name: &str) -> Hle {
         }),
 
         // AX mixer & effects
+        "AXFXReverbHiCallbackDpl2" => Hle::Replace(hle_opt::hle_axfx_reverb_hi_callback_dpl2),
         _ if ["AX", "__AX", "MIX", "__MIX"].iter().any(|p| name.starts_with(p)) => Hle::Original,
 
         // Memory card
@@ -3722,6 +3874,27 @@ fn switch_policy(name: &str) -> Hle {
         "PKR_AssetByType__FP19st_PACKER_READ_DATAUiiPUi" => Hle::Replace(arm64_native::hle_pkr_asset_by_type),
         "qsort" => Hle::Replace(hle_opt::hle_qsort),
         "TriStripBinEntryArrayCreate" => Hle::Replace(hle_opt::hle_tri_strip_bin_entry_array_create),
+        "xVec3Copy__FP5xVec3PC5xVec3" => Hle::Replace(hle_opt::hle_xvec3_copy),
+        "xSTAssetCountByType__FUi" => Hle::Replace(hle_opt::hle_xst_asset_count_by_type),
+        "xSTFindAssetByType__FUiiPUi" => Hle::Replace(hle_opt::hle_xst_find_asset_by_type),
+        "iAnimEvalSKB__FP14iAnimSKBHeaderfUiP5xVec3P5xQuat" => {
+            Hle::Replace(hle_opt::hle_ianim_eval_skb)
+        }
+        "xClumpColl_ForAllIntersections__FP17xClumpCollBSPTreeP14RpIntersectionPFP14RpIntersectionP13RpWorldSectorP19RpCollisionTrianglefPv_P19RpCollisionTrianglePv" => {
+            Hle::Replace(hle_opt::hle_xclump_coll_intersections)
+        }
+        "_rwGCNInstanceIndices" => Hle::Replace(hle_opt::hle_rw_gcn_instance_indices),
+        "iModelRender__FP8RpAtomicP11RwMatrixTag" => Hle::Replace(hle_opt::hle_imodel_render),
+        "_rwResourcesOpen" => Hle::Replace(hle_opt::hle_rw_resources_open),
+        "_rwResourcesClose" => Hle::Replace(hle_opt::hle_rw_resources_close),
+        "RwResourcesSetArenaSize" => Hle::Replace(hle_opt::hle_rw_resources_set_arena_size),
+        "xatof__FPCc" => Hle::Replace(hle_opt::hle_xatof),
+        "atof" => Hle::Replace(hle_opt::hle_atof),
+        "_rwGCLightsGlobalEnable" => Hle::Replace(hle_opt::hle_rw_gc_lights_global_enable),
+        "xSphereHitsEnv4__FPC7xSpherePC4xEnvPC7xMat3x3P7xCollis"
+        | "xRayHitsGrid__FP5xGridP6xSceneP5xRay3PFP6xSceneP5xRay3P7xQCDataP4xEntPv_vP7xQCDataPv"
+        | "xGridCheckPosition__FP5xGridP5xVec3P7xQCDataPFP4xEntPv_iPv"
+        | "xEntCollCheckOneGrid__FP4xEntP6xScenePFP4xEntP6xScenePv_P4xEntP5xGrid" => Hle::Original,
 
         // Skeletal skinning vertex updates
         "_rwDlSkinUpdate2WeightsP" => skin_verify::policy(0),
@@ -3732,8 +3905,11 @@ fn switch_policy(name: &str) -> Hle {
         "_rwDlSkinUpdate4WeightsPN" => skin_verify::policy(5),
         "_rpSkinMatrixBlendUpdateASM" => Hle::Replace(arm64_native::hle_skin_matrix_blend_update_asm),
         "_rwDlSetRenderState" => Hle::Replace(arm64_native::hle_rw_dl_set_render_state),
-        "_rxGCResEntryWaitDone" => Hle::Native(|_| {}),
-        "_rwDlTokenQueryDone" => Hle::Native(|c| c.r[3] = 1),
+        // Keep RenderWare token synchronization active so Core 1 never overwrites skinned vertex
+        // buffers or Resource Arena display lists still being read by Core 0; `_rwDlTokenQueryDone`
+        // short-circuits lock-free when Core 0's atomic token has already passed the queried token.
+        "_rxGCResEntryWaitDone" => Hle::Original,
+        "_rwDlTokenQueryDone" => Hle::Replace(hle_rw_dl_token_query_done),
 
         _ => Hle::Native(|c| c.r[3] = 0),
     }
@@ -3857,6 +4033,11 @@ pub extern "C" fn tssm_switch_set_sticks(lx: i32, ly: i32, rx: i32, ry: i32) {
     PAD_STICK_Y.store(ly, Ordering::Relaxed);
     PAD_SUBSTICK_X.store(rx, Ordering::Relaxed);
     PAD_SUBSTICK_Y.store(ry, Ordering::Relaxed);
+}
+
+#[no_mangle]
+pub extern "C" fn tssm_switch_set_host_input(gc_buttons: u32, lx: i32, ly: i32, host_extra: u32) {
+    debug::on_host_input(gc_buttons, lx, ly, host_extra);
 }
 
 #[no_mangle]

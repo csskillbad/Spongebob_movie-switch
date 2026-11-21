@@ -4375,6 +4375,7 @@ pub fn fn_80222708(c: &mut Ctx) {
 // xStrHash__FPCcUl
 pub fn fn_8022273C(c: &mut Ctx) {
     runtime::prof(0x8022273C);
+    if c.hle(900) { return; }
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r3 = c.r[3]; let mut r4 = c.r[4]; let mut r5 = c.r[5]; let mut r6 = c.r[6]; let mut r7 = c.r[7]; 
     let mut cr0 = c.cr[0]; 
@@ -4416,6 +4417,7 @@ pub fn fn_8022273C(c: &mut Ctx) {
 // xStrHash__FPCc
 pub fn fn_80222788(c: &mut Ctx) {
     runtime::prof(0x80222788);
+    if c.hle(899) { return; }
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r3 = c.r[3]; let mut r4 = c.r[4]; let mut r5 = c.r[5]; 
     let mut cr0 = c.cr[0]; 
@@ -5073,6 +5075,7 @@ pub fn fn_80222C00(c: &mut Ctx) {
 // xSTFindAssetByType__FUiiPUi
 pub fn fn_80222DB0(c: &mut Ctx) {
     runtime::prof(0x80222DB0);
+    if c.hle(896) { return; }
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r1 = c.r[1]; let mut r3 = c.r[3]; let mut r4 = c.r[4]; let mut r5 = c.r[5]; let mut r6 = c.r[6]; let mut r12 = c.r[12]; let mut r13 = c.r[13]; let mut r23 = c.r[23]; let mut r24 = c.r[24]; let mut r25 = c.r[25]; let mut r26 = c.r[26]; let mut r27 = c.r[27]; let mut r28 = c.r[28]; let mut r29 = c.r[29]; let mut r30 = c.r[30]; let mut r31 = c.r[31]; 
     let mut cr0 = c.cr[0]; 
@@ -5263,6 +5266,7 @@ pub fn fn_80222DB0(c: &mut Ctx) {
 // xSTAssetCountByType__FUi
 pub fn fn_80222F94(c: &mut Ctx) {
     runtime::prof(0x80222F94);
+    if c.hle(897) { return; }
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r1 = c.r[1]; let mut r3 = c.r[3]; let mut r4 = c.r[4]; let mut r5 = c.r[5]; let mut r6 = c.r[6]; let mut r7 = c.r[7]; let mut r12 = c.r[12]; let mut r13 = c.r[13]; let mut r27 = c.r[27]; let mut r28 = c.r[28]; let mut r29 = c.r[29]; let mut r30 = c.r[30]; let mut r31 = c.r[31]; 
     let mut cr0 = c.cr[0]; 

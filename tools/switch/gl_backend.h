@@ -13,10 +13,14 @@ typedef struct {
     uint32_t first_index;
     uint32_t index_count;
     int32_t  base_vertex;
-    uint8_t  geom_kind; // 0 = Transformed, 1 = Raw, 2 = Cached
-    uint8_t  pad[3];
+    uint8_t  geom_kind;   // 0 = Transformed, 1 = Raw, 2 = Cached
+    uint8_t  vs_variant;  // 0 = Transformed, 1 = Unlit2UV, 2 = Lit2UV, 3 = Full
+    uint8_t  tex_mask;    // bitmask of active texture slots 0..7
+    uint8_t  cmd_flags;   // bit 0 = bind XfMem, bit 1 = bind VLights
     uint32_t params_offset;
     uint32_t vparams_offset;
+    uint32_t vlights_offset;
+    uint32_t xf_offset;
     uint32_t textures[8];
     uint32_t samplers[8];
     float    viewport[4];
@@ -34,6 +38,8 @@ typedef struct {
     uint32_t         params_bytes;
     const void*      vparams;
     uint32_t         vparams_bytes;
+    const void*      vlights;
+    uint32_t         vlights_bytes;
     const GlDrawCmd* cmds;
     uint32_t         cmd_count;
     uint32_t         has_clear;
@@ -46,7 +52,7 @@ void     switch_gl_resize_efb(uint32_t efb_w, uint32_t efb_h);
 void     switch_gl_get_window_size(uint32_t* out_w, uint32_t* out_h);
 
 uint32_t switch_gl_compile_fs(const char* src_ptr, uint32_t src_len);
-uint32_t switch_gl_link_program(uint32_t fs_id, uint32_t is_raw);
+uint32_t switch_gl_link_program(uint32_t fs_id, uint32_t vs_variant);
 
 uint32_t switch_gl_upload_texture(uint32_t existing_tex, uint32_t w, uint32_t h, const uint8_t* rgba);
 uint32_t switch_gl_create_sampler(uint8_t wrap_s, uint8_t wrap_t, uint8_t linear);

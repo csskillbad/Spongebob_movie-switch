@@ -54,8 +54,8 @@ extern "C" {
 #[inline(always)]
 fn in_ram(a: u32, len: usize) -> bool {
     a >= 0x8000_0000
-        && a < 0x8180_0000
-        && (a as usize - 0x8000_0000).checked_add(len).is_some_and(|end| end <= 0x0180_0000)
+        && a < 0x8200_0000
+        && (a as usize - 0x8000_0000).checked_add(len).is_some_and(|end| end <= 0x0200_0000)
 }
 
 #[inline(always)]
@@ -1698,31 +1698,25 @@ pub fn hle_rw_camera_frustum_test_sphere(c: &mut Ctx) -> bool {
     true
 }
 
-/// Native ARM64 implementation of RenderWare `RtIntersectionSphereTriangle` (`0x80337ADC`).
-/// Tests intersection of a sphere with a triangle and outputs the triangle normal and plane distance.
-pub fn hle_rt_intersection_sphere_triangle(c: &mut Ctx) -> bool {
-    let sphere_ptr = c.r[3];
-    let v0_ptr = c.r[4];
-    let v1_ptr = c.r[5];
-    let v2_ptr = c.r[6];
-    let normal_ptr = c.r[7];
-    let dist_ptr = c.r[8];
-
-    let mem = c.mem;
-    if !in_ram(sphere_ptr, 16)
-        || !in_ram(v0_ptr, 12)
-        || !in_ram(v1_ptr, 12)
-        || !in_ram(v2_ptr, 12)
-        || !in_ram(normal_ptr, 12)
-        || !in_ram(dist_ptr, 4)
-    {
-        return false;
+/// Core RenderWare `RtIntersectionSphereTriangle` (`0x80337ADC`) test on raw triangle pointers.
+/// Optionally writes triangle `normal` and signed plane `dist` into guest RAM before vertex/edge tests,
+/// returning `Some((normal, -dot_to_plane))` on intersection.
+#[inline]
+pub(crate) fn rt_sphere_triangle_raw(
+    mem: *mut u8,
+    cx: f32,
+    cy: f32,
+    cz: f32,
+    radius: f32,
+    v0_ptr: u32,
+    v1_ptr: u32,
+    v2_ptr: u32,
+    normal_out: Option<u32>,
+    dist_out: Option<u32>,
+) -> Option<([f32; 3], f32)> {
+    if !in_ram(v0_ptr, 12) || !in_ram(v1_ptr, 12) || !in_ram(v2_ptr, 12) {
+        return None;
     }
-
-    let cx = f32::from_bits(mr32(mem, sphere_ptr));
-    let cy = f32::from_bits(mr32(mem, sphere_ptr + 4));
-    let cz = f32::from_bits(mr32(mem, sphere_ptr + 8));
-    let radius = f32::from_bits(mr32(mem, sphere_ptr + 12));
 
     let v0_x = f32::from_bits(mr32(mem, v0_ptr));
     let v0_y = f32::from_bits(mr32(mem, v0_ptr + 4));
@@ -1758,8 +1752,7 @@ pub fn hle_rt_intersection_sphere_triangle(c: &mut Ctx) -> bool {
         || (d0_z > radius && d1_z > radius && d2_z > radius)
         || (d0_z < neg_radius && d1_z < neg_radius && d2_z < neg_radius)
     {
-        c.r[3] = 0;
-        return true;
+        return None;
     }
 
     // 2. Triangle Normal (cross product of edges v1-v0 and v2-v0)
@@ -1777,8 +1770,7 @@ pub fn hle_rt_intersection_sphere_triangle(c: &mut Ctx) -> bool {
 
     let len_sq = nx * nx + ny * ny + nz * nz;
     if len_sq <= 0.0 {
-        c.r[3] = 0;
-        return true;
+        return None;
     }
 
     let inv_len = 1.0f32 / hw_sqrt_f32(len_sq);
@@ -1786,38 +1778,38 @@ pub fn hle_rt_intersection_sphere_triangle(c: &mut Ctx) -> bool {
     let norm_y = ny * inv_len;
     let norm_z = nz * inv_len;
 
-    mw32(mem, normal_ptr, norm_x.to_bits());
-    mw32(mem, normal_ptr + 4, norm_y.to_bits());
-    mw32(mem, normal_ptr + 8, norm_z.to_bits());
+    if let Some(normal_ptr) = normal_out {
+        mw32(mem, normal_ptr, norm_x.to_bits());
+        mw32(mem, normal_ptr + 4, norm_y.to_bits());
+        mw32(mem, normal_ptr + 8, norm_z.to_bits());
+    }
 
     // Distance from sphere center to triangle plane
     let dist_to_v0 = d0_x * norm_x + d0_y * norm_y + d0_z * norm_z;
     if dist_to_v0 < neg_radius || dist_to_v0 > radius {
-        c.r[3] = 0;
-        return true;
+        return None;
     }
 
     let dist = -dist_to_v0;
-    mw32(mem, dist_ptr, dist.to_bits());
+    if let Some(dist_ptr) = dist_out {
+        mw32(mem, dist_ptr, dist.to_bits());
+    }
 
     // 3. Vertex distance to sphere center
     let r_sq = radius * radius;
     let len0_sq = d0_x * d0_x + d0_y * d0_y + d0_z * d0_z;
     if len0_sq <= r_sq {
-        c.r[3] = 1;
-        return true;
+        return Some(([norm_x, norm_y, norm_z], dist));
     }
 
     let len1_sq = d1_x * d1_x + d1_y * d1_y + d1_z * d1_z;
     if len1_sq <= r_sq {
-        c.r[3] = 1;
-        return true;
+        return Some(([norm_x, norm_y, norm_z], dist));
     }
 
     let len2_sq = d2_x * d2_x + d2_y * d2_y + d2_z * d2_z;
     if len2_sq <= r_sq {
-        c.r[3] = 1;
-        return true;
+        return Some(([norm_x, norm_y, norm_z], dist));
     }
 
     // 4. Closest vertex Voronoi region tests
@@ -1827,92 +1819,87 @@ pub fn hle_rt_intersection_sphere_triangle(c: &mut Ctx) -> bool {
 
     if len0_sq < len1_sq {
         if len2_sq < len0_sq {
-            // v2 is closest
             if dot02 > len2_sq && dot12 > len2_sq {
-                c.r[3] = 0;
-                return true;
+                return None;
             }
-        } else {
-            // v0 is closest
-            if dot01 > len0_sq && dot02 > len0_sq {
-                c.r[3] = 0;
-                return true;
-            }
+        } else if dot01 > len0_sq && dot02 > len0_sq {
+            return None;
         }
-    } else {
-        if len2_sq < len1_sq {
-            // v2 is closest
-            if dot02 > len2_sq && dot12 > len2_sq {
-                c.r[3] = 0;
-                return true;
-            }
-        } else {
-            // v1 is closest
-            if dot01 > len1_sq && dot12 > len1_sq {
-                c.r[3] = 0;
-                return true;
+    } else if len2_sq < len1_sq {
+        if dot02 > len2_sq && dot12 > len2_sq {
+            return None;
+        }
+    } else if dot01 > len1_sq && dot12 > len1_sq {
+        return None;
+    }
+
+    // 5. Edge tests
+    let edges = [
+        (d0_x, d0_y, d0_z, d1_x, d1_y, d1_z, d2_x, d2_y, d2_z),
+        (d1_x, d1_y, d1_z, d2_x, d2_y, d2_z, d0_x, d0_y, d0_z),
+        (d2_x, d2_y, d2_z, d0_x, d0_y, d0_z, d1_x, d1_y, d1_z),
+    ];
+    for &(ax, ay, az, bx, by, bz, ox, oy, oz) in &edges {
+        let ex = bx - ax;
+        let ey = by - ay;
+        let ez = bz - az;
+        let e_len_sq = ex * ex + ey * ey + ez * ez;
+        let dot_ea = ex * ax + ey * ay + ez * az;
+        let t = dot_ea / e_len_sq;
+        let cx_p = ax - ex * t;
+        let cy_p = ay - ey * t;
+        let cz_p = az - ez * t;
+        let dist_sq = cx_p * cx_p + cy_p * cy_p + cz_p * cz_p;
+        if dist_sq > r_sq {
+            let dot_o = cx_p * ox + cy_p * oy + cz_p * oz;
+            if dist_sq < dot_o {
+                return None;
             }
         }
     }
 
-    // 5. Edge 0-1 test
-    let e01_x = d1_x - d0_x;
-    let e01_y = d1_y - d0_y;
-    let e01_z = d1_z - d0_z;
-    let e01_len_sq = e01_x * e01_x + e01_y * e01_y + e01_z * e01_z;
-    let dot_e01_d0 = e01_x * d0_x + e01_y * d0_y + e01_z * d0_z;
-    let t01 = dot_e01_d0 / e01_len_sq;
-    let c01_x = d0_x - e01_x * t01;
-    let c01_y = d0_y - e01_y * t01;
-    let c01_z = d0_z - e01_z * t01;
-    let dist01_sq = c01_x * c01_x + c01_y * c01_y + c01_z * c01_z;
-    if dist01_sq > r_sq {
-        let dot01_d2 = c01_x * d2_x + c01_y * d2_y + c01_z * d2_z;
-        if dist01_sq < dot01_d2 {
-            c.r[3] = 0;
-            return true;
-        }
+    Some(([norm_x, norm_y, norm_z], dist))
+}
+
+/// Native ARM64 implementation of RenderWare `RtIntersectionSphereTriangle` (`0x80337ADC`).
+/// Tests intersection of a sphere with a triangle and outputs the triangle normal and plane distance.
+pub fn hle_rt_intersection_sphere_triangle(c: &mut Ctx) -> bool {
+    let sphere_ptr = c.r[3];
+    let v0_ptr = c.r[4];
+    let v1_ptr = c.r[5];
+    let v2_ptr = c.r[6];
+    let normal_ptr = c.r[7];
+    let dist_ptr = c.r[8];
+
+    let mem = c.mem;
+    if !in_ram(sphere_ptr, 16)
+        || !in_ram(v0_ptr, 12)
+        || !in_ram(v1_ptr, 12)
+        || !in_ram(v2_ptr, 12)
+        || !in_ram(normal_ptr, 12)
+        || !in_ram(dist_ptr, 4)
+    {
+        return false;
     }
 
-    // 6. Edge 1-2 test
-    let e12_x = d2_x - d1_x;
-    let e12_y = d2_y - d1_y;
-    let e12_z = d2_z - d1_z;
-    let e12_len_sq = e12_x * e12_x + e12_y * e12_y + e12_z * e12_z;
-    let dot_e12_d1 = e12_x * d1_x + e12_y * d1_y + e12_z * d1_z;
-    let t12 = dot_e12_d1 / e12_len_sq;
-    let c12_x = d1_x - e12_x * t12;
-    let c12_y = d1_y - e12_y * t12;
-    let c12_z = d1_z - e12_z * t12;
-    let dist12_sq = c12_x * c12_x + c12_y * c12_y + c12_z * c12_z;
-    if dist12_sq > r_sq {
-        let dot12_d0 = c12_x * d0_x + c12_y * d0_y + c12_z * d0_z;
-        if dist12_sq < dot12_d0 {
-            c.r[3] = 0;
-            return true;
-        }
-    }
+    let cx = f32::from_bits(mr32(mem, sphere_ptr));
+    let cy = f32::from_bits(mr32(mem, sphere_ptr + 4));
+    let cz = f32::from_bits(mr32(mem, sphere_ptr + 8));
+    let radius = f32::from_bits(mr32(mem, sphere_ptr + 12));
 
-    // 7. Edge 2-0 test
-    let e20_x = d0_x - d2_x;
-    let e20_y = d0_y - d2_y;
-    let e20_z = d0_z - d2_z;
-    let e20_len_sq = e20_x * e20_x + e20_y * e20_y + e20_z * e20_z;
-    let dot_e20_d2 = e20_x * d2_x + e20_y * d2_y + e20_z * d2_z;
-    let t20 = dot_e20_d2 / e20_len_sq;
-    let c20_x = d2_x - e20_x * t20;
-    let c20_y = d2_y - e20_y * t20;
-    let c20_z = d2_z - e20_z * t20;
-    let dist20_sq = c20_x * c20_x + c20_y * c20_y + c20_z * c20_z;
-    if dist20_sq > r_sq {
-        let dot20_d1 = c20_x * d1_x + c20_y * d1_y + c20_z * d1_z;
-        if dist20_sq < dot20_d1 {
-            c.r[3] = 0;
-            return true;
-        }
-    }
-
-    c.r[3] = 1;
+    c.r[3] = rt_sphere_triangle_raw(
+        mem,
+        cx,
+        cy,
+        cz,
+        radius,
+        v0_ptr,
+        v1_ptr,
+        v2_ptr,
+        Some(normal_ptr),
+        Some(dist_ptr),
+    )
+    .is_some() as u32;
     true
 }
 

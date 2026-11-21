@@ -12,7 +12,7 @@ use hashbrown::{HashMap, HashSet};
 
 use crate::gl_renderer::{
     Draw, DrawState, EFB_HEIGHT, EFB_WIDTH, Flat, Frame, Geometry, PARAMS_FLOATS, RawVertex,
-    Renderer, SamplerKey, TEXTURE_SLOTS, VPARAMS_WORDS, Vertex, WHITE_TEXTURE,
+    Renderer, SamplerKey, TEXTURE_SLOTS, VLIGHTS_WORDS, VPARAMS_CORE_WORDS, Vertex, WHITE_TEXTURE,
 };
 use crate::tev_gl;
 use crate::texture;
@@ -21,7 +21,7 @@ use crate::texture;
 fn in_ram(addr: u32, len: usize) -> bool {
     let end = addr as u64 + len as u64;
     addr >= runtime::mem::RAM_BASE
-        && end <= (runtime::mem::RAM_BASE + runtime::mem::RAM_SIZE) as u64
+        && end <= (runtime::mem::RAM_BASE + runtime::mem::EXT_RAM_SIZE) as u64
 }
 
 /// Byte widths of position/normal/texcoord component formats: u8 s8 u16 s16 f32.
@@ -674,7 +674,7 @@ fn hash_bytes(data: &[u8]) -> u64 {
     texture::hash(data)
 }
 
-const BLOCK_SHIFT: u32 = 12;
+const BLOCK_SHIFT: u32 = 9;
 
 #[inline(always)]
 fn decode_color(format: u32, b: &[u8; 16]) -> [f32; 4] {
@@ -815,6 +815,7 @@ struct Channel {
 #[derive(Clone, Copy)]
 struct Material {
     shader: u64,
+    tex_mask: u8,
     textures: [usize; TEXTURE_SLOTS],
     samplers: [SamplerKey; TEXTURE_SLOTS],
     coord_used: [bool; 8],
@@ -830,6 +831,7 @@ struct CachedMaterial {
 
 const DUMMY_MATERIAL: Material = Material {
     shader: 0,
+    tex_mask: 0,
     textures: [WHITE_TEXTURE; TEXTURE_SLOTS],
     samplers: [(0, 0, false); TEXTURE_SLOTS],
     coord_used: [false; 8],
@@ -907,73 +909,107 @@ struct VState {
     raw_ok: bool,
 }
 
-fn vparams_block(state: &VState, over_flat: Option<[f32; 4]>) -> [u32; VPARAMS_WORDS] {
-    let mut words = [0u32; VPARAMS_WORDS];
+impl VState {
+    #[inline]
+    fn vs_variant(&self) -> u8 {
+        let indexed = matches!(self.matrices, Matrices::All(_));
+        let hi_gens = self.coord_used[2..8].iter().any(|&u| u);
+        if indexed || hi_gens {
+            3
+        } else if self.lighting {
+            2
+        } else {
+            1
+        }
+    }
+}
+
+#[inline]
+fn write_gen(words: &mut [u32], at: usize, state: &VState, n: usize) {
+    for (k, value) in state.gen_rows[n].iter().enumerate() {
+        words[at + k] = value.to_bits();
+    }
+    let source = match state.gens[n].0 {
+        _ if !state.coord_used[n] => -1.0f32,
+        Source::Position => 0.0,
+        Source::Tex(k) => 1.0 + k as f32,
+        Source::Nothing => 5.0,
+    };
+    words[at + 12] = source.to_bits();
+    words[at + 13] = (state.gens[n].2 as u32 as f32).to_bits();
+    words[at + 14] = state.coord_bias[n][0].to_bits();
+    words[at + 15] = state.coord_bias[n][1].to_bits();
+}
+
+/// Compact 384-byte `VCore` uniform block (std140, binding = 1):
+/// proj0/1, m0..m2, n0..n2, gens[0..2], chans[0..2], origin, place.
+fn vcore_block(state: &VState, over_flat: Option<[f32; 4]>) -> [u32; VPARAMS_CORE_WORDS] {
+    let mut words = [0u32; VPARAMS_CORE_WORDS];
     if let Some(origin) = over_flat {
         for k in 0..4 {
-            words[VPARAMS_WORDS - 8 + k] = origin[k].to_bits();
+            words[VPARAMS_CORE_WORDS - 8 + k] = origin[k].to_bits();
         }
-        words[VPARAMS_WORDS - 4] = 1.0f32.to_bits();
-        words[VPARAMS_WORDS - 1] = 1.0f32.to_bits();
+        words[VPARAMS_CORE_WORDS - 4] = 1.0f32.to_bits();
+        words[VPARAMS_CORE_WORDS - 1] = 1.0f32.to_bits();
     }
+    {
+        let mut put = |at: usize, values: &[f32]| {
+            for (k, value) in values.iter().enumerate() {
+                words[at + k] = value.to_bits();
+            }
+        };
+        put(0, &state.proj[..4]);
+        put(
+            4,
+            &[
+                state.proj[4],
+                state.proj[5],
+                state.lighting as u32 as f32,
+                matches!(state.matrices, Matrices::All(_)) as u32 as f32,
+            ],
+        );
+        let (position, normal) = state.matrices.rows(state.default_matrix);
+        put(8, &position);
+        for row in 0..3 {
+            put(20 + row * 4, &normal[row * 3..row * 3 + 3]);
+        }
+        for n in 0..2 {
+            let at = 64 + n * 12;
+            put(at, &state.channels[n].material);
+            put(at + 4, &state.channels[n].ambient);
+        }
+    }
+    write_gen(&mut words, 32, state, 0);
+    write_gen(&mut words, 48, state, 1);
+    for n in 0..2 {
+        let at = 64 + n * 12;
+        let has_color = (state.vcd_lo >> (13 + 2 * n)) & 3 != 0;
+        words[at + 8] = state.channels[n].ctrl[0];
+        words[at + 9] = state.channels[n].ctrl[1];
+        words[at + 10] = has_color as u32 | ((n < state.lit_channels) as u32) << 1;
+    }
+    words
+}
+
+/// Deduplicated 1024-byte `VLights` uniform block (std140, binding = 3):
+/// lights[0..8] (160 words) + gens[2..8] (96 words).
+fn vlights_block(state: &VState) -> [u32; VLIGHTS_WORDS] {
+    let mut words = [0u32; VLIGHTS_WORDS];
     let mut put = |at: usize, values: &[f32]| {
         for (k, value) in values.iter().enumerate() {
             words[at + k] = value.to_bits();
         }
     };
-    put(0, &state.proj[..4]);
-    put(
-        4,
-        &[
-            state.proj[4],
-            state.proj[5],
-            state.lighting as u32 as f32,
-            matches!(state.matrices, Matrices::All(_)) as u32 as f32,
-        ],
-    );
-    let (position, normal) = state.matrices.rows(state.default_matrix);
-    put(8, &position);
-    for row in 0..3 {
-        put(20 + row * 4, &normal[row * 3..row * 3 + 3]);
-    }
     for n in 0..8 {
-        let at = 32 + n * 16;
-        put(at, &state.gen_rows[n]);
-        let source = match state.gens[n].0 {
-            _ if !state.coord_used[n] => -1.0,
-            Source::Position => 0.0,
-            Source::Tex(k) => 1.0 + k as f32,
-            Source::Nothing => 5.0,
-        };
-        put(
-            at + 12,
-            &[
-                source,
-                state.gens[n].2 as u32 as f32,
-                state.coord_bias[n][0],
-                state.coord_bias[n][1],
-            ],
-        );
-    }
-    for n in 0..2 {
-        let at = 160 + n * 12;
-        put(at, &state.channels[n].material);
-        put(at + 4, &state.channels[n].ambient);
-    }
-    for n in 0..8 {
-        let (at, light) = (184 + n * 20, &state.lights[n]);
+        let (at, light) = (n * 20, &state.lights[n]);
         put(at, &light.color);
         put(at + 4, &light.cos_att);
         put(at + 8, &light.dist_att);
         put(at + 12, &light.pos);
         put(at + 16, &light.dir);
     }
-    for n in 0..2 {
-        let at = 160 + n * 12 + 8;
-        let has_color = (state.vcd_lo >> (13 + 2 * n)) & 3 != 0;
-        words[at] = state.channels[n].ctrl[0];
-        words[at + 1] = state.channels[n].ctrl[1];
-        words[at + 2] = has_color as u32 | ((n < state.lit_channels) as u32) << 1;
+    for n in 2..8 {
+        write_gen(&mut words, 160 + (n - 2) * 16, state, n);
     }
     words
 }
@@ -983,31 +1019,46 @@ struct Template {
     material: Material,
     vstate: VState,
     vstate_arc: Option<Arc<VState>>,
+    vs_variant: u8,
     state: DrawState,
     viewport: [f32; 4],
     scissor: [u32; 4],
     params: u32,
     vparams: Option<u32>,
     vparams_flat: Option<u32>,
+    vlights: Option<u32>,
+    xf: Option<u32>,
 }
 
 impl Template {
-    fn vparams(&mut self, frame: &mut Frame, flat_started: bool) -> u32 {
+    fn vbindings(
+        &mut self,
+        frame: &mut Frame,
+        flat_started: bool,
+    ) -> (u32, Option<u32>, Option<u32>) {
         let _phase = crate::GxPhase::enter(5);
-        let xf = match &self.vstate.matrices {
-            Matrices::All(all) => Some(all),
-            Matrices::One(..) => None,
-        };
-        match self.vstate.origin.filter(|_| flat_started) {
+        let vcore = match self.vstate.origin.filter(|_| flat_started) {
             Some(origin) => *self.vparams_flat.get_or_insert_with(|| {
-                let offset = frame.push_vparams(&vparams_block(&self.vstate, Some(origin)), xf);
+                let offset = frame.push_vcore(&vcore_block(&self.vstate, Some(origin)));
                 frame.raw_flat.push((offset, origin));
                 offset
             }),
-            None => *self.vparams.get_or_insert_with(|| {
-                frame.push_vparams(&vparams_block(&self.vstate, None), xf)
-            }),
-        }
+            None => *self
+                .vparams
+                .get_or_insert_with(|| frame.push_vcore(&vcore_block(&self.vstate, None))),
+        };
+        let vlights = if self.vs_variant >= 2 {
+            Some(*self.vlights.get_or_insert_with(|| {
+                frame.push_vlights(&vlights_block(&self.vstate))
+            }))
+        } else {
+            None
+        };
+        let xf = match &self.vstate.matrices {
+            Matrices::All(all) => Some(*self.xf.get_or_insert_with(|| frame.push_xf(all))),
+            Matrices::One(..) => None,
+        };
+        (vcore, vlights, xf)
     }
 }
 
@@ -1023,6 +1074,7 @@ struct ListShape {
 enum Ahead {
     Cached(ListShape, (i32, u32)),
     Owned(ListShape, Vec<RawVertex>, Vec<u32>),
+    Streamed(ListShape, u32),
     Late,
 }
 
@@ -1428,6 +1480,8 @@ pub struct Gx {
     hud_marked: u32,
     hud_widgets: u32,
     ready_presents: VecDeque<PendingPresent>,
+    spare_frames: Vec<Frame>,
+    hud_widgets_scratch: HashMap<u32, (f32, f32)>,
 }
 
 struct PendingPresent {
@@ -1486,8 +1540,8 @@ impl Gx {
             seen: HashMap::with_capacity(2048),
             cache_full: false,
             cp_sig: None,
-            block_hash: vec![0; (runtime::mem::RAM_SIZE >> BLOCK_SHIFT) as usize],
-            block_stamp: vec![0; (runtime::mem::RAM_SIZE >> BLOCK_SHIFT) as usize],
+            block_hash: vec![0; (runtime::mem::EXT_RAM_SIZE >> BLOCK_SHIFT) as usize],
+            block_stamp: vec![0; (runtime::mem::EXT_RAM_SIZE >> BLOCK_SHIFT) as usize],
             epoch: 1,
             ahead_pos: 0,
             ahead_cp: [0; 256],
@@ -1502,7 +1556,9 @@ impl Gx {
             hud_marks: VecDeque::with_capacity(64),
             hud_marked: 0,
             hud_widgets: 0,
-            ready_presents: VecDeque::with_capacity(2),
+            ready_presents: VecDeque::with_capacity(4),
+            spare_frames: Vec::with_capacity(4),
+            hud_widgets_scratch: HashMap::with_capacity(64),
         }
     }
 
@@ -1736,6 +1792,7 @@ impl Gx {
                         }
                         let m = Material {
                             shader,
+                            tex_mask: config.tex_mask(),
                             textures,
                             samplers,
                             coord_used,
@@ -1901,17 +1958,21 @@ impl Gx {
         let scissor = [edge(tl >> 12, 0), edge(tl, 0), edge(br >> 12, 1), edge(br, 1)];
         let params = self.frame.push_params(&self.tev_params());
         self.template_serial += 1;
+        let vs_variant = vstate.vs_variant();
         self.template = Some(Template {
             serial: self.template_serial,
             material,
             vstate,
             vstate_arc: None,
+            vs_variant,
             state,
             viewport,
             scissor,
             params,
             vparams: None,
             vparams_flat: None,
+            vlights: None,
+            xf: None,
         });
     }
 
@@ -2011,15 +2072,19 @@ impl Gx {
         } else {
             Geometry::Transformed
         };
-        let vparams = if raw {
-            template.vparams(&mut self.frame, false)
+        let (vparams, vlights, xf, vs_variant) = if raw {
+            let (vp, vl, xf) = template.vbindings(&mut self.frame, false);
+            (vp, vl, xf, template.vs_variant)
         } else {
-            0
+            (0, None, None, 0)
         };
         if self.last_serial == template.serial {
             if let Some(last) = self.frame.draws.last_mut() {
                 if last.geometry == geometry
+                    && last.vs_variant == vs_variant
                     && last.vparams == vparams
+                    && last.vlights == vlights
+                    && last.xf == xf
                     && last.first + last.count == first
                 {
                     last.count += emitted;
@@ -2029,6 +2094,7 @@ impl Gx {
         }
         let Material {
             shader,
+            tex_mask,
             textures,
             samplers,
             ..
@@ -2038,11 +2104,15 @@ impl Gx {
             count: emitted,
             state: template.state,
             shader,
+            vs_variant,
+            tex_mask,
             textures,
             samplers,
             params: template.params,
             geometry,
             vparams,
+            vlights,
+            xf,
             viewport: template.viewport,
             scissor: template.scissor,
         });
@@ -2076,7 +2146,7 @@ impl Gx {
             let base = (self.cp[0xA0 + n] & 0x03FF_FFFF) | 0x8000_0000;
             let addr = base as u64 + spans[n].0 as u64;
             if addr + spans[n].1 as u64 + 16
-                > (runtime::mem::RAM_BASE + runtime::mem::RAM_SIZE) as u64
+                > (runtime::mem::RAM_BASE + runtime::mem::EXT_RAM_SIZE) as u64
             {
                 return None;
             }
@@ -2123,17 +2193,36 @@ impl Gx {
         hash
     }
 
-    fn build_list(&mut self, list: &[u8]) -> Option<([(u32, u32); 12], u32, u32)> {
+    fn spans_at_cp(cp: &[u32; 256], spans: &[(u32, u32); 12]) -> Option<[(u32, u32); 12]> {
+        let mut at = [(0u32, 0u32); 12];
+        for n in (0..12).filter(|&n| spans[n].1 != 0) {
+            let base = (cp[0xA0 + n] & 0x03FF_FFFF) | 0x8000_0000;
+            let addr = base as u64 + spans[n].0 as u64;
+            if addr + spans[n].1 as u64 + 16
+                > (runtime::mem::RAM_BASE + runtime::mem::EXT_RAM_SIZE) as u64
+            {
+                return None;
+            }
+            at[n] = (addr as u32, spans[n].1);
+        }
+        Some(at)
+    }
+
+    fn build_list_into(
+        mem: Mem,
+        cp: &[u32; 256],
+        list: &[u8],
+        vertices: &mut Vec<RawVertex>,
+        indices: &mut Vec<u32>,
+    ) -> Option<([(u32, u32); 12], u32, u32)> {
         let _phase = crate::GxPhase::enter(13);
-        let mut vertices = core::mem::take(&mut self.list_vertices);
-        let mut indices = core::mem::take(&mut self.list_indices);
-        vertices.clear();
-        indices.clear();
-        let (vcd_lo, vcd_hi) = (self.cp[0x50], self.cp[0x60]);
+        let start_v = vertices.len();
+        let start_i = indices.len();
+        let (vcd_lo, vcd_hi) = (cp[0x50], cp[0x60]);
         let arrays: [(u32, u32); 12] = core::array::from_fn(|n| {
             (
-                (self.cp[0xA0 + n] & 0x03FF_FFFF) | 0x8000_0000,
-                self.cp[0xB0 + n] & 0xFF,
+                (cp[0xA0 + n] & 0x03FF_FFFF) | 0x8000_0000,
+                cp[0xB0 + n] & 0xFF,
             )
         });
         let mut ranges = [(u32::MAX, 0u32); 12];
@@ -2151,7 +2240,7 @@ impl Gx {
                 break;
             }
             let (count, vat) = (be16(list, at + 1), (op & 7) as usize);
-            let need = 3 + count * self.vertex_size(vat);
+            let need = 3 + count * Self::vertex_size_cp(cp, vat);
             if at + need > list.len() {
                 plain = false;
                 break;
@@ -2159,8 +2248,8 @@ impl Gx {
             let format = Format {
                 vcd_lo,
                 vcd_hi,
-                a: self.cp[0x70 + vat],
-                b: self.cp[0x80 + vat],
+                a: cp[0x70 + vat],
+                b: cp[0x80 + vat],
                 arrays,
             };
             let base = vertices.len() as u32;
@@ -2179,14 +2268,14 @@ impl Gx {
                 }
             }
             decode_raw(
-                self.mem,
+                mem,
                 &list[at + 3..at + need],
                 count,
                 &format,
-                &mut vertices,
+                vertices,
                 &mut ranges,
             );
-            emit_indices(op, base, count as u32, &mut indices);
+            emit_indices(op, base, count as u32, indices);
             draws += 1;
             total += count as u32;
             at += need;
@@ -2199,30 +2288,45 @@ impl Gx {
                 ranges[n].0 as u64 * stride,
                 (ranges[n].1 - ranges[n].0) as u64 * stride + stride.clamp(1, 16),
             );
-            if offset + len > runtime::mem::RAM_SIZE as u64 {
+            if offset + len > runtime::mem::EXT_RAM_SIZE as u64 {
                 plain = false;
                 break;
             }
             spans[n] = (offset as u32, len as u32);
         }
-        plain &= self.spans_at(&spans).is_some();
+        plain &= Self::spans_at_cp(cp, &spans).is_some();
+        if !plain {
+            vertices.truncate(start_v);
+            indices.truncate(start_i);
+            return None;
+        }
         crate::dlstat(3, 1);
-        crate::dlstat(4, vertices.len() as u64);
-        self.list_vertices = vertices;
-        self.list_indices = indices;
-        plain.then_some((spans, draws, total))
+        crate::dlstat(4, (vertices.len() - start_v) as u64);
+        Some((spans, draws, total))
     }
 
-    fn resolve_list(&mut self, addr: u32, size: usize) -> Ahead {
+    fn build_list(&mut self, list: &[u8]) -> Option<([(u32, u32); 12], u32, u32)> {
+        self.list_vertices.clear();
+        self.list_indices.clear();
+        Self::build_list_into(
+            self.mem,
+            &self.cp,
+            list,
+            &mut self.list_vertices,
+            &mut self.list_indices,
+        )
+    }
+
+    fn resolve_list(&mut self, addr: u32, size: usize, allow_draw: bool) -> Ahead {
         let _phase = crate::GxPhase::enter(4);
         let t0 = crate::prof_now();
-        let res = self.resolve_list_inner(addr, size);
+        let res = self.resolve_list_inner(addr, size, allow_draw);
         let dt = crate::prof_now().saturating_sub(t0);
         crate::PERF_RESOLVE_NS.fetch_add(dt, core::sync::atomic::Ordering::Relaxed);
         res
     }
 
-    fn resolve_list_inner(&mut self, addr: u32, size: usize) -> Ahead {
+    fn resolve_list_inner(&mut self, addr: u32, size: usize, allow_draw: bool) -> Ahead {
         if self.renderer.is_none() || size == 0 || !in_ram(addr, size) {
             return Ahead::Late;
         }
@@ -2232,16 +2336,7 @@ impl Gx {
         let list = unsafe { self.mem.slice(addr, size) };
         crate::dlstat(0, 1);
         crate::dlstat(7, size as u64);
-        let list_hash = if size >= 16 {
-            let w0 = u64::from_le_bytes(list[..8].try_into().unwrap());
-            let w1 = u64::from_le_bytes(list[size - 8..].try_into().unwrap());
-            (addr as u64)
-                ^ ((size as u64) << 32)
-                ^ w0.wrapping_mul(0x9E37_79B9_7F4A_7C15)
-                ^ w1.rotate_left(31)
-        } else {
-            (addr as u64) ^ ((size as u64) << 32)
-        };
+        let list_hash = hash_bytes(list);
         let key = (list_hash, self.cp_signature());
         let mut built = false;
         let shape = match self.shapes.get(&key).copied() {
@@ -2353,16 +2448,34 @@ impl Gx {
         }
         match place {
             Some(place) => Ahead::Cached(shape, place),
-            None if built || self.build_list(list).is_some() => {
-                crate::dlstat(5, 1);
-                let (vertices, indices) = self.spare.pop().unwrap_or_default();
-                Ahead::Owned(
-                    shape,
-                    core::mem::replace(&mut self.list_vertices, vertices),
-                    core::mem::replace(&mut self.list_indices, indices),
+            None => {
+                if !allow_draw || shape.index_count == 0 {
+                    return Ahead::Streamed(shape, 0);
+                }
+                let first = self.frame.indices.len() as u32;
+                if built {
+                    crate::dlstat(5, 1);
+                    let base = self.frame.raw.len() as u32;
+                    self.frame.raw.extend_from_slice(&self.list_vertices);
+                    self.frame
+                        .indices
+                        .extend(self.list_indices.iter().map(|index| index + base));
+                    Ahead::Streamed(shape, first)
+                } else if Self::build_list_into(
+                    self.mem,
+                    &self.cp,
+                    list,
+                    &mut self.frame.raw,
+                    &mut self.frame.indices,
                 )
+                .is_some()
+                {
+                    crate::dlstat(5, 1);
+                    Ahead::Streamed(shape, first)
+                } else {
+                    Ahead::Late
+                }
             }
-            None => Ahead::Late,
         }
     }
 
@@ -2408,12 +2521,16 @@ impl Gx {
         if self.pending_ortho {
             self.finish_vertices();
         }
+        let allow_draw = self
+            .template
+            .as_ref()
+            .is_some_and(|template| template.state.cull != 3);
         let ahead = match noted {
             Some(ahead) => ahead,
-            None => self.resolve_list(addr, size),
+            None => self.resolve_list(addr, size, allow_draw),
         };
         let shape = match &ahead {
-            Ahead::Cached(shape, _) | Ahead::Owned(shape, ..) => *shape,
+            Ahead::Cached(shape, _) | Ahead::Owned(shape, ..) | Ahead::Streamed(shape, _) => *shape,
             Ahead::Late => {
                 crate::STAT_CLIST_RES_FAIL.fetch_add(1, core::sync::atomic::Ordering::Relaxed);
                 return false;
@@ -2428,6 +2545,10 @@ impl Gx {
             Ahead::Cached(_, (base_vertex, first_index)) => {
                 crate::STAT_CACHED_DRAWS.fetch_add(1, core::sync::atomic::Ordering::Relaxed);
                 (first_index, Geometry::Cached(base_vertex))
+            }
+            Ahead::Streamed(_, first_index) => {
+                crate::STAT_RAW_DRAWS.fetch_add(1, core::sync::atomic::Ordering::Relaxed);
+                (first_index, Geometry::Raw)
             }
             Ahead::Owned(_, vertices, indices) => {
                 crate::STAT_RAW_DRAWS.fetch_add(1, core::sync::atomic::Ordering::Relaxed);
@@ -2444,9 +2565,10 @@ impl Gx {
             Ahead::Late => unreachable!(),
         };
         if drawn {
-            let vparams = template.vparams(&mut self.frame, false);
+            let (vparams, vlights, xf) = template.vbindings(&mut self.frame, false);
             let Material {
                 shader,
+                tex_mask,
                 textures,
                 samplers,
                 ..
@@ -2456,11 +2578,15 @@ impl Gx {
                 count: shape.index_count,
                 state: template.state,
                 shader,
+                vs_variant: template.vs_variant,
+                tex_mask,
                 textures,
                 samplers,
                 params: template.params,
                 geometry,
                 vparams,
+                vlights,
+                xf,
                 viewport: template.viewport,
                 scissor: template.scissor,
             });
@@ -2476,9 +2602,9 @@ impl Gx {
             .map_or(0, |renderer| renderer.cache_used())
     }
 
-    fn vertex_size(&self, vat: usize) -> usize {
-        let (vcd_lo, vcd_hi) = (self.cp[0x50], self.cp[0x60]);
-        let (a, b, c) = (self.cp[0x70 + vat], self.cp[0x80 + vat], self.cp[0x90 + vat]);
+    fn vertex_size_cp(cp: &[u32; 256], vat: usize) -> usize {
+        let (vcd_lo, vcd_hi) = (cp[0x50], cp[0x60]);
+        let (a, b, c) = (cp[0x70 + vat], cp[0x80 + vat], cp[0x90 + vat]);
         let attr = |kind: u32, direct: usize| match kind {
             1 => direct,
             2 => 1,
@@ -2517,6 +2643,10 @@ impl Gx {
             );
         }
         size
+    }
+
+    fn vertex_size(&self, vat: usize) -> usize {
+        Self::vertex_size_cp(&self.cp, vat)
     }
 
     fn parse(&mut self, data: &[u8], depth: u32) -> usize {
@@ -2577,6 +2707,7 @@ impl Gx {
                                     };
                                     t.vparams = None;
                                     t.vparams_flat = None;
+                                    t.xf = None;
                                 }
                             }
                         } else {
@@ -2619,6 +2750,7 @@ impl Gx {
                                 };
                                 t.vparams = None;
                                 t.vparams_flat = None;
+                                t.xf = None;
                             }
                         } else {
                             self.template = None;
@@ -2882,11 +3014,15 @@ impl Gx {
             count: 6,
             state,
             shader,
+            vs_variant: 0,
+            tex_mask: 0,
             textures: [WHITE_TEXTURE; TEXTURE_SLOTS],
             samplers: [(0, 0, false); TEXTURE_SLOTS],
             params,
             geometry: Geometry::Transformed,
             vparams: 0,
+            vlights: None,
+            xf: None,
             viewport: [0.0, 0.0, EFB_WIDTH as f32, EFB_HEIGHT as f32],
             scissor: [rect[0], rect[1], rect[0] + rect[2], rect[1] + rect[3]],
         });
@@ -2913,7 +3049,10 @@ impl Gx {
             self.display_copies.push(to);
         }
 
-        let frame = core::mem::take(&mut self.frame);
+        crate::advance_skin_frame();
+
+        let next_frame = self.spare_frames.pop().unwrap_or_default();
+        let frame = core::mem::replace(&mut self.frame, next_frame);
         self.flat_started = false;
         let cur_clear = self.clear.take();
         let (xy, wh) = (self.bp[0x49], self.bp[0x4A]);
@@ -2980,14 +3119,14 @@ impl Gx {
         let widen = crate::aspect::widen();
         while let Some(PendingPresent { mut frame, clear, shown, frames }) = self.ready_presents.pop_front() {
             if widen != 1.0 {
-                let mut widgets: HashMap<u32, (f32, f32)> = HashMap::new();
+                self.hud_widgets_scratch.clear();
                 for flat in frame.flat.iter().filter(|flat| flat.hud != 0) {
-                    let extent = widgets.entry(flat.hud).or_insert((f32::MAX, f32::MIN));
+                    let extent = self.hud_widgets_scratch.entry(flat.hud).or_insert((f32::MAX, f32::MIN));
                     *extent = (extent.0.min(flat.extent.0), extent.1.max(flat.extent.1));
                 }
                 let margin = 1.0 - 1.0 / widen;
                 for flat in &frame.flat {
-                    let side = match widgets.get(&flat.hud) {
+                    let side = match self.hud_widgets_scratch.get(&flat.hud) {
                         Some(&(_, right)) if right < 0.0 => -margin,
                         Some(&(left, _)) if left > 0.0 => margin,
                         _ => 0.0,
@@ -3005,7 +3144,8 @@ impl Gx {
                         vertex.pos[0] += side * vertex.pos[3];
                     }
                 }
-                for (offset, centre) in core::mem::take(&mut frame.raw_flat) {
+                for i in 0..frame.raw_flat.len() {
+                    let (offset, centre) = frame.raw_flat[i];
                     frame.place_again(offset, 1.0 / widen, -centre[0] / centre[3] * margin);
                 }
             }
@@ -3015,12 +3155,8 @@ impl Gx {
             }
 
             frame.clear();
-            if self.frame.vertices.is_empty()
-                && self.frame.raw.is_empty()
-                && self.frame.draws.is_empty()
-                && self.frame.vertices.capacity() < frame.vertices.capacity()
-            {
-                self.frame = frame;
+            if self.spare_frames.len() < 4 {
+                self.spare_frames.push(frame);
             }
         }
         let dt = crate::prof_now().saturating_sub(t0);
@@ -3035,43 +3171,53 @@ impl Gx {
     pub fn process_chunk(&mut self, guest_mem: *const u8, chunk: &[u8]) {
         self.mem = Mem(guest_mem);
         let mut data = core::mem::take(&mut self.pending);
-        let mut combined_owned = false;
-        let slice: &[u8] = if data.is_empty() {
-            chunk
-        } else {
-            data.extend_from_slice(chunk);
-            combined_owned = true;
-            &data
-        };
-        let allowed = match self.limit {
-            Some(limit) => (limit.saturating_sub(self.consumed) as usize).min(slice.len()),
-            None => slice.len(),
-        };
-        if allowed > 0 {
-            let t0 = crate::prof_now();
-            let used = self.parse(&slice[..allowed], 0);
-            self.finish_vertices();
-            let dt = crate::prof_now().saturating_sub(t0);
-            crate::PERF_PARSE_NS.fetch_add(dt, core::sync::atomic::Ordering::Relaxed);
-            if combined_owned {
-                data.drain(..used);
-                self.pending = data;
-            } else if used < slice.len() {
-                self.pending.extend_from_slice(&slice[used..]);
-            }
-            self.consumed += used as u64;
-        } else if combined_owned {
-            self.pending = data;
-        } else if !chunk.is_empty() {
-            self.pending.extend_from_slice(chunk);
-        }
-        if let Some(limit) = self.limit {
-            if self.consumed >= limit {
-                self.limit = None;
-                if !self.break_signalled {
-                    self.break_signalled = true;
-                    self.raised.push(Raised::Break);
+        let mut offset = 0usize;
+        let full_len = {
+            let full: &[u8] = if data.is_empty() {
+                chunk
+            } else {
+                data.extend_from_slice(chunk);
+                &data
+            };
+            loop {
+                let rem = &full[offset..];
+                let allowed = match self.limit {
+                    Some(limit) => (limit.saturating_sub(self.consumed) as usize).min(rem.len()),
+                    None => rem.len(),
+                };
+                if allowed > 0 {
+                    let t0 = crate::prof_now();
+                    let used = self.parse(&rem[..allowed], 0);
+                    self.finish_vertices();
+                    let dt = crate::prof_now().saturating_sub(t0);
+                    crate::PERF_PARSE_NS.fetch_add(dt, core::sync::atomic::Ordering::Relaxed);
+                    offset += used;
+                    self.consumed += used as u64;
                 }
+                if let Some(limit) = self.limit {
+                    if self.consumed >= limit {
+                        self.limit = None;
+                        if !self.break_signalled {
+                            self.break_signalled = true;
+                            self.raised.push(Raised::Break);
+                        }
+                        // Breakpoint cleared; immediately parse remaining bytes (e.g. GXCopyDisp +
+                        // GXSetDrawSync) so tokens and display copies are never stranded in `pending`.
+                        if offset < full.len() {
+                            continue;
+                        }
+                    }
+                }
+                break;
+            }
+            full.len()
+        };
+        if offset < full_len {
+            if !data.is_empty() {
+                data.drain(..offset);
+                self.pending = data;
+            } else {
+                self.pending.extend_from_slice(&chunk[offset..]);
             }
         }
     }

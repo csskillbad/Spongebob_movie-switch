@@ -42,6 +42,10 @@ typedef struct {
     uint32_t vparams_cap;
     uint32_t vparams_bytes;
 
+    uint8_t* vlights_buf;
+    uint32_t vlights_cap;
+    uint32_t vlights_bytes;
+
     GlDrawCmd* cmds;
     uint32_t   cmds_cap;
     uint32_t   cmd_count;
@@ -54,7 +58,8 @@ static PassPayload s_pass_payloads[MAX_PAYLOADS];
 static uint32_t    s_pass_head = 0;
 static uint32_t    s_pass_tail = 0;
 
-static uint8_t  s_overlay_buf[2][4096 * OVERLAY_STRIDE];
+#define OVERLAY_MAX_VERTS 65536u
+static uint8_t  s_overlay_buf[2][OVERLAY_MAX_VERTS * OVERLAY_STRIDE];
 static uint32_t s_overlay_slot = 0;
 
 // --- Command Queue ---
@@ -80,7 +85,7 @@ typedef struct {
         } compile_fs;
         struct {
             uint32_t fs_id;
-            uint32_t is_raw;
+            uint32_t vs_variant;
         } link_prog;
         struct {
             uint32_t existing_tex;
@@ -175,8 +180,8 @@ static GLuint s_efb_depth = 0;
 static uint32_t s_efb_w   = 0;
 static uint32_t s_efb_h   = 0;
 
-static GLuint s_vs_transformed = 0;
-static GLuint s_vs_gx          = 0;
+// 0 = Transformed, 1 = GX Unlit (<=2 UV), 2 = GX Lit (<=2 UV), 3 = GX Full (8 UV / Indexed)
+static GLuint s_vs_variants[4] = {0, 0, 0, 0};
 static GLuint s_prog_blit      = 0;
 static GLint  s_blit_rect_loc  = -1;
 static GLuint s_prog_overlay   = 0;
@@ -200,6 +205,7 @@ static RingBuffer s_ring_raw;
 static RingBuffer s_ring_indices;
 static RingBuffer s_ring_params;
 static RingBuffer s_ring_vparams;
+static RingBuffer s_ring_vlights;
 
 static GLuint s_vbo_cache   = 0;
 static GLuint s_ibo_cache   = 0;
@@ -232,7 +238,92 @@ static const char* k_vs_transformed_src =
     "    v_uv67 = a_uv67;\n"
     "}\n";
 
-static const char* k_vs_gx_src =
+// Variant 1: Fast Unlit (or ambient-only) non-indexed GX vertex shader, <= 2 texgens.
+// Skips normal transform, all 8 light evaluations, VLights UBO, XfMem UBO, and gens[2..8].
+static const char* k_vs_gx_unlit_src =
+    "#version 430 core\n"
+    "invariant gl_Position;\n"
+    "layout(location = 0) in vec4 a_pos;\n"
+    "layout(location = 1) in vec3 a_nrm;\n"
+    "layout(location = 2) in vec4 a_vc0;\n"
+    "layout(location = 3) in vec4 a_vc1;\n"
+    "layout(location = 4) in vec4 a_t01;\n"
+    "layout(location = 5) in vec4 a_t23;\n"
+    "layout(location = 0) out vec4 v_c0;\n"
+    "layout(location = 1) out vec4 v_c1;\n"
+    "layout(location = 2) out vec4 v_uv01;\n"
+    "layout(location = 3) out vec4 v_uv23;\n"
+    "layout(location = 4) out vec4 v_uv45;\n"
+    "layout(location = 5) out vec4 v_uv67;\n"
+    "struct Gen { vec4 r0; vec4 r1; vec4 r2; vec4 info; };\n"
+    "struct Chan { vec4 material; vec4 ambient; uvec4 ctrl; };\n"
+    "layout(std140, binding = 1) uniform VCore {\n"
+    "    vec4 proj0; vec4 proj1;\n"
+    "    vec4 m0; vec4 m1; vec4 m2;\n"
+    "    vec4 n0; vec4 n1; vec4 n2;\n"
+    "    Gen gens[2];\n"
+    "    Chan chans[2];\n"
+    "    vec4 origin;\n"
+    "    vec4 place;\n"
+    "} v;\n"
+    "vec4 unlit_shade(uint n, uint ctrl, vec4 vertex) {\n"
+    "    uint flags = v.chans[n].ctrl.z;\n"
+    "    bool hc = (flags & 1u) != 0u;\n"
+    "    vec4 m = (hc && (ctrl & 1u) != 0u) ? vertex : v.chans[n].material;\n"
+    "    if ((ctrl & 2u) == 0u || (flags & 2u) == 0u) { return m; }\n"
+    "    vec4 amb = (hc && (ctrl & 0x40u) != 0u) ? vertex : v.chans[n].ambient;\n"
+    "    return m * clamp(amb, vec4(0.0), vec4(1.0));\n"
+    "}\n"
+    "vec4 unlit_chan(uint n, vec4 vertex) {\n"
+    "    uvec4 ctrl = v.chans[n].ctrl;\n"
+    "    vec4 col = unlit_shade(n, ctrl.x, vertex);\n"
+    "    if (ctrl.x == ctrl.y) { return col; }\n"
+    "    return vec4(col.rgb, unlit_shade(n, ctrl.y, vertex).a);\n"
+    "}\n"
+    "vec2 coord_gen(Gen g, vec3 pos, vec2 t0, vec2 t1, vec2 t2, vec2 t3) {\n"
+    "    vec4 info = g.info;\n"
+    "    if (info.x < 0.0) { return vec2(0.0); }\n"
+    "    vec4 inp = vec4(0.0);\n"
+    "    if (info.x == 0.0) { inp = vec4(pos, 1.0); }\n"
+    "    else if (info.x == 1.0) { inp = vec4(t0, 1.0, 1.0); }\n"
+    "    else if (info.x == 2.0) { inp = vec4(t1, 1.0, 1.0); }\n"
+    "    else if (info.x == 3.0) { inp = vec4(t2, 1.0, 1.0); }\n"
+    "    else if (info.x == 4.0) { inp = vec4(t3, 1.0, 1.0); }\n"
+    "    vec2 st = vec2(dot(g.r0, inp), dot(g.r1, inp));\n"
+    "    if (info.y != 0.0) {\n"
+    "        float q = dot(g.r2, inp);\n"
+    "        if (q != 0.0) { st = st / q; }\n"
+    "    }\n"
+    "    return st - info.zw;\n"
+    "}\n"
+    "void main() {\n"
+    "    vec4 pos4 = vec4(a_pos.xyz, 1.0);\n"
+    "    vec3 at = vec3(dot(v.m0, pos4), dot(v.m1, pos4), dot(v.m2, pos4));\n"
+    "    vec4 o_pos = vec4(\n"
+    "        v.proj0.x * at.x + v.proj0.y * at.z,\n"
+    "        v.proj0.z * at.y + v.proj0.w * at.z,\n"
+    "        v.proj1.x * at.z + v.proj1.y - at.z,\n"
+    "        -at.z\n"
+    "    );\n"
+    "    if (v.place.z != 0.0) {\n"
+    "        o_pos = v.origin + (o_pos - v.origin) * v.place.x;\n"
+    "        o_pos.x += v.place.y * o_pos.w;\n"
+    "    }\n"
+    "    gl_Position = vec4(o_pos.x, -o_pos.y, o_pos.z * 2.0 - o_pos.w, o_pos.w);\n"
+    "    v_c0 = unlit_chan(0u, a_vc0);\n"
+    "    v_c1 = unlit_chan(1u, a_vc1);\n"
+    "    v_uv01 = vec4(\n"
+    "        coord_gen(v.gens[0], a_pos.xyz, a_t01.xy, a_t01.zw, a_t23.xy, a_t23.zw),\n"
+    "        coord_gen(v.gens[1], a_pos.xyz, a_t01.xy, a_t01.zw, a_t23.xy, a_t23.zw)\n"
+    "    );\n"
+    "    v_uv23 = vec4(0.0);\n"
+    "    v_uv45 = vec4(0.0);\n"
+    "    v_uv67 = vec4(0.0);\n"
+    "}\n";
+
+// Variant 2: Lit non-indexed GX vertex shader, <= 2 texgens.
+// Reads deduplicated VLights (binding 3), skips XfMem (binding 2) and gens[2..8].
+static const char* k_vs_gx_lit_src =
     "#version 430 core\n"
     "invariant gl_Position;\n"
     "layout(location = 0) in vec4 a_pos;\n"
@@ -250,21 +341,19 @@ static const char* k_vs_gx_src =
     "struct Gen { vec4 r0; vec4 r1; vec4 r2; vec4 info; };\n"
     "struct Chan { vec4 material; vec4 ambient; uvec4 ctrl; };\n"
     "struct Light { vec4 color; vec4 cos_att; vec4 dist_att; vec4 pos; vec4 dir; };\n"
-    "layout(std140, binding = 1) uniform VParams {\n"
+    "layout(std140, binding = 1) uniform VCore {\n"
     "    vec4 proj0; vec4 proj1;\n"
     "    vec4 m0; vec4 m1; vec4 m2;\n"
     "    vec4 n0; vec4 n1; vec4 n2;\n"
-    "    Gen gens[8];\n"
+    "    Gen gens[2];\n"
     "    Chan chans[2];\n"
-    "    Light lights[8];\n"
     "    vec4 origin;\n"
     "    vec4 place;\n"
     "} v;\n"
-    "layout(std140, binding = 2) uniform XfMem {\n"
-    "    vec4 pm[64];\n"
-    "    vec4 nm[32];\n"
-    "} xf;\n"
-    "float xf_normal(int i) { i = min(i, 127); return xf.nm[i >> 2][i & 3]; }\n"
+    "layout(std140, binding = 3) uniform VLights {\n"
+    "    Light lights[8];\n"
+    "    Gen gens_hi[6];\n"
+    "} vl;\n"
     "vec3 unit_vec(vec3 a) {\n"
     "    float squared = dot(a, a);\n"
     "    if (squared > 1e-30 && squared < 3.0e38) { return a * inversesqrt(squared); }\n"
@@ -278,24 +367,24 @@ static const char* k_vs_gx_src =
     "    return max(above, 0.0) / below;\n"
     "}\n"
     "float light_amount(uint i, uint ctrl, vec3 pos, vec3 normal) {\n"
-    "    vec3 to_light = v.lights[i].pos.xyz - pos;\n"
+    "    vec3 to_light = vl.lights[i].pos.xyz - pos;\n"
     "    vec3 direction = unit_vec(to_light);\n"
     "    uint diffuse = (ctrl >> 7u) & 3u;\n"
     "    uint kind = (ctrl >> 9u) & 3u;\n"
     "    float attenuation = 1.0;\n"
     "    if (kind == 1u) {\n"
     "        float c = 0.0;\n"
-    "        if (dot(direction, normal) >= 0.0) { c = max(dot(v.lights[i].dir.xyz, normal), 0.0); }\n"
+    "        if (dot(direction, normal) >= 0.0) { c = max(dot(vl.lights[i].dir.xyz, normal), 0.0); }\n"
     "        vec3 powers = vec3(1.0, c, c * c);\n"
-    "        vec3 dist_att = v.lights[i].dist_att.xyz;\n"
+    "        vec3 dist_att = vl.lights[i].dist_att.xyz;\n"
     "        if (diffuse != 0u) { dist_att = unit_vec(dist_att); }\n"
-    "        attenuation = ratio_fn(dot(powers, v.lights[i].cos_att.xyz), dot(powers, dist_att));\n"
+    "        attenuation = ratio_fn(dot(powers, vl.lights[i].cos_att.xyz), dot(powers, dist_att));\n"
     "    } else if (kind == 3u) {\n"
     "        float dist = sqrt(dot(to_light, to_light));\n"
-    "        float c = max(dot(direction, v.lights[i].dir.xyz), 0.0);\n"
+    "        float c = max(dot(direction, vl.lights[i].dir.xyz), 0.0);\n"
     "        attenuation = ratio_fn(\n"
-    "            dot(vec3(1.0, c, c * c), v.lights[i].cos_att.xyz),\n"
-    "            dot(vec3(1.0, dist, dist * dist), v.lights[i].dist_att.xyz)\n"
+    "            dot(vec3(1.0, c, c * c), vl.lights[i].cos_att.xyz),\n"
+    "            dot(vec3(1.0, dist, dist * dist), vl.lights[i].dist_att.xyz)\n"
     "        );\n"
     "    } else if (direction.x == 0.0 && direction.y == 0.0 && direction.z == 0.0) {\n"
     "        direction = normal;\n"
@@ -313,8 +402,10 @@ static const char* k_vs_gx_src =
     "    vec4 sum = v.chans[n].ambient;\n"
     "    if (has_color && (ctrl & 0x40u) != 0u) { sum = vertex; }\n"
     "    uint lights = ((ctrl >> 2u) & 0xFu) | (((ctrl >> 11u) & 0xFu) << 4u);\n"
-    "    for (uint i = 0u; i < 8u; i++) {\n"
-    "        if (((lights >> i) & 1u) != 0u) { sum += v.lights[i].color * light_amount(i, ctrl, pos, normal); }\n"
+    "    while (lights != 0u) {\n"
+    "        uint i = uint(findLSB(lights));\n"
+    "        lights &= lights - 1u;\n"
+    "        sum += vl.lights[i].color * light_amount(i, ctrl, pos, normal);\n"
     "    }\n"
     "    return material * clamp(sum, vec4(0.0), vec4(1.0));\n"
     "}\n"
@@ -324,8 +415,8 @@ static const char* k_vs_gx_src =
     "    if (ctrl.x == ctrl.y) { return color; }\n"
     "    return vec4(color.rgb, shade(n, ctrl.y, vertex, pos, normal).a);\n"
     "}\n"
-    "vec2 coordinate_fn(uint n, vec3 pos, vec2 t0, vec2 t1, vec2 t2, vec2 t3) {\n"
-    "    vec4 info = v.gens[n].info;\n"
+    "vec2 coord_gen(Gen g, vec3 pos, vec2 t0, vec2 t1, vec2 t2, vec2 t3) {\n"
+    "    vec4 info = g.info;\n"
     "    if (info.x < 0.0) { return vec2(0.0); }\n"
     "    vec4 inp = vec4(0.0);\n"
     "    if (info.x == 0.0) { inp = vec4(pos, 1.0); }\n"
@@ -333,9 +424,149 @@ static const char* k_vs_gx_src =
     "    else if (info.x == 2.0) { inp = vec4(t1, 1.0, 1.0); }\n"
     "    else if (info.x == 3.0) { inp = vec4(t2, 1.0, 1.0); }\n"
     "    else if (info.x == 4.0) { inp = vec4(t3, 1.0, 1.0); }\n"
-    "    vec2 st = vec2(dot(v.gens[n].r0, inp), dot(v.gens[n].r1, inp));\n"
+    "    vec2 st = vec2(dot(g.r0, inp), dot(g.r1, inp));\n"
     "    if (info.y != 0.0) {\n"
-    "        float q = dot(v.gens[n].r2, inp);\n"
+    "        float q = dot(g.r2, inp);\n"
+    "        if (q != 0.0) { st = st / q; }\n"
+    "    }\n"
+    "    return st - info.zw;\n"
+    "}\n"
+    "void main() {\n"
+    "    vec4 pos4 = vec4(a_pos.xyz, 1.0);\n"
+    "    vec3 at = vec3(dot(v.m0, pos4), dot(v.m1, pos4), dot(v.m2, pos4));\n"
+    "    vec3 normal = unit_vec(vec3(dot(v.n0.xyz, a_nrm), dot(v.n1.xyz, a_nrm), dot(v.n2.xyz, a_nrm)));\n"
+    "    vec4 o_pos = vec4(\n"
+    "        v.proj0.x * at.x + v.proj0.y * at.z,\n"
+    "        v.proj0.z * at.y + v.proj0.w * at.z,\n"
+    "        v.proj1.x * at.z + v.proj1.y - at.z,\n"
+    "        -at.z\n"
+    "    );\n"
+    "    if (v.place.z != 0.0) {\n"
+    "        o_pos = v.origin + (o_pos - v.origin) * v.place.x;\n"
+    "        o_pos.x += v.place.y * o_pos.w;\n"
+    "    }\n"
+    "    gl_Position = vec4(o_pos.x, -o_pos.y, o_pos.z * 2.0 - o_pos.w, o_pos.w);\n"
+    "    v_c0 = channel_fn(0u, a_vc0, at, normal);\n"
+    "    v_c1 = channel_fn(1u, a_vc1, at, normal);\n"
+    "    v_uv01 = vec4(\n"
+    "        coord_gen(v.gens[0], a_pos.xyz, a_t01.xy, a_t01.zw, a_t23.xy, a_t23.zw),\n"
+    "        coord_gen(v.gens[1], a_pos.xyz, a_t01.xy, a_t01.zw, a_t23.xy, a_t23.zw)\n"
+    "    );\n"
+    "    v_uv23 = vec4(0.0);\n"
+    "    v_uv45 = vec4(0.0);\n"
+    "    v_uv67 = vec4(0.0);\n"
+    "}\n";
+
+// Variant 3: Full general GX vertex shader (supports XfMem matrix indexing + all 8 texgens + 8 lights).
+static const char* k_vs_gx_full_src =
+    "#version 430 core\n"
+    "invariant gl_Position;\n"
+    "layout(location = 0) in vec4 a_pos;\n"
+    "layout(location = 1) in vec3 a_nrm;\n"
+    "layout(location = 2) in vec4 a_vc0;\n"
+    "layout(location = 3) in vec4 a_vc1;\n"
+    "layout(location = 4) in vec4 a_t01;\n"
+    "layout(location = 5) in vec4 a_t23;\n"
+    "layout(location = 0) out vec4 v_c0;\n"
+    "layout(location = 1) out vec4 v_c1;\n"
+    "layout(location = 2) out vec4 v_uv01;\n"
+    "layout(location = 3) out vec4 v_uv23;\n"
+    "layout(location = 4) out vec4 v_uv45;\n"
+    "layout(location = 5) out vec4 v_uv67;\n"
+    "struct Gen { vec4 r0; vec4 r1; vec4 r2; vec4 info; };\n"
+    "struct Chan { vec4 material; vec4 ambient; uvec4 ctrl; };\n"
+    "struct Light { vec4 color; vec4 cos_att; vec4 dist_att; vec4 pos; vec4 dir; };\n"
+    "layout(std140, binding = 1) uniform VCore {\n"
+    "    vec4 proj0; vec4 proj1;\n"
+    "    vec4 m0; vec4 m1; vec4 m2;\n"
+    "    vec4 n0; vec4 n1; vec4 n2;\n"
+    "    Gen gens[2];\n"
+    "    Chan chans[2];\n"
+    "    vec4 origin;\n"
+    "    vec4 place;\n"
+    "} v;\n"
+    "layout(std140, binding = 2) uniform XfMem {\n"
+    "    vec4 pm[64];\n"
+    "    vec4 nm[32];\n"
+    "} xf;\n"
+    "layout(std140, binding = 3) uniform VLights {\n"
+    "    Light lights[8];\n"
+    "    Gen gens_hi[6];\n"
+    "} vl;\n"
+    "float xf_normal(int i) { i = min(i, 127); return xf.nm[i >> 2][i & 3]; }\n"
+    "vec3 unit_vec(vec3 a) {\n"
+    "    float squared = dot(a, a);\n"
+    "    if (squared > 1e-30 && squared < 3.0e38) { return a * inversesqrt(squared); }\n"
+    "    float largest = max(abs(a.x), max(abs(a.y), abs(a.z)));\n"
+    "    if (!(largest > 0.0) || !(largest < 3.0e38)) { return vec3(0.0); }\n"
+    "    vec3 b = a / largest;\n"
+    "    return b * inversesqrt(dot(b, b));\n"
+    "}\n"
+    "float ratio_fn(float above, float below) {\n"
+    "    if (below == 0.0) { return 0.0; }\n"
+    "    return max(above, 0.0) / below;\n"
+    "}\n"
+    "float light_amount(uint i, uint ctrl, vec3 pos, vec3 normal) {\n"
+    "    vec3 to_light = vl.lights[i].pos.xyz - pos;\n"
+    "    vec3 direction = unit_vec(to_light);\n"
+    "    uint diffuse = (ctrl >> 7u) & 3u;\n"
+    "    uint kind = (ctrl >> 9u) & 3u;\n"
+    "    float attenuation = 1.0;\n"
+    "    if (kind == 1u) {\n"
+    "        float c = 0.0;\n"
+    "        if (dot(direction, normal) >= 0.0) { c = max(dot(vl.lights[i].dir.xyz, normal), 0.0); }\n"
+    "        vec3 powers = vec3(1.0, c, c * c);\n"
+    "        vec3 dist_att = vl.lights[i].dist_att.xyz;\n"
+    "        if (diffuse != 0u) { dist_att = unit_vec(dist_att); }\n"
+    "        attenuation = ratio_fn(dot(powers, vl.lights[i].cos_att.xyz), dot(powers, dist_att));\n"
+    "    } else if (kind == 3u) {\n"
+    "        float dist = sqrt(dot(to_light, to_light));\n"
+    "        float c = max(dot(direction, vl.lights[i].dir.xyz), 0.0);\n"
+    "        attenuation = ratio_fn(\n"
+    "            dot(vec3(1.0, c, c * c), vl.lights[i].cos_att.xyz),\n"
+    "            dot(vec3(1.0, dist, dist * dist), vl.lights[i].dist_att.xyz)\n"
+    "        );\n"
+    "    } else if (direction.x == 0.0 && direction.y == 0.0 && direction.z == 0.0) {\n"
+    "        direction = normal;\n"
+    "    }\n"
+    "    if (diffuse == 0u) { return attenuation; }\n"
+    "    if (diffuse == 1u) { return attenuation * dot(direction, normal); }\n"
+    "    return attenuation * max(dot(direction, normal), 0.0);\n"
+    "}\n"
+    "vec4 shade(uint n, uint ctrl, vec4 vertex, vec3 pos, vec3 normal) {\n"
+    "    uint flags = v.chans[n].ctrl.z;\n"
+    "    bool has_color = (flags & 1u) != 0u;\n"
+    "    vec4 material = v.chans[n].material;\n"
+    "    if (has_color && (ctrl & 1u) != 0u) { material = vertex; }\n"
+    "    if ((ctrl & 2u) == 0u || (flags & 2u) == 0u) { return material; }\n"
+    "    vec4 sum = v.chans[n].ambient;\n"
+    "    if (has_color && (ctrl & 0x40u) != 0u) { sum = vertex; }\n"
+    "    uint lights = ((ctrl >> 2u) & 0xFu) | (((ctrl >> 11u) & 0xFu) << 4u);\n"
+    "    while (lights != 0u) {\n"
+    "        uint i = uint(findLSB(lights));\n"
+    "        lights &= lights - 1u;\n"
+    "        sum += vl.lights[i].color * light_amount(i, ctrl, pos, normal);\n"
+    "    }\n"
+    "    return material * clamp(sum, vec4(0.0), vec4(1.0));\n"
+    "}\n"
+    "vec4 channel_fn(uint n, vec4 vertex, vec3 pos, vec3 normal) {\n"
+    "    uvec4 ctrl = v.chans[n].ctrl;\n"
+    "    vec4 color = shade(n, ctrl.x, vertex, pos, normal);\n"
+    "    if (ctrl.x == ctrl.y) { return color; }\n"
+    "    return vec4(color.rgb, shade(n, ctrl.y, vertex, pos, normal).a);\n"
+    "}\n"
+    "vec2 coord_gen(Gen g, vec3 pos, vec2 t0, vec2 t1, vec2 t2, vec2 t3) {\n"
+    "    vec4 info = g.info;\n"
+    "    if (info.x < 0.0) { return vec2(0.0); }\n"
+    "    vec4 inp = vec4(0.0);\n"
+    "    if (info.x == 0.0) { inp = vec4(pos, 1.0); }\n"
+    "    else if (info.x == 1.0) { inp = vec4(t0, 1.0, 1.0); }\n"
+    "    else if (info.x == 2.0) { inp = vec4(t1, 1.0, 1.0); }\n"
+    "    else if (info.x == 3.0) { inp = vec4(t2, 1.0, 1.0); }\n"
+    "    else if (info.x == 4.0) { inp = vec4(t3, 1.0, 1.0); }\n"
+    "    vec2 st = vec2(dot(g.r0, inp), dot(g.r1, inp));\n"
+    "    if (info.y != 0.0) {\n"
+    "        float q = dot(g.r2, inp);\n"
     "        if (q != 0.0) { st = st / q; }\n"
     "    }\n"
     "    return st - info.zw;\n"
@@ -371,20 +602,20 @@ static const char* k_vs_gx_src =
     "    v_c0 = channel_fn(0u, a_vc0, at, normal);\n"
     "    v_c1 = channel_fn(1u, a_vc1, at, normal);\n"
     "    v_uv01 = vec4(\n"
-    "        coordinate_fn(0u, a_pos.xyz, a_t01.xy, a_t01.zw, a_t23.xy, a_t23.zw),\n"
-    "        coordinate_fn(1u, a_pos.xyz, a_t01.xy, a_t01.zw, a_t23.xy, a_t23.zw)\n"
+    "        coord_gen(v.gens[0], a_pos.xyz, a_t01.xy, a_t01.zw, a_t23.xy, a_t23.zw),\n"
+    "        coord_gen(v.gens[1], a_pos.xyz, a_t01.xy, a_t01.zw, a_t23.xy, a_t23.zw)\n"
     "    );\n"
     "    v_uv23 = vec4(\n"
-    "        coordinate_fn(2u, a_pos.xyz, a_t01.xy, a_t01.zw, a_t23.xy, a_t23.zw),\n"
-    "        coordinate_fn(3u, a_pos.xyz, a_t01.xy, a_t01.zw, a_t23.xy, a_t23.zw)\n"
+    "        coord_gen(vl.gens_hi[0], a_pos.xyz, a_t01.xy, a_t01.zw, a_t23.xy, a_t23.zw),\n"
+    "        coord_gen(vl.gens_hi[1], a_pos.xyz, a_t01.xy, a_t01.zw, a_t23.xy, a_t23.zw)\n"
     "    );\n"
     "    v_uv45 = vec4(\n"
-    "        coordinate_fn(4u, a_pos.xyz, a_t01.xy, a_t01.zw, a_t23.xy, a_t23.zw),\n"
-    "        coordinate_fn(5u, a_pos.xyz, a_t01.xy, a_t01.zw, a_t23.xy, a_t23.zw)\n"
+    "        coord_gen(vl.gens_hi[2], a_pos.xyz, a_t01.xy, a_t01.zw, a_t23.xy, a_t23.zw),\n"
+    "        coord_gen(vl.gens_hi[3], a_pos.xyz, a_t01.xy, a_t01.zw, a_t23.xy, a_t23.zw)\n"
     "    );\n"
     "    v_uv67 = vec4(\n"
-    "        coordinate_fn(6u, a_pos.xyz, a_t01.xy, a_t01.zw, a_t23.xy, a_t23.zw),\n"
-    "        coordinate_fn(7u, a_pos.xyz, a_t01.xy, a_t01.zw, a_t23.xy, a_t23.zw)\n"
+    "        coord_gen(vl.gens_hi[4], a_pos.xyz, a_t01.xy, a_t01.zw, a_t23.xy, a_t23.zw),\n"
+    "        coord_gen(vl.gens_hi[5], a_pos.xyz, a_t01.xy, a_t01.zw, a_t23.xy, a_t23.zw)\n"
     "    );\n"
     "}\n";
 
@@ -477,11 +708,11 @@ static GLuint link_two(GLuint vs, GLuint fs, int delete_both) {
  * (sdmc:/switch/tssm/shaderwarm.bin). On the next start they are all compiled and linked
  * up front on the GL thread, so gameplay never stalls on a first-use driver compile. */
 #define SHADER_WARM_DIR  "sdmc:/switch/tssm"
-#define SHADER_WARM_FILE "sdmc:/switch/tssm/shaderwarm.bin"
+#define SHADER_WARM_FILE "sdmc:/switch/tssm/shaderwarm_v2.bin"
 typedef struct { char* src; uint32_t len; uint64_t hash; GLuint sh; } FsSlot;
 static FsSlot* s_fs_slots = NULL;
 static uint32_t s_fs_slot_count = 0, s_fs_slot_cap = 0;
-typedef struct { uint64_t hash; uint32_t is_raw; GLuint prog; } WarmProg;
+typedef struct { uint64_t hash; uint32_t vs_variant; GLuint prog; } WarmProg;
 static WarmProg* s_warm = NULL;
 static uint32_t s_warm_count = 0, s_warm_cap = 0;
 
@@ -506,67 +737,68 @@ static uint32_t fs_slot_add(const char* src, uint32_t len) {
     return s_fs_slot_count; /* handle = index + 1 */
 }
 
-static GLuint warm_find(uint64_t hash, uint32_t is_raw) {
+static GLuint warm_find(uint64_t hash, uint32_t vs_variant) {
     for (uint32_t i = 0; i < s_warm_count; i++)
-        if (s_warm[i].hash == hash && s_warm[i].is_raw == is_raw) return s_warm[i].prog;
+        if (s_warm[i].hash == hash && s_warm[i].vs_variant == vs_variant) return s_warm[i].prog;
     return 0;
 }
 
-static void warm_add(uint64_t hash, uint32_t is_raw, GLuint prog) {
+static void warm_add(uint64_t hash, uint32_t vs_variant, GLuint prog) {
     if (s_warm_count == s_warm_cap) {
         s_warm_cap = s_warm_cap ? s_warm_cap * 2 : 256;
         s_warm = (WarmProg*)realloc(s_warm, s_warm_cap * sizeof(WarmProg));
     }
-    s_warm[s_warm_count++] = (WarmProg){hash, is_raw, prog};
+    s_warm[s_warm_count++] = (WarmProg){hash, vs_variant, prog};
 }
 
-static void warm_record(const char* src, uint32_t len, uint32_t is_raw) {
+static void warm_record(const char* src, uint32_t len, uint32_t vs_variant) {
     mkdir("sdmc:/switch", 0777);
     mkdir(SHADER_WARM_DIR, 0777);
     FILE* w = fopen(SHADER_WARM_FILE, "ab");
     if (!w) return;
-    fwrite(&is_raw, 4, 1, w);
+    fwrite(&vs_variant, 4, 1, w);
     fwrite(&len, 4, 1, w);
     fwrite(src, 1, len, w);
     fclose(w);
 }
 
 /* Compile + link every recorded variant (GL thread, before the first frame). */
-static void warm_load_all(GLuint vs_transformed, GLuint vs_gx) {
+static void warm_load_all(void) {
     FILE* fp = fopen(SHADER_WARM_FILE, "rb");
     if (!fp) return;
     uint32_t n = 0;
     for (;;) {
-        uint32_t is_raw = 0, len = 0;
-        if (fread(&is_raw, 4, 1, fp) != 1 || fread(&len, 4, 1, fp) != 1) break;
+        uint32_t vs_variant = 0, len = 0;
+        if (fread(&vs_variant, 4, 1, fp) != 1 || fread(&len, 4, 1, fp) != 1) break;
         if (len == 0 || len > (1u << 20)) break;
         char* src = (char*)malloc(len + 1);
         if (!src || fread(src, 1, len, fp) != len) { free(src); break; }
         src[len] = 0;
+        if (vs_variant >= 4u) { free(src); continue; }
         uint64_t h = fnv1a64(src, len);
-        if (!warm_find(h, is_raw)) {
+        if (!warm_find(h, vs_variant)) {
             GLuint fs = compile_shader(GL_FRAGMENT_SHADER, src, (GLint)len);
-            GLuint prog = link_two(is_raw ? vs_gx : vs_transformed, fs, 0);
+            GLuint prog = link_two(s_vs_variants[vs_variant], fs, 0);
             glDeleteShader(fs);
-            warm_add(h, is_raw, prog);
+            warm_add(h, vs_variant, prog);
             n++;
         }
         free(src);
     }
     fclose(fp);
     char m[96];
-    snprintf(m, sizeof(m), "[gl] shader warm-up: %u programs prelinked", n);
+    snprintf(m, sizeof(m), "[gl] shader warm-up v2: %u programs prelinked", n);
     switch_log(m);
 }
 
-static GLuint link_cached(uint32_t handle, GLuint vs, uint32_t is_raw) {
+static GLuint link_cached(uint32_t handle, GLuint vs, uint32_t vs_variant) {
     FsSlot* f = &s_fs_slots[handle - 1];
-    GLuint prog = warm_find(f->hash, is_raw);
+    GLuint prog = warm_find(f->hash, vs_variant);
     if (prog) return prog;
     if (!f->sh) f->sh = compile_shader(GL_FRAGMENT_SHADER, f->src, (GLint)f->len);
     prog = link_two(vs, f->sh, 0);
-    warm_add(f->hash, is_raw, prog);
-    warm_record(f->src, f->len, is_raw);
+    warm_add(f->hash, vs_variant, prog);
+    warm_record(f->src, f->len, vs_variant);
     return prog;
 }
 
@@ -598,7 +830,7 @@ static void init_ring(RingBuffer* rb, GLenum target, uint32_t cap) {
     rb->cursor = 0;
     glGenBuffers(1, &rb->id);
     glBindBuffer(GL_COPY_WRITE_BUFFER, rb->id);
-    glBufferData(GL_COPY_WRITE_BUFFER, cap, NULL, GL_DYNAMIC_DRAW);
+    glBufferData(GL_COPY_WRITE_BUFFER, cap, NULL, GL_STREAM_DRAW);
 }
 
 static void rebind_streaming_vaos(void) {
@@ -642,15 +874,26 @@ static uint32_t ring_upload(RingBuffer* rb, const void* data, uint32_t bytes, ui
         new_cap = ((new_cap + align - 1) / align) * align;
         rb->capacity = new_cap;
         glBindBuffer(GL_COPY_WRITE_BUFFER, rb->id);
-        glBufferData(GL_COPY_WRITE_BUFFER, new_cap, NULL, GL_DYNAMIC_DRAW);
+        glBufferData(GL_COPY_WRITE_BUFFER, new_cap, NULL, GL_STREAM_DRAW);
         aligned = 0;
     } else if (aligned + bytes > rb->capacity) {
         glBindBuffer(GL_COPY_WRITE_BUFFER, rb->id);
-        glBufferData(GL_COPY_WRITE_BUFFER, rb->capacity, NULL, GL_DYNAMIC_DRAW);
+        glBufferData(GL_COPY_WRITE_BUFFER, rb->capacity, NULL, GL_STREAM_DRAW);
         aligned = 0;
     }
     glBindBuffer(GL_COPY_WRITE_BUFFER, rb->id);
-    glBufferSubData(GL_COPY_WRITE_BUFFER, (GLintptr)aligned, (GLsizeiptr)bytes, data);
+    void* dst = glMapBufferRange(
+        GL_COPY_WRITE_BUFFER,
+        (GLintptr)aligned,
+        (GLsizeiptr)bytes,
+        GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_RANGE_BIT | GL_MAP_UNSYNCHRONIZED_BIT
+    );
+    if (dst != NULL) {
+        memcpy(dst, data, bytes);
+        glUnmapBuffer(GL_COPY_WRITE_BUFFER);
+    } else {
+        glBufferSubData(GL_COPY_WRITE_BUFFER, (GLintptr)aligned, (GLsizeiptr)bytes, data);
+    }
     rb->cursor = aligned + bytes;
     return aligned;
 }
@@ -769,7 +1012,8 @@ static void execute_pass_internal(const PassPayload* pass) {
     uint32_t raw_byte_off     = ring_upload(&s_ring_raw,     pass->raw_buf,     pass->raw_bytes,     RAW_VERTEX_STRIDE);
     uint32_t idx_byte_off     = ring_upload(&s_ring_indices, pass->idx_buf,     pass->idx_bytes,     4u);
     uint32_t params_byte_off  = ring_upload(&s_ring_params,  pass->params_buf,  pass->params_bytes,  256u);
-    uint32_t vparams_byte_off = ring_upload(&s_ring_vparams, pass->vparams_buf, pass->vparams_bytes, 1536u);
+    uint32_t vparams_byte_off = ring_upload(&s_ring_vparams, pass->vparams_buf, pass->vparams_bytes, 256u);
+    uint32_t vlights_byte_off = ring_upload(&s_ring_vlights, pass->vlights_buf, pass->vlights_bytes, 256u);
     uint64_t t_ring_1 = armTicksToNs(armGetSystemTick());
     s_gl_perf_ring_upload_ns += (t_ring_1 - t_ring_0);
 
@@ -799,6 +1043,8 @@ static void execute_pass_internal(const PassPayload* pass) {
     uint32_t cur_state   = 0xFFFFFFFFu;
     uint32_t cur_params  = 0xFFFFFFFFu;
     uint32_t cur_vparams = 0xFFFFFFFFu;
+    uint32_t cur_vlights = 0xFFFFFFFFu;
+    uint32_t cur_xf      = 0xFFFFFFFFu;
     uint8_t  cur_geom    = 0xFFu;
     uint32_t cur_tex[8]  = {0};
     uint32_t cur_smp[8]  = {0};
@@ -833,36 +1079,36 @@ static void execute_pass_internal(const PassPayload* pass) {
             uint32_t vp_off = vparams_byte_off + cmd->vparams_offset;
             if (vp_off != cur_vparams) {
                 cur_vparams = vp_off;
-                glBindBufferRange(GL_UNIFORM_BUFFER, 1, s_ring_vparams.id, (GLintptr)vp_off, 1408);
-                /* XfMem: matrix-indexed draws store it in the next 1536-byte slot. Other draws
-                   never read it, so any in-range slot will do. */
-                uint32_t xf_off = vp_off + 1536u;
-                if (xf_off + 1536u > s_ring_vparams.capacity) xf_off = vp_off;
-                glBindBufferRange(GL_UNIFORM_BUFFER, 2, s_ring_vparams.id, (GLintptr)xf_off, 1536);
+                glBindBufferRange(GL_UNIFORM_BUFFER, 1, s_ring_vparams.id, (GLintptr)vp_off, 384);
+            }
+            if ((cmd->cmd_flags & 2u) != 0u) {
+                uint32_t vl_off = vlights_byte_off + cmd->vlights_offset;
+                if (vl_off != cur_vlights) {
+                    cur_vlights = vl_off;
+                    glBindBufferRange(GL_UNIFORM_BUFFER, 3, s_ring_vlights.id, (GLintptr)vl_off, 1024);
+                }
+            }
+            if ((cmd->cmd_flags & 1u) != 0u) {
+                uint32_t xf_off = vparams_byte_off + cmd->xf_offset;
+                if (xf_off != cur_xf) {
+                    cur_xf = xf_off;
+                    glBindBufferRange(GL_UNIFORM_BUFFER, 2, s_ring_vparams.id, (GLintptr)xf_off, 1536);
+                }
             }
         }
 
-        const uint64_t* cmd_tex64 = (const uint64_t*)cmd->textures;
-        uint64_t* cur_tex64 = (uint64_t*)cur_tex;
-        if (((cmd_tex64[0] ^ cur_tex64[0]) | (cmd_tex64[1] ^ cur_tex64[1]) |
-             (cmd_tex64[2] ^ cur_tex64[2]) | (cmd_tex64[3] ^ cur_tex64[3])) != 0) {
-            for (uint32_t slot = 0; slot < 8; slot++) {
-                if (cmd->textures[slot] != cur_tex[slot]) {
-                    cur_tex[slot] = cmd->textures[slot];
-                    glActiveTexture(GL_TEXTURE0 + slot);
-                    glBindTexture(GL_TEXTURE_2D, cur_tex[slot]);
-                }
+        uint32_t tex_m = cmd->tex_mask;
+        while (tex_m != 0u) {
+            uint32_t slot = (uint32_t)__builtin_ctz(tex_m);
+            tex_m &= tex_m - 1u;
+            if (cmd->textures[slot] != cur_tex[slot]) {
+                cur_tex[slot] = cmd->textures[slot];
+                glActiveTexture(GL_TEXTURE0 + slot);
+                glBindTexture(GL_TEXTURE_2D, cur_tex[slot]);
             }
-        }
-        const uint64_t* cmd_smp64 = (const uint64_t*)cmd->samplers;
-        uint64_t* cur_smp64 = (uint64_t*)cur_smp;
-        if (((cmd_smp64[0] ^ cur_smp64[0]) | (cmd_smp64[1] ^ cur_smp64[1]) |
-             (cmd_smp64[2] ^ cur_smp64[2]) | (cmd_smp64[3] ^ cur_smp64[3])) != 0) {
-            for (uint32_t slot = 0; slot < 8; slot++) {
-                if (cmd->samplers[slot] != cur_smp[slot]) {
-                    cur_smp[slot] = cmd->samplers[slot];
-                    glBindSampler(slot, cur_smp[slot]);
-                }
+            if (cmd->samplers[slot] != cur_smp[slot]) {
+                cur_smp[slot] = cmd->samplers[slot];
+                glBindSampler(slot, cur_smp[slot]);
             }
         }
 
@@ -907,7 +1153,11 @@ static void execute_pass_internal(const PassPayload* pass) {
                 next->base_vertex == cmd->base_vertex &&
                 next->first_index == cmd->first_index + total_indices &&
                 next->params_offset == cmd->params_offset &&
-                next->vparams_offset == cmd->vparams_offset)
+                next->vparams_offset == cmd->vparams_offset &&
+                next->cmd_flags == cmd->cmd_flags &&
+                next->vlights_offset == cmd->vlights_offset &&
+                next->xf_offset == cmd->xf_offset &&
+                next->tex_mask == cmd->tex_mask)
             {
                 const uint64_t* vp_a = (const uint64_t*)next->viewport;
                 const uint64_t* vp_b = (const uint64_t*)cmd->viewport;
@@ -1002,8 +1252,6 @@ static void present_internal(
 
     GLint vp_base_y = (GLint)(1080 - target_h);
     glViewport(0, vp_base_y, (GLsizei)win_w, (GLsizei)win_h);
-    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT);
 
     uint64_t t_bl_0 = armTicksToNs(armGetSystemTick());
     glUseProgram(s_prog_blit);
@@ -1017,7 +1265,7 @@ static void present_internal(
     glBindVertexArray(0);
 
     if (overlay_verts != NULL && overlay_vert_count > 0) {
-        uint32_t count = overlay_vert_count > 4096 ? 4096 : overlay_vert_count;
+        uint32_t count = overlay_vert_count > OVERLAY_MAX_VERTS ? OVERLAY_MAX_VERTS : overlay_vert_count;
         uint32_t ov_byte_off = ring_upload(&s_ring_overlay, overlay_verts, count * OVERLAY_STRIDE, OVERLAY_STRIDE);
         glViewport(0, vp_base_y, (GLsizei)win_w, (GLsizei)win_h);
         glEnable(GL_BLEND);
@@ -1132,9 +1380,11 @@ static void gl_thread_entry(void* arg) {
     );
     switch_log(info);
 
-    s_vs_transformed = compile_shader(GL_VERTEX_SHADER, k_vs_transformed_src, 0);
-    s_vs_gx          = compile_shader(GL_VERTEX_SHADER, k_vs_gx_src, 0);
-    warm_load_all(s_vs_transformed, s_vs_gx);
+    s_vs_variants[0] = compile_shader(GL_VERTEX_SHADER, k_vs_transformed_src, 0);
+    s_vs_variants[1] = compile_shader(GL_VERTEX_SHADER, k_vs_gx_unlit_src, 0);
+    s_vs_variants[2] = compile_shader(GL_VERTEX_SHADER, k_vs_gx_lit_src, 0);
+    s_vs_variants[3] = compile_shader(GL_VERTEX_SHADER, k_vs_gx_full_src, 0);
+    warm_load_all();
 
     GLuint vs_blit = compile_shader(GL_VERTEX_SHADER, k_vs_blit_src, 0);
     GLuint fs_blit = compile_shader(GL_FRAGMENT_SHADER, k_fs_blit_src, 0);
@@ -1157,7 +1407,8 @@ static void gl_thread_entry(void* arg) {
     init_ring(&s_ring_indices, GL_ELEMENT_ARRAY_BUFFER, 1048576u * 4u);               // ~4.1 MB
     init_ring(&s_ring_params,  GL_UNIFORM_BUFFER,       4u * 1024u * 1024u);          //  4.0 MB
     init_ring(&s_ring_vparams, GL_UNIFORM_BUFFER,       8u * 1024u * 1024u);          //  8.0 MB
-    init_ring(&s_ring_overlay, GL_ARRAY_BUFFER,         32768u * OVERLAY_STRIDE);     // ~0.8 MB
+    init_ring(&s_ring_vlights, GL_UNIFORM_BUFFER,       4u * 1024u * 1024u);          //  4.0 MB
+    init_ring(&s_ring_overlay, GL_ARRAY_BUFFER,        262144u * OVERLAY_STRIDE);     // ~6.3 MB
 
     // Persistent GPU Display List Cache buffers
     glGenBuffers(1, &s_vbo_cache);
@@ -1217,10 +1468,11 @@ static void gl_thread_entry(void* arg) {
                 break;
             }
             case GL_CMD_LINK_PROGRAM: {
-                GLuint vs = cmd.link_prog.is_raw ? s_vs_gx : s_vs_transformed;
+                uint32_t vvar = cmd.link_prog.vs_variant < 4u ? cmd.link_prog.vs_variant : 0u;
+                GLuint vs = s_vs_variants[vvar];
                 GLuint prog = 0;
                 if (cmd.link_prog.fs_id >= 1 && cmd.link_prog.fs_id <= s_fs_slot_count)
-                    prog = link_cached(cmd.link_prog.fs_id, vs, cmd.link_prog.is_raw);
+                    prog = link_cached(cmd.link_prog.fs_id, vs, vvar);
                 mutexLock(&s_gl_mutex);
                 if (cmd.out_u32) *cmd.out_u32 = prog;
                 condvarWakeAll(&s_gl_cond_sync_done);
@@ -1412,6 +1664,8 @@ int switch_gl_init(uint32_t efb_w, uint32_t efb_h, uint32_t cache_verts, uint32_
         p->params_buf = (uint8_t*)malloc(p->params_cap);
         p->vparams_cap = 128 * 1024;
         p->vparams_buf = (uint8_t*)malloc(p->vparams_cap);
+        p->vlights_cap = 64 * 1024;
+        p->vlights_buf = (uint8_t*)malloc(p->vlights_cap);
         p->cmds_cap = 8192;
         p->cmds = (GlDrawCmd*)malloc(p->cmds_cap * sizeof(GlDrawCmd));
     }
@@ -1462,6 +1716,7 @@ void switch_gl_shutdown(void) {
         if (p->idx_buf) free(p->idx_buf);
         if (p->params_buf) free(p->params_buf);
         if (p->vparams_buf) free(p->vparams_buf);
+        if (p->vlights_buf) free(p->vlights_buf);
         if (p->cmds) free(p->cmds);
     }
 }
@@ -1505,7 +1760,7 @@ uint32_t switch_gl_compile_fs(const char* src_ptr, uint32_t src_len) {
     return res;
 }
 
-uint32_t switch_gl_link_program(uint32_t fs_id, uint32_t is_raw) {
+uint32_t switch_gl_link_program(uint32_t fs_id, uint32_t vs_variant) {
     uint32_t res = 0;
     mutexLock(&s_gl_mutex);
     while (s_queue_head - s_queue_tail >= GL_QUEUE_CAPACITY && !s_gl_exit) {
@@ -1515,7 +1770,7 @@ uint32_t switch_gl_link_program(uint32_t fs_id, uint32_t is_raw) {
     s_queue_head++;
     cmd->type = GL_CMD_LINK_PROGRAM;
     cmd->link_prog.fs_id = fs_id;
-    cmd->link_prog.is_raw = is_raw;
+    cmd->link_prog.vs_variant = vs_variant;
     cmd->out_u32 = &res;
     condvarWakeAll(&s_gl_cond_work);
     condvarWait(&s_gl_cond_sync_done, &s_gl_mutex);
@@ -1687,6 +1942,12 @@ void switch_gl_execute_pass(const GlPassDesc* pass) {
     }
     payload->vparams_bytes = pass->vparams_bytes;
 
+    ensure_payload_buf(&payload->vlights_buf, &payload->vlights_cap, pass->vlights_bytes);
+    if (pass->vlights_bytes > 0 && pass->vlights != NULL) {
+        memcpy(payload->vlights_buf, pass->vlights, pass->vlights_bytes);
+    }
+    payload->vlights_bytes = pass->vlights_bytes;
+
     ensure_cmds_buf(&payload->cmds, &payload->cmds_cap, pass->cmd_count);
     if (pass->cmd_count > 0 && pass->cmds != NULL) {
         memcpy(payload->cmds, pass->cmds, pass->cmd_count * sizeof(GlDrawCmd));
@@ -1759,7 +2020,7 @@ void switch_gl_present(
 
     uint32_t slot = s_overlay_slot % 2;
     s_overlay_slot++;
-    uint32_t count = overlay_vert_count > 4096 ? 4096 : overlay_vert_count;
+    uint32_t count = overlay_vert_count > OVERLAY_MAX_VERTS ? OVERLAY_MAX_VERTS : overlay_vert_count;
     if (overlay_verts != NULL && count > 0) {
         memcpy(s_overlay_buf[slot], overlay_verts, count * OVERLAY_STRIDE);
     }

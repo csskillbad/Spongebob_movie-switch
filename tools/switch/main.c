@@ -16,6 +16,7 @@ extern void     tssm_switch_request_exit(void);
 extern void     tssm_switch_set_docked(int docked);
 extern void     tssm_switch_set_pad(uint32_t buttons);
 extern void     tssm_switch_set_sticks(int32_t lx, int32_t ly, int32_t rx, int32_t ry);
+extern void     tssm_switch_set_host_input(uint32_t gc_buttons, int32_t lx, int32_t ly, uint32_t host_extra);
 extern size_t   tssm_switch_drain_audio(int16_t* out, size_t max_frames);
 extern void     tssm_switch_set_boot_scene(const char* scene);
 extern void     tssm_switch_warp(const char* scene);
@@ -614,14 +615,40 @@ static void audio_callback(void* userdata, Uint8* stream, int len) {
 }
 
 static const char* s_level_names[] = {
-    "BB02", // Bikini Bottom
-    "BB01", // No Cheese! (Patty Wagon Driving)
-    "JK01", // Jellyfish Fields
-    "AM01", // Thug Tug
-    "TR01", // Trench
-    "DE01", // Now That We're Men
-    "SC02", // Shell City
-    "PT01", // Planktopolis
+    "BB02", // No Cheese!
+    "BB03", // I'm Ready... Depression
+    "BB01", // Sandwich Driving 101
+    "DE01", // 3000 Miles to Shell City
+    "DE02", // Now That We're Men (Slide)
+    "TT01", // Rub a Dub Dub (Thug Tug)
+    "TT02", // Bubble Blowing Baby Hunt
+    "B101", // Frogfish Boss
+    "TR01", // Trench Slide
+    "TR02", // Welcome to Planktopolis
+    "TR03", // Trench of Advanced Darkness
+    "JK01", // Junkyard 1
+    "JK02", // Junkyard 2
+    "B201", // Dennis Boss 1
+    "GG02", // Goofy Goober Drive
+    "SC02", // Shell City Dead Ahead
+    "B301", // Dennis Boss 2
+    "PT01", // Planktopolis 1
+    "PT02", // Planktopolis Drive
+    "PT03", // Planktopolis 3
+    "B401", // King Neptune Boss
+    "B402", // 100% Reward Scene
+    "AM01", // Combat Arena 1
+    "AM02", // Combat Arena 2
+    "AM03", // Combat Arena 3
+    "AM04", // Combat Arena 4
+    "BL01", // SpongeBall Arena 1
+    "BL02", // SpongeBall Arena 2
+    "BL03", // SpongeBall Arena 3
+    "BL04", // SpongeBall Arena 4
+    "FB01", // Floating Block 1
+    "FB02", // Floating Block 2
+    "FB03", // Floating Block 3
+    "MNUS", // Main Menu
 };
 #define NUM_LEVELS (sizeof(s_level_names) / sizeof(s_level_names[0]))
 static int s_current_level_idx = 0;
@@ -820,6 +847,11 @@ int main(int argc, char* argv[]) {
         apply_stick_deadzone(&lx, &ly);
         apply_stick_deadzone(&rx, &ry);
 
+        uint32_t host_extra = 0;
+        if (kHeld & HidNpadButton_StickL) host_extra |= 0x01; // L3
+        if (kHeld & HidNpadButton_StickR) host_extra |= 0x02; // R3
+
+        tssm_switch_set_host_input(gc_buttons, lx, ly, host_extra);
         tssm_switch_set_pad(gc_buttons);
         tssm_switch_set_sticks(lx, ly, rx, ry);
 

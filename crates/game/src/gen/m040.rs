@@ -15207,6 +15207,7 @@ pub fn fn_801EE1F8(c: &mut Ctx) {
 #[inline]
 pub fn fn_801EE380(c: &mut Ctx) {
     runtime::prof(0x801EE380);
+    if c.hle(921) { return; }
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r1 = c.r[1]; 
     let mut f1 = c.f[1]; 

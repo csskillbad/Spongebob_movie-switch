@@ -31,14 +31,26 @@ Runs natively on bare-metal ARM64 (Cortex-A57) with direct hardware graphics acc
 
 ## Easy Build Instructions
 
-### Prerequisites
+### Option 1: Native x86_64 Assembly GUI Builder (Windows & Linux)
+
+A lightweight, dependency-free GUI builder written in **pure x86_64 assembly** is included in the repository root for both Windows and Linux:
+
+- **Windows (`TSSM-Builder.exe`)**: Double-click `TSSM-Builder.exe` (23 KB pure x86_64 Win32 GDI executable) to browse for your GameCube `GGVE78` ISO, toggle Release/Dev & Force-Rebuild profiles, and build the Windows PC port (`The SpongeBob Movie Game.exe`) or Nintendo Switch package with one click.
+- **Linux (`./tssm-builder`)**: Run `./tssm-builder` (17 KB pure x86_64 X11 GUI executable) to select your GameCube ISO, build the Nintendo Switch port (`.nro` + `.nsp`), package standalone NSPs, or extract disc assets.
+- **Rebuild GUI from Assembly Source**:
+  ```bash
+  ./tools/gui_builder/build_gui.sh
+  ```
+  *(Sources: `tools/gui_builder/builder_win64.s` and `tools/gui_builder/builder_linux64.s`)*
+
+### Option 2: CLI 1-Step Build (Linux -> Nintendo Switch)
+
+#### Prerequisites
 
 - **Linux** (x86_64 or ARM64)
 - **Rust toolchain** (Nightly or Stable with `build-std` support, `rustup target add aarch64-unknown-none`)
 - **Podman** or **Docker** (for automated devkitA64 container toolchain)
 - **hacbrewpack** & **hactool** (for NSP packaging; already configured in `tools/`)
-
-### 1-Step Build
 
 Simply run the unified build script:
 

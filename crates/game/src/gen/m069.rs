@@ -1227,6 +1227,7 @@ pub fn fn_8033E6BC(c: &mut Ctx) {
 // _rwResourcesOpen
 pub fn fn_8033E860(c: &mut Ctx) {
     runtime::prof(0x8033E860);
+    if c.hle(918) { return; }
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r1 = c.r[1]; let mut r3 = c.r[3]; let mut r4 = c.r[4]; let mut r5 = c.r[5]; let mut r12 = c.r[12]; let mut r13 = c.r[13]; let mut r29 = c.r[29]; let mut r30 = c.r[30]; let mut r31 = c.r[31]; 
     let mut cr0 = c.cr[0]; let mut cr1 = c.cr[1]; 
@@ -1342,6 +1343,7 @@ pub fn fn_8033E860(c: &mut Ctx) {
 // _rwResourcesClose
 pub fn fn_8033E9B4(c: &mut Ctx) {
     runtime::prof(0x8033E9B4);
+    if c.hle(919) { return; }
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r1 = c.r[1]; let mut r3 = c.r[3]; let mut r4 = c.r[4]; let mut r5 = c.r[5]; let mut r12 = c.r[12]; let mut r13 = c.r[13]; let mut r31 = c.r[31]; 
     let mut cr0 = c.cr[0]; 
@@ -1739,6 +1741,7 @@ pub fn fn_8033EB9C(c: &mut Ctx) {
 // RwResourcesSetArenaSize
 pub fn fn_8033EE2C(c: &mut Ctx) {
     runtime::prof(0x8033EE2C);
+    if c.hle(920) { return; }
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r1 = c.r[1]; let mut r3 = c.r[3]; let mut r4 = c.r[4]; let mut r5 = c.r[5]; let mut r12 = c.r[12]; let mut r13 = c.r[13]; let mut r30 = c.r[30]; let mut r31 = c.r[31]; 
     let mut cr0 = c.cr[0]; let mut cr1 = c.cr[1]; 

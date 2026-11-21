@@ -740,7 +740,20 @@ pub fn policy(name: &str) -> Hle {
         | "xMat3x3LMulVec__FP5xVec3PC7xMat3x3PC5xVec3"
         | "xMat3x3Tolocal__FP5xVec3PC7xMat3x3PC5xVec3"
         | "xMat3x3Mul__FP7xMat3x3PC7xMat3x3PC7xMat3x3"
-        | "xBoxInitBoundOBB__FP4xBoxPC4xBoxPC7xMat4x3" => Hle::Original,
+        | "xBoxInitBoundOBB__FP4xBoxPC4xBoxPC7xMat4x3"
+        | "iFMVPlay__FPCcUifUibb"
+        | "zMainMemCardSpaceQuery__Fv"
+        | "xVec3Copy__FP5xVec3PC5xVec3"
+        | "xSTAssetCountByType__FUi"
+        | "xSTFindAssetByType__FUiiPUi"
+        | "iAnimEvalSKB__FP14iAnimSKBHeaderfUiP5xVec3P5xQuat"
+        | "xClumpColl_ForAllIntersections__FP17xClumpCollBSPTreeP14RpIntersectionPFP14RpIntersectionP13RpWorldSectorP19RpCollisionTrianglefPv_P19RpCollisionTrianglePv"
+        | "_rwGCNInstanceIndices"
+        | "xSphereHitsEnv4__FPC7xSpherePC4xEnvPC7xMat3x3P7xCollis"
+        | "xRayHitsGrid__FP5xGridP6xSceneP5xRay3PFP6xSceneP5xRay3P7xQCDataP4xEntPv_vP7xQCDataPv"
+        | "xGridCheckPosition__FP5xGridP5xVec3P7xQCDataPFP4xEntPv_iPv"
+        | "xEntCollCheckOneGrid__FP4xEntP6xScenePFP4xEntP6xScenePv_P4xEntP5xGrid"
+        | "_rwGCLightsGlobalEnable" => Hle::Original,
 
         _ => Hle::Unimplemented,
     }

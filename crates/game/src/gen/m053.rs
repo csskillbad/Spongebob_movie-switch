@@ -14048,6 +14048,7 @@ pub fn fn_80289624(c: &mut Ctx) {
 // split8
 pub fn fn_802896C0(c: &mut Ctx) {
     runtime::prof(0x802896C0);
+    if c.hle(903) { return; }
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r3 = c.r[3]; let mut r4 = c.r[4]; let mut r5 = c.r[5]; let mut r6 = c.r[6]; let mut r7 = c.r[7]; let mut r8 = c.r[8]; let mut r9 = c.r[9]; let mut r10 = c.r[10]; let mut r11 = c.r[11]; 
     let mut cr0 = c.cr[0]; 
@@ -14098,6 +14099,7 @@ pub fn fn_802896C0(c: &mut Ctx) {
 // split16
 pub fn fn_8028972C(c: &mut Ctx) {
     runtime::prof(0x8028972C);
+    if c.hle(904) { return; }
     let mem = c.mem;
     let mut r0 = c.r[0]; let mut r3 = c.r[3]; let mut r4 = c.r[4]; let mut r5 = c.r[5]; let mut r6 = c.r[6]; let mut r7 = c.r[7]; let mut r8 = c.r[8]; let mut r9 = c.r[9]; let mut r10 = c.r[10]; let mut r11 = c.r[11]; 
     let mut cr0 = c.cr[0]; 

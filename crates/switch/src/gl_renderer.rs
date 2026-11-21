@@ -20,11 +20,15 @@ pub const TEXTURE_SLOTS: usize = 8;
 pub const PARAMS_FLOATS: usize = 44;
 const PARAMS_STRIDE: usize = 256;
 
-/// Per-draw vertex shader parameters (352 words = 1408 bytes, aligned to 1536-byte UBO stride).
-pub const VPARAMS_WORDS: usize = 352;
-const VPARAMS_STRIDE: usize = 1536;
+/// Per-draw vertex shader core parameters (96 words = 384 bytes, aligned to 512-byte UBO stride).
+pub const VPARAMS_CORE_WORDS: usize = 96;
+const VPARAMS_CORE_STRIDE: usize = 512;
+/// Deduplicated lighting + high texgens (gens[2..8]) UBO block (256 words = 1024 bytes).
+pub const VLIGHTS_WORDS: usize = 256;
+const VLIGHTS_STRIDE: usize = 1024;
 /// XF matrix memory words uploaded for matrix-indexed draws: 64 position rows + 32 normal rows (vec4 each).
 pub const XF_WORDS: usize = 0x180;
+const XF_STRIDE: usize = 1536;
 
 /// Persistent GPU Display List cache capacity (~192 MB VBO + ~32 MB IBO = 224 MB VRAM).
 const CACHE_VERTICES: u64 = 2_000_000;
@@ -43,7 +47,7 @@ unsafe extern "C" {
     fn switch_gl_resize_efb(efb_w: u32, efb_h: u32);
     fn switch_gl_get_window_size(out_w: *mut u32, out_h: *mut u32);
     fn switch_gl_compile_fs(src_ptr: *const u8, src_len: u32) -> u32;
-    fn switch_gl_link_program(fs_id: u32, is_raw: u32) -> u32;
+    fn switch_gl_link_program(fs_id: u32, vs_variant: u32) -> u32;
     fn switch_gl_upload_texture(existing_tex: u32, w: u32, h: u32, rgba: *const u8) -> u32;
     fn switch_gl_create_sampler(wrap_s: u8, wrap_t: u8, linear: u8) -> u32;
     fn switch_gl_cache_upload(
@@ -82,9 +86,13 @@ struct GlDrawCmd {
     index_count: u32,
     base_vertex: i32,
     geom_kind: u8,
-    pad: [u8; 3],
+    vs_variant: u8,
+    tex_mask: u8,
+    cmd_flags: u8,
     params_offset: u32,
     vparams_offset: u32,
+    vlights_offset: u32,
+    xf_offset: u32,
     textures: [u32; 8],
     samplers: [u32; 8],
     viewport: [f32; 4],
@@ -103,6 +111,8 @@ struct GlPassDesc {
     params_bytes: u32,
     vparams: *const core::ffi::c_void,
     vparams_bytes: u32,
+    vlights: *const core::ffi::c_void,
+    vlights_bytes: u32,
     cmds: *const GlDrawCmd,
     cmd_count: u32,
     has_clear: u32,
@@ -203,9 +213,13 @@ pub struct Draw {
     pub shader: u64,
     pub textures: [usize; TEXTURE_SLOTS],
     pub samplers: [SamplerKey; TEXTURE_SLOTS],
+    pub tex_mask: u8,
+    pub vs_variant: u8,
     pub params: u32,
     pub geometry: Geometry,
     pub vparams: u32,
+    pub vlights: Option<u32>,
+    pub xf: Option<u32>,
     pub viewport: [f32; 4],
     pub scissor: [u32; 4],
 }
@@ -218,7 +232,9 @@ pub struct Frame {
     params: Vec<u8>,
     pub raw: Vec<RawVertex>,
     vparams: Vec<u8>,
-    vparams_last_plain: Option<usize>,
+    vparams_last_core: Option<usize>,
+    vlights: Vec<u8>,
+    vlights_dedup: HashMap<u64, u32>,
     pub raw_flat: Vec<(u32, [f32; 4])>,
 }
 
@@ -232,7 +248,9 @@ impl Default for Frame {
             params: Vec::new(),
             raw: Vec::new(),
             vparams: Vec::new(),
-            vparams_last_plain: None,
+            vparams_last_core: None,
+            vlights: Vec::new(),
+            vlights_dedup: HashMap::with_capacity(64),
             raw_flat: Vec::new(),
         }
     }
@@ -247,36 +265,63 @@ impl Frame {
         self.params.clear();
         self.raw.clear();
         self.vparams.clear();
-        self.vparams_last_plain = None;
+        self.vparams_last_core = None;
+        self.vlights.clear();
+        self.vlights_dedup.clear();
         self.raw_flat.clear();
     }
 
     pub fn place_again(&mut self, offset: u32, scale: f32, shift: f32) {
-        let at = offset as usize + (VPARAMS_WORDS - 4) * 4;
+        let at = offset as usize + (VPARAMS_CORE_WORDS - 4) * 4;
         self.vparams[at..at + 16]
             .copy_from_slice(bytemuck::cast_slice(&[scale, shift, 1.0f32, 1.0]));
     }
 
-    /// Appends a VParams block (one VPARAMS_STRIDE slot). For matrix-indexed geometry, `xf` is
-    /// the XF matrix memory (0x100 position + 0x80 normal words); it goes in the next slot,
-    /// which gl_backend.c binds as `XfMem` (binding 2) at block offset + VPARAMS_STRIDE.
-    pub fn push_vparams(&mut self, block: &[u32; VPARAMS_WORDS], xf: Option<&[u32; XF_WORDS]>) -> u32 {
+    /// Appends a compact 384-byte `VCore` block (padded to `VPARAMS_CORE_STRIDE = 512`),
+    /// deduplicating against the immediately preceding core block.
+    pub fn push_vcore(&mut self, block: &[u32; VPARAMS_CORE_WORDS]) -> u32 {
         let bytes: &[u8] = bytemuck::cast_slice(block);
+        if let Some(last) = self.vparams_last_core {
+            if self.vparams.len() >= last + bytes.len()
+                && self.vparams[last..last + bytes.len()] == *bytes
+            {
+                return last as u32;
+            }
+        }
         let offset = self.vparams.len();
-        if xf.is_none()
-            && self.vparams_last_plain == Some(offset.wrapping_sub(VPARAMS_STRIDE))
-            && self.vparams[offset - VPARAMS_STRIDE..][..bytes.len()] == *bytes
-        {
-            return (offset - VPARAMS_STRIDE) as u32;
-        }
         self.vparams.extend_from_slice(bytes);
-        self.vparams.resize(offset + VPARAMS_STRIDE, 0);
-        self.vparams_last_plain = xf.is_none().then_some(offset);
-        if let Some(xf) = xf {
-            self.vparams.extend_from_slice(bytemuck::cast_slice(xf));
-            self.vparams.resize(offset + 2 * VPARAMS_STRIDE, 0);
-        }
+        self.vparams.resize(offset + VPARAMS_CORE_STRIDE, 0);
+        self.vparams_last_core = Some(offset);
         offset as u32
+    }
+
+    /// Appends an `XfMem` matrix block (1536 bytes, 256-aligned) for matrix-indexed draws only.
+    pub fn push_xf(&mut self, xf: &[u32; XF_WORDS]) -> u32 {
+        let bytes: &[u8] = bytemuck::cast_slice(xf);
+        let offset = self.vparams.len();
+        self.vparams.extend_from_slice(bytes);
+        self.vparams.resize(offset + XF_STRIDE, 0);
+        offset as u32
+    }
+
+    /// Appends a 1024-byte `VLights` (lights[8] + gens[2..8]) block, deduplicated across the frame.
+    pub fn push_vlights(&mut self, block: &[u32; VLIGHTS_WORDS]) -> u32 {
+        let bytes: &[u8] = bytemuck::cast_slice(block);
+        let h = crate::texture::hash(bytes);
+        if let Some(&existing) = self.vlights_dedup.get(&h) {
+            let at = existing as usize;
+            if self.vlights.len() >= at + bytes.len()
+                && self.vlights[at..at + bytes.len()] == *bytes
+            {
+                return existing;
+            }
+        }
+        let offset = self.vlights.len();
+        self.vlights.extend_from_slice(bytes);
+        self.vlights.resize(offset + VLIGHTS_STRIDE, 0);
+        let off_u32 = offset as u32;
+        self.vlights_dedup.insert(h, off_u32);
+        off_u32
     }
 
     pub fn push_params(&mut self, block: &[f32; PARAMS_FLOATS]) -> u32 {
@@ -295,12 +340,16 @@ impl Frame {
             if last.first + last.count == draw.first
                 && last.state == draw.state
                 && last.shader == draw.shader
+                && last.vs_variant == draw.vs_variant
+                && last.tex_mask == draw.tex_mask
                 && last.textures == draw.textures
                 && last.samplers == draw.samplers
                 && last.params == draw.params
                 && last.geometry == draw.geometry
                 && !matches!(draw.geometry, Geometry::Cached(_))
                 && last.vparams == draw.vparams
+                && last.vlights == draw.vlights
+                && last.xf == draw.xf
                 && last.viewport == draw.viewport
                 && last.scissor == draw.scissor
             {
@@ -314,7 +363,7 @@ impl Frame {
 
 pub struct Renderer {
     shaders: HashMap<u64, u32>,
-    programs: HashMap<(u64, bool), u32>,
+    programs: HashMap<(u64, u8), u32>,
     textures: Vec<u32>,
     is_efb_tex: Vec<bool>,
     texture_ids: HashMap<TexKey, usize>,
@@ -423,24 +472,44 @@ impl Renderer {
     pub fn ensure_shader(&mut self, key: u64, fragment: impl FnOnce() -> String) {
         if !self.shaders.contains_key(&key) {
             let src = fragment();
+            let t0 = unsafe { switch_now_ns() };
             let fs_id = unsafe { switch_gl_compile_fs(src.as_ptr(), src.len() as u32) };
+            let dt = unsafe { switch_now_ns().saturating_sub(t0) };
+            if dt > 4_000_000 {
+                crate::log_c(&alloc::format!(
+                    "[gl-stall] compile_fs key={:#018x} took {:.2}ms (total fs={})",
+                    key,
+                    dt as f64 / 1e6,
+                    self.shaders.len() + 1
+                ));
+            }
             self.shaders.insert(key, fs_id);
             self.made.0 += 1;
+            self.made.3 += dt;
         }
     }
 
     #[inline]
-    fn get_or_link_program(&mut self, shader_key: u64, is_raw: bool) -> u32 {
-        if let Some(&prog) = self.programs.get(&(shader_key, is_raw)) {
+    fn get_or_link_program(&mut self, shader_key: u64, vs_variant: u8) -> u32 {
+        if let Some(&prog) = self.programs.get(&(shader_key, vs_variant)) {
             return prog;
         }
         let Some(&fs_id) = self.shaders.get(&shader_key) else {
             return 0;
         };
         let t0 = unsafe { switch_now_ns() };
-        let prog = unsafe { switch_gl_link_program(fs_id, is_raw as u32) };
+        let prog = unsafe { switch_gl_link_program(fs_id, vs_variant as u32) };
         let dt = unsafe { switch_now_ns().saturating_sub(t0) };
-        self.programs.insert((shader_key, is_raw), prog);
+        if dt > 4_000_000 {
+            crate::log_c(&alloc::format!(
+                "[gl-stall] link_prog key={:#018x} vs={} took {:.2}ms (total progs={})",
+                shader_key,
+                vs_variant,
+                dt as f64 / 1e6,
+                self.programs.len() + 1
+            ));
+        }
+        self.programs.insert((shader_key, vs_variant), prog);
         self.made.1 += 1;
         self.made.3 += dt;
         prog
@@ -537,19 +606,23 @@ impl Renderer {
         let (sx, sy) = self.scale;
         let (max_w, max_h) = (EFB_WIDTH * sx, EFB_HEIGHT * sy);
 
-        let mut last_prog_key: Option<(u64, bool)> = None;
+        let mut last_prog_key: Option<(u64, u8)> = None;
         let mut last_prog_id: u32 = 0;
 
         for draw in &frame.draws {
             if draw.count == 0 {
                 continue;
             }
-            let is_raw = draw.geometry != Geometry::Transformed;
-            let pkey = (draw.shader, is_raw);
+            let vs_variant = if draw.geometry == Geometry::Transformed {
+                0u8
+            } else {
+                draw.vs_variant
+            };
+            let pkey = (draw.shader, vs_variant);
             let program = if last_prog_key == Some(pkey) {
                 last_prog_id
             } else {
-                let p = self.get_or_link_program(draw.shader, is_raw);
+                let p = self.get_or_link_program(draw.shader, vs_variant);
                 last_prog_key = Some(pkey);
                 last_prog_id = p;
                 p
@@ -576,7 +649,10 @@ impl Renderer {
 
             let mut textures = [0u32; 8];
             let mut samplers = [0u32; 8];
-            for slot in 0..8 {
+            let mut m = draw.tex_mask;
+            while m != 0 {
+                let slot = m.trailing_zeros() as usize;
+                m &= m - 1;
                 let tid = draw.textures[slot];
                 textures[slot] = if tid < self.textures.len() {
                     self.textures[tid]
@@ -591,6 +667,8 @@ impl Renderer {
                 Geometry::Raw => (1u8, 0i32),
                 Geometry::Cached(base) => (2u8, base),
             };
+            let cmd_flags =
+                (draw.xf.is_some() as u8) | ((draw.vlights.is_some() as u8) << 1);
 
             self.cmds_scratch.push(GlDrawCmd {
                 program,
@@ -599,9 +677,13 @@ impl Renderer {
                 index_count: draw.count,
                 base_vertex,
                 geom_kind,
-                pad: [0; 3],
+                vs_variant,
+                tex_mask: draw.tex_mask,
+                cmd_flags,
                 params_offset: draw.params,
                 vparams_offset: draw.vparams,
+                vlights_offset: draw.vlights.unwrap_or(0),
+                xf_offset: draw.xf.unwrap_or(0),
                 textures,
                 samplers,
                 viewport: [x0, y0, x1 - x0, y1 - y0],
@@ -649,6 +731,12 @@ impl Renderer {
                 frame.vparams.as_ptr() as *const core::ffi::c_void
             },
             vparams_bytes: frame.vparams.len() as u32,
+            vlights: if frame.vlights.is_empty() {
+                core::ptr::null()
+            } else {
+                frame.vlights.as_ptr() as *const core::ffi::c_void
+            },
+            vlights_bytes: frame.vlights.len() as u32,
             cmds: if self.cmds_scratch.is_empty() {
                 core::ptr::null()
             } else {
@@ -691,6 +779,12 @@ impl Renderer {
         self.overlay_scratch.clear();
         if FPS_ENABLED.load(Ordering::Relaxed) {
             self.build_fps_overlay();
+        }
+        if crate::debug::is_open() {
+            self.build_debug_overlay();
+        }
+        if let Some(toast) = crate::debug::active_toast() {
+            self.build_toast_overlay(&toast);
         }
 
         let (w, h) = (EFB_WIDTH as f32, EFB_HEIGHT as f32);
@@ -819,6 +913,224 @@ impl Renderer {
             cx += 8.0 * scale;
         }
     }
+
+    fn push_text_px(&mut self, x: f32, y: f32, scale: f32, text: &str, color: [f32; 4]) {
+        let mut cx = x;
+        for ch in text.bytes() {
+            let rows = glyph_8x8(ch.to_ascii_uppercase());
+            for (ry, &bits) in rows.iter().enumerate() {
+                let mut rx = 0usize;
+                while rx < 8 {
+                    if (bits & (0x80 >> rx)) != 0 {
+                        let start = rx;
+                        while rx < 8 && (bits & (0x80 >> rx)) != 0 {
+                            rx += 1;
+                        }
+                        self.push_quad_px(
+                            cx + (start as f32) * scale,
+                            y + (ry as f32) * scale,
+                            ((rx - start) as f32) * scale,
+                            scale,
+                            color,
+                        );
+                    } else {
+                        rx += 1;
+                    }
+                }
+            }
+            cx += 8.0 * scale;
+        }
+    }
+
+    /// Styled Bikini Bottom game-UI Konami debug menu (`debug.rs`), drawn over the picture.
+    fn build_debug_overlay(&mut self) {
+        let view = crate::debug::menu_view();
+        let hi_res = self.win_size.1 > 720;
+        let scale = if hi_res { 2.5f32 } else { 2.0f32 };
+        let small = if hi_res { 2.0f32 } else { 1.5f32 };
+
+        let char_w = 8.0 * scale;
+        let line_h = 8.0 * scale + 5.0 * scale;
+        let pad = 10.0 * scale;
+        let border = if hi_res { 4.0f32 } else { 3.0f32 };
+
+        let max_item_chars = view
+            .items
+            .iter()
+            .map(|l| l.len() + 3)
+            .max()
+            .unwrap_or(36);
+        let telem_w = view.telemetry.len() as f32 * 8.0 * small;
+        let hint_w = view.hint.len() as f32 * 8.0 * small;
+        let inner_w = (max_item_chars as f32 * char_w)
+            .max(telem_w)
+            .max(hint_w)
+            .max(42.0 * char_w);
+
+        let header_h = 8.0 * scale + 8.0 * scale;
+        let tab_h = 8.0 * scale + 7.0 * scale;
+        let telem_h = 8.0 * small + 6.0 * small;
+        let items_h = (view.items.len() as f32) * line_h + 4.0 * scale;
+        let footer_h = 8.0 * small + 6.0 * small;
+
+        let box_w = inner_w + pad * 2.0;
+        let box_h = pad + header_h + tab_h + telem_h + items_h + footer_h + pad;
+        let bx = ((self.win_size.0 as f32) - box_w) * 0.5;
+        let by = ((self.win_size.1 as f32) - box_h) * 0.5;
+
+        // Outer golden border + inner tropical ocean frame + deep nautical navy panel
+        self.push_quad_px(
+            bx - border * 2.0,
+            by - border * 2.0,
+            box_w + border * 4.0,
+            box_h + border * 4.0,
+            [0.98, 0.80, 0.12, 0.96],
+        );
+        self.push_quad_px(
+            bx - border,
+            by - border,
+            box_w + border * 2.0,
+            box_h + border * 2.0,
+            [0.09, 0.44, 0.78, 0.96],
+        );
+        self.push_quad_px(bx, by, box_w, box_h, [0.02, 0.08, 0.19, 0.93]);
+
+        // Header banner
+        let mut y = by + pad * 0.6;
+        self.push_quad_px(
+            bx + pad * 0.5,
+            y,
+            box_w - pad,
+            header_h - 3.0 * scale,
+            [0.06, 0.24, 0.48, 0.92],
+        );
+        let fps_int = (self.ema_fps + 0.5) as u32;
+        let title = alloc::format!("TSSM DEBUG MENU  [{}]  {} FPS", view.scene, fps_int);
+        self.push_text_px(
+            bx + pad,
+            y + 2.5 * scale,
+            scale,
+            &title,
+            [1.0, 0.92, 0.30, 1.0],
+        );
+        y += header_h;
+
+        // Category tab pills: [ WARP ] [ ENEMIES ] [ TOOLS ]
+        let tab_gap = 6.0 * scale;
+        let tab_w = (box_w - pad * 2.0 - tab_gap * 2.0) / 3.0;
+        for (idx, &tname) in crate::debug::TAB_NAMES.iter().enumerate() {
+            let tx = bx + pad + (idx as f32) * (tab_w + tab_gap);
+            let active = idx == view.tab;
+            let bg = if active {
+                [0.98, 0.80, 0.14, 0.95]
+            } else {
+                [0.05, 0.18, 0.36, 0.85]
+            };
+            let fg = if active {
+                [0.04, 0.08, 0.16, 1.0]
+            } else {
+                [0.65, 0.88, 1.0, 1.0]
+            };
+            self.push_quad_px(tx, y, tab_w, tab_h - 3.0 * scale, bg);
+            let label = if active {
+                alloc::format!("[ {} ]", tname)
+            } else {
+                alloc::format!("  {}  ", tname)
+            };
+            let tw = label.len() as f32 * char_w;
+            self.push_text_px(tx + (tab_w - tw) * 0.5, y + 2.0 * scale, scale, &label, fg);
+        }
+        y += tab_h;
+
+        // Live telemetry strip
+        self.push_quad_px(
+            bx + pad * 0.5,
+            y,
+            box_w - pad,
+            telem_h - 2.0 * small,
+            [0.03, 0.14, 0.28, 0.90],
+        );
+        self.push_text_px(
+            bx + pad,
+            y + 2.0 * small,
+            small,
+            &view.telemetry,
+            [0.42, 0.94, 0.88, 1.0],
+        );
+        y += telem_h + 2.0 * scale;
+
+        // Menu items
+        for (i, line) in view.items.iter().enumerate() {
+            let selected = i == view.cursor;
+            let color = if selected {
+                self.push_quad_px(
+                    bx + pad * 0.5,
+                    y - 2.0 * scale,
+                    box_w - pad,
+                    line_h,
+                    [0.98, 0.78, 0.15, 0.34],
+                );
+                self.push_quad_px(
+                    bx + pad * 0.5,
+                    y - 2.0 * scale,
+                    3.0 * scale,
+                    line_h,
+                    [1.0, 0.86, 0.22, 1.0],
+                );
+                [1.0, 0.96, 0.52, 1.0]
+            } else if line.contains("[ON]") {
+                [0.36, 1.0, 0.58, 1.0]
+            } else {
+                [0.88, 0.93, 1.0, 1.0]
+            };
+            let text = if selected {
+                alloc::format!("> {}", line)
+            } else {
+                alloc::format!("  {}", line)
+            };
+            self.push_text_px(bx + pad, y, scale, &text, color);
+            y += line_h;
+        }
+
+        // Footer key legend
+        y += 2.0 * scale;
+        self.push_quad_px(
+            bx + pad * 0.5,
+            y,
+            box_w - pad,
+            footer_h,
+            [0.04, 0.15, 0.30, 0.92],
+        );
+        self.push_text_px(
+            bx + pad,
+            y + 2.5 * small,
+            small,
+            view.hint,
+            [0.72, 0.86, 0.98, 1.0],
+        );
+    }
+
+    /// Brief status toast banner shown at top-center after debug menu actions.
+    fn build_toast_overlay(&mut self, msg: &str) {
+        let scale = if self.win_size.1 > 720 { 2.5f32 } else { 2.0f32 };
+        let pad_x = 10.0 * scale;
+        let pad_y = 4.0 * scale;
+        let border = if self.win_size.1 > 720 { 3.0f32 } else { 2.0f32 };
+        let text_w = msg.len() as f32 * 8.0 * scale;
+        let box_w = text_w + pad_x * 2.0;
+        let box_h = 8.0 * scale + pad_y * 2.0;
+        let bx = ((self.win_size.0 as f32) - box_w) * 0.5;
+        let by = 22.0;
+        self.push_quad_px(
+            bx - border,
+            by - border,
+            box_w + border * 2.0,
+            box_h + border * 2.0,
+            [0.98, 0.80, 0.14, 0.96],
+        );
+        self.push_quad_px(bx, by, box_w, box_h, [0.03, 0.11, 0.25, 0.92]);
+        self.push_text_px(bx + pad_x, by + pad_y, scale, msg, [1.0, 0.95, 0.45, 1.0]);
+    }
 }
 
 fn glyph_8x8(ch: u8) -> [u8; 8] {
@@ -834,6 +1146,7 @@ fn glyph_8x8(ch: u8) -> [u8; 8] {
         b'8' => [0x3C, 0x66, 0x66, 0x3C, 0x66, 0x66, 0x3C, 0x00],
         b'9' => [0x3C, 0x66, 0x66, 0x3E, 0x06, 0x0C, 0x38, 0x00],
         b'.' => [0x00, 0x00, 0x00, 0x00, 0x00, 0x18, 0x18, 0x00],
+        b',' => [0x00, 0x00, 0x00, 0x00, 0x00, 0x18, 0x18, 0x30],
         b'A' => [0x18, 0x3C, 0x66, 0x66, 0x7E, 0x66, 0x66, 0x00],
         b'B' => [0x7C, 0x66, 0x66, 0x7C, 0x66, 0x66, 0x7C, 0x00],
         b'C' => [0x3C, 0x66, 0x60, 0x60, 0x60, 0x66, 0x3C, 0x00],
@@ -860,6 +1173,23 @@ fn glyph_8x8(ch: u8) -> [u8; 8] {
         b'X' => [0x66, 0x66, 0x3C, 0x18, 0x3C, 0x66, 0x66, 0x00],
         b'Y' => [0x66, 0x66, 0x66, 0x3C, 0x18, 0x18, 0x18, 0x00],
         b'Z' => [0x7E, 0x06, 0x0C, 0x18, 0x30, 0x60, 0x7E, 0x00],
+        b'+' => [0x00, 0x18, 0x18, 0x7E, 0x18, 0x18, 0x00, 0x00],
+        b'-' => [0x00, 0x00, 0x00, 0x7E, 0x00, 0x00, 0x00, 0x00],
+        b'/' => [0x02, 0x06, 0x0C, 0x18, 0x30, 0x60, 0x40, 0x00],
+        b':' => [0x00, 0x18, 0x18, 0x00, 0x18, 0x18, 0x00, 0x00],
+        b'<' => [0x0C, 0x18, 0x30, 0x60, 0x30, 0x18, 0x0C, 0x00],
+        b'>' => [0x30, 0x18, 0x0C, 0x06, 0x0C, 0x18, 0x30, 0x00],
+        b'(' => [0x0C, 0x18, 0x30, 0x30, 0x30, 0x18, 0x0C, 0x00],
+        b')' => [0x30, 0x18, 0x0C, 0x0C, 0x0C, 0x18, 0x30, 0x00],
+        b'[' => [0x3C, 0x30, 0x30, 0x30, 0x30, 0x30, 0x3C, 0x00],
+        b']' => [0x3C, 0x0C, 0x0C, 0x0C, 0x0C, 0x0C, 0x3C, 0x00],
+        b'=' => [0x00, 0x00, 0x7E, 0x00, 0x7E, 0x00, 0x00, 0x00],
+        b'#' => [0x24, 0x7E, 0x24, 0x24, 0x7E, 0x24, 0x00, 0x00],
+        b'%' => [0x62, 0x64, 0x08, 0x10, 0x26, 0x46, 0x00, 0x00],
+        b'_' => [0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x7E, 0x00],
+        b'!' => [0x18, 0x18, 0x18, 0x18, 0x18, 0x00, 0x18, 0x00],
+        b'\'' => [0x18, 0x18, 0x30, 0x00, 0x00, 0x00, 0x00, 0x00],
+        b'?' => [0x3C, 0x66, 0x06, 0x0C, 0x18, 0x00, 0x18, 0x00],
         _ => [0; 8],
     }
 }
