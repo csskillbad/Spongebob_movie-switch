@@ -1551,3 +1551,659 @@ pub fn hle_xatof(c: &mut Ctx) -> bool {
     true
 }
 
+#[inline(always)]
+fn call5(c: &mut Ctx, func: u32, r3: u32, r4: u32, r5: u32, r6: u32, r7: u32) -> u32 {
+    c.r[3] = r3;
+    c.r[4] = r4;
+    c.r[5] = r5;
+    c.r[6] = r6;
+    c.r[7] = r7;
+    c.call(func);
+    c.r[3]
+}
+
+/// Inlined 6-byte signed `xQuickCullIsects` (`0x801957D8`) check.
+#[inline(always)]
+fn qcd_isects_raw(mem: *mut u8, a: u32, b: u32) -> bool {
+    if (mr8(mem, a) as i8) > (mr8(mem, b.wrapping_add(4)) as i8) {
+        return false;
+    }
+    if (mr8(mem, a.wrapping_add(1)) as i8) > (mr8(mem, b.wrapping_add(5)) as i8) {
+        return false;
+    }
+    if (mr8(mem, a.wrapping_add(2)) as i8) > (mr8(mem, b.wrapping_add(6)) as i8) {
+        return false;
+    }
+    if (mr8(mem, b) as i8) > (mr8(mem, a.wrapping_add(4)) as i8) {
+        return false;
+    }
+    if (mr8(mem, b.wrapping_add(1)) as i8) > (mr8(mem, a.wrapping_add(5)) as i8) {
+        return false;
+    }
+    if (mr8(mem, b.wrapping_add(2)) as i8) > (mr8(mem, a.wrapping_add(6)) as i8) {
+        return false;
+    }
+    true
+}
+
+struct GridIter {
+    listhead: u32,
+    cur: u32,
+    delfound: bool,
+}
+
+#[inline(always)]
+fn grid_cell_listhead(mem: *mut u8, grid: u32, gx: i32, gz: i32) -> u32 {
+    if gx < 0 || gz < 0 {
+        return 0;
+    }
+    let nx = mr16(mem, grid.wrapping_add(4)) as i32;
+    let nz = mr16(mem, grid.wrapping_add(6)) as i32;
+    if gx >= nx || gz >= nz {
+        return 0;
+    }
+    let cells = mr32(mem, grid.wrapping_add(0x2C));
+    if cells == 0 {
+        return 0;
+    }
+    let idx = (gz as u32).wrapping_mul(nx as u32).wrapping_add(gx as u32);
+    cells.wrapping_add(idx << 2)
+}
+
+#[inline(always)]
+fn grid_iter_open(mem: *mut u8, listhead: u32) -> Option<GridIter> {
+    if listhead == 0 || !in_ram_opt(listhead, 4) {
+        return None;
+    }
+    let first = mr32(mem, listhead);
+    if first == 0 || !in_ram_opt(first, 0x20) {
+        return None;
+    }
+    let grid = mr32(mem, first.wrapping_add(0x0C));
+    if in_ram_opt(grid, 0x38) {
+        let active = mr32(mem, grid.wrapping_add(0x34));
+        mw32(mem, grid.wrapping_add(0x34), active.wrapping_add(1));
+    }
+    Some(GridIter {
+        listhead,
+        cur: first,
+        delfound: false,
+    })
+}
+
+#[inline(always)]
+fn grid_iter_close(mem: *mut u8, it: &mut GridIter) {
+    if it.listhead == 0 || !in_ram_opt(it.listhead, 4) {
+        it.listhead = 0;
+        it.cur = 0;
+        it.delfound = false;
+        return;
+    }
+    let first = mr32(mem, it.listhead);
+    if first != 0 && in_ram_opt(first, 0x20) {
+        let grid = mr32(mem, first.wrapping_add(0x0C));
+        if in_ram_opt(grid, 0x38) {
+            let active = mr32(mem, grid.wrapping_add(0x34)).wrapping_sub(1);
+            mw32(mem, grid.wrapping_add(0x34), active);
+            if it.delfound && (active as i32) <= 0 {
+                let mut prev_link = it.listhead;
+                let mut cur = first;
+                let mut guard = 0u32;
+                while cur != 0 && in_ram_opt(cur, 0x20) && guard < 16384 {
+                    guard += 1;
+                    let next = mr32(mem, cur.wrapping_add(0x14));
+                    if mr8(mem, cur.wrapping_add(0x09)) != 0 {
+                        mw32(mem, prev_link, next);
+                        mw32(mem, cur.wrapping_add(0x14), 0);
+                        mw32(mem, cur.wrapping_add(0x10), 0);
+                        mw32(mem, cur.wrapping_add(0x0C), 0);
+                        mw8(mem, cur.wrapping_add(0x09), 0);
+                        mw16(mem, cur.wrapping_add(0x04), 0xFFFF);
+                        mw16(mem, cur.wrapping_add(0x06), 0xFFFF);
+                        cur = mr32(mem, prev_link);
+                    } else {
+                        prev_link = cur.wrapping_add(0x14);
+                        cur = next;
+                    }
+                }
+            }
+        }
+    }
+    it.listhead = 0;
+    it.cur = 0;
+    it.delfound = false;
+}
+
+#[inline(always)]
+fn grid_iter_step(mem: *mut u8, it: &mut GridIter) {
+    if it.cur != 0 && in_ram_opt(it.cur, 0x20) {
+        it.cur = mr32(mem, it.cur.wrapping_add(0x14));
+    } else {
+        it.cur = 0;
+    }
+    let mut guard = 0u32;
+    while it.cur != 0 && in_ram_opt(it.cur, 0x20) && guard < 16384 {
+        guard += 1;
+        if mr8(mem, it.cur.wrapping_add(0x09)) == 0 {
+            return;
+        }
+        it.delfound = true;
+        it.cur = mr32(mem, it.cur.wrapping_add(0x14));
+    }
+    grid_iter_close(mem, it);
+}
+
+#[inline(always)]
+fn grid_clamped_cell(mem: *mut u8, grid: u32, px: f32, pz: f32) -> (i32, i32) {
+    let min_x = mr_f32(mem, grid.wrapping_add(0x08));
+    let min_z = mr_f32(mem, grid.wrapping_add(0x0C));
+    let inv_cx = mr_f32(mem, grid.wrapping_add(0x20));
+    let inv_cz = mr_f32(mem, grid.wrapping_add(0x24));
+    let nx = mr16(mem, grid.wrapping_add(0x04)) as i32;
+    let nz = mr16(mem, grid.wrapping_add(0x06)) as i32;
+    let fx = (px - min_x) * inv_cx;
+    let fz = (pz - min_z) * inv_cz;
+    let max_x = (nx - 1) as f32;
+    let max_z = (nz - 1) as f32;
+    let cx = (if fx > 0.0 { fx } else { 0.0 }).min(max_x) as i32;
+    let cz = (if fz > 0.0 { fz } else { 0.0 }).min(max_z) as i32;
+    (cx, cz)
+}
+
+#[inline(always)]
+fn grid_quadrant(mem: *mut u8, grid: u32, cx: i32, cz: i32, px: f32, pz: f32) -> u32 {
+    let min_x = mr_f32(mem, grid.wrapping_add(0x08));
+    let min_z = mr_f32(mem, grid.wrapping_add(0x0C));
+    let csx = mr_f32(mem, grid.wrapping_add(0x18));
+    let csz = mr_f32(mem, grid.wrapping_add(0x1C));
+    let mid_x = csx * (cx as f32) + min_x + 0.5f32 * csx;
+    let mid_z = csz * (cz as f32) + min_z + 0.5f32 * csz;
+    if px < mid_x {
+        if pz < mid_z { 0 } else { 1 }
+    } else if pz < mid_z {
+        3
+    } else {
+        2
+    }
+}
+
+/// Native ARM64 / Rust replacement for `xGridCheckPosition__FP5xGridP5xVec3P7xQCDataPFP4xEntPv_iPv` (`0x801B5920`).
+pub fn hle_xgrid_check_position(c: &mut Ctx) -> bool {
+    let grid = c.r[3];
+    let pos = c.r[4];
+    let qcd = c.r[5];
+    let cb = c.r[6];
+    let cbdata = c.r[7];
+    if !in_ram_opt(grid, 0x38) || !in_ram_opt(pos, 12) || !in_ram_opt(qcd, 8) {
+        return false;
+    }
+    let mem = c.mem;
+    let saved_lr = c.lr;
+    let px = mr_f32(mem, pos);
+    let pz = mr_f32(mem, pos.wrapping_add(8));
+    let (cx, cz) = grid_clamped_cell(mem, grid, px, pz);
+
+    // 1. Center cell (cx, cz)
+    let center_head = grid_cell_listhead(mem, grid, cx, cz);
+    if let Some(mut it) = grid_iter_open(mem, center_head) {
+        while it.cur != 0 {
+            let bound = it.cur;
+            if qcd_isects_raw(mem, qcd, bound.wrapping_add(0x18)) {
+                let ent = mr32(mem, bound);
+                if call2(c, cb, ent, cbdata) == 0 {
+                    grid_iter_close(mem, &mut it);
+                    c.lr = saved_lr;
+                    return true;
+                }
+            }
+            grid_iter_step(mem, &mut it);
+        }
+    }
+
+    // 2. Quadrant & 3 neighbor cells
+    let k = grid_quadrant(mem, grid, cx, cz, px, pz);
+    let r13 = c.r[13];
+    mw32(mem, r13.wrapping_add(0xFFFF_9578), k);
+
+    const OFFSET_TABLE: u32 = 0x803A_57FC;
+    for i in 0..3u32 {
+        let cur_k = mr32(mem, r13.wrapping_add(0xFFFF_9578));
+        let entry = OFFSET_TABLE
+            .wrapping_add(cur_k.wrapping_mul(24))
+            .wrapping_add(i.wrapping_mul(8));
+        let dz = mr32(mem, entry) as i32;
+        let dx = mr32(mem, entry.wrapping_add(4)) as i32;
+        let head = grid_cell_listhead(mem, grid, cx.wrapping_add(dx), cz.wrapping_add(dz));
+        if let Some(mut it) = grid_iter_open(mem, head) {
+            while it.cur != 0 {
+                let bound = it.cur;
+                if qcd_isects_raw(mem, qcd, bound.wrapping_add(0x18)) {
+                    let ent = mr32(mem, bound);
+                    if call2(c, cb, ent, cbdata) == 0 {
+                        grid_iter_close(mem, &mut it);
+                        c.lr = saved_lr;
+                        return true;
+                    }
+                }
+                grid_iter_step(mem, &mut it);
+            }
+        }
+    }
+
+    // 3. `grid.other` oversized bounds list (`grid + 0x30`)
+    if let Some(mut it) = grid_iter_open(mem, grid.wrapping_add(0x30)) {
+        while it.cur != 0 {
+            let bound = it.cur;
+            if qcd_isects_raw(mem, qcd, bound.wrapping_add(0x18)) {
+                let ent = mr32(mem, bound);
+                if call2(c, cb, ent, cbdata) == 0 {
+                    grid_iter_close(mem, &mut it);
+                    c.lr = saved_lr;
+                    return true;
+                }
+            }
+            grid_iter_step(mem, &mut it);
+        }
+    }
+
+    c.lr = saved_lr;
+    true
+}
+
+/// Native ARM64 / Rust replacement for `xEntCollCheckOneGrid__FP4xEntP6xScenePFP4xEntP6xScenePv_P4xEntP5xGrid` (`0x801D5D80`).
+pub fn hle_xent_coll_check_one_grid(c: &mut Ctx) -> bool {
+    let ent = c.r[3];
+    let sc = c.r[4];
+    let hit_it = c.r[5];
+    let grid = c.r[6];
+    if !in_ram_opt(ent, 0x98) || !in_ram_opt(grid, 0x38) {
+        return false;
+    }
+    let mem = c.mem;
+    let saved_lr = c.lr;
+    let qcd = ent.wrapping_add(0x68);
+    let px = mr_f32(mem, ent.wrapping_add(0x8C));
+    let pz = mr_f32(mem, ent.wrapping_add(0x94));
+    let (cx, cz) = grid_clamped_cell(mem, grid, px, pz);
+
+    // 1. Center cell (cx, cz)
+    let center_head = grid_cell_listhead(mem, grid, cx, cz);
+    if let Some(mut it) = grid_iter_open(mem, center_head) {
+        while it.cur != 0 {
+            let bound = it.cur;
+            if qcd_isects_raw(mem, qcd, bound.wrapping_add(0x18)) {
+                let other_ent = mr32(mem, bound);
+                call3(c, hit_it, other_ent, sc, ent);
+            }
+            grid_iter_step(mem, &mut it);
+        }
+    }
+
+    // 2. Quadrant & 3 neighbor cells
+    let k = grid_quadrant(mem, grid, cx, cz, px, pz);
+    let r13 = c.r[13];
+    mw32(mem, r13.wrapping_add(0xFFFF_94BC), k);
+
+    const OFFSET_TABLE: u32 = 0x803A_3B14;
+    for i in 0..3u32 {
+        let cur_k = mr32(mem, r13.wrapping_add(0xFFFF_94BC));
+        let entry = OFFSET_TABLE
+            .wrapping_add(cur_k.wrapping_mul(24))
+            .wrapping_add(i.wrapping_mul(8));
+        let dz = mr32(mem, entry) as i32;
+        let dx = mr32(mem, entry.wrapping_add(4)) as i32;
+        let head = grid_cell_listhead(mem, grid, cx.wrapping_add(dx), cz.wrapping_add(dz));
+        if let Some(mut it) = grid_iter_open(mem, head) {
+            while it.cur != 0 {
+                let bound = it.cur;
+                if qcd_isects_raw(mem, qcd, bound.wrapping_add(0x18)) {
+                    let other_ent = mr32(mem, bound);
+                    call3(c, hit_it, other_ent, sc, ent);
+                }
+                grid_iter_step(mem, &mut it);
+            }
+        }
+    }
+
+    // 3. `grid.other` oversized bounds list (`grid + 0x30`)
+    if let Some(mut it) = grid_iter_open(mem, grid.wrapping_add(0x30)) {
+        while it.cur != 0 {
+            let bound = it.cur;
+            if qcd_isects_raw(mem, qcd, bound.wrapping_add(0x18)) {
+                let other_ent = mr32(mem, bound);
+                call3(c, hit_it, other_ent, sc, ent);
+            }
+            grid_iter_step(mem, &mut it);
+        }
+    }
+
+    c.lr = saved_lr;
+    true
+}
+
+/// Native ARM64 / Rust replacement for `xRayHitsGrid__FP5xGridP6xSceneP5xRay3PFP6xSceneP5xRay3P7xQCDataP4xEntPv_vP7xQCDataPv` (`0x8018F5A8`).
+pub fn hle_xray_hits_grid(c: &mut Ctx) -> bool {
+    let grid = c.r[3];
+    let sc = c.r[4];
+    let ray = c.r[5];
+    let cb = c.r[6];
+    let qcd = c.r[7];
+    let cbdata = c.r[8];
+    if !in_ram_opt(grid, 0x38) || !in_ram_opt(ray, 0x24) || !in_ram_opt(qcd, 8) {
+        return false;
+    }
+    let mem = c.mem;
+    let saved_lr = c.lr;
+    let r2 = c.r[2];
+
+    let flags = mr32(mem, ray.wrapping_add(0x20)) | 0xC00;
+    mw32(mem, ray.wrapping_add(0x20), flags);
+
+    let min_t = mr_f32(mem, ray.wrapping_add(0x18));
+    let max_t = mr_f32(mem, ray.wrapping_add(0x1C));
+    let ox = mr_f32(mem, ray);
+    let oy = mr_f32(mem, ray.wrapping_add(4));
+    let oz = mr_f32(mem, ray.wrapping_add(8));
+    let dir_x = mr_f32(mem, ray.wrapping_add(0x0C));
+    let dir_y = mr_f32(mem, ray.wrapping_add(0x10));
+    let dir_z0 = mr_f32(mem, ray.wrapping_add(0x14));
+
+    let x0 = ox + dir_x * min_t;
+    let _y0 = oy + dir_y * min_t;
+    let z0 = oz + dir_z0 * min_t;
+    let dt = max_t - min_t;
+    let x1 = x0 + dir_x * dt;
+    let _y1 = _y0 + dir_y * dt;
+    let z1 = z0 + dir_z0 * dt;
+
+    let f_eps = mr_f32(mem, r2.wrapping_add(0xFFFF_9018));
+    let f_half = mr_f32(mem, r2.wrapping_add(0xFFFF_9008));
+    let f_qtr = mr_f32(mem, r2.wrapping_add(0xFFFF_900C));
+    let f_zero = mr_f32(mem, r2.wrapping_add(0xFFFF_9014));
+    let f_negeps = mr_f32(mem, r2.wrapping_add(0xFFFF_902C));
+
+    let csx = mr_f32(mem, grid.wrapping_add(0x18));
+    let csz = mr_f32(mem, grid.wrapping_add(0x1C));
+    let half_cx = f_half * csx;
+    let half_cz = f_half * csz;
+    let qtr_cx = f_qtr * csx;
+    let qtr_cz = f_qtr * csz;
+
+    if dir_z0.abs() <= f_eps {
+        if dir_z0 >= f_zero {
+            mw_f32(mem, ray.wrapping_add(0x14), f_eps);
+        } else {
+            mw_f32(mem, ray.wrapping_add(0x14), f_negeps);
+        }
+    }
+    let slope_xz = mr_f32(mem, ray.wrapping_add(0x0C)) / mr_f32(mem, ray.wrapping_add(0x14));
+
+    let (_, mut grz0) = grid_clamped_cell(mem, grid, x0, z0);
+    let (_, mut grz1) = grid_clamped_cell(mem, grid, x1, z1);
+    let min_x = mr_f32(mem, grid.wrapping_add(0x08));
+    let min_z = mr_f32(mem, grid.wrapping_add(0x0C));
+    let nx = mr16(mem, grid.wrapping_add(0x04)) as i32;
+    let nz = mr16(mem, grid.wrapping_add(0x06)) as i32;
+
+    let z_center_0 = csz * (grz0 as f32) + min_z + half_cz;
+    let z_center_1 = csz * (grz1 as f32) + min_z + half_cz;
+
+    if z0 < z1 {
+        if grz0 > 0 && z0 < (z_center_0 - qtr_cz) {
+            grz0 -= 1;
+        }
+        if grz1 < (nz - 1) && z1 > (z_center_1 + qtr_cz) {
+            grz1 += 1;
+        }
+        let mut gz = grz0;
+        while gz <= grz1 {
+            let cell_z = csz * ((gz - grz0) as f32) + z_center_0;
+            let z_lo = cell_z - half_cz;
+            let z_hi = cell_z + half_cz;
+            let seg_x0 = if z_lo < z0 { x0 } else { slope_xz * (z_lo - z0) + x0 };
+            let seg_x1 = if z_hi > z1 { x1 } else { slope_xz * (z_hi - z0) + x0 };
+            let (mut gx0, _) = grid_clamped_cell(mem, grid, seg_x0, z_lo);
+            let (mut gx1, _) = grid_clamped_cell(mem, grid, seg_x1, z_hi);
+            let x_center_0 = csx * (gx0 as f32) + min_x + half_cx;
+            let x_center_1 = csx * (gx1 as f32) + min_x + half_cx;
+            let (x_start, x_end) = if seg_x0 < seg_x1 {
+                if gx0 > 0 && seg_x0 < (x_center_0 - qtr_cx) {
+                    gx0 -= 1;
+                }
+                if gx1 < (nx - 1) && seg_x1 > (x_center_1 + qtr_cx) {
+                    gx1 += 1;
+                }
+                (gx0, gx1)
+            } else {
+                if gx1 > 0 && seg_x1 < (x_center_1 - qtr_cx) {
+                    gx1 -= 1;
+                }
+                if gx0 < (nx - 1) && seg_x0 > (x_center_0 + qtr_cx) {
+                    gx0 += 1;
+                }
+                (gx1, gx0)
+            };
+            let mut gx = x_start;
+            while gx <= x_end {
+                let head = grid_cell_listhead(mem, grid, gx, gz);
+                if let Some(mut it) = grid_iter_open(mem, head) {
+                    while it.cur != 0 {
+                        let bound = it.cur;
+                        if qcd_isects_raw(mem, qcd, bound.wrapping_add(0x18)) {
+                            let ent = mr32(mem, bound);
+                            call5(c, cb, sc, ray, qcd, ent, cbdata);
+                        }
+                        grid_iter_step(mem, &mut it);
+                    }
+                }
+                gx += 1;
+            }
+            gz += 1;
+        }
+    } else {
+        if grz1 > 0 && z1 < (z_center_1 - qtr_cz) {
+            grz1 -= 1;
+        }
+        if grz0 < (nz - 1) && z0 > (z_center_0 + qtr_cz) {
+            grz0 += 1;
+        }
+        let mut gz = grz1;
+        while gz <= grz0 {
+            let cell_z = csz * ((gz - grz1) as f32) + z_center_1;
+            let z_lo = cell_z - half_cz;
+            let z_hi = cell_z + half_cz;
+            let seg_x0 = if z_lo < z1 { x1 } else { slope_xz * (z1 - z_lo) + x1 };
+            let seg_x1 = if z_hi > z0 { x0 } else { slope_xz * (z1 - z_hi) + x1 };
+            let (mut gx0, _) = grid_clamped_cell(mem, grid, seg_x0, z_lo);
+            let (mut gx1, _) = grid_clamped_cell(mem, grid, seg_x1, z_hi);
+            let x_center_0 = csx * (gx0 as f32) + min_x + half_cx;
+            let x_center_1 = csx * (gx1 as f32) + min_x + half_cx;
+            let (x_start, x_end) = if seg_x0 < seg_x1 {
+                if gx0 > 0 && seg_x0 < (x_center_0 - qtr_cx) {
+                    gx0 -= 1;
+                }
+                if gx1 < (nx - 1) && seg_x1 > (x_center_1 + qtr_cx) {
+                    gx1 += 1;
+                }
+                (gx0, gx1)
+            } else {
+                if gx1 > 0 && seg_x1 < (x_center_1 - qtr_cx) {
+                    gx1 -= 1;
+                }
+                if gx0 < (nx - 1) && seg_x0 > (x_center_0 + qtr_cx) {
+                    gx0 += 1;
+                }
+                (gx1, gx0)
+            };
+            let mut gx = x_start;
+            while gx <= x_end {
+                let head = grid_cell_listhead(mem, grid, gx, gz);
+                if let Some(mut it) = grid_iter_open(mem, head) {
+                    while it.cur != 0 {
+                        let bound = it.cur;
+                        if qcd_isects_raw(mem, qcd, bound.wrapping_add(0x18)) {
+                            let ent = mr32(mem, bound);
+                            call5(c, cb, sc, ray, qcd, ent, cbdata);
+                        }
+                        grid_iter_step(mem, &mut it);
+                    }
+                }
+                gx += 1;
+            }
+            gz += 1;
+        }
+    }
+
+    if let Some(mut it) = grid_iter_open(mem, grid.wrapping_add(0x30)) {
+        while it.cur != 0 {
+            let bound = it.cur;
+            if qcd_isects_raw(mem, qcd, bound.wrapping_add(0x18)) {
+                let ent = mr32(mem, bound);
+                call5(c, cb, sc, ray, qcd, ent, cbdata);
+            }
+            grid_iter_step(mem, &mut it);
+        }
+    }
+
+    c.lr = saved_lr;
+    true
+}
+
+#[inline(always)]
+fn sphere_hits_box_raw(mem: *mut u8, cx: f32, cy: f32, cz: f32, rad: f32, box_addr: u32) -> bool {
+    let mut min_x = mr_f32(mem, box_addr);
+    let mut min_y = mr_f32(mem, box_addr.wrapping_add(4));
+    let mut min_z = mr_f32(mem, box_addr.wrapping_add(8));
+    let mut max_x = mr_f32(mem, box_addr.wrapping_add(12));
+    let mut max_y = mr_f32(mem, box_addr.wrapping_add(16));
+    let mut max_z = mr_f32(mem, box_addr.wrapping_add(20));
+
+    if min_x > max_x {
+        core::mem::swap(&mut min_x, &mut max_x);
+    }
+    if min_y > max_y {
+        core::mem::swap(&mut min_y, &mut max_y);
+    }
+    if min_z > max_z {
+        core::mem::swap(&mut min_z, &mut max_z);
+    }
+
+    let cl_x = cx.clamp(min_x, max_x);
+    let cl_y = cy.clamp(min_y, max_y);
+    let cl_z = cz.clamp(min_z, max_z);
+    let dx = cx - cl_x;
+    let dy = cy - cl_y;
+    let dz = cz - cl_z;
+    (dx * dx + dy * dy + dz * dz) <= rad * rad
+}
+
+/// Native ARM64 / Rust replacement for `xSphereHitsEnv4__FPC7xSpherePC4xEnvPC7xMat3x3P7xCollis` (`0x80200424`).
+pub fn hle_xsphere_hits_env4(c: &mut Ctx) -> bool {
+    let sphere = c.r[3];
+    let env = c.r[4];
+    let mat = c.r[5];
+    let coll = c.r[6];
+    if !in_ram_opt(sphere, 16) || !in_ram_opt(env, 4) || !in_ram_opt(coll, 0x1F8) {
+        return false;
+    }
+    let mem = c.mem;
+    let geom = mr32(mem, env);
+    if !in_ram_opt(geom, 0x20) {
+        return false;
+    }
+
+    let saved_lr = c.lr;
+    let saved_sp = c.r[1];
+    let frame_sp = saved_sp.wrapping_sub(0x30);
+    if !in_ram_opt(frame_sp, 0x30) {
+        return false;
+    }
+    c.r[1] = frame_sp;
+    mw32(mem, frame_sp, saved_sp);
+
+    let isect = frame_sp.wrapping_add(0x08);
+    let cx = mr_f32(mem, sphere);
+    let cy = mr_f32(mem, sphere.wrapping_add(4));
+    let cz = mr_f32(mem, sphere.wrapping_add(8));
+    let rad = mr_f32(mem, sphere.wrapping_add(12));
+    mw_f32(mem, isect, cx);
+    mw_f32(mem, isect.wrapping_add(4), cy);
+    mw_f32(mem, isect.wrapping_add(8), cz);
+    mw_f32(mem, isect.wrapping_add(12), rad);
+    mw32(mem, isect.wrapping_add(0x18), 3);
+
+    let r13 = c.r[13];
+    mw32(mem, r13.wrapping_add(0xFFFF_96AC), mat);
+    mw32(mem, r13.wrapping_add(0xFFFF_969C), 1);
+
+    let jsp_count = mr32(mem, geom.wrapping_add(0x10)) as i32;
+    let mut box_off = 0u32;
+    let mut ptr_off = 0u32;
+    for _ in 0..jsp_count.max(0) {
+        let boxes_base = mr32(mem, geom.wrapping_add(0x1C));
+        let box_addr = boxes_base.wrapping_add(box_off);
+        if in_ram_opt(box_addr, 24) && sphere_hits_box_raw(mem, cx, cy, cz, rad, box_addr) {
+            for k in 0..6u32 {
+                let c_ptr = coll.wrapping_add(k.wrapping_mul(0x54));
+                mw32(mem, c_ptr.wrapping_add(0x14), mr32(mem, c_ptr.wrapping_add(0x10)));
+            }
+            let cur_geom = mr32(mem, env);
+            let jsp_list = mr32(mem, cur_geom.wrapping_add(0x18));
+            let jsp = mr32(mem, jsp_list.wrapping_add(ptr_off));
+            let tree = mr32(mem, jsp.wrapping_add(0x10));
+            call4(c, 0x8020_9674, tree, isect, 0x8020_069C, coll);
+
+            let cur_geom2 = mr32(mem, env);
+            let jsp_list2 = mr32(mem, cur_geom2.wrapping_add(0x18));
+            let jsp2 = mr32(mem, jsp_list2.wrapping_add(ptr_off));
+            for k in 0..6u32 {
+                let c_ptr = coll.wrapping_add(k.wrapping_mul(0x54));
+                if mr_f32(mem, c_ptr.wrapping_add(0x10)) < mr_f32(mem, c_ptr.wrapping_add(0x14)) {
+                    let old_oid = mr32(mem, c_ptr.wrapping_add(0x04));
+                    let new_oid = call3(c, 0x801E_FEE8, jsp2, old_oid, 0);
+                    mw32(mem, c_ptr.wrapping_add(0x04), new_oid);
+                }
+            }
+        }
+        box_off = box_off.wrapping_add(0x18);
+        ptr_off = ptr_off.wrapping_add(4);
+    }
+
+    mw32(mem, r13.wrapping_add(0xFFFF_969C), 0);
+    let mut hit_count = 0u32;
+    let sphere_rad = mr_f32(mem, sphere.wrapping_add(12));
+    for k in 0..6u32 {
+        let c_ptr = coll.wrapping_add(k.wrapping_mul(0x54));
+        if (mr32(mem, c_ptr) & 1) != 0 {
+            hit_count = hit_count.wrapping_add(1);
+            let dist = mr_f32(mem, c_ptr.wrapping_add(0x10));
+            let inv_dist = 1.0f32 / dist;
+            let hdx = mr_f32(mem, c_ptr.wrapping_add(0x24)) * inv_dist;
+            let hdy = mr_f32(mem, c_ptr.wrapping_add(0x28)) * inv_dist;
+            let hdz = mr_f32(mem, c_ptr.wrapping_add(0x2C)) * inv_dist;
+            mw_f32(mem, c_ptr.wrapping_add(0x3C), hdx);
+            mw_f32(mem, c_ptr.wrapping_add(0x40), hdy);
+            mw_f32(mem, c_ptr.wrapping_add(0x44), hdz);
+
+            let pen = dist - sphere_rad;
+            let depen_len = if 0.0f32 < pen { 0.0f32 } else { pen };
+            mw_f32(mem, c_ptr.wrapping_add(0x30), hdx * depen_len);
+            mw_f32(mem, c_ptr.wrapping_add(0x34), hdy * depen_len);
+            mw_f32(mem, c_ptr.wrapping_add(0x38), hdz * depen_len);
+
+            let nx = mr_f32(mem, c_ptr.wrapping_add(0x18));
+            let ny = mr_f32(mem, c_ptr.wrapping_add(0x1C));
+            let nz = mr_f32(mem, c_ptr.wrapping_add(0x20));
+            if (hdx * nx + hdy * ny + hdz * nz) > 0.0f32 {
+                mw_f32(mem, c_ptr.wrapping_add(0x18), -nx);
+                mw_f32(mem, c_ptr.wrapping_add(0x1C), -ny);
+                mw_f32(mem, c_ptr.wrapping_add(0x20), -nz);
+            }
+        }
+    }
+
+    c.r[3] = hit_count;
+    c.r[1] = saved_sp;
+    c.lr = saved_lr;
+    true
+}

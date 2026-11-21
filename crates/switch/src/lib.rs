@@ -3891,10 +3891,18 @@ fn switch_policy(name: &str) -> Hle {
         "xatof__FPCc" => Hle::Replace(hle_opt::hle_xatof),
         "atof" => Hle::Replace(hle_opt::hle_atof),
         "_rwGCLightsGlobalEnable" => Hle::Replace(hle_opt::hle_rw_gc_lights_global_enable),
-        "xSphereHitsEnv4__FPC7xSpherePC4xEnvPC7xMat3x3P7xCollis"
-        | "xRayHitsGrid__FP5xGridP6xSceneP5xRay3PFP6xSceneP5xRay3P7xQCDataP4xEntPv_vP7xQCDataPv"
-        | "xGridCheckPosition__FP5xGridP5xVec3P7xQCDataPFP4xEntPv_iPv"
-        | "xEntCollCheckOneGrid__FP4xEntP6xScenePFP4xEntP6xScenePv_P4xEntP5xGrid" => Hle::Original,
+        "xSphereHitsEnv4__FPC7xSpherePC4xEnvPC7xMat3x3P7xCollis" => {
+            Hle::Replace(hle_opt::hle_xsphere_hits_env4)
+        }
+        "xRayHitsGrid__FP5xGridP6xSceneP5xRay3PFP6xSceneP5xRay3P7xQCDataP4xEntPv_vP7xQCDataPv" => {
+            Hle::Replace(hle_opt::hle_xray_hits_grid)
+        }
+        "xGridCheckPosition__FP5xGridP5xVec3P7xQCDataPFP4xEntPv_iPv" => {
+            Hle::Replace(hle_opt::hle_xgrid_check_position)
+        }
+        "xEntCollCheckOneGrid__FP4xEntP6xScenePFP4xEntP6xScenePv_P4xEntP5xGrid" => {
+            Hle::Replace(hle_opt::hle_xent_coll_check_one_grid)
+        }
 
         // Skeletal skinning vertex updates
         "_rwDlSkinUpdate2WeightsP" => skin_verify::policy(0),

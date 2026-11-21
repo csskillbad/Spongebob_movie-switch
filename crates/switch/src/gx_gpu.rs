@@ -144,6 +144,400 @@ unsafe fn be_i16_at(b: &[u8; 16], offset: usize) -> i16 {
     i16::from_be(core::ptr::read_unaligned(b.as_ptr().add(offset) as *const i16))
 }
 
+#[inline(always)]
+fn fast_format_ok(
+    pos_count: usize,
+    pos_format: u32,
+    nbt: bool,
+    nk: u32,
+    normal_format: u32,
+    ck0: u32,
+    ck1: u32,
+    color_format: [u32; 2],
+    vcd_hi: u32,
+    tk0: u32,
+    tk1: u32,
+    tex: [(u32, u32); 4],
+) -> bool {
+    pos_count == 3
+        && pos_format == 4
+        && !nbt
+        && (nk == 0 || normal_format == 4)
+        && (ck0 == 0 || color_format[0] == 5)
+        && (ck1 == 0 || color_format[1] == 5)
+        && (vcd_hi & !0xF) == 0
+        && (tk0 == 0 || ((tex[0].0 & 1) == 1 && (tex[0].1 & 7) == 4))
+        && (tk1 == 0 || ((tex[1].0 & 1) == 1 && (tex[1].1 & 7) == 4))
+}
+
+#[inline(always)]
+fn fast_vsize(has_matrix: bool, pk: u32, nk: u32, ck0: u32, ck1: u32, tk0: u32, tk1: u32) -> usize {
+    #[inline(always)]
+    fn comp(k: u32, inline: usize) -> usize {
+        match k {
+            1 => inline,
+            2 => 1,
+            3 => 2,
+            _ => 0,
+        }
+    }
+    has_matrix as usize
+        + comp(pk, 12)
+        + comp(nk, 12)
+        + comp(ck0, 4)
+        + comp(ck1, 4)
+        + comp(tk0, 8)
+        + comp(tk1, 8)
+}
+
+#[inline(always)]
+fn track_idx<const TRACK: bool>(r: &mut (u32, u32), idx: u32) {
+    if TRACK {
+        if idx < r.0 {
+            r.0 = idx;
+        }
+        if idx > r.1 {
+            r.1 = idx;
+        }
+    }
+}
+
+#[inline(always)]
+unsafe fn read_f32x3_from_array(c: Mem, array: (u32, u32), idx: u32) -> [f32; 3] {
+    let addr = array.0.wrapping_add(idx.wrapping_mul(array.1));
+    let off = ((addr & 0x07FF_FFFF) as usize).min(0x07FF_FFF0);
+    let p = c.0.add(off) as *const u32;
+    [
+        f32::from_bits(u32::from_be(p.read_unaligned())),
+        f32::from_bits(u32::from_be(p.add(1).read_unaligned())),
+        f32::from_bits(u32::from_be(p.add(2).read_unaligned())),
+    ]
+}
+
+#[inline(always)]
+unsafe fn read_f32x2_from_array(c: Mem, array: (u32, u32), idx: u32) -> [f32; 2] {
+    let addr = array.0.wrapping_add(idx.wrapping_mul(array.1));
+    let off = ((addr & 0x07FF_FFFF) as usize).min(0x07FF_FFF0);
+    let p = c.0.add(off) as *const u32;
+    [
+        f32::from_bits(u32::from_be(p.read_unaligned())),
+        f32::from_bits(u32::from_be(p.add(1).read_unaligned())),
+    ]
+}
+
+#[inline(always)]
+unsafe fn read_rgba8_from_array(c: Mem, array: (u32, u32), idx: u32) -> [f32; 4] {
+    const INV255: f32 = 1.0 / 255.0;
+    let addr = array.0.wrapping_add(idx.wrapping_mul(array.1));
+    let off = ((addr & 0x07FF_FFFF) as usize).min(0x07FF_FFF0);
+    let p = c.0.add(off);
+    [
+        (*p) as f32 * INV255,
+        (*p.add(1)) as f32 * INV255,
+        (*p.add(2)) as f32 * INV255,
+        (*p.add(3)) as f32 * INV255,
+    ]
+}
+
+#[inline(always)]
+fn decode_fast_range<const TRACK: bool>(
+    mem: Mem,
+    data: &[u8],
+    format: &Format,
+    vsize: usize,
+    lo: usize,
+    hi: usize,
+    dst: *mut RawVertex,
+    rg: &mut [(u32, u32); 12],
+) {
+    let Format {
+        vcd_lo,
+        vcd_hi,
+        ref arrays,
+        ..
+    } = *format;
+
+    // Hot Specializations: 100% branch-free inner loops for RenderWare's primary vertex formats
+    unsafe {
+        let src_base = data.as_ptr();
+        if vcd_lo == 0x1E00 && vcd_hi == 0x03 {
+            // 6 bytes/vertex: [pos_idx: u16, nrm_idx: u16, tex0_idx: u16]
+            let a0 = arrays[0];
+            let a1 = arrays[1];
+            let a4 = arrays[4];
+            for i in lo..hi {
+                let vp = src_base.add(i * 6);
+                let pidx = u16::from_be((vp as *const u16).read_unaligned()) as u32;
+                let nidx = u16::from_be((vp.add(2) as *const u16).read_unaligned()) as u32;
+                let tidx = u16::from_be((vp.add(4) as *const u16).read_unaligned()) as u32;
+                track_idx::<TRACK>(&mut rg[0], pidx);
+                track_idx::<TRACK>(&mut rg[1], nidx);
+                track_idx::<TRACK>(&mut rg[4], tidx);
+                dst.add(i).write(RawVertex {
+                    pos: read_f32x3_from_array(mem, a0, pidx),
+                    pad0: 0.0,
+                    normal: read_f32x3_from_array(mem, a1, nidx),
+                    pad1: 0.0,
+                    colors: [[0.0; 4]; 2],
+                    tex: [read_f32x2_from_array(mem, a4, tidx), [0.0; 2], [0.0; 2], [0.0; 2]],
+                });
+            }
+            return;
+        }
+        if vcd_lo == 0x1E01 && vcd_hi == 0x03 {
+            // 7 bytes/vertex: [mtx: u8, pos_idx: u16, nrm_idx: u16, tex0_idx: u16] (Skinned characters & vehicles)
+            let a0 = arrays[0];
+            let a1 = arrays[1];
+            let a4 = arrays[4];
+            for i in lo..hi {
+                let vp = src_base.add(i * 7);
+                let mtx = (*vp & 0x3F) as f32;
+                let pidx = u16::from_be((vp.add(1) as *const u16).read_unaligned()) as u32;
+                let nidx = u16::from_be((vp.add(3) as *const u16).read_unaligned()) as u32;
+                let tidx = u16::from_be((vp.add(5) as *const u16).read_unaligned()) as u32;
+                track_idx::<TRACK>(&mut rg[0], pidx);
+                track_idx::<TRACK>(&mut rg[1], nidx);
+                track_idx::<TRACK>(&mut rg[4], tidx);
+                dst.add(i).write(RawVertex {
+                    pos: read_f32x3_from_array(mem, a0, pidx),
+                    pad0: mtx,
+                    normal: read_f32x3_from_array(mem, a1, nidx),
+                    pad1: 0.0,
+                    colors: [[0.0; 4]; 2],
+                    tex: [read_f32x2_from_array(mem, a4, tidx), [0.0; 2], [0.0; 2], [0.0; 2]],
+                });
+            }
+            return;
+        }
+        if vcd_lo == 0x7E00 && vcd_hi == 0x03 {
+            // 8 bytes/vertex: [pos_idx: u16, nrm_idx: u16, col0_idx: u16, tex0_idx: u16]
+            let a0 = arrays[0];
+            let a1 = arrays[1];
+            let a2 = arrays[2];
+            let a4 = arrays[4];
+            for i in lo..hi {
+                let w = u64::from_be((src_base.add(i * 8) as *const u64).read_unaligned());
+                let pidx = ((w >> 48) & 0xFFFF) as u32;
+                let nidx = ((w >> 32) & 0xFFFF) as u32;
+                let cidx = ((w >> 16) & 0xFFFF) as u32;
+                let tidx = (w & 0xFFFF) as u32;
+                track_idx::<TRACK>(&mut rg[0], pidx);
+                track_idx::<TRACK>(&mut rg[1], nidx);
+                track_idx::<TRACK>(&mut rg[2], cidx);
+                track_idx::<TRACK>(&mut rg[4], tidx);
+                dst.add(i).write(RawVertex {
+                    pos: read_f32x3_from_array(mem, a0, pidx),
+                    pad0: 0.0,
+                    normal: read_f32x3_from_array(mem, a1, nidx),
+                    pad1: 0.0,
+                    colors: [read_rgba8_from_array(mem, a2, cidx), [0.0; 4]],
+                    tex: [read_f32x2_from_array(mem, a4, tidx), [0.0; 2], [0.0; 2], [0.0; 2]],
+                });
+            }
+            return;
+        }
+        if (vcd_lo == 0x1400 || vcd_lo == 0x1401) && vcd_hi == 0x02 {
+            // 3 or 4 bytes/vertex: [(mtx: u8,) pos_idx: u8, nrm_idx: u8, tex0_idx: u8]
+            let has_mtx = (vcd_lo & 1) != 0;
+            let step = 3 + has_mtx as usize;
+            let a0 = arrays[0];
+            let a1 = arrays[1];
+            let a4 = arrays[4];
+            for i in lo..hi {
+                let vp = src_base.add(i * step);
+                let (mtx, p_off) = if has_mtx {
+                    ((*vp & 0x3F) as f32, 1usize)
+                } else {
+                    (0.0, 0usize)
+                };
+                let pidx = *vp.add(p_off) as u32;
+                let nidx = *vp.add(p_off + 1) as u32;
+                let tidx = *vp.add(p_off + 2) as u32;
+                track_idx::<TRACK>(&mut rg[0], pidx);
+                track_idx::<TRACK>(&mut rg[1], nidx);
+                track_idx::<TRACK>(&mut rg[4], tidx);
+                dst.add(i).write(RawVertex {
+                    pos: read_f32x3_from_array(mem, a0, pidx),
+                    pad0: mtx,
+                    normal: read_f32x3_from_array(mem, a1, nidx),
+                    pad1: 0.0,
+                    colors: [[0.0; 4]; 2],
+                    tex: [read_f32x2_from_array(mem, a4, tidx), [0.0; 2], [0.0; 2], [0.0; 2]],
+                });
+            }
+            return;
+        }
+    }
+
+    let kind = |shift: u32| (vcd_lo >> shift) & 3;
+    let pk = kind(9);
+    let nk = kind(11);
+    let ck0 = kind(13);
+    let ck1 = kind(15);
+    let tk0 = vcd_hi & 3;
+    let tk1 = (vcd_hi >> 2) & 3;
+    let has_matrix = (vcd_lo & 1) != 0;
+
+    #[inline(always)]
+    fn fetch_f32x3<const TRACK: bool>(
+        c: Mem,
+        data: &[u8],
+        o: &mut usize,
+        k: u32,
+        array: (u32, u32),
+        r: &mut (u32, u32),
+    ) -> [f32; 3] {
+        let idx = match k {
+            1 => {
+                let cur = *o;
+                *o = cur + 12;
+                return unsafe {
+                    let p = data.as_ptr().add(cur);
+                    [
+                        f32::from_bits(u32::from_be((p as *const u32).read_unaligned())),
+                        f32::from_bits(u32::from_be((p.add(4) as *const u32).read_unaligned())),
+                        f32::from_bits(u32::from_be((p.add(8) as *const u32).read_unaligned())),
+                    ]
+                };
+            }
+            2 => {
+                let idx = data[*o] as u32;
+                *o += 1;
+                idx
+            }
+            3 => {
+                let idx = be16(data, *o) as u32;
+                *o += 2;
+                idx
+            }
+            _ => return [0.0; 3],
+        };
+        track_idx::<TRACK>(r, idx);
+        unsafe { read_f32x3_from_array(c, array, idx) }
+    }
+
+    #[inline(always)]
+    fn fetch_rgba8<const TRACK: bool>(
+        c: Mem,
+        data: &[u8],
+        o: &mut usize,
+        k: u32,
+        array: (u32, u32),
+        r: &mut (u32, u32),
+    ) -> [f32; 4] {
+        const INV255: f32 = 1.0 / 255.0;
+        match k {
+            1 => {
+                let cur = *o;
+                *o = cur + 4;
+                [
+                    data[cur] as f32 * INV255,
+                    data[cur + 1] as f32 * INV255,
+                    data[cur + 2] as f32 * INV255,
+                    data[cur + 3] as f32 * INV255,
+                ]
+            }
+            2 => {
+                let idx = data[*o] as u32;
+                *o += 1;
+                track_idx::<TRACK>(r, idx);
+                unsafe { read_rgba8_from_array(c, array, idx) }
+            }
+            3 => {
+                let idx = be16(data, *o) as u32;
+                *o += 2;
+                track_idx::<TRACK>(r, idx);
+                unsafe { read_rgba8_from_array(c, array, idx) }
+            }
+            _ => [0.0; 4],
+        }
+    }
+
+    #[inline(always)]
+    fn fetch_f32x2<const TRACK: bool>(
+        c: Mem,
+        data: &[u8],
+        o: &mut usize,
+        k: u32,
+        array: (u32, u32),
+        r: &mut (u32, u32),
+    ) -> [f32; 2] {
+        let idx = match k {
+            1 => {
+                let cur = *o;
+                *o = cur + 8;
+                return unsafe {
+                    let p = data.as_ptr().add(cur);
+                    [
+                        f32::from_bits(u32::from_be((p as *const u32).read_unaligned())),
+                        f32::from_bits(u32::from_be((p.add(4) as *const u32).read_unaligned())),
+                    ]
+                };
+            }
+            2 => {
+                let idx = data[*o] as u32;
+                *o += 1;
+                idx
+            }
+            3 => {
+                let idx = be16(data, *o) as u32;
+                *o += 2;
+                idx
+            }
+            _ => return [0.0; 2],
+        };
+        track_idx::<TRACK>(r, idx);
+        unsafe { read_f32x2_from_array(c, array, idx) }
+    }
+
+    let mut o = lo * vsize;
+    unsafe {
+        for i in lo..hi {
+            let matrix = if has_matrix {
+                let m = (data[o] & 0x3F) as f32;
+                o += 1;
+                m
+            } else {
+                0.0
+            };
+            let pos = fetch_f32x3::<TRACK>(mem, data, &mut o, pk, arrays[0], &mut rg[0]);
+            let normal = if nk != 0 {
+                fetch_f32x3::<TRACK>(mem, data, &mut o, nk, arrays[1], &mut rg[1])
+            } else {
+                [0.0; 3]
+            };
+            let c0 = if ck0 != 0 {
+                fetch_rgba8::<TRACK>(mem, data, &mut o, ck0, arrays[2], &mut rg[2])
+            } else {
+                [0.0; 4]
+            };
+            let c1 = if ck1 != 0 {
+                fetch_rgba8::<TRACK>(mem, data, &mut o, ck1, arrays[3], &mut rg[3])
+            } else {
+                [0.0; 4]
+            };
+            let t0 = if tk0 != 0 {
+                fetch_f32x2::<TRACK>(mem, data, &mut o, tk0, arrays[4], &mut rg[4])
+            } else {
+                [0.0; 2]
+            };
+            let t1 = if tk1 != 0 {
+                fetch_f32x2::<TRACK>(mem, data, &mut o, tk1, arrays[5], &mut rg[5])
+            } else {
+                [0.0; 2]
+            };
+            dst.add(i).write(RawVertex {
+                pos,
+                pad0: matrix,
+                normal,
+                pad1: 0.0,
+                colors: [c0, c1],
+                tex: [t0, t1, [0.0; 2], [0.0; 2]],
+            });
+        }
+    }
+}
+
 fn decode_raw(
     mem: Mem,
     data: &[u8],
@@ -199,252 +593,42 @@ fn decode_raw(
     let tk0 = tex_kind(0);
     let tk1 = tex_kind(1);
     let has_matrix = (vcd_lo & 1) != 0;
-    if pos_count == 3
-        && pos_format == 4
-        && !nbt
-        && (nk == 0 || normal_format == 4)
-        && (ck0 == 0 || color_format[0] == 5)
-        && (ck1 == 0 || color_format[1] == 5)
-        && (vcd_hi & !0xF) == 0
-        && (tk0 == 0 || ((tex[0].0 & 1) == 1 && (tex[0].1 & 7) == 4))
-        && (tk1 == 0 || ((tex[1].0 & 1) == 1 && (tex[1].1 & 7) == 4))
-    {
-        #[inline(always)]
-        fn fetch_f32x3(
-            c: Mem,
-            data: &[u8],
-            o: &mut usize,
-            k: u32,
-            array: (u32, u32),
-            r: &mut (u32, u32),
-        ) -> [f32; 3] {
-            let idx = match k {
-                1 => {
-                    let cur = *o;
-                    *o = cur + 12;
-                    return unsafe {
-                        let p = data.as_ptr().add(cur);
-                        [
-                            f32::from_bits(u32::from_be((p as *const u32).read_unaligned())),
-                            f32::from_bits(u32::from_be((p.add(4) as *const u32).read_unaligned())),
-                            f32::from_bits(u32::from_be((p.add(8) as *const u32).read_unaligned())),
-                        ]
-                    };
-                }
-                2 => {
-                    let idx = data[*o] as u32;
-                    *o += 1;
-                    idx
-                }
-                3 => {
-                    let idx = be16(data, *o) as u32;
-                    *o += 2;
-                    idx
-                }
-                _ => return [0.0; 3],
-            };
-            if idx < r.0 {
-                r.0 = idx;
-            }
-            if idx > r.1 {
-                r.1 = idx;
-            }
-            let addr = array.0.wrapping_add(idx.wrapping_mul(array.1));
-            let off = ((addr & 0x07FF_FFFF) as usize).min(0x07FF_FFF0);
-            unsafe {
-                let p = c.0.add(off);
-                [
-                    f32::from_bits(u32::from_be((p as *const u32).read_unaligned())),
-                    f32::from_bits(u32::from_be((p.add(4) as *const u32).read_unaligned())),
-                    f32::from_bits(u32::from_be((p.add(8) as *const u32).read_unaligned())),
-                ]
-            }
-        }
-        #[inline(always)]
-        fn fetch_rgba8(
-            c: Mem,
-            data: &[u8],
-            o: &mut usize,
-            k: u32,
-            array: (u32, u32),
-            r: &mut (u32, u32),
-        ) -> [f32; 4] {
-            const INV255: f32 = 1.0 / 255.0;
-            let rgba = match k {
-                1 => {
-                    let cur = *o;
-                    *o = cur + 4;
-                    [data[cur], data[cur + 1], data[cur + 2], data[cur + 3]]
-                }
-                2 => {
-                    let idx = data[*o] as u32;
-                    *o += 1;
-                    if idx < r.0 {
-                        r.0 = idx;
-                    }
-                    if idx > r.1 {
-                        r.1 = idx;
-                    }
-                    let addr = array.0.wrapping_add(idx.wrapping_mul(array.1));
-                    let off = ((addr & 0x07FF_FFFF) as usize).min(0x07FF_FFF0);
-                    unsafe {
-                        let p = c.0.add(off);
-                        [*p, *p.add(1), *p.add(2), *p.add(3)]
-                    }
-                }
-                3 => {
-                    let idx = be16(data, *o) as u32;
-                    *o += 2;
-                    if idx < r.0 {
-                        r.0 = idx;
-                    }
-                    if idx > r.1 {
-                        r.1 = idx;
-                    }
-                    let addr = array.0.wrapping_add(idx.wrapping_mul(array.1));
-                    let off = ((addr & 0x07FF_FFFF) as usize).min(0x07FF_FFF0);
-                    unsafe {
-                        let p = c.0.add(off);
-                        [*p, *p.add(1), *p.add(2), *p.add(3)]
-                    }
-                }
-                _ => return [0.0; 4],
-            };
-            [
-                rgba[0] as f32 * INV255,
-                rgba[1] as f32 * INV255,
-                rgba[2] as f32 * INV255,
-                rgba[3] as f32 * INV255,
-            ]
-        }
-        #[inline(always)]
-        fn fetch_f32x2(
-            c: Mem,
-            data: &[u8],
-            o: &mut usize,
-            k: u32,
-            array: (u32, u32),
-            r: &mut (u32, u32),
-        ) -> [f32; 2] {
-            let idx = match k {
-                1 => {
-                    let cur = *o;
-                    *o = cur + 8;
-                    return unsafe {
-                        let p = data.as_ptr().add(cur);
-                        [
-                            f32::from_bits(u32::from_be((p as *const u32).read_unaligned())),
-                            f32::from_bits(u32::from_be((p.add(4) as *const u32).read_unaligned())),
-                        ]
-                    };
-                }
-                2 => {
-                    let idx = data[*o] as u32;
-                    *o += 1;
-                    idx
-                }
-                3 => {
-                    let idx = be16(data, *o) as u32;
-                    *o += 2;
-                    idx
-                }
-                _ => return [0.0; 2],
-            };
-            if idx < r.0 {
-                r.0 = idx;
-            }
-            if idx > r.1 {
-                r.1 = idx;
-            }
-            let addr = array.0.wrapping_add(idx.wrapping_mul(array.1));
-            let off = ((addr & 0x07FF_FFFF) as usize).min(0x07FF_FFF0);
-            unsafe {
-                let p = c.0.add(off);
-                [
-                    f32::from_bits(u32::from_be((p as *const u32).read_unaligned())),
-                    f32::from_bits(u32::from_be((p.add(4) as *const u32).read_unaligned())),
-                ]
-            }
-        }
-
+    if fast_format_ok(
+        pos_count,
+        pos_format,
+        nbt,
+        nk,
+        normal_format,
+        ck0,
+        ck1,
+        color_format,
+        vcd_hi,
+        tk0,
+        tk1,
+        tex,
+    ) {
         let start = out.len();
-        // Every vertex has the same size on this path, so ranges of vertices decode independently.
-        #[inline(always)]
-        fn comp(k: u32, inline: usize) -> usize {
-            match k {
-                1 => inline,
-                2 => 1,
-                3 => 2,
-                _ => 0,
-            }
-        }
-        let vsize = has_matrix as usize
-            + comp(pk, 12)
-            + comp(nk, 12)
-            + comp(ck0, 4)
-            + comp(ck1, 4)
-            + comp(tk0, 8)
-            + comp(tk1, 8);
+        let vsize = fast_vsize(has_matrix, pk, nk, ck0, ck1, tk0, tk1);
         let dst0 = unsafe { out.as_mut_ptr().add(start) };
-        let decode_range = |lo: usize, hi: usize, dst: *mut RawVertex, rg: &mut [(u32, u32); 12]| {
-            let mut o = lo * vsize;
-            unsafe {
-                for i in lo..hi {
-                    let matrix = if has_matrix {
-                        let m = (data[o] & 0x3F) as f32;
-                        o += 1;
-                        m
-                    } else {
-                        0.0
-                    };
-                    let pos = fetch_f32x3(mem, data, &mut o, pk, arrays[0], &mut rg[0]);
-                    let normal = if nk != 0 {
-                        fetch_f32x3(mem, data, &mut o, nk, arrays[1], &mut rg[1])
-                    } else {
-                        [0.0; 3]
-                    };
-                    let c0 = if ck0 != 0 {
-                        fetch_rgba8(mem, data, &mut o, ck0, arrays[2], &mut rg[2])
-                    } else {
-                        [0.0; 4]
-                    };
-                    let c1 = if ck1 != 0 {
-                        fetch_rgba8(mem, data, &mut o, ck1, arrays[3], &mut rg[3])
-                    } else {
-                        [0.0; 4]
-                    };
-                    let t0 = if tk0 != 0 {
-                        fetch_f32x2(mem, data, &mut o, tk0, arrays[4], &mut rg[4])
-                    } else {
-                        [0.0; 2]
-                    };
-                    let t1 = if tk1 != 0 {
-                        fetch_f32x2(mem, data, &mut o, tk1, arrays[5], &mut rg[5])
-                    } else {
-                        [0.0; 2]
-                    };
-                    dst.add(i).write(RawVertex {
-                        pos,
-                        pad0: matrix,
-                        normal,
-                        pad1: 0.0,
-                        colors: [c0, c1],
-                        tex: [t0, t1, [0.0; 2], [0.0; 2]],
-                    });
-                }
-            }
-        };
         if count >= crate::par::MIN_PARALLEL_VERTS && vsize * count <= data.len() {
-            // Core 2 helper decodes the second half while this thread decodes the first.
             let half = count / 2;
             let mut ranges_b = [(u32::MAX, 0u32); 12];
             let dst_addr = dst0 as usize;
             {
                 let mut job = || {
-                    decode_range(half, count, dst_addr as *mut RawVertex, &mut ranges_b);
+                    decode_fast_range::<true>(
+                        mem,
+                        data,
+                        format,
+                        vsize,
+                        half,
+                        count,
+                        dst_addr as *mut RawVertex,
+                        &mut ranges_b,
+                    );
                 };
                 crate::par::run2(
-                    || decode_range(0, half, dst0, ranges),
+                    || decode_fast_range::<true>(mem, data, format, vsize, 0, half, dst0, ranges),
                     &mut job,
                 );
             }
@@ -454,7 +638,7 @@ fn decode_raw(
                 }
             }
         } else {
-            decode_range(0, count, dst0, ranges);
+            decode_fast_range::<true>(mem, data, format, vsize, 0, count, dst0, ranges);
         }
         unsafe { out.set_len(start + count) };
         return;
@@ -635,37 +819,82 @@ fn decode_raw(
     }
 }
 
-fn emit_indices(op: u8, base: u32, count: u32, out: &mut Vec<u32>) {
-    let needed = match op & 0xF8 {
-        0x80 | 0x88 => (count as usize / 4) * 6,
-        0x90 => count as usize - (count as usize % 3),
-        0x98 | 0xA0 => (count as usize).saturating_sub(2) * 3,
+#[inline(always)]
+fn index_count_for_op(op: u8, count: usize) -> usize {
+    match op & 0xF8 {
+        0x80 | 0x88 => (count / 4) * 6,
+        0x90 => count - (count % 3),
+        0x98 | 0xA0 => count.saturating_sub(2) * 3,
         _ => 0,
-    };
-    out.reserve(needed);
+    }
+}
+
+#[inline(always)]
+unsafe fn emit_indices_ptr(op: u8, base: u32, count: u32, mut dst: *mut u32) -> usize {
     match op & 0xF8 {
         0x80 | 0x88 => {
-            for q in (0..count / 4).map(|q| base + q * 4) {
-                out.extend_from_slice(&[q, q + 1, q + 2, q, q + 2, q + 3]);
+            let quads = count / 4;
+            for q in 0..quads {
+                let v = base + q * 4;
+                *dst = v;
+                *dst.add(1) = v + 1;
+                *dst.add(2) = v + 2;
+                *dst.add(3) = v;
+                *dst.add(4) = v + 2;
+                *dst.add(5) = v + 3;
+                dst = dst.add(6);
             }
+            (quads as usize) * 6
         }
-        0x90 => out.extend(base..base + count - count % 3),
-        0x98 => {
-            for i in 0..count.saturating_sub(2) {
-                let v = base + i;
-                out.extend_from_slice(&if i % 2 == 0 {
-                    [v, v + 1, v + 2]
-                } else {
-                    [v + 1, v, v + 2]
-                });
+        0x90 => {
+            let n = count - (count % 3);
+            for i in 0..n {
+                *dst.add(i as usize) = base + i;
             }
+            n as usize
+        }
+        0x98 => {
+            let tris = count.saturating_sub(2);
+            for i in 0..tris {
+                let v = base + i;
+                if (i & 1) == 0 {
+                    *dst = v;
+                    *dst.add(1) = v + 1;
+                    *dst.add(2) = v + 2;
+                } else {
+                    *dst = v + 1;
+                    *dst.add(1) = v;
+                    *dst.add(2) = v + 2;
+                }
+                dst = dst.add(3);
+            }
+            (tris as usize) * 3
         }
         0xA0 => {
-            for i in 1..count.saturating_sub(1) {
-                out.extend_from_slice(&[base, base + i, base + i + 1]);
+            let tris = count.saturating_sub(2);
+            for i in 0..tris {
+                let v = base + i + 1;
+                *dst = base;
+                *dst.add(1) = v;
+                *dst.add(2) = v + 1;
+                dst = dst.add(3);
             }
+            (tris as usize) * 3
         }
-        _ => {}
+        _ => 0,
+    }
+}
+
+fn emit_indices(op: u8, base: u32, count: u32, out: &mut Vec<u32>) {
+    let needed = index_count_for_op(op, count as usize);
+    if needed == 0 {
+        return;
+    }
+    let cur = out.len();
+    out.reserve(needed);
+    unsafe {
+        let written = emit_indices_ptr(op, base, count, out.as_mut_ptr().add(cur));
+        out.set_len(cur + written);
     }
 }
 
@@ -2317,6 +2546,167 @@ impl Gx {
         )
     }
 
+    /// Fast-path display-list streamer when `ListShape` is already known (`shape.plain == true`)
+    /// and its array spans have been bounds-checked (`span_addrs.is_some()`).
+    /// Skips per-attribute range tracking, pre-reserves exact vertex & index capacities once,
+    /// and splits multi-strip meshes (`>= MIN_PARALLEL_VERTS`) across Core 0 + Core 2.
+    fn stream_known_list_into(
+        mem: Mem,
+        cp: &[u32; 256],
+        list: &[u8],
+        shape: &ListShape,
+        vertices: &mut Vec<RawVertex>,
+        indices: &mut Vec<u32>,
+    ) -> bool {
+        let _phase = crate::GxPhase::enter(13);
+        let total_v = shape.vertices as usize;
+        let total_i = shape.index_count as usize;
+        let (vcd_lo, vcd_hi) = (cp[0x50], cp[0x60]);
+        let kind = |shift: u32| (vcd_lo >> shift) & 3;
+        let (nk, ck0, ck1, tk0, tk1) = (
+            kind(11),
+            kind(13),
+            kind(15),
+            vcd_hi & 3,
+            (vcd_hi >> 2) & 3,
+        );
+        let vsizes: [usize; 8] = core::array::from_fn(|vat| Self::vertex_size_cp(cp, vat));
+        let fast_vats: [bool; 8] = core::array::from_fn(|vat| {
+            let (a, b) = (cp[0x70 + vat], cp[0x80 + vat]);
+            let (pos_count, pos_format) = (2 + (a & 1) as usize, (a >> 1) & 7);
+            let nbt = (a >> 9) & 1 != 0;
+            let normal_format = (a >> 10) & 7;
+            let color_format = [(a >> 14) & 7, (a >> 18) & 7];
+            let tex = [
+                (a >> 21, a >> 22),
+                (b, b >> 1),
+                (b >> 9, b >> 10),
+                (b >> 18, b >> 19),
+            ];
+            fast_format_ok(
+                pos_count,
+                pos_format,
+                nbt,
+                nk,
+                normal_format,
+                ck0,
+                ck1,
+                color_format,
+                vcd_hi,
+                tk0,
+                tk1,
+                tex,
+            )
+        });
+
+        let half_target = total_v / 2;
+        let (mut at, mut v_acc, mut i_acc) = (0usize, 0usize, 0usize);
+        let (mut split_at, mut split_v, mut split_i) = (0usize, 0usize, 0usize);
+        while at < list.len() {
+            let op = list[at];
+            if op == 0 {
+                at += 1;
+                continue;
+            }
+            if !(0x80..=0xBF).contains(&op) || at + 3 > list.len() {
+                return Self::build_list_into(mem, cp, list, vertices, indices).is_some();
+            }
+            let (count, vat) = (be16(list, at + 1), (op & 7) as usize);
+            let vsize = vsizes[vat];
+            let need = 3 + count * vsize;
+            if !fast_vats[vat] || at + need > list.len() {
+                return Self::build_list_into(mem, cp, list, vertices, indices).is_some();
+            }
+            v_acc += count;
+            i_acc += index_count_for_op(op, count);
+            at += need;
+            if split_at == 0 && v_acc >= half_target {
+                split_at = at;
+                split_v = v_acc;
+                split_i = i_acc;
+            }
+        }
+        if v_acc != total_v || i_acc != total_i {
+            return Self::build_list_into(mem, cp, list, vertices, indices).is_some();
+        }
+
+        let start_v = vertices.len();
+        let start_i = indices.len();
+        vertices.reserve(total_v);
+        indices.reserve(total_i);
+        let arrays: [(u32, u32); 12] = core::array::from_fn(|n| {
+            (
+                (cp[0xA0 + n] & 0x03FF_FFFF) | 0x8000_0000,
+                cp[0xB0 + n] & 0xFF,
+            )
+        });
+
+        let decode_slice = |sub: &[u8], v_dst: usize, i_dst: usize, mut cur_base: u32| {
+            let v_ptr = v_dst as *mut RawVertex;
+            let i_ptr = i_dst as *mut u32;
+            let mut dummy_rg = [(u32::MAX, 0u32); 12];
+            let (mut pos, mut v_off, mut i_off) = (0usize, 0usize, 0usize);
+            while pos < sub.len() {
+                let op = sub[pos];
+                if op == 0 {
+                    pos += 1;
+                    continue;
+                }
+                let (count, vat) = (be16(sub, pos + 1), (op & 7) as usize);
+                let vsize = vsizes[vat];
+                let need = 3 + count * vsize;
+                let format = Format {
+                    vcd_lo,
+                    vcd_hi,
+                    a: cp[0x70 + vat],
+                    b: cp[0x80 + vat],
+                    arrays,
+                };
+                unsafe {
+                    decode_fast_range::<false>(
+                        mem,
+                        &sub[pos + 3..pos + need],
+                        &format,
+                        vsize,
+                        0,
+                        count,
+                        v_ptr.add(v_off),
+                        &mut dummy_rg,
+                    );
+                    let emitted = emit_indices_ptr(op, cur_base, count as u32, i_ptr.add(i_off));
+                    v_off += count;
+                    i_off += emitted;
+                    cur_base += count as u32;
+                }
+                pos += need;
+            }
+        };
+
+        let v_ptr0 = unsafe { vertices.as_mut_ptr().add(start_v) as usize };
+        let i_ptr0 = unsafe { indices.as_mut_ptr().add(start_i) as usize };
+        if total_v >= crate::par::MIN_PARALLEL_VERTS && split_at > 0 && split_at < list.len() {
+            let v_ptr1 = unsafe { (v_ptr0 as *mut RawVertex).add(split_v) as usize };
+            let i_ptr1 = unsafe { (i_ptr0 as *mut u32).add(split_i) as usize };
+            let base0 = start_v as u32;
+            let base1 = (start_v + split_v) as u32;
+            let mut job_b = || decode_slice(&list[split_at..], v_ptr1, i_ptr1, base1);
+            crate::par::run2(
+                || decode_slice(&list[..split_at], v_ptr0, i_ptr0, base0),
+                &mut job_b,
+            );
+        } else {
+            decode_slice(list, v_ptr0, i_ptr0, start_v as u32);
+        }
+
+        unsafe {
+            vertices.set_len(start_v + total_v);
+            indices.set_len(start_i + total_i);
+        }
+        crate::dlstat(3, 1);
+        crate::dlstat(4, total_v as u64);
+        true
+    }
+
     fn resolve_list(&mut self, addr: u32, size: usize, allow_draw: bool) -> Ahead {
         let _phase = crate::GxPhase::enter(4);
         let t0 = crate::prof_now();
@@ -2461,14 +2851,15 @@ impl Gx {
                         .indices
                         .extend(self.list_indices.iter().map(|index| index + base));
                     Ahead::Streamed(shape, first)
-                } else if Self::build_list_into(
-                    self.mem,
-                    &self.cp,
-                    list,
-                    &mut self.frame.raw,
-                    &mut self.frame.indices,
-                )
-                .is_some()
+                } else if span_addrs.is_some()
+                    && Self::stream_known_list_into(
+                        self.mem,
+                        &self.cp,
+                        list,
+                        &shape,
+                        &mut self.frame.raw,
+                        &mut self.frame.indices,
+                    )
                 {
                     crate::dlstat(5, 1);
                     Ahead::Streamed(shape, first)
