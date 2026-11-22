@@ -35,7 +35,7 @@ echo "=========================================================="
 
 if [ -z "$KEYS_FILE" ] || [ ! -f "$KEYS_FILE" ]; then
     if [ -x "$ROOT_DIR/tssm-builder" ]; then
-        echo "[!] No prod.keys found; using native x86_64 assembly builder (./tssm-builder --build-all)..."
+        echo "[!] No prod.keys found; using native Rust builder (./tssm-builder --build-all)..."
         "$ROOT_DIR/tssm-builder" --build-all
         exit 0
     fi

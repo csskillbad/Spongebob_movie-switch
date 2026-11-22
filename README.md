@@ -31,19 +31,34 @@ Runs natively on bare-metal ARM64 (Cortex-A57) with direct hardware graphics acc
 
 ## Easy Build Instructions
 
-### Option 1: Native x86_64 Assembly GUI Builder (Windows & Linux)
+### Option 1: One-Click Native Rust GUI Builder (Windows & Linux — No Tools Required!)
 
-A lightweight, dependency-free GUI builder written in **pure x86_64 assembly** is included in the repository root for both Windows and Linux:
+Pre-built standalone binaries (`TSSM-Builder.exe` for Windows and `tssm-builder` for Linux) are included right in the repository root. You do **not** need Rust, Python, devkitPro, or PowerShell installed — just your legally acquired GameCube `.iso` or `.gcm` (`GGVE78` USA or `GGVP78` UK/PAL).
 
-- **Windows (`TSSM-Builder.exe`)**: Double-click `TSSM-Builder.exe` (23 KB pure x86_64 Win32 GDI executable) to browse for your GameCube `GGVE78` ISO, toggle Release/Dev & Force-Rebuild profiles, and build the Windows PC port (`The SpongeBob Movie Game.exe`) or Nintendo Switch package with one click.
-- **Linux (`./tssm-builder`)**: Run `./tssm-builder` (17 KB pure x86_64 X11 GUI executable) to select your GameCube ISO, build the Nintendo Switch port (`.nro` + `.nsp`), package standalone NSPs, or extract disc assets.
-- **Rebuild GUI from Assembly Source**:
-  ```bash
-  ./tools/gui_builder/build_gui.sh
-  ```
-  *(Sources: `tools/gui_builder/builder_win64.s` and `tools/gui_builder/builder_linux64.s`)*
+#### Windows (`TSSM-Builder.exe`)
+1. Download / clone this entire repository folder (keep `TSSM-Builder.exe` next to the `tools/` folder!).
+2. **Either:**
+   - **Double-click `TSSM-Builder.exe`** to open the native Windows GUI -> click **Browse ISO...** (or drag-and-drop your `.iso` onto the window) -> click **Build .NRO**, **Build .NSP**, or **Build Both**, **OR**
+   - **Drag and drop your `.iso` file directly onto `TSSM-Builder.exe`** in Windows Explorer — the builder window will open and build automatically with a live progress bar!
+3. Click **Open Output** (or check `target/switch/`):
+   - Homebrew `.NRO`: `target/switch/tssm.nro` (**works for BOTH USA `GGVE78` and UK `GGVP78` with ZERO keys!**)
+   - Home Menu `.NSP`: `target/switch/nsp/0100780012340000.nsp` (**ZERO keys needed for UK `GGVP78`; for USA `GGVE78`, auto-detects or lets you browse your Switch `prod.keys`!**)
 
-### Option 2: CLI 1-Step Build (Linux -> Nintendo Switch)
+> **Using a Dolphin `.rvz` / `.gcz` file?** Convert it to uncompressed `.iso` in Dolphin first (*Right-click game -> Convert File -> Format: ISO*).
+
+#### Linux (`./tssm-builder`)
+```bash
+./tssm-builder --build-all /path/to/spongebob.iso
+# Or just ./tssm-builder if your .iso is in the repository folder
+```
+
+#### Rebuild Builder From Rust Source
+```bash
+./tools/gui_builder/build_gui.sh
+```
+*(Source: `tools/builder_rs/`)*
+
+### Option 2: Full Recompile From Source (Linux -> Nintendo Switch)
 
 #### Prerequisites
 
@@ -71,13 +86,12 @@ The script will automatically:
 
 ### Option A: Install Standalone NSP (Recommended)
 1. Copy `target/switch/nsp/0100780012340000.nsp` to your Switch SD card or install over USB.
-2. Install with **DBI**, **Goldleaf**, or **Awoo Installer**.
+2. Install with **DBI**, **Goldleaf**, or **Awoo Installer** (or open directly in Ryujinx).
 3. Launch directly from the Switch Home Menu!
 
-### Option B: Homebrew NRO
-1. Copy `target/switch/tssm.nro` to `sdmc:/switch/tssm/tssm.nro`.
-2. Ensure game assets (`files/`) are placed in `sdmc:/switch/tssm/files/`.
-3. Launch via the Homebrew Menu (holding R while launching any game for full RAM access).
+### Option B: Homebrew NRO (All-in-One)
+1. Copy `target/switch/tssm.nro` to `sdmc:/switch/tssm/tssm.nro` (all game assets are embedded inside the `.nro` RomFS — no separate `files/` folder needed!).
+2. Launch via the Homebrew Menu (**hold R while launching any game** for Title Override / full RAM access).
 
 ---
 

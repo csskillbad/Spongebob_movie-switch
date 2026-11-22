@@ -1,0 +1,15 @@
+[package]
+name = "tssm-builder"
+version = "2.0.0"
+edition = "2021"
+description = "Native Switch .NRO and .NSP builder for The SpongeBob SquarePants Movie Recompilation"
+
+# Keep completely standalone from the root workspace so Switch cross-builds are untouched.
+[workspace]
+
+[profile.release]
+opt-level = 3
+lto = true
+codegen-units = 1
+panic = "abort"
+strip = "symbols"
