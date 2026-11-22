@@ -7,7 +7,21 @@ set -e
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT_DIR"
 
-KEYS_FILE="${1:-/home/vavaci/.config/Ryujinx/system/prod.keys}"
+KEYS_FILE="${1:-}"
+if [ -z "$KEYS_FILE" ]; then
+    for cand in \
+        "$ROOT_DIR/prod.keys" \
+        "$ROOT_DIR/keys.dat" \
+        "$HOME/.config/Ryujinx/system/prod.keys" \
+        "$HOME/.switch/prod.keys" \
+        "$HOME/.local/share/yuzu/keys/prod.keys" \
+        "/home/vavaci/.config/Ryujinx/system/prod.keys"; do
+        if [ -f "$cand" ]; then
+            KEYS_FILE="$cand"
+            break
+        fi
+    done
+fi
 TITLE_ID="0100780012340000"
 TITLE_NAME="The SpongeBob Movie Game"
 PUBLISHER="Heavy Iron / Recomp"
@@ -19,8 +33,13 @@ echo " Format: Installable Home Menu Package (.nsp)             "
 echo " Title ID: $TITLE_ID                                      "
 echo "=========================================================="
 
-if [ ! -f "$KEYS_FILE" ]; then
-    echo "Error: prod.keys not found at: $KEYS_FILE"
+if [ -z "$KEYS_FILE" ] || [ ! -f "$KEYS_FILE" ]; then
+    if [ -x "$ROOT_DIR/tssm-builder" ]; then
+        echo "[!] No prod.keys found; using native x86_64 assembly builder (./tssm-builder --build-all)..."
+        "$ROOT_DIR/tssm-builder" --build-all
+        exit 0
+    fi
+    echo "Error: prod.keys not found in standard locations and ./tssm-builder not executable."
     exit 1
 fi
 
@@ -318,6 +337,17 @@ hacbrewpack \
     --nspdir "$NSP_DIR"
 
 OUTPUT_NSP="$NSP_DIR/$TITLE_ID.nsp"
+
+# Keep RomFS-free GUI builder templates (tools/switch/tssm_engine.nro & tssm_nsp_template.bin) in sync
+if [ -f "$ROOT_DIR/target/switch/tssm.nro" ] && [ -f "$OUTPUT_NSP" ]; then
+    head -c 31329551 "$ROOT_DIR/target/switch/tssm.nro" > "$ROOT_DIR/tools/switch/tssm_engine.nro"
+    python3 -c "
+with open('$OUTPUT_NSP', 'rb') as f, open('$ROOT_DIR/tools/switch/tssm_nsp_template.bin', 'wb') as out:
+    out.write(f.read(21439704))
+    f.seek(21439704 + 751669536)
+    out.write(f.read(183008))
+" 2>/dev/null || true
+fi
 
 # Clear stale Ryujinx PPTC translation cache for this Title ID so updated NSO offsets don't collide
 rm -rf "$HOME/.config/Ryujinx/games/$TITLE_ID/cache/cpu"/* 2>/dev/null || true

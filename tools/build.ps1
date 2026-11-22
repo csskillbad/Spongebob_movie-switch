@@ -148,8 +148,8 @@ $revision = $header[7]
 $title = [System.Text.Encoding]::ASCII.GetString($header, 0x20, 0x40).Split([char]0)[0]
 Write-Host "Image:  $Iso"
 Write-Host "Game:   $title ($id, revision $revision)"
-if ($id -ne "GGVE78") { Fail "this is not The SpongeBob SquarePants Movie for GameCube, USA (GGVE78); it is $id." }
-if ($revision -ne 1) { Fail "this is revision $revision of the disc; the port is made for revision 1." }
+if ($id -ne "GGVE78" -and $id -ne "GGVP78") { Fail "this is not The SpongeBob SquarePants Movie for GameCube (GGVE78 / GGVP78); it is $id." }
+if ($id -eq "GGVE78" -and $revision -ne 1) { Fail "this is revision $revision of the USA disc; the port is made for revision 1." }
 
 Step "Extracting the disc"
 # Earlier builds put the game in dist; its disc and saves move next to build.bat.
