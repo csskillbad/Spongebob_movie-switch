@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include <math.h>
 #include <switch.h>
 #include <sys/stat.h>
 #include <EGL/egl.h>
@@ -1252,6 +1253,24 @@ static void present_internal(
 
     GLint vp_base_y = (GLint)(1080 - target_h);
     glViewport(0, vp_base_y, (GLsizei)win_w, (GLsizei)win_h);
+
+    float win_aspect = (float)win_w / (float)win_h;
+    if (picture_aspect > 0.1f && fabsf(picture_aspect - win_aspect) > 0.02f) {
+        glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT);
+        GLint draw_x = 0;
+        GLint draw_y = vp_base_y;
+        GLint draw_w = (GLint)win_w;
+        GLint draw_h = (GLint)win_h;
+        if (picture_aspect < win_aspect) {
+            draw_w = (GLint)((float)win_h * picture_aspect + 0.5f);
+            draw_x = ((GLint)win_w - draw_w) / 2;
+        } else {
+            draw_h = (GLint)((float)win_w / picture_aspect + 0.5f);
+            draw_y = vp_base_y + ((GLint)win_h - draw_h) / 2;
+        }
+        glViewport(draw_x, draw_y, draw_w, draw_h);
+    }
 
     uint64_t t_bl_0 = armTicksToNs(armGetSystemTick());
     glUseProgram(s_prog_blit);

@@ -367,6 +367,8 @@ pub struct Renderer {
     textures: Vec<u32>,
     is_efb_tex: Vec<bool>,
     texture_ids: HashMap<TexKey, usize>,
+    dynamic_tex_by_addr: HashMap<u32, usize>,
+    xfb_tex: u32,
     samplers: [u32; 18],
     efb_copies: HashMap<u32, (usize, u32, u32)>,
     cache_used: (u64, u64),
@@ -422,6 +424,8 @@ impl Renderer {
             textures: vec![white_gl],
             is_efb_tex: vec![false],
             texture_ids: HashMap::with_capacity(512),
+            dynamic_tex_by_addr: HashMap::with_capacity(8),
+            xfb_tex: 0,
             samplers,
             efb_copies: HashMap::with_capacity(16),
             cache_used: (0, 0),
@@ -556,6 +560,26 @@ impl Renderer {
         self.textures.push(gl_tex);
         self.is_efb_tex.push(false);
         self.texture_ids.insert(key, id);
+        self.made.2 += 1;
+        id
+    }
+
+    /// Reuses a single GL texture slot per guest address for dynamic in-place movie frames
+    /// (e.g. subtitled Bink cutscenes rendered via RwRasterLock/RwRasterRenderFast) so long
+    /// cutscenes never leak VRAM.
+    pub fn update_dynamic_texture(&mut self, addr: u32, w: u32, h: u32, rgba: &[u8]) -> usize {
+        if let Some(&id) = self.dynamic_tex_by_addr.get(&addr) {
+            let gl_tex = self.textures[id];
+            unsafe {
+                switch_gl_upload_texture(gl_tex, w, h, rgba.as_ptr());
+            }
+            return id;
+        }
+        let gl_tex = unsafe { switch_gl_upload_texture(0, w, h, rgba.as_ptr()) };
+        let id = self.textures.len();
+        self.textures.push(gl_tex);
+        self.is_efb_tex.push(false);
+        self.dynamic_tex_by_addr.insert(addr, id);
         self.made.2 += 1;
         id
     }
@@ -815,6 +839,54 @@ impl Renderer {
         let t0 = unsafe { switch_now_ns() };
         unsafe {
             switch_gl_present(src_tex, rect.as_ptr(), crate::aspect::picture(), ov_ptr, ov_len);
+        }
+        let dt = unsafe { switch_now_ns().saturating_sub(t0) };
+        crate::PERF_GL_NS.fetch_add(dt, Ordering::Relaxed);
+        self.follow_window();
+    }
+
+    /// Presents a top-down RGBA8 image decoded directly from the GameCube guest XFB
+    /// (used by Bink FMV pre-rendered cutscenes, which bypass GX rendering).
+    /// Reuses a single persistent GL texture (`xfb_tex`) and pillarboxes cleanly to 4:3.
+    pub fn present_image(&mut self, w: u32, h: u32, rgba: &[u8]) {
+        if w == 0 || h == 0 || rgba.len() < (w as usize) * (h as usize) * 4 {
+            return;
+        }
+        let now = unsafe { switch_now_ns() };
+        if self.last_present_ns != 0 {
+            let dt_ms = (now.saturating_sub(self.last_present_ns)) as f32 / 1_000_000.0;
+            if dt_ms > 0.1 && dt_ms < 250.0 {
+                self.ema_ms = self.ema_ms * 0.90 + dt_ms * 0.10;
+                self.ema_fps = 1000.0 / self.ema_ms.max(0.1);
+            }
+        }
+        self.last_present_ns = now;
+
+        self.overlay_scratch.clear();
+        if FPS_ENABLED.load(Ordering::Relaxed) {
+            self.build_fps_overlay();
+        }
+        if crate::debug::is_open() {
+            self.build_debug_overlay();
+        }
+        if let Some(toast) = crate::debug::active_toast() {
+            self.build_toast_overlay(&toast);
+        }
+
+        let (ov_ptr, ov_len) = if self.overlay_scratch.is_empty() {
+            (core::ptr::null(), 0u32)
+        } else {
+            (
+                self.overlay_scratch.as_ptr(),
+                self.overlay_scratch.len() as u32,
+            )
+        };
+
+        let rect: [f32; 4] = [0.0, 0.0, 1.0, 1.0];
+        let t0 = unsafe { switch_now_ns() };
+        unsafe {
+            self.xfb_tex = switch_gl_upload_texture(self.xfb_tex, w, h, rgba.as_ptr());
+            switch_gl_present(self.xfb_tex, rect.as_ptr(), 4.0 / 3.0, ov_ptr, ov_len);
         }
         let dt = unsafe { switch_now_ns().saturating_sub(t0) };
         crate::PERF_GL_NS.fetch_add(dt, Ordering::Relaxed);

@@ -1389,6 +1389,12 @@ mod gx_worker {
         fifo_ptrs: (u32, u32),
         hud_widgets: u32,
         hud_marked: u32,
+        /// Latest direct-XFB YUY2 frame staged from Core 1 (Bink FMV cutscenes).
+        xfb_yuy2: Vec<u8>,
+        xfb_pending: Option<(u32, u32)>,
+        /// GX display-buffer copies reported back to Core 1's VI retrace handler.
+        copied_to_display: bool,
+        display_copies: Vec<u32>,
     }
 
     static mut SHARED: Option<Shared> = None;
@@ -1397,6 +1403,34 @@ mod gx_worker {
     #[allow(static_mut_refs)]
     unsafe fn shared() -> &'static mut Shared {
         SHARED.as_mut().expect("gx_worker::SHARED initialized")
+    }
+
+    /// Fast integer BT.601 YUY2 (Y0 U Y1 V) -> RGBA8 conversion for GameCube XFB movies.
+    fn yuy2_to_rgba(yuy2: &[u8], out: &mut Vec<u8>) {
+        let pixels = yuy2.len() / 2;
+        out.clear();
+        out.resize(pixels * 4, 255);
+        let mut dst = 0usize;
+        for pair in yuy2.chunks_exact(4) {
+            let u = pair[1] as i32 - 128;
+            let v = pair[3] as i32 - 128;
+            let rv = 409 * v;
+            let guv = -100 * u - 208 * v;
+            let bu = 516 * u;
+
+            let y0 = 298 * (pair[0] as i32 - 16);
+            out[dst] = ((y0 + rv + 128) >> 8).clamp(0, 255) as u8;
+            out[dst + 1] = ((y0 + guv + 128) >> 8).clamp(0, 255) as u8;
+            out[dst + 2] = ((y0 + bu + 128) >> 8).clamp(0, 255) as u8;
+            out[dst + 3] = 255;
+
+            let y1 = 298 * (pair[2] as i32 - 16);
+            out[dst + 4] = ((y1 + rv + 128) >> 8).clamp(0, 255) as u8;
+            out[dst + 5] = ((y1 + guv + 128) >> 8).clamp(0, 255) as u8;
+            out[dst + 6] = ((y1 + bu + 128) >> 8).clamp(0, 255) as u8;
+            out[dst + 7] = 255;
+            dst += 8;
+        }
     }
 
     extern "C" fn worker_entry(_arg: *mut c_void) {
@@ -1413,6 +1447,8 @@ mod gx_worker {
         let mut work_buf: Vec<u8> = Vec::with_capacity(256 * 1024);
         let mut work_hud: VecDeque<(u64, u32)> = VecDeque::with_capacity(64);
         let mut work_cmds: VecDeque<CtrlCmd> = VecDeque::with_capacity(16);
+        let mut work_xfb_yuy2: Vec<u8> = Vec::new();
+        let mut work_xfb_rgba: Vec<u8> = Vec::new();
 
         loop {
             unsafe {
@@ -1429,6 +1465,7 @@ mod gx_worker {
                 if !s.staging.is_empty()
                     || !s.cmds.is_empty()
                     || !s.hud_marks.is_empty()
+                    || s.xfb_pending.is_some()
                     || gx.has_ready_presents()
                 {
                     break;
@@ -1445,6 +1482,10 @@ mod gx_worker {
             }
             while let Some(cmd) = s.cmds.pop_front() {
                 work_cmds.push_back(cmd);
+            }
+            let xfb_pending = s.xfb_pending.take();
+            if xfb_pending.is_some() {
+                core::mem::swap(&mut s.xfb_yuy2, &mut work_xfb_yuy2);
             }
             let seq_at_pickup = s.written_seq;
             unsafe {
@@ -1490,9 +1531,8 @@ mod gx_worker {
                 gx.reset_cache();
             }
 
-            gx.display_copies.clear();
-            gx.copied_to_display = false;
-            FRAME_COUNT.store(gx.frames as u32, Ordering::Relaxed);
+            let copied_flag = core::mem::take(&mut gx.copied_to_display);
+            let copied_addrs = core::mem::take(&mut gx.display_copies);
 
             for raised in gx.raised.drain(..) {
                 push_event(match raised {
@@ -1512,6 +1552,14 @@ mod gx_worker {
             unsafe {
                 switch_gx_lock();
                 let s = shared();
+                if copied_flag {
+                    s.copied_to_display = true;
+                }
+                for addr in copied_addrs {
+                    if !s.display_copies.contains(&addr) {
+                        s.display_copies.push(addr);
+                    }
+                }
                 s.frames = frames;
                 s.last_stats = last_stats;
                 s.cache_used = cache_used;
@@ -1535,17 +1583,32 @@ mod gx_worker {
                 gx.flush_ready_presents();
             }
 
+            // Present direct guest-RAM YUY2 XFB frame (Bink FMV cutscenes) on Core 0 -> Core 2.
+            if let Some((w, h)) = xfb_pending {
+                let expected = (w as usize) * (h as usize) * 2;
+                if work_xfb_yuy2.len() >= expected {
+                    yuy2_to_rgba(&work_xfb_yuy2[..expected], &mut work_xfb_rgba);
+                    if let Some(renderer) = gx.renderer.as_mut() {
+                        renderer.present_image(w, h, &work_xfb_rgba);
+                        gx.frames += 1;
+                    }
+                }
+            }
+            FRAME_COUNT.store(gx.frames as u32, Ordering::Relaxed);
+
             let made_delta = gx
                 .renderer
                 .as_mut()
                 .map_or((0, 0, 0, 0), |r| core::mem::take(&mut r.made));
             let cache_used_after = gx.cache_room_used();
+            let frames_after = gx.frames;
             let dt = unsafe { switch_now_ns().saturating_sub(t0) };
             PERF_GX_NS.fetch_add(dt, Ordering::Relaxed);
 
             unsafe {
                 switch_gx_lock();
                 let s = shared();
+                s.frames = frames_after;
                 s.made.0 += made_delta.0;
                 s.made.1 += made_delta.1;
                 s.made.2 += made_delta.2;
@@ -1580,6 +1643,10 @@ mod gx_worker {
                 hud_widgets: 0,
                 hud_marked: 0,
                 gx_state: alloc::string::String::new(),
+                xfb_yuy2: Vec::new(),
+                xfb_pending: None,
+                copied_to_display: false,
+                display_copies: Vec::with_capacity(4),
             });
             switch_start_gx_worker(worker_entry, core::ptr::null_mut());
             switch_gx_lock();
@@ -1837,6 +1904,149 @@ mod gx_worker {
             let res = (s.frames, s.last_stats, s.cache_used, made);
             switch_gx_unlock();
             res
+        }
+    }
+
+    pub fn take_display_copies() -> (bool, Vec<u32>) {
+        unsafe {
+            switch_gx_lock();
+            let s = shared();
+            let copied = core::mem::take(&mut s.copied_to_display);
+            let addrs = core::mem::take(&mut s.display_copies);
+            switch_gx_unlock();
+            (copied, addrs)
+        }
+    }
+
+    pub fn present_xfb(yuy2: &[u8], w: u32, h: u32) {
+        unsafe {
+            switch_gx_lock();
+            let s = shared();
+            s.xfb_yuy2.clear();
+            s.xfb_yuy2.extend_from_slice(yuy2);
+            s.xfb_pending = Some((w, h));
+            switch_gx_wake_work();
+            switch_gx_unlock();
+        }
+    }
+}
+
+/// Nanosecond timestamp when Bink FMV playback was last active (`iFMVPlay` / `BinkDoFrame`).
+static MOVIE_SEEN_NS: AtomicU64 = AtomicU64::new(0);
+
+/// Whether a pre-rendered Bink FMV cutscene is currently playing.
+#[inline(always)]
+pub fn in_movie() -> bool {
+    let seen = MOVIE_SEEN_NS.load(Ordering::Relaxed);
+    if seen == 0 {
+        return false;
+    }
+    let now = unsafe { switch_now_ns() };
+    now.saturating_sub(seen) < 500_000_000
+}
+
+/// Runs before `iFMVPlay__FPCcUifUibbi`: records movie playback and allows any button to skip
+/// a skippable movie (matching desktop `crates/tssm/src/menu.rs`).
+fn before_movie(c: &mut Ctx) {
+    let name = guest_text(c, c.r[3]);
+    let skip_mask = c.r[4];
+    log_c(&format!(
+        "[fmv] iFMVPlay(\"{}\", skip_mask={:#x})",
+        name, skip_mask
+    ));
+    MOVIE_SEEN_NS.store(unsafe { switch_now_ns() }, Ordering::Relaxed);
+    if c.r[4] != 0 {
+        c.r[4] = u32::MAX;
+    }
+}
+
+/// Runs before `BinkDoFrame`, once for each decoded video frame of a Bink cutscene.
+fn before_bink_do_frame(_c: &mut Ctx) {
+    MOVIE_SEEN_NS.store(unsafe { switch_now_ns() }, Ordering::Relaxed);
+}
+
+/// Shows the display buffer straight from guest RAM when the game writes YUY2 pixels directly
+/// into the XFB without GX rendering (Bink FMV cutscenes). Mirrors `crates/tssm/src/host.rs`.
+fn show_display_buffer(c: &mut Ctx) {
+    use hashbrown::HashMap;
+    static mut XFB_HASHES: Option<HashMap<u32, u64>> = None;
+    static mut XFB_DIRECT: bool = false;
+    static mut XFB_DIRTY_FROM_MOVIE: bool = true;
+    static mut LAST_SHOWN_ADDR: u32 = 0;
+    static mut LAST_SHOWN_SAMPLE: u64 = 0;
+
+    let addr = CURRENT_XFB.load(Ordering::Relaxed);
+    let w = XFB_WIDTH.load(Ordering::Relaxed);
+    let h = XFB_HEIGHT.load(Ordering::Relaxed);
+    if w == 0 || h == 0 {
+        return;
+    }
+    let len = (w as usize) * (h as usize) * 2;
+    let ram_end = (runtime::mem::RAM_BASE + runtime::mem::RAM_SIZE) as u64;
+    let sample_of = |c: &Ctx, base: u32| -> u64 {
+        (0..len as u32)
+            .step_by(64)
+            .fold(0u64, |acc, o| acc.rotate_left(5) ^ c.r32(base + (o & !3)) as u64)
+    };
+
+    let (copied_to_display, display_copies) = gx_worker::take_display_copies();
+
+    #[allow(static_mut_refs)]
+    unsafe {
+        let hashes = XFB_HASHES.get_or_insert_with(|| HashMap::with_capacity(8));
+
+        // Clear guest XFBs whenever GX copies to them AFTER a movie (or first time seen) so a
+        // subsequent letterboxed movie never shows stale pixels from an earlier movie in its bars.
+        // During normal 60 FPS 3D play when XFBs are already black, this does zero writes.
+        if !display_copies.is_empty() && (XFB_DIRTY_FROM_MOVIE || hashes.len() < 2) {
+            let mut cleared_any = false;
+            for copied in &display_copies {
+                let copied = *copied;
+                if copied >= runtime::mem::RAM_BASE
+                    && copied as u64 + len as u64 <= ram_end
+                    && (XFB_DIRTY_FROM_MOVIE || !hashes.contains_key(&copied))
+                {
+                    for pair in c.slice_mut(copied, len).chunks_exact_mut(4) {
+                        pair.copy_from_slice(&[16, 128, 16, 128]);
+                    }
+                    let black = sample_of(c, copied);
+                    hashes.insert(copied, black);
+                    cleared_any = true;
+                }
+            }
+            if cleared_any && !in_movie() && hashes.len() >= 2 {
+                XFB_DIRTY_FROM_MOVIE = false;
+            }
+        }
+
+        if copied_to_display {
+            XFB_DIRECT = false;
+            LAST_SHOWN_ADDR = 0;
+            LAST_SHOWN_SAMPLE = 0;
+        }
+
+        if addr < runtime::mem::RAM_BASE || addr as u64 + len as u64 > ram_end {
+            return;
+        }
+
+        // Fast exit during normal 60 FPS 3D gameplay (GX owns the screen, no movie running).
+        if (copied_to_display || !XFB_DIRECT) && !in_movie() {
+            return;
+        }
+
+        XFB_DIRTY_FROM_MOVIE = true;
+        let sample = sample_of(c, addr);
+        let prev = hashes.insert(addr, sample);
+        if prev.is_some_and(|old| old != sample) || (prev.is_none() && in_movie()) {
+            XFB_DIRECT = true;
+        }
+
+        if XFB_DIRECT && (addr != LAST_SHOWN_ADDR || sample != LAST_SHOWN_SAMPLE) {
+            LAST_SHOWN_ADDR = addr;
+            LAST_SHOWN_SAMPLE = sample;
+            let ram_off = (addr - runtime::mem::RAM_BASE) as usize;
+            let yuy2 = core::slice::from_raw_parts(c.mem.add(ram_off), len);
+            gx_worker::present_xfb(yuy2, w, h);
         }
     }
 }
@@ -2372,6 +2582,7 @@ fn deliver_events_slow(c: &mut Ctx) {
                 Ordering::Relaxed,
             );
 
+            show_display_buffer(c);
             sched::wake(sched::RETRACE_QUEUE);
 
             if count % 20 == 0 {
@@ -3702,13 +3913,28 @@ fn switch_policy(name: &str) -> Hle {
         "_rwDlRasterShowRaster" => Hle::Before(before_show_raster),
         "RwGameCubeGetXFBs" => Hle::Replace(replace_get_xfbs),
 
-        // Bink FMV cutscenes decode directly into the guest YUY2 XFB without GX rendering;
-        // skip them on Switch so boot proceeds directly to the MNUS main menu.
-        "iFMVPlay__FPCcUifUibbi" | "iFMVPlay__FPCcUifUibb" | "zMainMemCardSpaceQuery__Fv" => {
-            Hle::Native(|c| {
+        // Pre-rendered Bink FMV cutscenes (boot logos, Story1..12, SBAttr, upgrade previews, trailers).
+        // Only skip boot logos before init when an explicit dev boot-scene override (sdmc:/scene.txt) is set.
+        "iFMVPlay__FPCcUifUibb" => Hle::Replace(|c| {
+            if BOOT_SCENE.load(Ordering::Relaxed) != 0 && !BOOT_INIT_DONE.load(Ordering::Relaxed) {
                 c.r[3] = 0;
-            })
-        }
+                true
+            } else {
+                false
+            }
+        }),
+        "iFMVPlay__FPCcUifUibbi" => Hle::Replace(|c| {
+            if BOOT_SCENE.load(Ordering::Relaxed) != 0 && !BOOT_INIT_DONE.load(Ordering::Relaxed) {
+                c.r[3] = 0;
+                true
+            } else {
+                before_movie(c);
+                false
+            }
+        }),
+        "zMainMemCardSpaceQuery__Fv" => Hle::Native(|c| {
+            c.r[3] = 0;
+        }),
         "FSOUND_Time_Sleep" => Hle::Replace(|c| {
             // FSOUND_Time_Sleep(0) is called right before locking the stream mutex; keep the
             // baton on the stream thread until its 10 ms OSSetAlarm + OSSuspendThread sleep.
@@ -3769,8 +3995,8 @@ fn switch_policy(name: &str) -> Hle {
         "zSaveLoad_Tick__Fb" => Hle::Replace(card::pick_slot_a),
         "iSGTgtHaveRoomStartup__FP13st_ISGSESSIONiiPCcPCcPiPiPi" => Hle::Before(card::before_room_check),
 
-        "BinkDoFrame"
-        | "__start"
+        "BinkDoFrame" => Hle::Before(before_bink_do_frame),
+        "__start"
         | "__init_registers"
         | "__init_data"
         | "__init_hardware"

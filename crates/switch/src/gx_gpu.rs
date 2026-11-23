@@ -1849,17 +1849,28 @@ impl Gx {
         let key = (address, w, h, format | palette_format << 8, contents);
 
         let renderer = self.renderer.as_mut()?;
-        let id = match renderer.find_texture(&key) {
-            Some(id) => id,
-            None => {
-                let lookup = |i: usize| {
-                    let entry = palette.get(i * 2..i * 2 + 2);
-                    entry.map_or([0; 4], |e| {
-                        texture::palette_color(palette_format, u16::from_be_bytes([e[0], e[1]]))
-                    })
-                };
-                let rgba = texture::decode(format, w as usize, h as usize, data, &lookup);
-                renderer.add_texture(key, w, h, &rgba)
+        let id = if crate::in_movie() && w >= 256 && h >= 128 {
+            let lookup = |i: usize| {
+                let entry = palette.get(i * 2..i * 2 + 2);
+                entry.map_or([0; 4], |e| {
+                    texture::palette_color(palette_format, u16::from_be_bytes([e[0], e[1]]))
+                })
+            };
+            let rgba = texture::decode(format, w as usize, h as usize, data, &lookup);
+            renderer.update_dynamic_texture(address, w, h, &rgba)
+        } else {
+            match renderer.find_texture(&key) {
+                Some(id) => id,
+                None => {
+                    let lookup = |i: usize| {
+                        let entry = palette.get(i * 2..i * 2 + 2);
+                        entry.map_or([0; 4], |e| {
+                            texture::palette_color(palette_format, u16::from_be_bytes([e[0], e[1]]))
+                        })
+                    };
+                    let rgba = texture::decode(format, w as usize, h as usize, data, &lookup);
+                    renderer.add_texture(key, w, h, &rgba)
+                }
             }
         };
         self.texture_cache.insert(cache_key, Some(id));
@@ -3426,9 +3437,9 @@ impl Gx {
         self.finish_vertices();
         self.frames += 1;
         self.draw_index = 0;
-        // Texture lookups key on address only; re-hash once per frame so textures the game
-        // rewrites in place are noticed (matches desktop gx.rs end_frame).
-        if self.texture_cache.len() > 2048 {
+        // Texture lookups key on address only; re-hash once per frame during Bink movies
+        // (and when large) so textures the game rewrites in place are always noticed.
+        if self.texture_cache.len() > 2048 || crate::in_movie() {
             self.texture_cache.clear();
             self.material_cache_len = 0;
             self.has_paletted_textures = false;

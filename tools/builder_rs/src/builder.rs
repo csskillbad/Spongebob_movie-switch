@@ -14,8 +14,6 @@ use crate::gcm::{parse_iso, GameCubeIso};
 use crate::romfs::RomFsPlan;
 
 pub const TITLE_ID: &str = "0100780012340000";
-pub const TEMPLATE_PREFIX_LEN: usize = 21_439_704;
-pub const TEMPLATE_SUFFIX_LEN: usize = 183_008;
 pub const UK_TEMPLATE_ROMFS_SIZE: u64 = 751_669_536;
 pub const UK_TEMPLATE_MASTER_HASH_HEX: &str =
     "523d72b6b633ca48fb80083c0548aee472e94ae6f898eae737644c63a1552bee";
@@ -460,10 +458,7 @@ where
     })?;
 
     // Fast Zero-Keys Path: UK GGVP78 matching tssm_nsp_template.bin!
-    if !force_universal
-        && tpl_len == TEMPLATE_PREFIX_LEN + TEMPLATE_SUFFIX_LEN
-        && plan.total_size == UK_TEMPLATE_ROMFS_SIZE
-    {
+    if !force_universal && plan.total_size == UK_TEMPLATE_ROMFS_SIZE {
         on_progress(
             8,
             "UK PAL ISO matches zero-keys NSP template! Encrypting & verifying RomFS...",
@@ -502,6 +497,8 @@ where
 }
 
 /// Single-pass zero-keys NSP builder for standard UK `GGVP78` ISOs.
+/// Computes `prefix_len` and `suffix_len` dynamically from `tssm_nsp_template.bin`'s PFS0 header
+/// so updates to the Switch ARM64 engine size work automatically.
 /// Returns `Ok(Some(path))` if IVFC master hash matches template (100% verified!),
 /// or `Ok(None)` if the ISO bytes differ and universal `prod.keys` repacking is needed.
 fn try_build_nsp_zero_keys<P>(
@@ -515,11 +512,41 @@ where
 {
     let mut tpl_file = File::open(&paths.nsp_template)
         .map_err(|e| format!("Cannot open NSP template: {e}"))?;
-    let mut prefix = vec![0u8; TEMPLATE_PREFIX_LEN];
+    let tpl_len = tpl_file
+        .metadata()
+        .map_err(|e| format!("Cannot stat NSP template: {e}"))?
+        .len() as usize;
+
+    let mut hdr = [0u8; 216];
+    tpl_file
+        .read_exact(&mut hdr)
+        .map_err(|e| format!("Failed reading NSP template PFS0 header: {e}"))?;
+    if &hdr[0..4] != b"PFS0" {
+        return Err("Invalid tssm_nsp_template.bin (missing PFS0 header).".into());
+    }
+    let prog_sz = u64::from_le_bytes(hdr[16 + 8..16 + 16].try_into().unwrap());
+    let ctrl_sz = u64::from_le_bytes(hdr[16 + 24 + 8..16 + 24 + 16].try_into().unwrap());
+    let meta_sz = u64::from_le_bytes(hdr[16 + 48 + 8..16 + 48 + 16].try_into().unwrap());
+    let tail_pad = align_up_u64(plan.total_size, IVFC_BLOCK_SIZE as u64) - plan.total_size;
+    let suffix_len = (tail_pad + ctrl_sz + meta_sz) as usize;
+    if tpl_len <= suffix_len + 216 {
+        return Ok(None);
+    }
+    let prefix_len = tpl_len - suffix_len;
+    let romfs_nca_off = (prefix_len - 216) as u64;
+    // Verify template PFS0 program.nca size matches prefix + RomFS + tail_pad!
+    if romfs_nca_off + plan.total_size + tail_pad != prog_sz || (romfs_nca_off % 16) != 0 {
+        return Ok(None);
+    }
+
+    tpl_file
+        .seek(SeekFrom::Start(0))
+        .map_err(|e| format!("Failed seeking NSP template: {e}"))?;
+    let mut prefix = vec![0u8; prefix_len];
     tpl_file
         .read_exact(&mut prefix)
         .map_err(|e| format!("Failed reading NSP template prefix: {e}"))?;
-    let mut suffix = vec![0u8; TEMPLATE_SUFFIX_LEN];
+    let mut suffix = vec![0u8; suffix_len];
     tpl_file
         .read_exact(&mut suffix)
         .map_err(|e| format!("Failed reading NSP template suffix: {e}"))?;
@@ -534,8 +561,6 @@ where
         .write_all(&prefix)
         .map_err(|e| format!("Failed writing NSP prefix: {e}"))?;
 
-    // RomFS inside template starts at program.nca offset 0x1472400 (file offset 21439704 - 216).
-    let romfs_nca_off: u64 = (TEMPLATE_PREFIX_LEN - 216) as u64;
     let mut ctr = SwitchAesCtr::new(&NCA_SECTION_KEY, 0, romfs_nca_off);
     let mut ivfc_hasher = IvfcBlockHasher::new(plan.total_size);
     let mut enc_buf: Vec<u8> = Vec::with_capacity(1024 * 1024);

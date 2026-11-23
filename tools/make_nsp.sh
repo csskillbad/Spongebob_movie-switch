@@ -340,13 +340,45 @@ OUTPUT_NSP="$NSP_DIR/$TITLE_ID.nsp"
 
 # Keep RomFS-free GUI builder templates (tools/switch/tssm_engine.nro & tssm_nsp_template.bin) in sync
 if [ -f "$ROOT_DIR/target/switch/tssm.nro" ] && [ -f "$OUTPUT_NSP" ]; then
-    head -c 31329551 "$ROOT_DIR/target/switch/tssm.nro" > "$ROOT_DIR/tools/switch/tssm_engine.nro"
     python3 -c "
-with open('$OUTPUT_NSP', 'rb') as f, open('$ROOT_DIR/tools/switch/tssm_nsp_template.bin', 'wb') as out:
-    out.write(f.read(21439704))
-    f.seek(21439704 + 751669536)
-    out.write(f.read(183008))
-" 2>/dev/null || true
+import struct
+
+nro_path = '$ROOT_DIR/target/switch/tssm.nro'
+nsp_path = '$OUTPUT_NSP'
+eng_out  = '$ROOT_DIR/tools/switch/tssm_engine.nro'
+tpl_out  = '$ROOT_DIR/tools/switch/tssm_nsp_template.bin'
+
+with open(nro_path, 'rb') as f:
+    f.seek(0x18)
+    nro_sz = struct.unpack('<I', f.read(4))[0]
+    f.seek(nro_sz)
+    aset = struct.unpack('<4sIQQQQQQ', f.read(56))
+    assert aset[0] == b'ASET', 'Invalid ASET header in tssm.nro'
+    eng_len  = nro_sz + aset[6]
+    romfs_sz = aset[7]
+    f.seek(0)
+    with open(eng_out, 'wb') as out:
+        out.write(f.read(eng_len))
+
+with open(nsp_path, 'rb') as f:
+    f.seek(0, 2)
+    nsp_total = f.tell()
+    f.seek(0)
+    hdr = f.read(216)
+    assert hdr[:4] == b'PFS0', 'Invalid PFS0 header in NSP'
+    c_sz = struct.unpack('<Q', hdr[16 + 24 + 8 : 16 + 24 + 16])[0]
+    m_sz = struct.unpack('<Q', hdr[16 + 48 + 8 : 16 + 48 + 16])[0]
+    tail_pad   = ((romfs_sz + 0x3FFF) & ~0x3FFF) - romfs_sz
+    suffix_len = tail_pad + c_sz + m_sz
+    prefix_len = nsp_total - romfs_sz - suffix_len
+    assert prefix_len > 216 and (prefix_len - 216) % 16 == 0, 'Unaligned NSP RomFS offset'
+    f.seek(0)
+    with open(tpl_out, 'wb') as out:
+        out.write(f.read(prefix_len))
+        f.seek(prefix_len + romfs_sz)
+        out.write(f.read(suffix_len))
+print(f'[templates] Synced tssm_engine.nro ({eng_len} B) and tssm_nsp_template.bin (prefix={prefix_len}, suffix={suffix_len})')
+"
 fi
 
 # Clear stale Ryujinx PPTC translation cache for this Title ID so updated NSO offsets don't collide
