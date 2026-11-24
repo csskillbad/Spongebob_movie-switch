@@ -32,7 +32,8 @@ const X: u32 = 0x0400;
 const Y: u32 = 0x0800;
 const START: u32 = 0x1000;
 const KEYS: u32 = LEFT | RIGHT | DOWN | UP | A | B;
-const KONAMI: [u32; 10] = [UP, UP, DOWN, DOWN, LEFT, RIGHT, LEFT, RIGHT, B, A];
+/// Classic Konami sequence: ↑ ↑ ↓ ↓ ← → ← →  (DPad only, 8 buttons).
+const KONAMI: [u32; 8] = [UP, UP, DOWN, DOWN, LEFT, RIGHT, LEFT, RIGHT];
 
 /// All 34 real playable `.hip` scenes verified on disc (`disc/files/`).
 pub const LEVELS: [(&str, &str); 34] = [
@@ -891,53 +892,28 @@ pub fn feed_konami_key(key: u32) {
     }
 
     let at = PROGRESS.load(Ordering::Relaxed);
-    let next = if at < 8 {
+    // All 8 steps are DPad directions; no B+A tail needed.
+    let next = if at < KONAMI.len() {
         let expected = KONAMI[at];
         if (key & expected) != 0 {
             at + 1
         } else if at > 0 && (key & KONAMI[at - 1]) != 0 {
-            // Repeated tap of the same direction (e.g. 3rd UP or 3rd DOWN) stays in place
+            // Repeated tap of the same direction (e.g. 3rd UP) stays in place
             at
         } else if (key & KONAMI[0]) != 0 {
             1
         } else {
             0
         }
-    } else if at == 8 {
-        // After all 8 directions (U U D D L R L R), accept native B->A or swapped A->B
-        if (key & B) != 0 && (key & A) != 0 {
-            // Rolled B+A in the same tick: complete immediately
-            10
-        } else if (key & B) != 0 {
-            SWAP_BA.store(false, Ordering::Relaxed);
-            9
-        } else if (key & A) != 0 {
-            SWAP_BA.store(true, Ordering::Relaxed);
-            9
-        } else if (key & RIGHT) != 0 {
-            8
-        } else if (key & UP) != 0 {
-            1
-        } else {
-            0
-        }
     } else {
-        // Step 9: expect A (normal) or B (if swapped layout)
-        let expected = if SWAP_BA.load(Ordering::Relaxed) { B } else { A };
-        if (key & expected) != 0 {
-            10
-        } else if (key & UP) != 0 {
-            1
-        } else {
-            0
-        }
+        0
     };
 
     if next >= KONAMI.len() {
         open_menu(true);
     } else {
         if next != at && next > 0 {
-            crate::log_c(&alloc::format!("[debug] Konami progress: {}/10 (key=0x{:X})", next, key));
+            crate::log_c(&alloc::format!("[debug] Konami progress: {}/8 (key=0x{:X})", next, key));
         }
         PROGRESS.store(next, Ordering::Relaxed);
     }
